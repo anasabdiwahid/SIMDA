@@ -493,8 +493,18 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </div>
             </div>
 
-            <div class="fid-map-card reveal-on-scroll">
-                <img src="assets/images/landing/branch-map.jpg" alt="SIMDA Branch Locations Map">
+            <div class="fid-map-card reveal-on-scroll" style="position:relative;">
+                <iframe
+                    src="https://maps.google.com/maps?q=Anas%20Abdiwahid%2C%20Mogadishu%2C%20Somalia&z=15&output=embed"
+                    title="SIMDA Office Location"
+                    style="border:0;width:100%;height:100%;min-height:220px;display:block;"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    allowfullscreen></iframe>
+                <a href="https://share.google/zYlgwxdkUvoUtrjog" target="_blank" rel="noopener"
+                   style="position:absolute;right:10px;bottom:10px;background:#123B32;color:#FFF;font-size:0.74rem;font-weight:700;padding:6px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 6px 14px rgba(0,0,0,0.2);">
+                    Open in Google Maps <?= Icons::svg('arrow-right', 12) ?>
+                </a>
             </div>
         </div>
     </div>
