@@ -92,26 +92,47 @@
         // 4. Live Repayment Schedule Preview Calculator (Instant Real-Time on Keystroke & Click)
         const calcBtn = document.getElementById('btnPreviewSchedule');
         if (calcBtn) {
-            calcBtn.addEventListener('click', runSchedulePreview);
-            ['calc_principal', 'calc_term', 'calc_frequency', 'calc_product_type', 'calc_rate'].forEach(function (id) {
+            calcBtn.addEventListener('click', function () { runSchedulePreview('payment'); });
+
+            ['calc_principal', 'calc_monthly_payment'].forEach(function (id) {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.addEventListener('input', runSchedulePreview);
-                    el.addEventListener('change', runSchedulePreview);
-                    el.addEventListener('keyup', runSchedulePreview);
+                    el.addEventListener('input', function () { runSchedulePreview('payment'); });
+                    el.addEventListener('change', function () { runSchedulePreview('payment'); });
+                    el.addEventListener('keyup', function () { runSchedulePreview('payment'); });
                 }
             });
+
+            const termInput = document.getElementById('calc_term');
+            if (termInput) {
+                termInput.addEventListener('input', function () { runSchedulePreview('term'); });
+                termInput.addEventListener('change', function () { runSchedulePreview('term'); });
+                termInput.addEventListener('keyup', function () { runSchedulePreview('term'); });
+            }
+
+            ['calc_frequency', 'calc_product_type', 'calc_rate'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', function () { runSchedulePreview('payment'); });
+                    el.addEventListener('change', function () { runSchedulePreview('payment'); });
+                }
+            });
+
             document.querySelectorAll('.calc-preset-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     const amtInput = document.getElementById('calc_principal');
+                    const moInput = document.getElementById('calc_monthly_payment');
                     if (amtInput) {
-                        amtInput.value = btn.getAttribute('data-amount') || '1000';
-                        runSchedulePreview();
+                        amtInput.value = btn.getAttribute('data-amount') || '3000';
                     }
+                    if (moInput && btn.getAttribute('data-monthly')) {
+                        moInput.value = btn.getAttribute('data-monthly');
+                    }
+                    runSchedulePreview('payment');
                 });
             });
             // Run initial preview on load
-            runSchedulePreview();
+            runSchedulePreview('payment');
         }
 
         // 5. Online / Offline Connection Status Monitoring
@@ -165,11 +186,23 @@
         return y + '-' + m + '-' + day;
     }
 
-    function computeInstantSchedule(principalVal, termVal, freqVal) {
+    function computeInstantSchedule(principalVal, monthlyPaymentVal, termVal, freqVal, mode) {
         const principalNum = Math.max(0, parseFloat(principalVal) || 0);
-        const term = Math.max(1, Math.min(60, parseInt(termVal, 10) || 1));
         const principalCents = Math.round(principalNum * 100);
-        const regularCents = Math.floor(principalCents / term);
+
+        let term = Math.max(1, Math.min(120, parseInt(termVal, 10) || 1));
+        let regularCents = 0;
+
+        const monthlyNum = Math.max(0, parseFloat(monthlyPaymentVal) || 0);
+        const monthlyCents = Math.round(monthlyNum * 100);
+
+        if (mode === 'payment' && monthlyCents > 0 && principalCents > 0) {
+            term = Math.max(1, Math.min(120, Math.ceil(principalCents / monthlyCents)));
+            regularCents = Math.min(principalCents, monthlyCents);
+        } else {
+            regularCents = term > 0 ? Math.floor(principalCents / term) : principalCents;
+        }
+
         let accumCents = 0;
         let remCents = principalCents;
         const installments = [];
@@ -188,7 +221,13 @@
                 due.setDate(due.getDate() + 1);
             }
             const adjStr = formatDateYmd(due);
-            const instCents = (i < term) ? regularCents : (principalCents - accumCents);
+
+            let instCents;
+            if (i < term) {
+                instCents = Math.min(remCents, regularCents);
+            } else {
+                instCents = Math.max(0, principalCents - accumCents);
+            }
             accumCents += instCents;
             remCents = Math.max(0, remCents - instCents);
 
@@ -206,6 +245,9 @@
 
         return {
             principal: (principalCents / 100).toFixed(2),
+            regular_installment: (regularCents / 100).toFixed(2),
+            term_installments: term,
+            frequency: freqVal,
             total_profit: '0.00',
             total_due: (principalCents / 100).toFixed(2),
             installments: installments
@@ -214,7 +256,7 @@
 
     function renderScheduleHtml(s, outBox) {
         let rowsHtml = '';
-        const maxRows = Math.min(s.installments.length, 36);
+        const maxRows = Math.min(s.installments.length, 60);
         for (let i = 0; i < maxRows; i++) {
             const inst = s.installments[i];
             const shiftBadge = inst.was_friday_shifted
@@ -230,22 +272,31 @@
                 '</tr>';
         }
 
+        const unitLabel = (s.frequency === 'weekly') ? 'Weeks (Toddobaad)' : 'Months (Bilood)';
+        const perUnit = (s.frequency === 'weekly') ? ' / week' : ' / month';
+        const regAmt = s.regular_installment || (s.installments[0] ? s.installments[0].total_due : '0.00');
+        const count = s.term_installments || s.installments.length;
+
         outBox.innerHTML =
-            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-bottom:14px;">' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
                     '<div style="font-size:0.74rem;color:var(--text-secondary);">Amount Given (Principal)</div>' +
                     '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:var(--text-primary);">$' + s.principal + '</div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Extra / Riba (0%)</div>' +
-                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#23845B;">$' + s.total_profit + '</div>' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Payment Per Period (Bishii)</div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">$' + regAmt + '<span style="font-size:0.76rem;font-weight:600;color:var(--text-secondary);">' + perUnit + '</span></div>' +
+                '</div>' +
+                '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:2px solid #D6B66C;">' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Time to Finish (Mudada)</div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">' + count + ' ' + unitLabel + '</div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Total to Repay (Exact Same Amount)</div>' +
-                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:var(--text-primary);">$' + s.total_due + '</div>' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Total to Repay (0% Riba)</div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#23845B;">$' + s.total_due + '</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="table-responsive" style="max-height:280px;overflow-y:auto;">' +
+            '<div class="table-responsive" style="max-height:320px;overflow-y:auto;">' +
                 '<table class="simda-table" style="font-size:0.8rem;">' +
                     '<thead><tr><th>#</th><th>Due Date</th><th>Principal</th><th>Extra</th><th>Installment</th><th>Remaining Balance</th></tr></thead>' +
                     '<tbody>' + rowsHtml + '</tbody>' +
@@ -253,10 +304,11 @@
             '</div>';
     }
 
-    async function runSchedulePreview() {
+    async function runSchedulePreview(triggerMode) {
+        const mode = (typeof triggerMode === 'string') ? triggerMode : 'payment';
         const typeEl = document.getElementById('calc_product_type');
         const amtEl = document.getElementById('calc_principal');
-        const rateEl = document.getElementById('calc_rate');
+        const moEl = document.getElementById('calc_monthly_payment');
         const termEl = document.getElementById('calc_term');
         const freqEl = document.getElementById('calc_frequency');
         const outBox = document.getElementById('schedulePreviewContainer');
@@ -265,34 +317,16 @@
             return;
         }
 
-        // 1. Instant 0ms update as the user types 1000, 3000, 5000, etc.
-        const instantSchedule = computeInstantSchedule(amtEl.value, termEl.value, freqEl.value);
-        renderScheduleHtml(instantSchedule, outBox);
+        const monthlyVal = moEl ? moEl.value : '0';
+        const instantSchedule = computeInstantSchedule(amtEl.value, monthlyVal, termEl.value, freqEl.value, mode);
 
-        // 2. Also sync with server ScheduleEngine
-        const params = new URLSearchParams({
-            route: 'api_schedule_preview',
-            product_type: typeEl.value,
-            principal: amtEl.value || '0',
-            rate: '0',
-            term: termEl.value || '1',
-            frequency: freqEl.value
-        });
-
-        try {
-            const resp = await fetch('?' + params.toString(), {
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!resp.ok) {
-                return;
-            }
-            const data = await resp.json();
-            if (data && data.schedule) {
-                renderScheduleHtml(data.schedule, outBox);
-            }
-        } catch (err) {
-            // Instant client-side schedule is already rendered
+        if (mode === 'payment' && moEl && parseFloat(moEl.value) > 0) {
+            termEl.value = String(instantSchedule.term_installments);
+        } else if (mode === 'term' && moEl) {
+            moEl.value = instantSchedule.regular_installment;
         }
+
+        renderScheduleHtml(instantSchedule, outBox);
     }
 })();
 

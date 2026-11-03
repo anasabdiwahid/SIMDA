@@ -43,11 +43,15 @@ $role = $user['role_slug'] ?? '';
             </div>
             <div class="form-group">
                 <label>Financing Amount ($ USD) *</label>
-                <input type="number" id="calc_principal" name="requested_amount" class="form-control num-tabular" step="0.01" min="100" required value="1000.00">
+                <input type="number" id="calc_principal" name="requested_amount" class="form-control num-tabular" step="0.01" min="100" required value="3000.00">
             </div>
             <div class="form-group">
-                <label>Term (Installments) *</label>
-                <input type="number" id="calc_term" name="term_installments" class="form-control num-tabular" min="1" max="36" required value="5">
+                <label>Monthly Payment ($ USD / Bishii) *</label>
+                <input type="number" id="calc_monthly_payment" class="form-control num-tabular" step="0.01" min="10" value="200.00">
+            </div>
+            <div class="form-group">
+                <label>Duration (Installments / Bilaha) *</label>
+                <input type="number" id="calc_term" name="term_installments" class="form-control num-tabular" min="1" max="120" required value="15">
             </div>
             <div class="form-group">
                 <label>Repayment Frequency *</label>

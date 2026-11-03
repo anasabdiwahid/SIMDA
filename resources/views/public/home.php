@@ -409,30 +409,27 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 
             <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
                 <div class="form-group">
-                    <label>Financing Structure</label>
-                    <select id="calc_product_type" class="form-control">
-                        <option value="flat">Zero-Riba / Qard Hassan (Principal Only)</option>
-                        <option value="murabaha">Murabaha Asset Financing</option>
-                        <option value="declining_balance">Declining Balance</option>
-                    </select>
+                    <label>Amount Given ($ USD)</label>
+                    <input type="number" id="calc_principal" class="form-control num-tabular" value="3000" min="50" max="100000" step="50" placeholder="e.g. 3000">
                 </div>
                 <div class="form-group">
-                    <label>Amount Given ($ USD)</label>
-                    <input type="number" id="calc_principal" class="form-control num-tabular" value="1000" min="50" max="100000" step="50" placeholder="Enter e.g. 1000 or 5000">
+                    <label>Monthly Payment ($ USD / Bishii)</label>
+                    <input type="number" id="calc_monthly_payment" class="form-control num-tabular" value="200" min="10" max="100000" step="10" placeholder="e.g. 200">
+                </div>
+                <div class="form-group">
+                    <label>Duration (Months / Weeks)</label>
+                    <div style="display:flex;gap:6px;">
+                        <input type="number" id="calc_term" class="form-control num-tabular" value="15" min="1" max="120" style="width:82px;">
+                        <select id="calc_frequency" class="form-control" style="flex:1;">
+                            <option value="monthly">Months (Bille)</option>
+                            <option value="weekly">Weeks (Toddobaadle)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Extra / Riba (% — Locked at 0%)</label>
-                    <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" min="0" max="0" step="0" readonly style="background:rgba(35,132,91,0.08);color:#23845B;font-weight:700;">
-                </div>
-                <div class="form-group">
-                    <label>Term & Frequency</label>
-                    <div style="display:flex;gap:6px;">
-                        <input type="number" id="calc_term" class="form-control num-tabular" value="5" min="1" max="36" style="width:76px;">
-                        <select id="calc_frequency" class="form-control" style="flex:1;">
-                            <option value="monthly">Monthly</option>
-                            <option value="weekly">Weekly</option>
-                        </select>
-                    </div>
+                    <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" readonly style="background:rgba(35,132,91,0.08);color:#23845B;font-weight:700;">
+                    <input type="hidden" id="calc_product_type" value="flat">
                 </div>
             </div>
 
@@ -443,11 +440,10 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </button>
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                     <span style="font-size:0.76rem;color:#5A6660;font-weight:600;">Quick Amounts:</span>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="500">$500</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000">$1,000</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000">$3,000</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000">$5,000</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="10000">$10,000</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000" data-monthly="200">$1,000 ($200/mo)</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000" data-monthly="200">$3,000 ($200/mo)</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000" data-monthly="500">$5,000 ($500/mo)</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="10000" data-monthly="500">$10,000 ($500/mo)</button>
                 </div>
             </div>
 
