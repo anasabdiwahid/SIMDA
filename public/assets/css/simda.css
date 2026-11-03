@@ -1229,10 +1229,21 @@ table th.amount {
 }
 
 /* 8. Scenic Silhouette Skyline & Money Illustration Footer (Footway Reference Style) */
+.fid-page {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+html:has(body.fid-page) {
+    overflow-x: hidden;
+}
+
 .fid-footer-wrap {
     margin-top: 48px;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
 }
 
 .fid-footer-scenic {
