@@ -500,63 +500,242 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
     </div>
 </section>
 
-<!-- 8. DEEP FOREST GREEN 4-COLUMN FOOTER -->
-<footer class="fid-footer">
-    <div class="fid-container">
-        <div class="fid-footer-grid">
-            <div>
-                <div style="display:inline-flex;background:#FFF;padding:6px 12px;border-radius:10px;margin-bottom:12px;">
-                    <img src="assets/images/simda-logo.png" alt="SIMDA" style="height:26px;">
-                </div>
-                <p style="font-size:0.8rem;line-height:1.6;color:rgba(244,245,240,0.8);max-width:260px;">
-                    Helping communities grow, one ethical opportunity at a time. <?= Security::e(Lang::get('tagline')) ?>
-                </p>
-            </div>
+<!-- 8. SCENIC SKYLINE & MONEY ILLUSTRATION FOOTER (FOOTWAY REFERENCE DESIGN) -->
+<div class="fid-footer-wrap">
+    <!-- Scenic Rolling Hills + City Skyline + Money / Cash / Coin Illustrations -->
+    <div class="fid-footer-scenic" aria-hidden="true">
+        <svg viewBox="0 0 1440 210" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Far Left City Buildings -->
+            <g fill="#123B32">
+                <rect x="0" y="96" width="18" height="75" />
+                <rect x="20" y="108" width="22" height="65" />
+                <rect x="44" y="116" width="18" height="55" />
+                <rect x="65" y="102" width="20" height="70" />
+            </g>
+            <!-- Left Building Windows -->
+            <g fill="#FFFFFF" opacity="0.88">
+                <rect x="4" y="102" width="4" height="5" /><rect x="10" y="102" width="4" height="5" />
+                <rect x="4" y="110" width="4" height="5" /><rect x="10" y="110" width="4" height="5" />
+                <rect x="4" y="118" width="4" height="5" /><rect x="10" y="118" width="4" height="5" />
+                <rect x="24" y="114" width="4" height="5" /><rect x="31" y="114" width="4" height="5" />
+                <rect x="24" y="122" width="4" height="5" /><rect x="31" y="122" width="4" height="5" />
+                <rect x="69" y="108" width="4" height="5" /><rect x="76" y="108" width="4" height="5" />
+                <rect x="69" y="116" width="4" height="5" /><rect x="76" y="116" width="4" height="5" />
+            </g>
 
-            <div>
-                <h5>Quick Links</h5>
-                <ul class="fid-footer-links">
-                    <li><a href="#why-us">About Us</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#our-process">Our Process</a></li>
-                    <li><a href="#testimonials">Testimonials</a></li>
-                    <li><a href="#education">FAQ & Education</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </div>
+            <!-- LEFT HILL MONEY / CASH STACK & GOLD COINS ILLUSTRATION (Replaces Left Shoe) -->
+            <g transform="translate(95, 78)">
+                <!-- Isometric Cash Bundle Stack -->
+                <path d="M0,48 L95,28 L155,52 L60,72 Z" fill="#1E5C4C" stroke="#D6B66C" stroke-width="2" />
+                <path d="M0,48 L0,64 L60,88 L60,72 Z" fill="#123B32" stroke="#D6B66C" stroke-width="1.5" />
+                <path d="M60,72 L60,88 L155,68 L155,52 Z" fill="#16493C" stroke="#D6B66C" stroke-width="1.5" />
+                <!-- Currency Band Strap -->
+                <path d="M52,37 L82,31 L112,61 L82,67 Z" fill="#D6B66C" />
+                <!-- Dollar Emblem on Top Bill -->
+                <ellipse cx="78" cy="50" rx="16" ry="8" fill="#123B32" stroke="#FFFFFF" stroke-width="1.5" />
+                <text x="78" y="54" text-anchor="middle" fill="#D6B66C" font-size="12" font-weight="800" font-family="sans-serif">$</text>
+                <!-- Stacked Gold Coins Beside Cash Bundle -->
+                <g transform="translate(132, 26)">
+                    <ellipse cx="22" cy="36" rx="18" ry="6" fill="#B89242" />
+                    <ellipse cx="22" cy="30" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                    <ellipse cx="22" cy="24" rx="18" ry="6" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
+                    <ellipse cx="22" cy="18" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                    <text x="22" y="21" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
+                </g>
+            </g>
 
-            <div>
-                <h5>Legal & Governance</h5>
-                <ul class="fid-footer-links">
-                    <li><a href="?route=login">Staff & Client Portal</a></li>
-                    <li><a href="#calculator">Schedule Simulator</a></li>
-                    <li><a href="#why-us">Sharia Governance Note</a></li>
-                    <li><a href="#contact">Terms & Conditions</a></li>
-                </ul>
-            </div>
+            <!-- Lollipop Trees & Floating Coins Left-Center -->
+            <g fill="#123B32">
+                <rect x="313" y="102" width="3" height="28" />
+                <circle cx="314.5" cy="96" r="11" />
+                <circle cx="300" cy="110" r="6" />
+                <rect x="299" y="114" width="2" height="16" />
+                <circle cx="334" cy="104" r="8" />
+                <rect x="333" y="110" width="2.5" height="18" />
+                <circle cx="352" cy="96" r="3.5" fill="#D6B66C" />
+                <circle cx="678" cy="100" r="9" />
+                <rect x="677" y="106" width="2.5" height="22" />
+                <circle cx="702" cy="95" r="4" fill="#D6B66C" />
+            </g>
 
-            <div>
-                <h5>Newsletter</h5>
-                <p style="font-size:0.78rem;color:rgba(244,245,240,0.78);margin-bottom:8px;">
-                    Subscribe to get ethical financial tips and institutional updates.
-                </p>
-                <form class="fid-newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing to SIMDA updates.');">
-                    <input type="email" placeholder="Your email address" required>
-                    <button type="submit" aria-label="Subscribe"><?= Icons::svg('arrow-right', 14) ?></button>
-                </form>
-                <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-                    <a href="?route=home&lang=en" class="badge <?= $locale === 'en' ? 'badge-gold' : '' ?>" style="color:#FFF;">EN</a>
-                    <a href="?route=home&lang=so" class="badge <?= $locale === 'so' ? 'badge-gold' : '' ?>" style="color:#FFF;">SO</a>
-                </div>
-            </div>
-        </div>
+            <!-- Center Financial District Skyline & Wheel -->
+            <g fill="#123B32">
+                <rect x="720" y="92" width="24" height="75" />
+                <!-- Ferris / Growth Wheel -->
+                <circle cx="788" cy="112" r="32" fill="none" stroke="#123B32" stroke-width="2.5" />
+                <circle cx="788" cy="112" r="24" fill="none" stroke="#D6B66C" stroke-width="1.5" stroke-dasharray="4 4" />
+                <circle cx="788" cy="112" r="6" fill="#D6B66C" />
+                <line x1="788" y1="80" x2="788" y2="144" stroke="#123B32" stroke-width="1.5" />
+                <line x1="756" y1="112" x2="820" y2="112" stroke="#123B32" stroke-width="1.5" />
+                <line x1="765" y1="89" x2="811" y2="135" stroke="#123B32" stroke-width="1.5" />
+                <line x1="811" y1="89" x2="765" y2="135" stroke="#123B32" stroke-width="1.5" />
+                <!-- Center Towers -->
+                <rect x="832" y="110" width="20" height="60" />
+                <rect x="856" y="96" width="24" height="74" />
+                <rect x="896" y="102" width="22" height="68" />
+                <rect x="922" y="122" width="18" height="48" />
+                <rect x="960" y="114" width="20" height="58" />
+            </g>
+            <!-- Center Building Windows -->
+            <g fill="#FFFFFF" opacity="0.88">
+                <rect x="725" y="98" width="5" height="5" /><rect x="734" y="98" width="5" height="5" />
+                <rect x="725" y="107" width="5" height="5" /><rect x="734" y="107" width="5" height="5" />
+                <rect x="725" y="116" width="5" height="5" /><rect x="734" y="116" width="5" height="5" />
+                <rect x="861" y="102" width="5" height="5" /><rect x="870" y="102" width="5" height="5" />
+                <rect x="861" y="111" width="5" height="5" /><rect x="870" y="111" width="5" height="5" />
+                <rect x="901" y="108" width="4" height="5" /><rect x="909" y="108" width="4" height="5" />
+                <rect x="901" y="117" width="4" height="5" /><rect x="909" y="117" width="4" height="5" />
+                <rect x="964" y="120" width="4" height="5" /><rect x="971" y="120" width="4" height="5" />
+            </g>
 
-        <div style="padding-top:18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;font-size:0.75rem;color:rgba(244,245,240,0.68);">
-            <div>&copy; <?= date('Y') ?> SIMDA (<?= Security::e(Lang::get('app_full_name')) ?>). All Rights Reserved.</div>
-            <div style="max-width:580px;"><?= Security::e(Lang::get('sharia_disclaimer')) ?></div>
-        </div>
+            <!-- Floating Hot-Air Money Balloon in Sky -->
+            <g transform="translate(925, 22)">
+                <path d="M24,0 C38,0 48,11 48,25 C48,39 30,54 27,62 L21,62 C18,54 0,39 0,25 C0,11 10,0 24,0 Z" fill="#123B32" />
+                <circle cx="24" cy="23" r="11" fill="#D6B66C" />
+                <text x="24" y="28" text-anchor="middle" fill="#123B32" font-size="14" font-weight="800" font-family="sans-serif">$</text>
+                <rect x="21" y="65" width="6" height="6" rx="1" fill="#123B32" />
+            </g>
+
+            <!-- Right-Center Lollipop Trees -->
+            <g fill="#123B32">
+                <circle cx="1044" cy="112" r="11" />
+                <rect x="1042.5" y="120" width="3" height="28" />
+                <circle cx="1064" cy="124" r="7" />
+                <rect x="1063" y="129" width="2" height="20" />
+                <circle cx="1115" cy="110" r="9" />
+                <rect x="1114" y="117" width="2.5" height="24" />
+                <circle cx="1135" cy="102" r="4" fill="#D6B66C" />
+                <circle cx="1408" cy="96" r="11" />
+                <rect x="1406.5" y="105" width="3" height="30" />
+                <circle cx="1426" cy="112" r="7" />
+                <rect x="1425" y="117" width="2" height="22" />
+            </g>
+
+            <!-- RIGHT HILL MONEY WALLET, BANKNOTES & COINS ILLUSTRATION (Replaces Right Shoe) -->
+            <g transform="translate(1178, 56)">
+                <!-- Fanning Dollar Bills Emerging from Wallet -->
+                <g transform="rotate(-12, 60, 35)">
+                    <rect x="22" y="6" width="96" height="44" rx="5" fill="#23845B" stroke="#D6B66C" stroke-width="1.8" />
+                    <circle cx="70" cy="28" r="11" fill="#123B32" />
+                    <text x="70" y="33" text-anchor="middle" fill="#D6B66C" font-size="13" font-weight="800" font-family="sans-serif">$</text>
+                </g>
+                <g transform="rotate(-3, 75, 35)">
+                    <rect x="34" y="12" width="96" height="44" rx="5" fill="#1B5246" stroke="#D6B66C" stroke-width="1.8" />
+                </g>
+                <!-- Rounded Microfinance Wallet / Vault Body -->
+                <rect x="10" y="28" width="142" height="54" rx="14" fill="#123B32" stroke="#D6B66C" stroke-width="2" />
+                <path d="M18,68 Q80,82 144,66" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.85" />
+                <!-- Wallet Gold Clasp -->
+                <rect x="116" y="45" width="36" height="20" rx="10" fill="#D6B66C" />
+                <circle cx="127" cy="55" r="5" fill="#123B32" />
+                <!-- Gold Coin Stack Beside Wallet -->
+                <ellipse cx="170" cy="72" rx="16" ry="5.5" fill="#B89242" />
+                <ellipse cx="170" cy="65" rx="16" ry="5.5" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                <ellipse cx="170" cy="58" rx="16" ry="5.5" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
+                <text x="170" y="61" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
+            </g>
+
+            <!-- Main Rolling Hills Silhouette Path Connecting Seamlessly to Footer -->
+            <path d="M0,145 C110,162 210,162 320,122 C430,82 515,74 635,116 C755,158 890,165 1035,142 C1165,120 1265,105 1370,118 C1405,123 1425,132 1440,140 L1440,212 L0,212 Z" fill="#123B32" />
+        </svg>
     </div>
-</footer>
+
+    <!-- Main 4-Column Footer Body -->
+    <footer class="fid-footer">
+        <div class="fid-container">
+            <div class="fid-footer-grid">
+                <!-- Col 1: Newsletter -->
+                <div>
+                    <h5>SIMDA's Newsletter</h5>
+                    <form class="fid-footway-newsletter" onsubmit="event.preventDefault(); alert('Thank you for subscribing to SIMDA updates!');">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit" class="fid-footway-sub-btn">SUBSCRIBE</button>
+                    </form>
+                </div>
+
+                <!-- Col 2: Terms and conditions -->
+                <div>
+                    <h5>Terms and conditions</h5>
+                    <ul class="fid-footer-links">
+                        <li>0% Riba — Principal only!</li>
+                        <li>Friday to Saturday shift!</li>
+                        <li>100% Segregated Charity Fund!</li>
+                    </ul>
+                    <div style="margin-top:24px;display:flex;align-items:center;gap:12px;">
+                        <span style="font-weight:700;font-size:0.84rem;color:#FFFFFF;">Follow SIMDA</span>
+                        <a href="#contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Website"><?= Icons::svg('globe', 18) ?></a>
+                        <a href="#contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Community"><?= Icons::svg('users', 18) ?></a>
+                    </div>
+                </div>
+
+                <!-- Col 3: Information -->
+                <div>
+                    <h5>Information</h5>
+                    <ul class="fid-footer-links">
+                        <li><a href="#education">FAQs</a></li>
+                        <li><a href="#why-us">About us at SIMDA</a></li>
+                        <li><a href="#calculator">SIMDA Schedule Engine</a></li>
+                    </ul>
+                    <ul class="fid-footer-links" style="margin-top:20px;">
+                        <li class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 500 0000') ?></li>
+                        <li><?= Security::e($settings['institution_email'] ?? 'info@simda.so') ?></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Contact -->
+                <div>
+                    <h5>Contact</h5>
+                    <ul class="fid-footer-links">
+                        <li><strong style="color:#FFFFFF;">SIMDA Microfinance</strong></li>
+                        <li>Institution Reg: SIMDA-SO-001</li>
+                    </ul>
+                    <ul class="fid-footer-links" style="margin-top:18px;">
+                        <li><strong style="color:#FFFFFF;">Head office:</strong></li>
+                        <li><?= Security::e($settings['institution_address'] ?? 'Mogadishu Main Boulevard, Hodan') ?></li>
+                        <li>Mogadishu, Somalia</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Trust Seals (Left) + Group Info & Flags (Center) + Payment Logos (Right) -->
+            <div class="fid-footer-bottom-bar">
+                <!-- Left: Trust & Security Seals -->
+                <div class="fid-trust-badges">
+                    <div class="fid-trust-seal">
+                        <div class="fid-trust-seal-circle">0%</div>
+                        <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
+                            ZERO RIBA<br><span style="color:#D6B66C;">GUARANTEED</span>
+                        </div>
+                    </div>
+                    <div class="fid-trust-seal">
+                        <div class="fid-trust-seal-circle"><?= Icons::svg('shield', 18) ?></div>
+                        <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
+                            SHARIA &amp; AUDIT<br><span style="color:#23845B;">COMPLIANT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center: Group Info, Language Switcher & Copyright -->
+                <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
+                    <div>Part of SIMDA (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
+                    <div><?= Security::e($settings['institution_email'] ?? 'info@simda.so') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 500 0000') ?></span></div>
+                    <div style="display:flex;justify-content:center;gap:8px;margin:10px 0;">
+                        <a href="?route=home&lang=so" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'so' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">SO</a>
+                        <a href="?route=home&lang=en" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'en' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">EN</a>
+                    </div>
+                    <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> SIMDA Microfinance. All rights reserved.</div>
+                </div>
+
+                <!-- Right: Supported Payment & Mobile Money Channels -->
+                <div class="fid-payment-logos">
+                    <span class="fid-pay-pill">EVC Plus</span>
+                    <span class="fid-pay-pill" style="border-color:rgba(214,182,108,0.45);color:#D6B66C;">ZAAD</span>
+                    <span class="fid-pay-pill">eDahab</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
 
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
