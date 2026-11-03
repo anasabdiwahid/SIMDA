@@ -279,6 +279,6 @@ $csrf = Security::csrfToken();
     </div>
 </div>
 
-<script src="assets/js/simda.js"></script>
+<script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@ use App\Helpers\Security;
 
 $locale = Lang::locale();
 $csrf = Security::csrfToken();
+$assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: time());
 ?>
 <!DOCTYPE html>
 <html lang="<?= Security::e($locale) ?>" data-theme="light">
@@ -21,9 +22,16 @@ $csrf = Security::csrfToken();
             var p = localStorage.getItem('simda_theme_pref') || 'light';
             var t = (p === 'dark' || p === 'light') ? p : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', t);
+            if ('caches' in window) {
+                caches.keys().then(function(keys) {
+                    keys.forEach(function(k) {
+                        if (k !== 'simda-static-shell-v3') { caches.delete(k); }
+                    });
+                });
+            }
         })();
     </script>
-    <link rel="stylesheet" href="assets/css/simda.css">
+    <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
 </head>
 <body style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(135deg,#0D2B24 0%,#123B32 60%,#194B3F 100%);padding:20px;">
 

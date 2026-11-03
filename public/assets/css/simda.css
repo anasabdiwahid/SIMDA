@@ -3,7 +3,7 @@
    Complete Custom Design System & Fintech Interface Stylesheet
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
     /* Official Brand Palette */
@@ -619,8 +619,6 @@ table th.amount {
 /* ==========================================================================
    FIDUCIA-STYLE EDITORIAL MICROFINANCE PUBLIC WEBSITE
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 .fid-page {
     background-color: #FFFFFF;
     color: #1E2D27;
