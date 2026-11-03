@@ -84,8 +84,8 @@ final class DatabaseSeeder
             ['approval_officer_threshold', '5000.00', 'Maximum financing amount ($ USD) a Loan Officer can approve'],
             ['late_charge_grace_days', '7', 'Grace period in days after due date before charity charge applies'],
             ['disbursement_expiry_days', '30', 'Number of days before an approved undisbursed application expires'],
-            ['institution_phone', '+252 61 500 0000', 'Official institution contact phone (configurable)'],
-            ['institution_email', 'info@simda.so', 'Official institution contact email (configurable)'],
+            ['institution_phone', '+252 61 6256534', 'Official institution contact phone (configurable)'],
+            ['institution_email', 'anasabdiwahidhussein@gmail.com', 'Official institution contact email (configurable)'],
             ['institution_address', 'Mogadishu, Somalia', 'Headquarters address (configurable)'],
         ];
         $sStmt = $pdo->prepare('
@@ -129,7 +129,7 @@ final class DatabaseSeeder
             ':phash' => Security::hashPassword('Admin@123'),
         ]);
 
-        // 6. Default Zero-Riba (0% Extra — Principal-Only) Financing Facility
+        // 6. Default Zero-Riba (0% Extra â€” Principal-Only) Financing Facility
         $prdStmt = $pdo->prepare('
             INSERT INTO products (
                 product_code, name_so, name_en, description_so, description_en,
@@ -149,8 +149,8 @@ final class DatabaseSeeder
             ':code' => 'PRD-QRD-01',
             ':n_so' => 'Maalgelinta Bilaashka Riba (Qard Xasan)',
             ':n_en' => 'Zero-Riba Principal-Only Financing (Qard Hassan)',
-            ':d_so' => 'Maalgelin 0% dheeraad ah — macmiilku wuxuu soo celinayaa oo keliya lacagtii la siiyay ($1,000 -> $1,000).',
-            ':d_en' => '100% Zero-Riba financing with $0.00 extra charges — if a client receives $1,000, they repay strictly $1,000.',
+            ':d_so' => 'Maalgelin 0% dheeraad ah â€” macmiilku wuxuu soo celinayaa oo keliya lacagtii la siiyay ($1,000 -> $1,000).',
+            ':d_en' => '100% Zero-Riba financing with $0.00 extra charges â€” if a client receives $1,000, they repay strictly $1,000.',
             ':type' => 'flat',
             ':apr' => '0.0000',
             ':mrb' => '0.0000',

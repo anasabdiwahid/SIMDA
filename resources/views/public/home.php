@@ -16,7 +16,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#123B32">
-    <title>SIMDA — <?= Security::e(Lang::get('app_full_name')) ?></title>
+    <title>SIMDA â€” <?= Security::e(Lang::get('app_full_name')) ?></title>
     <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
     <link rel="manifest" href="manifest.json">
     <script>
@@ -104,7 +104,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
     </div>
 </section>
 
-<!-- 3. OUR SERVICES — 4-COLUMN EDITORIAL CARDS -->
+<!-- 3. OUR SERVICES â€” 4-COLUMN EDITORIAL CARDS -->
 <section id="services" class="fid-section">
     <div class="fid-container">
         <div class="fid-section-head">
@@ -148,7 +148,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <img src="assets/images/landing/srv-credit.jpg" alt="Micro-Credit Solutions">
                     </div>
                     <h3>Micro-Credit Solutions</h3>
-                    <p>Quick access to ethical micro-financing and solidarity group facilities (3–10 members) via EVC Plus, Zaad & eDahab.</p>
+                    <p>Quick access to ethical micro-financing and solidarity group facilities (3â€“10 members) via EVC Plus, Zaad & eDahab.</p>
                 </div>
                 <div>
                     <a href="?route=login" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -162,7 +162,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <img src="assets/images/landing/srv-consulting.jpg" alt="Financial Consulting">
                     </div>
                     <h3>Financial Consulting</h3>
-                    <p>Expert Sharia schedule previews, dynamic credit scoring (300–850), and Ibra early-settlement guidance.</p>
+                    <p>Expert Sharia schedule previews, dynamic credit scoring (300â€“850), and Ibra early-settlement guidance.</p>
                 </div>
                 <div>
                     <a href="#calculator" class="fid-circle-arrow" aria-label="Open calculator"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -182,7 +182,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <h4 style="font-size:0.96rem;color:#123B32;margin:0 0 4px;"><?= Security::e($prod['name_en']) ?></h4>
                     <div style="font-size:0.78rem;color:#5A6660;display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);">
                         <span>Rate: <strong class="num-tabular"><?= Security::e(number_format((float) ($prod['product_type'] === 'murabaha' ? $prod['murabaha_markup_pct'] : $prod['annual_profit_rate']), 2)) ?>%</strong></span>
-                        <span class="num-tabular"><?= Security::formatMoney($prod['min_amount']) ?> – <?= Security::formatMoney($prod['max_amount']) ?></span>
+                        <span class="num-tabular"><?= Security::formatMoney($prod['min_amount']) ?> â€“ <?= Security::formatMoney($prod['max_amount']) ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -191,7 +191,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
     </div>
 </section>
 
-<!-- 4. WHY CHOOSE US — 2-COLUMN PHOTO & FEATURE BADGES -->
+<!-- 4. WHY CHOOSE US â€” 2-COLUMN PHOTO & FEATURE BADGES -->
 <section id="why-us" class="fid-section">
     <div class="fid-container">
         <div class="fid-why-grid">
@@ -248,7 +248,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <div class="fid-why-badge"><?= Icons::svg('award', 18) ?></div>
                         <div>
                             <h4>Transparent pricing</h4>
-                            <p>Fixed Murabaha markup locked at origination—never compounding.</p>
+                            <p>Fixed Murabaha markup locked at originationâ€”never compounding.</p>
                         </div>
                     </div>
                 </div>
@@ -310,39 +310,39 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <div class="fid-testi-grid">
                     <div class="fid-testi-card reveal-on-scroll">
                         <div>
-                            <div class="fid-stars">★★★★★</div>
+                            <div class="fid-stars">â˜…â˜…â˜…â˜…â˜…</div>
                             <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
                                 "The Murabaha cost-plus structure is clear and transparent. Every installment is known from day one."
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">– Retail Trader</strong>
+                            <strong style="font-size:0.74rem;color:#123B32;">â€“ Retail Trader</strong>
                             <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                         </div>
                     </div>
 
                     <div class="fid-testi-card reveal-on-scroll">
                         <div>
-                            <div class="fid-stars">★★★★★</div>
+                            <div class="fid-stars">â˜…â˜…â˜…â˜…â˜…</div>
                             <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
                                 "The process was simple and transparent. Friday due dates automatically shift to Saturday."
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">– Market Vendor</strong>
+                            <strong style="font-size:0.74rem;color:#123B32;">â€“ Market Vendor</strong>
                             <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                         </div>
                     </div>
 
                     <div class="fid-testi-card reveal-on-scroll">
                         <div>
-                            <div class="fid-stars">★★★★★</div>
+                            <div class="fid-stars">â˜…â˜…â˜…â˜…â˜…</div>
                             <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
                                 "Professional, trustworthy and always ready to assist solidarity groups and small businesses."
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">– Group Leader</strong>
+                            <strong style="font-size:0.74rem;color:#123B32;">â€“ Group Leader</strong>
                             <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                         </div>
                     </div>
@@ -352,7 +352,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
     </div>
 </section>
 
-<!-- 6. FINANCIAL EDUCATION — 4 HORIZONTAL MEDIA CARDS + LIVE SCHEDULE CALCULATOR -->
+<!-- 6. FINANCIAL EDUCATION â€” 4 HORIZONTAL MEDIA CARDS + LIVE SCHEDULE CALCULATOR -->
 <section id="education" class="fid-section">
     <div class="fid-container">
         <div class="fid-section-head">
@@ -404,7 +404,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <span class="fid-eyebrow" style="margin-bottom:4px;">INTERACTIVE SCHEDULE ENGINE</span>
                     <h3 class="fid-serif-h2" style="font-size:1.45rem;"><?= Security::e(Lang::get('calc_preview_title')) ?></h3>
                 </div>
-                <span class="badge badge-gold"><?= Icons::svg('calendar', 14) ?> Friday → Saturday Auto-Shift</span>
+                <span class="badge badge-gold"><?= Icons::svg('calendar', 14) ?> Friday â†’ Saturday Auto-Shift</span>
             </div>
 
             <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
@@ -427,7 +427,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Extra / Riba (% — Locked at 0%)</label>
+                    <label>Extra / Riba (% â€” Locked at 0%)</label>
                     <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" readonly style="background:rgba(35,132,91,0.08);color:#23845B;font-weight:700;">
                     <input type="hidden" id="calc_product_type" value="flat">
                 </div>
@@ -462,11 +462,11 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <ul class="fid-contact-list">
                         <li>
                             <span class="fid-contact-dot"><?= Icons::svg('phone', 12) ?></span>
-                            <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 500 0000') ?></span>
+                            <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span>
                         </li>
                         <li>
                             <span class="fid-contact-dot"><?= Icons::svg('send', 12) ?></span>
-                            <span><?= Security::e($settings['institution_email'] ?? 'info@simda.so') ?></span>
+                            <span><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></span>
                         </li>
                         <li>
                             <span class="fid-contact-dot"><?= Icons::svg('building', 12) ?></span>
@@ -667,7 +667,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <div>
                     <h5>Terms and conditions</h5>
                     <ul class="fid-footer-links">
-                        <li>0% Riba — Principal only!</li>
+                        <li>0% Riba â€” Principal only!</li>
                         <li>Friday to Saturday shift!</li>
                         <li>100% Segregated Charity Fund!</li>
                     </ul>
@@ -687,8 +687,8 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <li><a href="#calculator">SIMDA Schedule Engine</a></li>
                     </ul>
                     <ul class="fid-footer-links" style="margin-top:20px;">
-                        <li class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 500 0000') ?></li>
-                        <li><?= Security::e($settings['institution_email'] ?? 'info@simda.so') ?></li>
+                        <li class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
+                        <li><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
                     </ul>
                 </div>
 
@@ -728,7 +728,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <!-- Center: Group Info, Language Switcher & Copyright -->
                 <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
                     <div>Part of SIMDA (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
-                    <div><?= Security::e($settings['institution_email'] ?? 'info@simda.so') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 500 0000') ?></span></div>
+                    <div><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
                     <div style="display:flex;justify-content:center;gap:8px;margin:10px 0;">
                         <a href="?route=home&lang=so" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'so' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">SO</a>
                         <a href="?route=home&lang=en" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'en' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">EN</a>
