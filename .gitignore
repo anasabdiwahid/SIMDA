@@ -1,0 +1,19 @@
+# Environment & Secrets
+.env
+.env.local
+.env.testing
+
+# Runtime Storage
+/storage/logs/*.log
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+/storage/statements/*
+!/storage/statements/.gitkeep
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+/vendor/
+

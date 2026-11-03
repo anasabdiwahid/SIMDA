@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct browser access to sensitive directories and dotfiles
+    RewriteRule ^(\.env|\.git|app|config|database|resources|routes|storage|tests|docs)(/|$) - [F,L]
+
+    # Route static assets from public/assets if requested from root
+    RewriteCond %{REQUEST_URI} ^/SIMDA/assets/(.*)$ [NC]
+    RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+    RewriteCond %{REQUEST_URI} ^/assets/(.*)$ [NC]
+    RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+    # Forward manifest.json and service-worker.js
+    RewriteRule ^manifest\.json$ public/manifest.json [L]
+    RewriteRule ^service-worker\.js$ public/service-worker.js [L]
+
+    # Route all requests through public/index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
+</IfModule>
+

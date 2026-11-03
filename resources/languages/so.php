@@ -1,0 +1,118 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Somali (Af-Soomaali) — Default Application Language
+ * Natural, clear, professional financial & Islamic microfinance terminology.
+ */
+return [
+    // Brand & General
+    'app_name' => 'SIMDA',
+    'app_full_name' => 'Ururka Horumarinta Maalgelinta Yaryar ee Islaamiga ah ee Soomaaliyeed',
+    'tagline' => 'Dhisidda Kalsoonida. Xoojinta Kobaca.',
+    'sharia_disclaimer' => 'Xusuusin: Nidaamkani wuxuu fuliyaa xeerarka xisaabaadka maalgelinta Islaamiga ah ee la cayimay, balse ma sheeganayo shahaado rasmi ah oo Guddiga Shareecada ah ilaa uu dib u eego lataliye Shareeco oo u qalma.',
+    'synthetic_demo_badge' => 'XOG TUSAALE AH (SYNTHETIC TEST FIXTURE)',
+    'session_expired' => 'Wakhtiga fadhigaagu wuu dhammaaday. Fadlan mar kale soo gal.',
+    'please_login_first' => 'Fadlan soo gal nidaamka si aad u sii wadato.',
+    'unauthorized_access' => 'Ma lihid awood sharci oo aad ku gasho boggan ama xogtan.',
+    'csrf_invalid' => 'Calaamadda amniga foomka (CSRF) ma saxna. Fadlan bogga dib u cusbooneysii.',
+
+    // Public Navigation
+    'nav_home' => 'Bogga Hore',
+    'nav_about' => 'Ku Saabsan SIMDA',
+    'nav_financing' => 'Adeegyada Maalgelinta',
+    'nav_how_it_works' => 'Habka Shaqada',
+    'nav_contact' => 'Xiriirka',
+    'nav_login' => 'Soo Gal Nidaamka',
+    'nav_dashboard' => 'Xarunta Maamulka',
+    'nav_logout' => 'Ka Bax',
+
+    // Hero & Public Homepage
+    'hero_badge' => 'MAALGELIN WAAFAQSAN SHAREECADA ISLAAMKA • RIBO-LA\'AAN',
+    'hero_title' => 'Maalgelin Islaami ah oo lagu Kalsoonaan Karo, loona Dhisay Kobaca Ganacsiga Soomaaliyeed.',
+    'hero_subtitle' => 'SIMDA waxay bixisaa maalgelin hufan oo ku dhisan Muraabaxa, Faa\'iido Sugan iyo Hadhaa Dhimis—iyadoo leh jadwal cad, xisaab sugan, iyo maamul casri ah.',
+    'hero_cta_primary' => 'Gal Xarunta Maamulka & Macmiilka',
+    'hero_cta_secondary' => 'Xisaabi Jadwalka Maalgelinta',
+    'calc_preview_title' => 'Xisaabiyaha Tooska ah ee Jadwalka Maalgelinta',
+    'calc_preview_sub' => 'Tijaabi mishiinka xisaabta SIMDA ee sugan (Murabaha, Flat & Declining Balance)',
+
+    // Sidebar Groups & Links
+    'grp_main' => 'QAYBTA GUUD',
+    'grp_clients' => 'MAAMULKA MACAAMIISHA',
+    'grp_financing' => 'MAALGELINTA',
+    'grp_payments' => 'LACAG BIXINTA',
+    'grp_risk' => 'MAARAYNTA HALISTA',
+    'grp_communication' => 'ISGAARSIINTA',
+    'grp_reports' => 'WARBIXINADA & FALANQAYNTA',
+    'grp_admin' => 'MAAMULKA GUUD',
+
+    'menu_dashboard' => 'Dashboard-ka Guud',
+    'menu_overview' => 'Guudmarka Xogta',
+    'menu_all_clients' => 'Dhammaan Macaamiisha',
+    'menu_register_client' => 'Diiwaangeli Macmiil',
+    'menu_guarantors' => 'Damiinada (Guarantors)',
+    'menu_client_groups' => 'Kooxaha Macaamiisha',
+    'menu_products' => 'Noocyada Maalgelinta',
+    'menu_applications' => 'Codsiyada Maalgelinta',
+    'menu_approval_queue' => 'Safafka Ansixinta',
+    'menu_active_financing' => 'Maalgelinta Socota',
+    'menu_disbursements' => 'Bixinta Lacagta (Disbursement)',
+    'menu_schedules' => 'Jadwalka Bixinta',
+    'menu_record_repayment' => 'Diiwaangeli Lacag Bixin',
+    'menu_repayment_history' => 'Taariikhda Lacag Bixinta',
+    'menu_outstanding' => 'Hadhaaga Lagu Leeyahay',
+    'menu_charity_charges' => 'Khidmadaha Sadaqada',
+    'menu_credit_scores' => 'Dhibcaha Kalsoonida (Credit Score)',
+    'menu_par30' => 'Halista Faylalka (PAR30)',
+    'menu_group_risk' => 'Halista Maalgelinta Kooxaha',
+    'menu_sms_outbox' => 'Sanduuqa Fariimaha SMS',
+    'menu_reminders' => 'Xusuusinta Bixinta',
+    'menu_notifications' => 'Ogeysiisyada',
+    'menu_financial_reports' => 'Warbixinada Maaliyadeed',
+    'menu_client_statements' => 'Bayaanka Xisaabta (PDF)',
+    'menu_branch_reports' => 'Warbixinada Laamaha',
+    'menu_portfolio_analytics' => 'Falanqaynta Maalgelinta',
+    'menu_branches' => 'Maamulka Laamaha',
+    'menu_users' => 'Maamulka Shaqaalaha',
+    'menu_roles' => 'Doorarka & Awoodaha',
+    'menu_audit_logs' => 'Diiwaanka Kormeerka (Audit)',
+    'menu_settings' => 'Dejinta Nidaamka',
+
+    // KPI Cards
+    'kpi_total_clients' => 'Wadarta Macaamiisha',
+    'kpi_active_financing' => 'Maalgelinta Socota',
+    'kpi_total_outstanding' => 'Wadarta Hadhaaga Maalgelinta',
+    'kpi_total_repayments' => 'Lacagaha La Soo Xareeyay',
+    'kpi_pending_apps' => 'Codsiyada Sugaya Ansixinta',
+    'kpi_overdue_financing' => 'Maalgelinta Dib-u-dhacday',
+    'kpi_par30' => 'Halista Faylalka (PAR30)',
+    'kpi_charity_balance' => 'Xisaabta Sadaqada (Charity)',
+
+    // Common UI Labels
+    'search_placeholder' => 'Raadi macmiil, lambarka heshiiska, ama telefoon...',
+    'theme_light' => 'Iftiin (Light)',
+    'theme_dark' => 'Madow (Dark)',
+    'theme_system' => 'Nidaamka (System)',
+    'lang_somali' => 'Af-Soomaali',
+    'lang_english' => 'English',
+    'status_active' => 'Shaqaynaya',
+    'status_overdue' => 'Dib-u-dhacay',
+    'status_completed' => 'Si Buuxda Loo Bixiyay',
+    'status_pending' => 'Sugaya',
+    'status_submitted' => 'La Gudbiyay',
+    'status_approved' => 'La Ansixiyay',
+    'status_rejected' => 'La Diiday',
+    'status_disbursed' => 'La Bixiyay',
+    'status_paid' => 'La Bixiyay',
+    'status_partial' => 'Qayb La Bixiyay',
+    'status_waived' => 'La Cafiyay',
+    'status_unpaid' => 'Aan La Bixin',
+    'empty_state_title' => 'Xog Lama Helin',
+    'empty_state_desc' => 'Wakhtigan xaadirka ah wax diiwaan ah kuma jiraan qaybtan.',
+    'confirm_financial_action' => 'Ma hubtaa inaad rabto inaad fuliso hawshan maaliyadeed?',
+    'download_pdf_statement' => 'Soo Deji Bayaanka PDF',
+    'print_statement' => 'Daabac Bayaanka',
+    'connection_online' => 'Internet-ku wuu shaqaynayaa',
+    'connection_offline' => 'Internet ma jiro — Xogta maaliyadeed lama gudbin karo ilaa khadku soo laabto.',
+];
+
