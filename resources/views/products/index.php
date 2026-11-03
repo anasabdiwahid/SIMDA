@@ -35,28 +35,28 @@ $isAdmin = ($user['role_slug'] ?? '') === 'admin';
             <div class="form-group">
                 <label>Product Type *</label>
                 <select name="product_type" class="form-control" required>
-                    <option value="murabaha">Murabaha (Markup %)</option>
-                    <option value="flat">Flat (Annual Rate %)</option>
-                    <option value="declining_balance">Declining Balance (Amortized %)</option>
+                    <option value="flat">Zero-Riba / Qard Hassan (0% Extra — Principal Only)</option>
+                    <option value="murabaha">Murabaha Asset Financing</option>
+                    <option value="declining_balance">Declining Balance</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Rate / Markup (%) *</label>
-                <input type="number" name="rate" class="form-control num-tabular" step="0.01" min="0.5" max="100" required value="12.00">
+                <label>Extra / Rate (%) — Set 0.00 for Principal-Only *</label>
+                <input type="number" name="rate" class="form-control num-tabular" step="0.01" min="0" max="100" required value="0.00">
             </div>
             <div class="form-group">
                 <label>Min Amount ($ USD) *</label>
-                <input type="number" name="min_amount" class="form-control num-tabular" step="0.01" required value="500.00">
+                <input type="number" name="min_amount" class="form-control num-tabular" step="0.01" required value="100.00">
             </div>
             <div class="form-group">
                 <label>Max Amount ($ USD) *</label>
-                <input type="number" name="max_amount" class="form-control num-tabular" step="0.01" required value="12000.00">
+                <input type="number" name="max_amount" class="form-control num-tabular" step="0.01" required value="50000.00">
             </div>
             <div class="form-group">
                 <label>Min / Max Term (Installments) *</label>
                 <div style="display:flex;gap:8px;">
-                    <input type="number" name="min_term" class="form-control num-tabular" required value="3" min="1">
-                    <input type="number" name="max_term" class="form-control num-tabular" required value="24" min="1">
+                    <input type="number" name="min_term" class="form-control num-tabular" required value="1" min="1">
+                    <input type="number" name="max_term" class="form-control num-tabular" required value="36" min="1">
                 </div>
             </div>
             <div class="form-group">
@@ -68,8 +68,8 @@ $isAdmin = ($user['role_slug'] ?? '') === 'admin';
                 </select>
             </div>
             <div class="form-group">
-                <label>Admin Fee ($ USD) *</label>
-                <input type="number" name="admin_fee" class="form-control num-tabular" step="0.01" required value="20.00">
+                <label>Admin Fee ($ USD) — 0.00 for No Fee *</label>
+                <input type="number" name="admin_fee" class="form-control num-tabular" step="0.01" min="0" required value="0.00">
             </div>
         </div>
         <button type="submit" class="btn btn-primary btn-sm">Create Product</button>

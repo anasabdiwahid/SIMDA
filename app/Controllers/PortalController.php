@@ -177,10 +177,10 @@ final class PortalController
     private static function apiSchedulePreview(): void
     {
         header('Content-Type: application/json; charset=UTF-8');
-        $type = (string) ($_GET['product_type'] ?? 'murabaha');
-        $principal = (float) ($_GET['principal'] ?? 3000);
-        $rate = (float) ($_GET['rate'] ?? 12);
-        $term = max(1, min(60, (int) ($_GET['term'] ?? 6)));
+        $type = (string) ($_GET['product_type'] ?? 'flat');
+        $principal = (float) ($_GET['principal'] ?? 1000);
+        $rate = (float) ($_GET['rate'] ?? 0);
+        $term = max(1, min(60, (int) ($_GET['term'] ?? 5)));
         $freq = (string) ($_GET['frequency'] ?? 'monthly');
 
         $schedule = ScheduleEngine::generate($type, $principal, $rate, $term, $freq, date('Y-m-d'));
@@ -475,8 +475,8 @@ final class PortalController
     {
         $user = AuthMiddleware::requireRoles(['admin']);
         AuthMiddleware::verifyCsrfOrAbort();
-        $type = (string) ($_POST['product_type'] ?? 'murabaha');
-        $rate = number_format((float) ($_POST['rate'] ?? 12), 4, '.', '');
+        $type = (string) ($_POST['product_type'] ?? 'flat');
+        $rate = number_format((float) ($_POST['rate'] ?? 0), 4, '.', '');
         $apr = ($type === 'murabaha') ? '0.0000' : $rate;
         $mrb = ($type === 'murabaha') ? $rate : '0.0000';
 
@@ -496,12 +496,12 @@ final class PortalController
             ':type' => $type,
             ':apr' => $apr,
             ':mrb' => $mrb,
-            ':min_a' => number_format((float) ($_POST['min_amount'] ?? 500), 2, '.', ''),
-            ':max_a' => number_format((float) ($_POST['max_amount'] ?? 10000), 2, '.', ''),
-            ':min_t' => (int) ($_POST['min_term'] ?? 3),
-            ':max_t' => (int) ($_POST['max_term'] ?? 24),
+            ':min_a' => number_format((float) ($_POST['min_amount'] ?? 100), 2, '.', ''),
+            ':max_a' => number_format((float) ($_POST['max_amount'] ?? 50000), 2, '.', ''),
+            ':min_t' => (int) ($_POST['min_term'] ?? 1),
+            ':max_t' => (int) ($_POST['max_term'] ?? 36),
             ':freq' => (string) ($_POST['allowed_frequency'] ?? 'both'),
-            ':fee' => number_format((float) ($_POST['admin_fee'] ?? 20), 2, '.', ''),
+            ':fee' => number_format((float) ($_POST['admin_fee'] ?? 0), 2, '.', ''),
         ]);
 
         AuditLogger::log('product.created', 'products', (int) $pdo->lastInsertId(), 'Created product ' . $_POST['product_code'], [], (int) $user['id']);

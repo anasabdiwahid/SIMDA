@@ -43,11 +43,11 @@ $role = $user['role_slug'] ?? '';
             </div>
             <div class="form-group">
                 <label>Financing Amount ($ USD) *</label>
-                <input type="number" name="requested_amount" class="form-control num-tabular" step="0.01" min="100" required value="2500.00">
+                <input type="number" name="requested_amount" class="form-control num-tabular" step="0.01" min="100" required value="1000.00">
             </div>
             <div class="form-group">
                 <label>Term (Installments) *</label>
-                <input type="number" name="term_installments" class="form-control num-tabular" min="3" max="36" required value="6">
+                <input type="number" name="term_installments" class="form-control num-tabular" min="1" max="36" required value="5">
             </div>
             <div class="form-group">
                 <label>Repayment Frequency *</label>

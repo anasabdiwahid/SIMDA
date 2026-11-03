@@ -194,21 +194,21 @@
             outBox.innerHTML =
                 '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">' +
                     '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                        '<div style="font-size:0.74rem;color:var(--text-secondary);">Principal / Cost</div>' +
+                        '<div style="font-size:0.74rem;color:var(--text-secondary);">Amount Given (Principal)</div>' +
                         '<div class="num-tabular" style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">$' + s.principal + '</div>' +
                     '</div>' +
                     '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                        '<div style="font-size:0.74rem;color:var(--text-secondary);">Total Profit / Markup</div>' +
-                        '<div class="num-tabular" style="font-size:1.1rem;font-weight:700;color:#C49746;">$' + s.total_profit + '</div>' +
+                        '<div style="font-size:0.74rem;color:var(--text-secondary);">Extra / Riba (0%)</div>' +
+                        '<div class="num-tabular" style="font-size:1.1rem;font-weight:700;color:#23845B;">$' + s.total_profit + '</div>' +
                     '</div>' +
                     '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                        '<div style="font-size:0.74rem;color:var(--text-secondary);">Total Due</div>' +
+                        '<div style="font-size:0.74rem;color:var(--text-secondary);">Total to Repay (Exact Same Amount)</div>' +
                         '<div class="num-tabular" style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">$' + s.total_due + '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="table-responsive" style="max-height:260px;overflow-y:auto;">' +
                     '<table class="simda-table" style="font-size:0.8rem;">' +
-                        '<thead><tr><th>#</th><th>Due Date</th><th>Principal</th><th>Profit</th><th>Installment</th><th>Bal. After</th></tr></thead>' +
+                        '<thead><tr><th>#</th><th>Due Date</th><th>Principal</th><th>Extra</th><th>Installment</th><th>Remaining Balance</th></tr></thead>' +
                         '<tbody>' + rowsHtml + '</tbody>' +
                     '</table>' +
                 '</div>';

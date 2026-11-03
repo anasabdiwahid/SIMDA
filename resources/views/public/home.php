@@ -409,25 +409,25 @@ $assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: 
 
             <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
                 <div class="form-group">
-                    <label>Product Type</label>
+                    <label>Financing Structure</label>
                     <select id="calc_product_type" class="form-control">
-                        <option value="murabaha">Murabaha (Markup %)</option>
-                        <option value="flat">Flat (Annual Profit %)</option>
-                        <option value="declining_balance">Declining Balance (Amortized)</option>
+                        <option value="flat">Zero-Riba / Qard Hassan (Principal Only)</option>
+                        <option value="murabaha">Murabaha Asset Financing</option>
+                        <option value="declining_balance">Declining Balance</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Amount ($ USD)</label>
-                    <input type="number" id="calc_principal" class="form-control num-tabular" value="3000" min="100" max="50000" step="50">
+                    <label>Amount Given ($ USD)</label>
+                    <input type="number" id="calc_principal" class="form-control num-tabular" value="1000" min="100" max="50000" step="50">
                 </div>
                 <div class="form-group">
-                    <label>Rate / Markup (%)</label>
-                    <input type="number" id="calc_rate" class="form-control num-tabular" value="12.00" min="1" max="50" step="0.5">
+                    <label>Extra / Riba (% — 0% Default)</label>
+                    <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" min="0" max="50" step="0.5">
                 </div>
                 <div class="form-group">
                     <label>Term & Frequency</label>
                     <div style="display:flex;gap:6px;">
-                        <input type="number" id="calc_term" class="form-control num-tabular" value="6" min="1" max="36" style="width:76px;">
+                        <input type="number" id="calc_term" class="form-control num-tabular" value="5" min="1" max="36" style="width:76px;">
                         <select id="calc_frequency" class="form-control" style="flex:1;">
                             <option value="monthly">Monthly</option>
                             <option value="weekly">Weekly</option>

@@ -128,5 +128,38 @@ final class DatabaseSeeder
             ':phone' => '+252 61 500 0000',
             ':phash' => Security::hashPassword('Admin@123'),
         ]);
+
+        // 6. Default Zero-Riba (0% Extra — Principal-Only) Financing Facility
+        $prdStmt = $pdo->prepare('
+            INSERT INTO products (
+                product_code, name_so, name_en, description_so, description_en,
+                product_type, annual_profit_rate, murabaha_markup_pct,
+                min_amount, max_amount, min_term, max_term, allowed_frequency, admin_fee, is_active
+            ) VALUES (
+                :code, :n_so, :n_en, :d_so, :d_en,
+                :type, :apr, :mrb,
+                :min_a, :max_a, :min_t, :max_t, :freq, :fee, 1
+            )
+            ON DUPLICATE KEY UPDATE
+                annual_profit_rate = VALUES(annual_profit_rate),
+                murabaha_markup_pct = VALUES(murabaha_markup_pct),
+                admin_fee = VALUES(admin_fee)
+        ');
+        $prdStmt->execute([
+            ':code' => 'PRD-QRD-01',
+            ':n_so' => 'Maalgelinta Bilaashka Riba (Qard Xasan)',
+            ':n_en' => 'Zero-Riba Principal-Only Financing (Qard Hassan)',
+            ':d_so' => 'Maalgelin 0% dheeraad ah — macmiilku wuxuu soo celinayaa oo keliya lacagtii la siiyay ($1,000 -> $1,000).',
+            ':d_en' => '100% Zero-Riba financing with $0.00 extra charges — if a client receives $1,000, they repay strictly $1,000.',
+            ':type' => 'flat',
+            ':apr' => '0.0000',
+            ':mrb' => '0.0000',
+            ':min_a' => '100.00',
+            ':max_a' => '50000.00',
+            ':min_t' => 1,
+            ':max_t' => 36,
+            ':freq' => 'both',
+            ':fee' => '0.00',
+        ]);
     }
 }
