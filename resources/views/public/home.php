@@ -734,7 +734,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <a href="?route=home&lang=en" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'en' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">EN</a>
                     </div>
                     <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> SIMDA Microfinance. All rights reserved.</div>
-                    <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;">Developed by <strong style="color:#D6B66C;font-weight:800;">Anas Abdiwahid</strong></div>
+                    <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;">Developed by <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
                 </div>
 
                 <!-- Right: Supported Payment & Mobile Money Channels -->

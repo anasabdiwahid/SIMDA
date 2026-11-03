@@ -7,7 +7,7 @@ use App\Helpers\Security;
 
 $locale = Lang::locale();
 $csrf = Security::csrfToken();
-$assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: time());
+$assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
 ?>
 <!DOCTYPE html>
 <html lang="<?= Security::e($locale) ?>" data-theme="light">
@@ -17,86 +17,430 @@ $assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: 
     <title><?= Security::e(Lang::get('nav_login')) ?> — SIMDA</title>
     <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
     <link rel="manifest" href="manifest.json">
-    <script>
-        (function() {
-            var p = localStorage.getItem('simda_theme_pref') || 'light';
-            var t = (p === 'dark' || p === 'light') ? p : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', t);
-            if ('caches' in window) {
-                caches.keys().then(function(keys) {
-                    keys.forEach(function(k) {
-                        if (k !== 'simda-static-shell-v3') { caches.delete(k); }
-                    });
-                });
-            }
-        })();
-    </script>
     <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
+    <style>
+        .simda-login-stage {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 18px;
+            background: radial-gradient(circle at 25% 20%, #1F5B4C 0%, #123B32 52%, #0A221C 100%);
+            font-family: 'Plus Jakarta Sans', var(--font-body);
+        }
+
+        .simda-login-card {
+            position: relative;
+            width: 100%;
+            max-width: 940px;
+            min-height: 550px;
+            background: #FFFFFF;
+            border-radius: 26px;
+            box-shadow: 0 32px 70px rgba(0, 0, 0, 0.38);
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            overflow: hidden;
+        }
+
+        /* Left Circular Welcome Panel & 3D Spheres */
+        .simda-login-left {
+            position: relative;
+            padding: 56px 44px 56px 54px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #FFFFFF;
+            z-index: 2;
+            user-select: none;
+        }
+
+        /* Giant curved circle backdrop forming the right circular arc */
+        .simda-login-circle-main {
+            position: absolute;
+            top: -120px;
+            left: -130px;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 28% 28%, #28725F 0%, #144338 58%, #0C2A23 100%);
+            box-shadow: 12px 12px 38px rgba(12, 42, 35, 0.25);
+            z-index: -1;
+        }
+
+        /* Center-bottom 3D sphere overlapping the main circle edge */
+        .simda-login-sphere-mid {
+            position: absolute;
+            bottom: 34px;
+            right: 26px;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 28%, #348A73 0%, #16493C 62%, #0A241E 100%);
+            box-shadow: 0 20px 38px rgba(7, 25, 20, 0.42);
+            z-index: 1;
+        }
+
+        /* Bottom-left 3D sphere */
+        .simda-login-sphere-bl {
+            position: absolute;
+            bottom: -58px;
+            left: -48px;
+            width: 215px;
+            height: 215px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, #2E7E69 0%, #133F34 65%, #09201A 100%);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+            z-index: 1;
+        }
+
+        /* Bottom-right decorative 3D sphere on white card corner */
+        .simda-login-sphere-br {
+            position: absolute;
+            bottom: -56px;
+            right: -46px;
+            width: 148px;
+            height: 148px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #2E7E69 0%, #123B32 70%, #0A221C 100%);
+            box-shadow: -6px -6px 24px rgba(18, 59, 50, 0.18);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .simda-login-welcome-content {
+            position: relative;
+            z-index: 3;
+            max-width: 340px;
+            margin-bottom: 60px;
+        }
+
+        .simda-login-logo-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 7px 14px;
+            border-radius: 12px;
+            margin-bottom: 26px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .simda-login-logo-pill img {
+            height: 28px;
+            width: auto;
+        }
+
+        .simda-login-welcome-title {
+            font-size: 2.55rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: #FFFFFF;
+            line-height: 1.08;
+            margin: 0 0 8px;
+            text-transform: uppercase;
+        }
+
+        .simda-login-welcome-sub {
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #D6B66C;
+            margin: 0 0 16px;
+        }
+
+        .simda-login-welcome-desc {
+            font-size: 0.82rem;
+            line-height: 1.65;
+            color: rgba(244, 245, 240, 0.84);
+            margin: 0;
+        }
+
+        /* Right White Sign-In Form Side */
+        .simda-login-right {
+            position: relative;
+            z-index: 3;
+            padding: 48px 52px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: transparent;
+        }
+
+        .simda-signin-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #162621;
+            margin: 0 0 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .simda-signin-sub {
+            font-size: 0.8rem;
+            color: #6B7872;
+            margin: 0 0 24px;
+        }
+
+        .simda-input-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #F2F4F3;
+            border: 1.5px solid transparent;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .simda-input-pill:focus-within {
+            background: #FFFFFF;
+            border-color: #123B32;
+            box-shadow: 0 0 0 3px rgba(18, 59, 50, 0.1);
+        }
+
+        .simda-input-icon {
+            color: #26332E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .simda-input-pill input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 0.88rem;
+            color: #162621;
+            font-family: inherit;
+            outline: none;
+            min-width: 0;
+        }
+
+        .simda-input-pill input::placeholder {
+            color: #87938C;
+        }
+
+        .simda-pw-toggle {
+            background: none;
+            border: none;
+            color: #123B32;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+
+        .simda-login-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 2px 0 20px;
+            font-size: 0.78rem;
+            color: #4A5751;
+        }
+
+        .simda-btn-signin-main {
+            width: 100%;
+            background: #123B32;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 20px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(18, 59, 50, 0.24);
+            transition: background-color 0.18s ease, transform 0.18s ease;
+        }
+
+        .simda-btn-signin-main:hover {
+            background: #0D2B24;
+            transform: translateY(-1px);
+        }
+
+        .simda-or-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 16px 0;
+            color: #87938C;
+            font-size: 0.76rem;
+            font-weight: 600;
+        }
+
+        .simda-or-divider::before,
+        .simda-or-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #E2E7E4;
+        }
+
+        .simda-btn-signin-alt {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #FFFFFF;
+            color: #162621;
+            border: 1.5px solid #26332E;
+            border-radius: 10px;
+            padding: 11px 20px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.18s ease;
+        }
+
+        .simda-btn-signin-alt:hover {
+            background: #F6F7F3;
+        }
+
+        .simda-login-bottom-note {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #5A6660;
+        }
+
+        .simda-login-bottom-note a {
+            color: #123B32;
+            font-weight: 700;
+        }
+
+        @media (max-width: 820px) {
+            .simda-login-card {
+                grid-template-columns: 1fr;
+                max-width: 460px;
+            }
+            .simda-login-left {
+                padding: 36px 32px 28px;
+                background: linear-gradient(135deg, #194D40 0%, #123B32 100%);
+            }
+            .simda-login-circle-main,
+            .simda-login-sphere-mid,
+            .simda-login-sphere-bl {
+                display: none;
+            }
+            .simda-login-welcome-content {
+                margin-bottom: 0;
+            }
+            .simda-login-right {
+                padding: 34px 30px 40px;
+            }
+        }
+    </style>
 </head>
-<body style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(135deg,#0D2B24 0%,#123B32 60%,#194B3F 100%);padding:20px;">
+<body>
 
-<div style="max-width:440px;width:100%;margin:0 auto;">
-    <div class="card animate-in" style="padding:34px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
-            <a href="?route=home" class="brand-logo-pill" style="border:1px solid var(--border-color);">
-                <img src="assets/images/simda-logo.png" alt="SIMDA Logo" style="height:28px;">
-            </a>
-            <div style="display:flex;gap:5px;">
-                <a href="?route=login&lang=en" class="btn btn-sm <?= $locale === 'en' ? 'btn-primary' : 'btn-outline' ?>">EN</a>
-                <a href="?route=login&lang=so" class="btn btn-sm <?= $locale === 'so' ? 'btn-primary' : 'btn-outline' ?>">SO</a>
+<div class="simda-login-stage">
+    <div class="simda-login-card animate-in">
+        <!-- Left Circular Welcome Panel with 3D Spheres -->
+        <div class="simda-login-left">
+            <div class="simda-login-circle-main"></div>
+            <div class="simda-login-sphere-mid"></div>
+            <div class="simda-login-sphere-bl"></div>
+
+            <div class="simda-login-welcome-content">
+                <a href="?route=home" class="simda-login-logo-pill">
+                    <img src="assets/images/simda-logo.png" alt="SIMDA Logo">
+                </a>
+                <h1 class="simda-login-welcome-title">WELCOME</h1>
+                <div class="simda-login-welcome-sub">SIMDA MICROFINANCE PORTAL</div>
+                <p class="simda-login-welcome-desc">
+                    <?= Security::e(Lang::get('tagline')) ?> — Centralized, ethical, and 100% Zero-Riba Sharia-compliant financial management platform.
+                </p>
             </div>
         </div>
 
-        <h2 style="font-size:1.4rem;margin-bottom:4px;"><?= Security::e(Lang::get('nav_login')) ?></h2>
-        <p style="color:var(--text-secondary);font-size:0.86rem;margin-bottom:20px;">
-            <?= Security::e(Lang::get('tagline')) ?>
-        </p>
+        <!-- Right White Sign-In Form Panel -->
+        <div class="simda-login-right">
+            <h2 class="simda-signin-title">Sign in</h2>
+            <p class="simda-signin-sub">Enter your SIMDA staff or client credentials to access the portal</p>
 
-        <?php if (!empty($_SESSION['flash_error'])): ?>
-            <div class="alert alert-danger">
-                <?= Icons::svg('alert-triangle', 18) ?>
-                <span><?= Security::e($_SESSION['flash_error']) ?></span>
+            <?php if (!empty($_SESSION['flash_error'])): ?>
+                <div class="alert alert-danger" style="padding:10px 14px;font-size:0.8rem;margin-bottom:14px;">
+                    <?= Icons::svg('alert-triangle', 16) ?>
+                    <span><?= Security::e($_SESSION['flash_error']) ?></span>
+                </div>
+                <?php unset($_SESSION['flash_error']); ?>
+            <?php endif; ?>
+
+            <?php if (!empty($_SESSION['flash_warning'])): ?>
+                <div class="alert alert-warning" style="padding:10px 14px;font-size:0.8rem;margin-bottom:14px;">
+                    <?= Icons::svg('info', 16) ?>
+                    <span><?= Security::e($_SESSION['flash_warning']) ?></span>
+                </div>
+                <?php unset($_SESSION['flash_warning']); ?>
+            <?php endif; ?>
+
+            <form method="POST" action="?route=login_submit">
+                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+
+                <div class="simda-input-pill">
+                    <span class="simda-input-icon"><?= Icons::svg('user', 18) ?></span>
+                    <input type="text" id="identifier" name="identifier" required autofocus placeholder="User Name or Email">
+                </div>
+
+                <div class="simda-input-pill">
+                    <span class="simda-input-icon"><?= Icons::svg('lock', 18) ?></span>
+                    <input type="password" id="password" name="password" required placeholder="Password">
+                    <button type="button" class="simda-pw-toggle" id="togglePwBtn">SHOW</button>
+                </div>
+
+                <div class="simda-login-meta-row">
+                    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+                        <input type="checkbox" name="remember" style="accent-color:#123B32;">
+                        <span>Remember me</span>
+                    </label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <a href="?route=login&lang=en" style="color:<?= $locale === 'en' ? '#123B32' : '#87938C' ?>;font-weight:700;">EN</a>
+                        <span>|</span>
+                        <a href="?route=login&lang=so" style="color:<?= $locale === 'so' ? '#123B32' : '#87938C' ?>;font-weight:700;">SO</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="simda-btn-signin-main">Sign in</button>
+
+                <div class="simda-or-divider">Or</div>
+
+                <a href="?route=home" class="simda-btn-signin-alt">
+                    <span>Back to Public Website</span>
+                </a>
+            </form>
+
+            <div class="simda-login-bottom-note">
+                Need assistance? <a href="?route=home#contact">Contact SIMDA Head Office</a>
             </div>
-            <?php unset($_SESSION['flash_error']); ?>
-        <?php endif; ?>
-
-        <?php if (!empty($_SESSION['flash_warning'])): ?>
-            <div class="alert alert-warning">
-                <?= Icons::svg('info', 18) ?>
-                <span><?= Security::e($_SESSION['flash_warning']) ?></span>
-            </div>
-            <?php unset($_SESSION['flash_warning']); ?>
-        <?php endif; ?>
-
-        <form method="POST" action="?route=login_submit">
-            <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-
-            <div class="form-group">
-                <label for="identifier">Username or Email</label>
-                <input type="text" id="identifier" name="identifier" class="form-control" required autofocus placeholder="Enter your username or email">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••">
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width:100%;padding:11px;margin-top:8px;">
-                <span><?= Security::e(Lang::get('nav_login')) ?></span>
-                <?= Icons::svg('arrow-right', 16) ?>
-            </button>
-        </form>
-
-        <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;">
-            <a href="?route=home" style="color:var(--text-secondary);display:inline-flex;align-items:center;gap:5px;">
-                <?= Icons::svg('arrow-left', 14) ?>
-                <span><?= Security::e(Lang::get('nav_home')) ?></span>
-            </a>
-            <span style="color:var(--text-muted);font-size:0.75rem;">Secured with Argon2id &amp; CSRF</span>
         </div>
+
+        <!-- Bottom-right decorative 3D sphere -->
+        <div class="simda-login-sphere-br"></div>
     </div>
 </div>
 
-<script src="assets/js/simda.js"></script>
+<script>
+    (function () {
+        var btn = document.getElementById('togglePwBtn');
+        var pw = document.getElementById('password');
+        if (btn && pw) {
+            btn.addEventListener('click', function () {
+                if (pw.type === 'password') {
+                    pw.type = 'text';
+                    btn.textContent = 'HIDE';
+                } else {
+                    pw.type = 'password';
+                    btn.textContent = 'SHOW';
+                }
+            });
+        }
+    })();
+</script>
+<script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
 </html>
