@@ -8,7 +8,7 @@ use App\Middleware\AuthMiddleware;
 
 $locale = Lang::locale();
 $isLoggedIn = AuthMiddleware::check();
-$assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: time());
+$assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
 ?>
 <!DOCTYPE html>
 <html lang="<?= Security::e($locale) ?>" data-theme="light">
@@ -418,11 +418,11 @@ $assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: 
                 </div>
                 <div class="form-group">
                     <label>Amount Given ($ USD)</label>
-                    <input type="number" id="calc_principal" class="form-control num-tabular" value="1000" min="100" max="50000" step="50">
+                    <input type="number" id="calc_principal" class="form-control num-tabular" value="1000" min="50" max="100000" step="50" placeholder="Enter e.g. 1000 or 5000">
                 </div>
                 <div class="form-group">
-                    <label>Extra / Riba (% — 0% Default)</label>
-                    <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" min="0" max="50" step="0.5">
+                    <label>Extra / Riba (% — Locked at 0%)</label>
+                    <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" min="0" max="0" step="0" readonly style="background:rgba(35,132,91,0.08);color:#23845B;font-weight:700;">
                 </div>
                 <div class="form-group">
                     <label>Term & Frequency</label>
@@ -436,11 +436,19 @@ $assetVer = (string) (@filemtime(BASE_PATH . '/public/assets/css/simda.css') ?: 
                 </div>
             </div>
 
-            <div style="margin:8px 0 14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:10px 0 14px;">
                 <button type="button" id="btnPreviewSchedule" class="fid-btn-green">
                     <?= Icons::svg('calendar', 15) ?>
                     <span>Generate Exact Installment Schedule</span>
                 </button>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span style="font-size:0.76rem;color:#5A6660;font-weight:600;">Quick Amounts:</span>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="500">$500</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000">$1,000</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000">$3,000</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000">$5,000</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="10000">$10,000</button>
+                </div>
             </div>
 
             <div id="schedulePreviewContainer"></div>

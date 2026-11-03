@@ -11,6 +11,7 @@ $user = AuthMiddleware::user();
 $role = $user['role_slug'] ?? '';
 $currentRoute = (string) ($_GET['route'] ?? 'dashboard');
 $csrf = Security::csrfToken();
+$assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
 ?>
 <!DOCTYPE html>
 <html lang="<?= Security::e($locale) ?>" data-theme="light">
@@ -26,9 +27,16 @@ $csrf = Security::csrfToken();
             var p = localStorage.getItem('simda_theme_pref') || 'light';
             var t = (p === 'dark' || p === 'light') ? p : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', t);
+            if ('caches' in window) {
+                caches.keys().then(function(keys) {
+                    keys.forEach(function(k) {
+                        if (k !== 'simda-static-shell-v3') { caches.delete(k); }
+                    });
+                });
+            }
         })();
     </script>
-    <link rel="stylesheet" href="assets/css/simda.css">
+    <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>

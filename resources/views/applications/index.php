@@ -43,18 +43,20 @@ $role = $user['role_slug'] ?? '';
             </div>
             <div class="form-group">
                 <label>Financing Amount ($ USD) *</label>
-                <input type="number" name="requested_amount" class="form-control num-tabular" step="0.01" min="100" required value="1000.00">
+                <input type="number" id="calc_principal" name="requested_amount" class="form-control num-tabular" step="0.01" min="100" required value="1000.00">
             </div>
             <div class="form-group">
                 <label>Term (Installments) *</label>
-                <input type="number" name="term_installments" class="form-control num-tabular" min="1" max="36" required value="5">
+                <input type="number" id="calc_term" name="term_installments" class="form-control num-tabular" min="1" max="36" required value="5">
             </div>
             <div class="form-group">
                 <label>Repayment Frequency *</label>
-                <select name="repayment_frequency" class="form-control" required>
+                <select id="calc_frequency" name="repayment_frequency" class="form-control" required>
                     <option value="monthly">Monthly</option>
                     <option value="weekly">Weekly</option>
                 </select>
+                <input type="hidden" id="calc_product_type" value="flat">
+                <input type="hidden" id="calc_rate" value="0.00">
             </div>
             <div class="form-group">
                 <label>Optional Solidarity Group</label>
@@ -76,10 +78,12 @@ $role = $user['role_slug'] ?? '';
                 <input type="text" name="murabaha_goods_description" class="form-control" value="Verified commercial inventory goods per supplier pro-forma invoice">
             </div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:8px;">
+        <div style="display:flex;gap:10px;margin:8px 0 14px;flex-wrap:wrap;">
             <button type="submit" name="submit_mode" value="submitted" class="btn btn-primary btn-sm"><?= Icons::svg('check-circle', 15) ?> <span>Submit Application to Queue</span></button>
             <button type="submit" name="submit_mode" value="draft" class="btn btn-outline btn-sm">Save as Draft</button>
+            <button type="button" id="btnPreviewSchedule" class="btn btn-gold btn-sm"><?= Icons::svg('calendar', 14) ?> <span>Refresh Schedule Preview</span></button>
         </div>
+        <div id="schedulePreviewContainer"></div>
     </form>
     <?php endif; ?>
 
