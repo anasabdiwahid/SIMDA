@@ -83,9 +83,22 @@ final class PortalController
             };
         } catch (\Throwable $e) {
             $_SESSION['flash_error'] = $e->getMessage();
-            $fallback = AuthMiddleware::check() ? '?route=dashboard' : '?route=login';
-            $referer = $_SERVER['HTTP_REFERER'] ?? $fallback;
-            header('Location: ' . $referer);
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+                $fallback = AuthMiddleware::check() ? '?route=dashboard' : '?route=login';
+                $referer = $_SERVER['HTTP_REFERER'] ?? $fallback;
+                header('Location: ' . $referer);
+                exit;
+            }
+            if (AuthMiddleware::check() && $route !== 'dashboard') {
+                header('Location: ?route=dashboard');
+                exit;
+            }
+            if (!AuthMiddleware::check() && $route !== 'login') {
+                header('Location: ?route=login');
+                exit;
+            }
+            http_response_code(500);
+            echo '<div style="font-family:sans-serif;padding:24px;color:#C94B4B;">Error: ' . Security::e($e->getMessage()) . '</div>';
             exit;
         }
     }

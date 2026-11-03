@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', __DIR__);
+}
+
 spl_autoload_register(function (string $class): void {
     $prefixes = [
         'App\\' => __DIR__ . '/app/',
