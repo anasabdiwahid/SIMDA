@@ -136,6 +136,10 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
     <div class="fid-container fid-nav">
         <a href="?route=home" class="fid-logo-link" title="SIMDA - Somali Islamic Microfinance Development Association">
             <img src="assets/images/simda-logo.png" alt="SIMDA Microfinance">
+            <span class="fid-logo-tagline-stacked">
+                <span>SOMALI ISLAMIC MICROFINANCE</span>
+                <span>DEVELOPMENT ASSOCIATION</span>
+            </span>
         </a>
 
         <ul class="fid-nav-links">

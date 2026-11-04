@@ -661,17 +661,37 @@ table th.amount {
 }
 
 .fid-logo-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
     text-decoration: none;
     flex-shrink: 0;
+    line-height: 1;
 }
 
 .fid-logo-link img {
-    height: 38px;
+    height: 34px;
     width: auto;
     display: block;
+}
+
+.fid-logo-tagline-stacked {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    margin-top: 3px;
+    font-size: 0.48rem;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    color: #123B32;
+    line-height: 1.15;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .fid-logo-tagline-stacked {
+    color: #D6B66C;
 }
 
 .fid-nav-links {
