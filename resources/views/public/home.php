@@ -88,49 +88,6 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
     <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
 </head>
 <body class="fid-page">
-<!-- Animated Floating Money Bags & Dollar Banknotes Background Layer -->
-<div class="fid-money-anim-layer" aria-hidden="true">
-    <svg width="0" height="0" style="position:absolute;">
-        <defs>
-            <g id="anim-bag-round" stroke="#184C3F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M-9,-28 C-12,-38 -5,-41 0,-39 C4,-42 12,-38 9,-28" fill="#EEF5F1" />
-                <path d="M-4,-28 L-3,-37 M3,-28 L4,-37" stroke-width="1.4" />
-                <rect x="-10" y="-28" width="20" height="5" rx="2.5" fill="#D6B66C" />
-                <path d="M-8,-23 C-24,-12 -28,12 -20,25 C-14,34 14,34 20,25 C28,12 24,-12 8,-23 Z" fill="#F7FAF8" />
-                <path d="M-16,18 C-19,8 -17,-6 -8,-16" stroke-width="1.2" opacity="0.6" />
-                <path d="M5,-8 C3,-12 -6,-12 -6,-6 C-6,0 7,0 7,7 C7,13 -4,13 -6,8" stroke-width="2" />
-                <line x1="-1" y1="-15" x2="-1" y2="16" stroke-width="1.6" />
-                <line x1="2" y1="-15" x2="2" y2="16" stroke-width="1.6" />
-            </g>
-            <g id="anim-bag-tall" stroke="#184C3F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M-7,-30 C-9,-39 -3,-41 0,-39 C3,-41 9,-39 7,-30" fill="#EEF5F1" />
-                <rect x="-8" y="-30" width="16" height="4.5" rx="2" fill="#D6B66C" />
-                <path d="M-7,-25.5 C-17,-12 -20,14 -16,26 C-13,31 13,31 16,26 C20,14 17,-12 7,-25.5 Z" fill="#F7FAF8" />
-                <path d="M4,-8 C2,-11 -5,-11 -5,-6 C-5,-1 5,0 5,6 C5,11 -3,11 -5,7" stroke-width="1.9" />
-                <line x1="0" y1="-14" x2="0" y2="14" stroke-width="1.5" />
-            </g>
-            <g id="anim-dollar-bill" stroke="#184C3F" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="-34" y="-17" width="68" height="34" rx="3" fill="#F4F8F5" />
-                <rect x="-29" y="-12.5" width="58" height="25" rx="1.5" fill="none" stroke="#C59B47" stroke-width="1.3" />
-                <path d="M3,-5 C2,-8 -4,-8 -4,-4 C-4,0 4,0 4,4 C4,8 -2,8 -4,5" stroke-width="1.8" />
-                <line x1="0" y1="-10" x2="0" y2="10" stroke-width="1.5" />
-            </g>
-        </defs>
-    </svg>
-
-    <svg class="fid-money-floater" style="top:8%;left:3%;--dur:14s;--delay:0s;--rot-start:-14deg;--sc:0.95;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-round"/></svg>
-    <svg class="fid-money-floater drift-horiz" style="top:15%;left:18%;--dur:19s;--delay:-3s;--sc:0.9;" width="80" height="46" viewBox="-40 -23 80 46"><use href="#anim-dollar-bill"/></svg>
-    <svg class="fid-money-floater" style="top:11%;right:6%;--dur:16s;--delay:-5s;--rot-start:12deg;--sc:1;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-tall"/></svg>
-    <svg class="fid-money-floater drift-horiz" style="top:28%;right:14%;--dur:21s;--delay:-7s;--sc:0.92;" width="80" height="46" viewBox="-40 -23 80 46"><use href="#anim-dollar-bill"/></svg>
-    <svg class="fid-money-floater" style="top:36%;left:5%;--dur:17s;--delay:-2s;--rot-start:16deg;--sc:0.88;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-tall"/></svg>
-    <svg class="fid-money-floater" style="top:48%;left:22%;--dur:15s;--delay:-9s;--rot-start:-10deg;--sc:0.95;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-round"/></svg>
-    <svg class="fid-money-floater drift-horiz" style="top:52%;right:5%;--dur:18s;--delay:-4s;--sc:0.96;" width="80" height="46" viewBox="-40 -23 80 46"><use href="#anim-dollar-bill"/></svg>
-    <svg class="fid-money-floater" style="top:64%;left:7%;--dur:20s;--delay:-11s;--rot-start:-18deg;--sc:0.92;" width="80" height="46" viewBox="-40 -23 80 46"><use href="#anim-dollar-bill"/></svg>
-    <svg class="fid-money-floater" style="top:68%;right:19%;--dur:15s;--delay:-6s;--rot-start:8deg;--sc:0.94;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-round"/></svg>
-    <svg class="fid-money-floater drift-horiz" style="top:82%;left:12%;--dur:17s;--delay:-8s;--sc:0.9;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-tall"/></svg>
-    <svg class="fid-money-floater" style="top:86%;right:7%;--dur:16s;--delay:-1s;--rot-start:-15deg;--sc:0.95;" width="72" height="84" viewBox="-36 -46 72 86"><use href="#anim-bag-round"/></svg>
-</div>
-
 <div class="offline-banner">
     <?= Security::e(Lang::get('connection_offline')) ?>
 </div>
