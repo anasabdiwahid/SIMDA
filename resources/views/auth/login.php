@@ -8,6 +8,61 @@ use App\Helpers\Security;
 $locale = Lang::locale();
 $csrf = Security::csrfToken();
 $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
+
+$loginI18n = [
+    'en' => [
+        'welcome' => 'WELCOME',
+        'portal' => 'SIMDA MICROFINANCE PORTAL',
+        'portal_desc' => 'Centralized, ethical, and 100% Zero-Riba Sharia-compliant financial management platform.',
+        'signin' => 'Sign in',
+        'signin_sub' => 'Enter your SIMDA staff or client credentials to access the portal',
+        'identifier' => 'User Name or Email',
+        'password' => 'Password',
+        'remember' => 'Remember me',
+        'show' => 'SHOW',
+        'hide' => 'HIDE',
+        'btn_signin' => 'Sign in',
+        'or' => 'Or',
+        'back_home' => 'Back to Public Website',
+        'need_help' => 'Need assistance?',
+        'contact_office' => 'Contact SIMDA Head Office',
+    ],
+    'so' => [
+        'welcome' => 'SOO DHAWOOW',
+        'portal' => 'BORTAALKA SIMDA MICROFINANCE',
+        'portal_desc' => 'Nidaam dhexe, xalaal ah, oo 100% waafaqsan Shareecada Islaamka iyo 0% Ribo.',
+        'signin' => 'Gal Nidaamka',
+        'signin_sub' => 'Gali magacaaga ama email-kaaga si aad u gasho maamulka',
+        'identifier' => 'Magaca ama Email-ka',
+        'password' => 'Furaha Sirta ah',
+        'remember' => 'I xasuuso',
+        'show' => 'MUUG',
+        'hide' => 'QARI',
+        'btn_signin' => 'Gal Nidaamka',
+        'or' => 'Ama',
+        'back_home' => 'Ku laabo Bogga Guud',
+        'need_help' => 'Ma u baahan tahay caawimaad?',
+        'contact_office' => 'La xiriir Xafiiska Guud ee SIMDA',
+    ],
+    'ar' => [
+        'welcome' => 'مرحباً بكم',
+        'portal' => 'بوابة سيمدا للتمويل الأصغر',
+        'portal_desc' => 'منظومة مالية إسلامية مركزية وأخلاقية متوافقة 100% مع الشريعة وبدون ربا (0%).',
+        'signin' => 'تسجيل الدخول',
+        'signin_sub' => 'أدخل بيانات الموظف أو العميل للوصول إلى لوحة التحكم',
+        'identifier' => 'اسم المستخدم أو البريد الإلكتروني',
+        'password' => 'كلمة المرور',
+        'remember' => 'تذكرني',
+        'show' => 'إظهار',
+        'hide' => 'إخفاء',
+        'btn_signin' => 'تسجيل الدخول',
+        'or' => 'أو',
+        'back_home' => 'العودة للموقع العام',
+        'need_help' => 'هل تحتاج إلى مساعدة؟',
+        'contact_office' => 'اتصل بالمقر الرئيسي لسيمدا',
+    ],
+];
+$lt = $loginI18n[$locale] ?? $loginI18n['en'];
 ?>
 <!DOCTYPE html>
 <html lang="<?= Security::e($locale) ?>" dir="<?= $locale === 'ar' ? 'rtl' : 'ltr' ?>" data-theme="light">
@@ -350,18 +405,18 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <a href="?route=home" class="simda-login-logo-pill">
                     <img src="assets/images/simda-logo.png" alt="SIMDA Logo">
                 </a>
-                <h1 class="simda-login-welcome-title">WELCOME</h1>
-                <div class="simda-login-welcome-sub">SIMDA MICROFINANCE PORTAL</div>
+                <h1 class="simda-login-welcome-title"><?= Security::e($lt['welcome']) ?></h1>
+                <div class="simda-login-welcome-sub"><?= Security::e($lt['portal']) ?></div>
                 <p class="simda-login-welcome-desc">
-                    <?= Security::e(Lang::get('tagline')) ?> — Centralized, ethical, and 100% Zero-Riba Sharia-compliant financial management platform.
+                    <?= Security::e(Lang::get('tagline')) ?> — <?= Security::e($lt['portal_desc']) ?>
                 </p>
             </div>
         </div>
 
         <!-- Right White Sign-In Form Panel -->
         <div class="simda-login-right">
-            <h2 class="simda-signin-title">Sign in</h2>
-            <p class="simda-signin-sub">Enter your SIMDA staff or client credentials to access the portal</p>
+            <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
+            <p class="simda-signin-sub"><?= Security::e($lt['signin_sub']) ?></p>
 
             <?php if (!empty($_SESSION['flash_error'])): ?>
                 <div class="alert alert-danger" style="padding:10px 14px;font-size:0.8rem;margin-bottom:14px;">
@@ -384,19 +439,19 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 
                 <div class="simda-input-pill">
                     <span class="simda-input-icon"><?= Icons::svg('user', 18) ?></span>
-                    <input type="text" id="identifier" name="identifier" required autofocus placeholder="User Name or Email">
+                    <input type="text" id="identifier" name="identifier" required autofocus placeholder="<?= Security::e($lt['identifier']) ?>">
                 </div>
 
                 <div class="simda-input-pill">
                     <span class="simda-input-icon"><?= Icons::svg('lock', 18) ?></span>
-                    <input type="password" id="password" name="password" required placeholder="Password">
-                    <button type="button" class="simda-pw-toggle" id="togglePwBtn">SHOW</button>
+                    <input type="password" id="password" name="password" required placeholder="<?= Security::e($lt['password']) ?>">
+                    <button type="button" class="simda-pw-toggle" id="togglePwBtn"><?= Security::e($lt['show']) ?></button>
                 </div>
 
                 <div class="simda-login-meta-row">
                     <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
                         <input type="checkbox" name="remember" style="accent-color:#123B32;">
-                        <span>Remember me</span>
+                        <span><?= Security::e($lt['remember']) ?></span>
                     </label>
                     <?php
                     $loginLanguagesList = [
@@ -430,17 +485,17 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     </div>
                 </div>
 
-                <button type="submit" class="simda-btn-signin-main">Sign in</button>
+                <button type="submit" class="simda-btn-signin-main"><?= Security::e($lt['btn_signin']) ?></button>
 
-                <div class="simda-or-divider">Or</div>
+                <div class="simda-or-divider"><?= Security::e($lt['or']) ?></div>
 
                 <a href="?route=home" class="simda-btn-signin-alt">
-                    <span>Back to Public Website</span>
+                    <span><?= Security::e($lt['back_home']) ?></span>
                 </a>
             </form>
 
             <div class="simda-login-bottom-note">
-                Need assistance? <a href="?route=home#contact">Contact SIMDA Head Office</a>
+                <?= Security::e($lt['need_help']) ?> <a href="?route=contact"><?= Security::e($lt['contact_office']) ?></a>
             </div>
         </div>
 

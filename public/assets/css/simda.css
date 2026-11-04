@@ -873,17 +873,21 @@ table th.amount {
 [dir="rtl"] .table td,
 [dir="rtl"] .simda-table th,
 [dir="rtl"] .simda-table td {
-    text-align: right;
+    text-align: start;
+    display: table-cell !important;
 }
 
-[dir="rtl"] .table th.amount,
-[dir="rtl"] .table td.amount,
-[dir="rtl"] .simda-table th.amount,
-[dir="rtl"] .simda-table td.amount,
-[dir="rtl"] .num-tabular {
+[dir="rtl"] td.num-tabular,
+[dir="rtl"] th.num-tabular {
+    display: table-cell !important;
+    text-align: start;
+}
+
+[dir="rtl"] span.num-tabular,
+[dir="rtl"] div.num-tabular {
     direction: ltr;
     display: inline-block;
-    text-align: right;
+    unicode-bidi: embed;
 }
 
 [dir="rtl"] .fid-nav-links {

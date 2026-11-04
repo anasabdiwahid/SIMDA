@@ -380,50 +380,121 @@
     }
 
     function renderScheduleHtml(s, outBox) {
+        const lang = (document.documentElement.lang || 'en').toLowerCase().substring(0, 2);
+        const i18n = {
+            en: {
+                amountGiven: 'Amount Given (Principal)',
+                paymentPeriod: 'Payment Per Period (Monthly)',
+                paymentPeriodWeekly: 'Payment Per Period (Weekly)',
+                timeToFinish: 'Time to Finish (Duration)',
+                totalRepay: 'Total to Repay (0% Riba)',
+                unitMonths: 'Months',
+                unitWeeks: 'Weeks',
+                perMonth: ' / month',
+                perWeek: ' / week',
+                satShift: 'Sat Shift',
+                satShiftTitle: 'Shifted from Friday to Saturday',
+                colNum: '#',
+                colDueDate: 'Due Date',
+                colPrincipal: 'Principal',
+                colExtra: 'Extra (0%)',
+                colInstallment: 'Installment',
+                colBalance: 'Remaining Balance'
+            },
+            so: {
+                amountGiven: 'Lacagta La Bixiyay (Raasumaalka)',
+                paymentPeriod: 'Bixinta Xilliga (Bishii)',
+                paymentPeriodWeekly: 'Bixinta Xilliga (Toddobaadkiiba)',
+                timeToFinish: 'Muddada Dhamaystirka (Mudada)',
+                totalRepay: 'Wadarta Dib-u-bixinta (0% Ribo)',
+                unitMonths: 'Bilood',
+                unitWeeks: 'Toddobaad',
+                perMonth: ' / bishii',
+                perWeek: ' / toddobaad',
+                satShift: 'Sabti Loo Wareejiyay',
+                satShiftTitle: 'Waxaa laga wareejiyay Jimce loona wareejiyay Sabti',
+                colNum: '#',
+                colDueDate: 'Taariikhda Bixinta',
+                colPrincipal: 'Raasumaalka',
+                colExtra: 'Dheeraad (0%)',
+                colInstallment: 'Qaybta/Qustiga',
+                colBalance: 'Haraaga Haray'
+            },
+            ar: {
+                amountGiven: 'مبلغ التمويل (أصل المبلغ)',
+                paymentPeriod: 'القسط الدوري (شهرياً)',
+                paymentPeriodWeekly: 'القسط الدوري (أسبوعياً)',
+                timeToFinish: 'مدة السداد (المتبقية)',
+                totalRepay: 'إجمالي المبلغ المستحق (0% ربا)',
+                unitMonths: 'شهراً',
+                unitWeeks: 'أسابيع',
+                perMonth: ' / شهرياً',
+                perWeek: ' / أسبوعياً',
+                satShift: 'ترحيل للسبت',
+                satShiftTitle: 'تم ترحيل الموعد تلقائياً من الجمعة إلى السبت',
+                colNum: '#',
+                colDueDate: 'تاريخ الاستحقاق',
+                colPrincipal: 'أصل المبلغ',
+                colExtra: 'الزيادة (0%)',
+                colInstallment: 'قيمة القسط',
+                colBalance: 'الرصيد المتبقي'
+            }
+        };
+        const t = i18n[lang] || i18n['en'];
+
         let rowsHtml = '';
         const maxRows = Math.min(s.installments.length, 60);
         for (let i = 0; i < maxRows; i++) {
             const inst = s.installments[i];
             const shiftBadge = inst.was_friday_shifted
-                ? ' <span class="badge badge-gold" title="Shifted from Friday (' + inst.original_due_date + ') to Saturday">Sat Shift</span>'
+                ? ' <span class="badge badge-gold" title="' + t.satShiftTitle + '">' + t.satShift + '</span>'
                 : '';
             rowsHtml += '<tr>' +
                 '<td class="num-tabular">#' + inst.installment_number + '</td>' +
-                '<td class="num-tabular">' + inst.due_date + shiftBadge + '</td>' +
-                '<td class="num-tabular">$' + inst.principal_due + '</td>' +
-                '<td class="num-tabular">$' + inst.profit_due + '</td>' +
-                '<td class="num-tabular"><strong>$' + inst.total_due + '</strong></td>' +
-                '<td class="num-tabular">$' + inst.principal_balance_after + '</td>' +
+                '<td class="num-tabular"><span dir="ltr">' + inst.due_date + '</span>' + shiftBadge + '</td>' +
+                '<td class="num-tabular"><span dir="ltr">$' + inst.principal_due + '</span></td>' +
+                '<td class="num-tabular"><span dir="ltr">$' + inst.profit_due + '</span></td>' +
+                '<td class="num-tabular"><strong><span dir="ltr">$' + inst.total_due + '</span></strong></td>' +
+                '<td class="num-tabular"><span dir="ltr">$' + inst.principal_balance_after + '</span></td>' +
                 '</tr>';
         }
 
-        const unitLabel = (s.frequency === 'weekly') ? 'Weeks (Toddobaad)' : 'Months (Bilood)';
-        const perUnit = (s.frequency === 'weekly') ? ' / week' : ' / month';
+        const isWeekly = s.frequency === 'weekly';
+        const unitLabel = isWeekly ? t.unitWeeks : t.unitMonths;
+        const perUnit = isWeekly ? t.perWeek : t.perMonth;
+        const periodTitle = isWeekly ? t.paymentPeriodWeekly : t.paymentPeriod;
         const regAmt = s.regular_installment || (s.installments[0] ? s.installments[0].total_due : '0.00');
         const count = s.term_installments || s.installments.length;
 
         outBox.innerHTML =
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-bottom:14px;">' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Amount Given (Principal)</div>' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">' + t.amountGiven + '</div>' +
                     '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:var(--text-primary);">$' + s.principal + '</div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Payment Per Period (Bishii)</div>' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">' + periodTitle + '</div>' +
                     '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">$' + regAmt + '<span style="font-size:0.76rem;font-weight:600;color:var(--text-secondary);">' + perUnit + '</span></div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:2px solid #D6B66C;">' +
-                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Time to Finish (Mudada)</div>' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">' + t.timeToFinish + '</div>' +
                     '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">' + count + ' ' + unitLabel + '</div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
-                    '<div style="font-size:0.74rem;color:var(--text-secondary);">Total to Repay (0% Riba)</div>' +
+                    '<div style="font-size:0.74rem;color:var(--text-secondary);">' + t.totalRepay + '</div>' +
                     '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#23845B;">$' + s.total_due + '</div>' +
                 '</div>' +
             '</div>' +
             '<div class="table-responsive" style="max-height:320px;overflow-y:auto;">' +
                 '<table class="simda-table" style="font-size:0.8rem;">' +
-                    '<thead><tr><th>#</th><th>Due Date</th><th>Principal</th><th>Extra</th><th>Installment</th><th>Remaining Balance</th></tr></thead>' +
+                    '<thead><tr>' +
+                        '<th>' + t.colNum + '</th>' +
+                        '<th>' + t.colDueDate + '</th>' +
+                        '<th>' + t.colPrincipal + '</th>' +
+                        '<th>' + t.colExtra + '</th>' +
+                        '<th>' + t.colInstallment + '</th>' +
+                        '<th>' + t.colBalance + '</th>' +
+                    '</tr></thead>' +
                     '<tbody>' + rowsHtml + '</tbody>' +
                 '</table>' +
             '</div>';

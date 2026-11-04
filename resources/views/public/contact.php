@@ -68,6 +68,29 @@ $contactI18n = [
 
         'footer_rights' => 'SIMDA Microfinance. All rights reserved.',
         'footer_developed_by' => 'Developed by',
+        'footer_col_newsletter' => "SIMDA's Newsletter",
+        'footer_placeholder_email' => 'Your email',
+        'footer_btn_subscribe' => 'SUBSCRIBE',
+        'footer_newsletter_alert' => 'Thank you for subscribing to SIMDA updates!',
+        'footer_col_terms' => 'Terms and conditions',
+        'footer_term_riba' => '0% Riba — Principal only!',
+        'footer_term_shift' => 'Friday to Saturday shift!',
+        'footer_term_charity' => '100% Segregated Charity Fund!',
+        'footer_follow_simda' => 'Follow SIMDA',
+        'footer_col_info' => 'Information',
+        'footer_faq' => 'FAQs',
+        'footer_about_simda' => 'About us at SIMDA',
+        'footer_schedule_engine' => 'SIMDA Schedule Engine',
+        'footer_col_contact' => 'Contact',
+        'footer_brand_sub' => 'SIMDA Microfinance',
+        'footer_reg' => 'Institution Reg: SIMDA-SO-001',
+        'footer_head_office' => 'Head office:',
+        'footer_country' => 'Mogadishu, Somalia',
+        'footer_seal_zero_riba' => 'ZERO RIBA',
+        'footer_seal_guaranteed' => 'GUARANTEED',
+        'footer_seal_sharia' => 'SHARIA & AUDIT',
+        'footer_seal_compliant' => 'COMPLIANT',
+        'footer_part_of' => 'Part of SIMDA',
     ],
     'so' => [
         'nav_home' => 'Bogga Hore',
@@ -125,6 +148,29 @@ $contactI18n = [
 
         'footer_rights' => 'SIMDA Microfinance. Xuquuqda oo dhan way dhowran tahay.',
         'footer_developed_by' => 'Waxaa diyaariyay',
+        'footer_col_newsletter' => 'Wargeyska SIMDA',
+        'footer_placeholder_email' => 'Email-kaaga gali',
+        'footer_btn_subscribe' => 'IS DIIWAANGELI',
+        'footer_newsletter_alert' => 'Waad ku mahadsan tahay ku biirista wargeyska SIMDA!',
+        'footer_col_terms' => 'Shuruudaha & Xeerarka',
+        'footer_term_riba' => '0% Ribo — Raasumaalka keliya!',
+        'footer_term_shift' => 'Jimcaha oo loo wareejiyo Sabtida!',
+        'footer_term_charity' => '100% Sanduuqa Khayraadka oo Gooni ah!',
+        'footer_follow_simda' => 'Ku xirnow SIMDA',
+        'footer_col_info' => 'Xogta & Faahfaahinta',
+        'footer_faq' => 'Su\'aalaha Badan ee La Isweydiiyo',
+        'footer_about_simda' => 'Ku saabsan SIMDA',
+        'footer_schedule_engine' => 'Jadwalka Xisaabinta SIMDA',
+        'footer_col_contact' => 'Xiriirka',
+        'footer_brand_sub' => 'SIMDA Microfinance',
+        'footer_reg' => 'Diiwaanka Hay\'adda: SIMDA-SO-001',
+        'footer_head_office' => 'Xafiiska Guud:',
+        'footer_country' => 'Muqdisho, Soomaaliya',
+        'footer_seal_zero_riba' => '0% RIBO',
+        'footer_seal_guaranteed' => 'LA DAMMAANAD QAADAY',
+        'footer_seal_sharia' => 'SHAREECADA & HANTIDHOWRKA',
+        'footer_seal_compliant' => 'WAA WAFAQSAN YAHAY',
+        'footer_part_of' => 'Qayb ka mid ah SIMDA',
     ],
     'ar' => [
         'nav_home' => 'الرئيسية',
@@ -182,6 +228,29 @@ $contactI18n = [
 
         'footer_rights' => 'سيمدا للتمويل الأصغر. جميع الحقوق محفوظة.',
         'footer_developed_by' => 'تطوير وتصميم',
+        'footer_col_newsletter' => 'النشرة الإخبارية لسيمدا',
+        'footer_placeholder_email' => 'بريدك الإلكتروني',
+        'footer_btn_subscribe' => 'اشترك',
+        'footer_newsletter_alert' => 'شكراً لاشتراكك في نشرة مستجدات سيمدا!',
+        'footer_col_terms' => 'الشروط والضوابط',
+        'footer_term_riba' => '0% ربا — أصل المبلغ فقط!',
+        'footer_term_shift' => 'ترحيل مواعيد الجمعة للسبت تلقائياً!',
+        'footer_term_charity' => '100% صندوق خيرات منفصل ومخصص!',
+        'footer_follow_simda' => 'تابع سيمدا',
+        'footer_col_info' => 'معلومات',
+        'footer_faq' => 'الأسئلة الشائعة',
+        'footer_about_simda' => 'عن سيمدا',
+        'footer_schedule_engine' => 'حاسبة جداول سيمدا',
+        'footer_col_contact' => 'اتصل بنا',
+        'footer_brand_sub' => 'سيمدا للتمويل الأصغر',
+        'footer_reg' => 'رقم التسجيل: SIMDA-SO-001',
+        'footer_head_office' => 'المقر الرئيسي:',
+        'footer_country' => 'مقديشو، الصومال',
+        'footer_seal_zero_riba' => 'بدون ربا 0%',
+        'footer_seal_guaranteed' => 'مضمون شرعاً',
+        'footer_seal_sharia' => 'شريعة وتدقيق',
+        'footer_seal_compliant' => 'معتمد ومطابق',
+        'footer_part_of' => 'إحدى مبادرات سيمدا',
     ],
 ];
 $t = $contactI18n[$locale] ?? $contactI18n['en'];
@@ -528,61 +597,59 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         </svg>
     </div>
 
-    <!-- Deep Green Footer Content -->
+    <!-- Deep Green Footer Content (Identical to Index Footer) -->
     <footer class="fid-footer">
         <div class="fid-container">
             <div class="fid-footer-grid">
-                <!-- Col 1: Brand & Bio -->
+                <!-- Col 1: Newsletter -->
                 <div>
-                    <a href="?route=home" class="fid-logo-link" style="margin-bottom:14px;">
-                        <img src="assets/images/simda-logo.png" alt="SIMDA" style="height:36px;filter:brightness(0) invert(1);">
-                        <span class="fid-logo-tagline-stacked" style="color:#D6B66C;">
-                            <span>SOMALI ISLAMIC MICROFINANCE</span>
-                            <span>DEVELOPMENT ASSOCIATION</span>
-                        </span>
-                    </a>
-                    <p class="fid-footer-bio">
-                        <?= Security::e(Lang::locale() === 'ar' ? 'الجمعية الصومالية لتنمية التمويل الأصغر الإسلامي (سيمدا) مكرسة للتمويل الأخلاقي، ونمو المشاريع الصغيرة، وبناء مجتمع مُمَكَّن بنسبة 0% ربا.' : (Lang::locale() === 'so' ? 'Ururka Horumarinta Maalgelinta Yar Yar ee Islaamiga ah ee Soomaaliya (SIMDA) waxaa ka go\'an maalgelin xalaal ah, kobcinta ganacsiyada yaryar, iyo dhisidda bulsho leh 0% Ribo.' : 'Somali Islamic Microfinance Development Association (SIMDA) is dedicated to ethical financing, small business growth, and community empowerment with 0% Riba.')) ?>
-                    </p>
+                    <h5><?= Security::e($t['footer_col_newsletter']) ?></h5>
+                    <form class="fid-footway-newsletter" onsubmit="event.preventDefault(); alert('<?= Security::e($t['footer_newsletter_alert']) ?>');">
+                        <input type="email" placeholder="<?= Security::e($t['footer_placeholder_email']) ?>" required>
+                        <button type="submit" class="fid-footway-sub-btn"><?= Security::e($t['footer_btn_subscribe']) ?></button>
+                    </form>
                 </div>
 
-                <!-- Col 2: Services -->
+                <!-- Col 2: Terms and conditions -->
                 <div>
-                    <h5><?= Security::e($t['nav_services']) ?></h5>
+                    <h5><?= Security::e($t['footer_col_terms']) ?></h5>
                     <ul class="fid-footer-links">
-                        <li><a href="?route=home#services">Dhismaha Boosaska & Guryaha</a></li>
-                        <li><a href="?route=home#services">Muraabaxada Gaadiidka & Qalabka</a></li>
-                        <li><a href="?route=home#services">Taageerada Dukaamada Yaryar</a></li>
-                        <li><a href="?route=home#services">Dayn Xalaal ah (0% Ribo)</a></li>
-                        <li><a href="?route=home#calculator">Schedule Simulator</a></li>
+                        <li><?= Security::e($t['footer_term_riba']) ?></li>
+                        <li><?= Security::e($t['footer_term_shift']) ?></li>
+                        <li><?= Security::e($t['footer_term_charity']) ?></li>
                     </ul>
+                    <div style="margin-top:24px;display:flex;align-items:center;gap:12px;">
+                        <span style="font-weight:700;font-size:0.84rem;color:#FFFFFF;"><?= Security::e($t['footer_follow_simda']) ?></span>
+                        <a href="?route=contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Website"><?= Icons::svg('globe', 18) ?></a>
+                        <a href="?route=contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Community"><?= Icons::svg('users', 18) ?></a>
+                    </div>
                 </div>
 
                 <!-- Col 3: Information -->
                 <div>
-                    <h5>Information</h5>
+                    <h5><?= Security::e($t['footer_col_info']) ?></h5>
                     <ul class="fid-footer-links">
-                        <li><a href="?route=home#education">FAQs</a></li>
-                        <li><a href="?route=home#why-us">About us at SIMDA</a></li>
-                        <li><a href="?route=home#calculator">SIMDA Schedule Engine</a></li>
+                        <li><a href="?route=home#education"><?= Security::e($t['footer_faq']) ?></a></li>
+                        <li><a href="?route=home#why-us"><?= Security::e($t['footer_about_simda']) ?></a></li>
+                        <li><a href="?route=home#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
                     </ul>
                     <ul class="fid-footer-links" style="margin-top:20px;">
-                        <li class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
-                        <li><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
+                        <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
+                        <li dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
                     </ul>
                 </div>
 
                 <!-- Col 4: Contact -->
                 <div>
-                    <h5><?= Security::e($t['nav_contact']) ?></h5>
+                    <h5><?= Security::e($t['footer_col_contact']) ?></h5>
                     <ul class="fid-footer-links">
-                        <li><strong style="color:#FFFFFF;">SIMDA Microfinance</strong></li>
-                        <li>Institution Reg: SIMDA-SO-001</li>
+                        <li><strong style="color:#FFFFFF;"><?= Security::e($t['footer_brand_sub']) ?></strong></li>
+                        <li><?= Security::e($t['footer_reg']) ?></li>
                     </ul>
                     <ul class="fid-footer-links" style="margin-top:18px;">
-                        <li><strong style="color:#FFFFFF;">Head office:</strong></li>
+                        <li><strong style="color:#FFFFFF;"><?= Security::e($t['footer_head_office']) ?></strong></li>
                         <li><?= Security::e($settings['institution_address'] ?? 'Mogadishu Main Boulevard, Hodan') ?></li>
-                        <li>Mogadishu, Somalia</li>
+                        <li><?= Security::e($t['footer_country']) ?></li>
                     </ul>
                 </div>
             </div>
@@ -594,21 +661,21 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div class="fid-trust-seal">
                         <div class="fid-trust-seal-circle">0%</div>
                         <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
-                            ZERO RIBA<br><span style="color:#D6B66C;">GUARANTEED</span>
+                            <?= Security::e($t['footer_seal_zero_riba']) ?><br><span style="color:#D6B66C;"><?= Security::e($t['footer_seal_guaranteed']) ?></span>
                         </div>
                     </div>
                     <div class="fid-trust-seal">
                         <div class="fid-trust-seal-circle"><?= Icons::svg('shield', 18) ?></div>
                         <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
-                            SHARIA &amp; AUDIT<br><span style="color:#23845B;">COMPLIANT</span>
+                            <?= Security::e($t['footer_seal_sharia']) ?><br><span style="color:#23845B;"><?= Security::e($t['footer_seal_compliant']) ?></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Center: Group Info, Language Switcher & Copyright -->
                 <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
-                    <div>Part of SIMDA (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
-                    <div><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
+                    <div><?= Security::e($t['footer_part_of']) ?> (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
+                    <div dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
                     <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin:12px 0;">
                         <a href="?route=contact&lang=so" title="Af-Soomaali (Somalia)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
                             <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -627,8 +694,13 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             </div>
         </div>
     </footer>
+                <div></div>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
 </html>
+
