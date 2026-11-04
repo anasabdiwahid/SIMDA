@@ -623,6 +623,13 @@ table th.amount {
     background-color: #FFFFFF;
     color: #1E2D27;
     font-family: 'Plus Jakarta Sans', var(--font-body);
+    zoom: 80%; /* Browser-ku markuu 100% joogo, bogga wuxuu u muuqanayaa 80% (compact, sleek editorial layout) */
+}
+
+@media (max-width: 768px) {
+    .fid-page {
+        zoom: 100%; /* Mobilada shaashadoodu yartahay si dabiici ah ayey u joogayaan */
+    }
 }
 
 [data-theme="dark"] .fid-page {
