@@ -747,6 +747,7 @@ table th.amount {
 .simda-lang-dropdown {
     position: relative;
     display: inline-block;
+    z-index: 10000;
 }
 
 .simda-lang-trigger {
@@ -2594,12 +2595,18 @@ body.is-offline .offline-banner {
     }
 }
 
-.fid-page > header,
 .fid-page > section,
 .fid-page > .fid-footer-scene-wrap,
 .fid-page > footer {
     position: relative;
     z-index: 2;
+}
+
+.fid-page > header.fid-header,
+.fid-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 9999 !important;
 }
 
 .fid-money-floater.drift-horiz {
