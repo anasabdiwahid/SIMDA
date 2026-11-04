@@ -298,7 +298,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
         <ul class="fid-nav-links">
             <li><a href="?route=home#home"><?= Security::e($t['nav_home']) ?></a></li>
-            <li><a href="?route=home#why-us"><?= Security::e($t['nav_about']) ?></a></li>
+            <li><a href="?route=about"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="?route=home#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="?route=home#our-process"><?= Security::e($t['nav_process']) ?></a></li>
             <li><a href="?route=home#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
@@ -630,7 +630,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <h5><?= Security::e($t['footer_col_info']) ?></h5>
                     <ul class="fid-footer-links">
                         <li><a href="?route=home#education"><?= Security::e($t['footer_faq']) ?></a></li>
-                        <li><a href="?route=home#why-us"><?= Security::e($t['footer_about_simda']) ?></a></li>
+                        <li><a href="?route=about"><?= Security::e($t['footer_about_simda']) ?></a></li>
                         <li><a href="?route=home#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
                     </ul>
                     <ul class="fid-footer-links" style="margin-top:20px;">

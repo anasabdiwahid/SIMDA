@@ -29,6 +29,7 @@ final class PortalController
         try {
             match ($route) {
                 'home' => self::publicHome($pdo),
+                'about' => self::publicAbout($pdo),
                 'contact' => self::publicContact($pdo),
                 'contact_submit' => self::contactSubmit($pdo),
                 'offline' => self::publicOffline(),
@@ -137,6 +138,16 @@ final class PortalController
             $settings[$r['setting_key']] = $r['setting_value'];
         }
         require dirname(__DIR__, 2) . '/resources/views/public/home.php';
+    }
+
+    private static function publicAbout(PDO $pdo): void
+    {
+        $settingsRows = $pdo->query('SELECT setting_key, setting_value FROM system_settings')->fetchAll();
+        $settings = [];
+        foreach ($settingsRows as $r) {
+            $settings[$r['setting_key']] = $r['setting_value'];
+        }
+        require dirname(__DIR__, 2) . '/resources/views/public/about.php';
     }
 
     private static function publicContact(PDO $pdo): void
