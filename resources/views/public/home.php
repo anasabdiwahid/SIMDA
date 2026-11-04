@@ -375,56 +375,56 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
         </div>
 
         <div class="fid-services-grid">
-            <!-- Card 1 -->
+            <!-- Card 1: Dhismaha Boosaska & Guryaha -->
             <div class="fid-service-card sage reveal-on-scroll">
                 <div>
                     <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-savings.jpg" alt="Savings & Credit Stewardship">
+                        <img src="assets/images/landing/srv-construction.jpg" alt="Dhismaha Boosaska & Guryaha">
                     </div>
-                    <h3>Savings & Credit Plans</h3>
-                    <p>Build your future with flexible repayment schedules and automatic client overpayment credit protection.</p>
+                    <h3><?= $locale === 'so' ? 'Dhismaha Boosaska & Guryaha' : ($locale === 'ar' ? 'تمويل بناء الأراضي والمنازل' : 'Home & Plot Construction') ?></h3>
+                    <p><?= $locale === 'so' ? 'Dadka boosaska leh ee dhismaha awoodi waayay waxaan u dhisnaa guryo casri ah iyadoo lagu bixinayo heshiis xalaal ah oo 0% Ribo ah.' : ($locale === 'ar' ? 'نبني منازل عصرية للمواطنين الذين يملكون أراضي وبحاجة للتمويل عبر خطط سداد ميسرة خالية تماماً من الربا.' : 'We construct modern homes for plot owners who lack building capital through ethical zero-riba installment plans.') ?></p>
                 </div>
                 <div>
-                    <a href="?route=login" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
+                    <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
                 </div>
             </div>
 
-            <!-- Card 2 -->
+            <!-- Card 2: Muraabaxada Gaadiidka & Qalabka (Baabuur, Mooto, Bajaj, Mobile) -->
             <div class="fid-service-card reveal-on-scroll">
                 <div>
                     <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-business.jpg" alt="Small Business Loans">
+                        <img src="assets/images/landing/srv-business.jpg" alt="Muraabaxada Gaadiidka & Qalabka">
                     </div>
-                    <h3>Small Business Loans</h3>
-                    <p>Empowering your business growth with transparent Murabaha cost-plus asset and inventory financing solutions.</p>
+                    <h3><?= $locale === 'so' ? 'Muraabaxada (Gaadiid & Qalab)' : ($locale === 'ar' ? 'المرابحة للسيارات والمعدات' : 'Murabaha Asset Financing') ?></h3>
+                    <p><?= $locale === 'so' ? 'Waxaan kuu iibineynaa Baabuur, Mooto, Bajaj, iyo Telefoonno (iPhone) adigoo ku bixinaya bil kasta qayb yar oo aan dulsaar lahayn.' : ($locale === 'ar' ? 'نشتري لك السيارات والدراجات النارية والتوك توك والهواتف الذكية بنظام المرابحة الإسلامية مع أقساط مريحة.' : 'We purchase Cars, Motorbikes, Bajaj tuk-tuks, and Smartphones for you with fixed zero-riba monthly installments.') ?></p>
                 </div>
                 <div>
-                    <a href="?route=login" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
+                    <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
                 </div>
             </div>
 
-            <!-- Card 3 -->
+            <!-- Card 3: Taageerada Dukaamada Yaryar -->
             <div class="fid-service-card reveal-on-scroll">
                 <div>
                     <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-credit.jpg" alt="Micro-Credit Solutions">
+                        <img src="assets/images/landing/srv-credit.jpg" alt="Taageerada Dukaamada Yaryar">
                     </div>
-                    <h3>Micro-Credit Solutions</h3>
-                    <p>Quick access to ethical micro-financing and solidarity group facilities (3â€“10 members) via EVC Plus, Zaad & eDahab.</p>
+                    <h3><?= $locale === 'so' ? 'Taageerada Dukaamada Yaryar' : ($locale === 'ar' ? 'تمويل المتاجر ومحلات التجزئة' : 'Small Retail & Kiosk Financing') ?></h3>
+                    <p><?= $locale === 'so' ? 'Raasamaal shaqo oo xalaal ah oo dukaamada yaryar iyo meheradaha waddooyinka lagu siiyo si ay u kordhiyaan badeecadahooda.' : ($locale === 'ar' ? 'رأس مال عامل ميسر ومباشر لدعم محال البقالة والمتاجر الصغرى على الطرقات لزيادة البضائع وتنمية الدخل.' : 'Direct working capital designed for neighborhood grocery shops, kiosks, and street retailers to expand inventory.') ?></p>
                 </div>
                 <div>
-                    <a href="?route=login" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
+                    <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
                 </div>
             </div>
 
-            <!-- Card 4 -->
+            <!-- Card 4: Dayn Xalaal ah (0% Ribo) -->
             <div class="fid-service-card reveal-on-scroll">
                 <div>
                     <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-consulting.jpg" alt="Financial Consulting">
+                        <img src="assets/images/landing/srv-consulting.jpg" alt="Dayn Xalaal ah">
                     </div>
-                    <h3>Financial Consulting</h3>
-                    <p>Expert Sharia schedule previews, dynamic credit scoring (300â€“850), and Ibra early-settlement guidance.</p>
+                    <h3><?= $locale === 'so' ? 'Dayn Xalaal ah (0% Ribo)' : ($locale === 'ar' ? 'قروض حسنة بدون ربا' : 'Zero-Riba Micro-Loans') ?></h3>
+                    <p><?= $locale === 'so' ? 'Dayn toos ah oo degdeg ah oo dadka danyarta ah iyo ganacsatada la siiyo iyadoon waxba lagu darsanayn (waxaad heshay uun ayaad celinaysaa).' : ($locale === 'ar' ? 'تمويلات مباشرة بدون أي فوائد ربوية (0% ربا) — تسديد أصل المبلغ المستلم فقط بدقة وأمانة وفق الشريعة.' : 'Direct zero-riba micro-loans provided with transparent terms — repay strictly the principal you borrowed without any extra fee.') ?></p>
                 </div>
                 <div>
                     <a href="#calculator" class="fid-circle-arrow" aria-label="Open calculator"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -623,10 +623,10 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
 
         <div class="fid-edu-grid">
             <div class="fid-edu-card reveal-on-scroll">
-                <img src="assets/images/landing/edu-1.jpg" alt="Tips for Saving">
+                <img src="assets/images/landing/srv-construction.jpg" alt="Dhismaha Boosaska & Guryaha">
                 <div>
-                    <h4>Tips for Saving</h4>
-                    <p>Practical ways to save money and secure your future.</p>
+                    <h4><?= $locale === 'so' ? 'Dhismaha Boosaska' : ($locale === 'ar' ? 'تمويل البناء' : 'Construction Plans') ?></h4>
+                    <p><?= $locale === 'so' ? 'Sida aad booskaaga ugu dhisan karto guri adigoo lacagta qayb qayb u bixinaya.' : ($locale === 'ar' ? 'كيف تبني منزلك على أرضك بدفعات ميسرة بدون ربا.' : 'How to construct a home on your plot with zero-riba installment plans.') ?></p>
                     <a href="#calculator" class="fid-read-more">Read More <?= Icons::svg('arrow-right', 12) ?></a>
                 </div>
             </div>
