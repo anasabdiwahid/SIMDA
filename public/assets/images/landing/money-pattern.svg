@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="440" viewBox="0 0 440 440" fill="none">
+  <defs>
+    <!-- Round Money Bag ($ Sack) -->
+    <g id="bag-round" stroke="#1E5245" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Top frill/tie -->
+      <path d="M-9,-28 C-12,-38 -5,-41 0,-39 C4,-42 12,-38 9,-28" fill="#F3F7F5" />
+      <path d="M-4,-28 L-3,-37 M3,-28 L4,-37" stroke-width="1.3" />
+      <!-- Neck collar -->
+      <rect x="-10" y="-28" width="20" height="5" rx="2.5" fill="#E6EFEA" />
+      <path d="M-8,-23 C-24,-12 -28,12 -20,25 C-14,34 14,34 20,25 C28,12 24,-12 8,-23 Z" fill="#F7FAF8" />
+      <!-- Inner sketch shading line -->
+      <path d="M-16,18 C-19,8 -17,-6 -8,-16" stroke-width="1.1" opacity="0.55" />
+      <!-- Dollar sign -->
+      <path d="M5,-8 C3,-12 -6,-12 -6,-6 C-6,0 7,0 7,7 C7,13 -4,13 -6,8" stroke-width="1.9" />
+      <line x1="-1" y1="-15" x2="-1" y2="16" stroke-width="1.5" />
+      <line x1="2" y1="-15" x2="2" y2="16" stroke-width="1.5" />
+    </g>
+
+    <!-- Tall Money Sack ($ Pouch) -->
+    <g id="bag-tall" stroke="#1E5245" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-7,-30 C-9,-39 -3,-41 0,-39 C3,-41 9,-39 7,-30" fill="#F3F7F5" />
+      <path d="M-2,-30 L-2,-38 M2,-30 L2,-38" stroke-width="1.3" />
+      <rect x="-8" y="-30" width="16" height="4.5" rx="2" fill="#E6EFEA" />
+      <path d="M-7,-25.5 C-17,-12 -20,14 -16,26 C-13,31 13,31 16,26 C20,14 17,-12 7,-25.5 Z" fill="#F7FAF8" />
+      <path d="M-12,21 C-14,10 -12,-6 -6,-18" stroke-width="1.1" opacity="0.55" />
+      <path d="M4,-8 C2,-11 -5,-11 -5,-6 C-5,-1 5,0 5,6 C5,11 -3,11 -5,7" stroke-width="1.8" />
+      <line x1="0" y1="-14" x2="0" y2="14" stroke-width="1.5" />
+    </g>
+
+    <!-- Dollar Banknote ($ Bill) -->
+    <g id="dollar-bill" stroke="#1E5245" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="-34" y="-17" width="68" height="34" rx="2.5" fill="#F7FAF8" />
+      <rect x="-29" y="-12.5" width="58" height="25" rx="1.5" fill="none" stroke-width="1.25" />
+      <!-- Corner accents -->
+      <path d="M-29,-8 A4,4 0 0,0 -25,-12.5 M25,-12.5 A4,4 0 0,0 29,-8 M-29,8 A4,4 0 0,1 -25,12.5 M25,12.5 A4,4 0 0,1 29,8" stroke-width="1.1" />
+      <!-- Dollar sign -->
+      <path d="M3,-5 C2,-8 -4,-8 -4,-4 C-4,0 4,0 4,4 C4,8 -2,8 -4,5" stroke-width="1.7" />
+      <line x1="0" y1="-10" x2="0" y2="10" stroke-width="1.4" />
+    </g>
+
+    <!-- Little Spiral Swirl -->
+    <g id="swirl" stroke="#1E5245" stroke-width="1.5" stroke-linecap="round" fill="none">
+      <path d="M0,0 C2,-2 5,-1 5,2 C5,5 1,7 -2,5 C-6,3 -6,-3 -1,-6 C4,-8 9,-4 8,2" />
+    </g>
+
+    <!-- Dot -->
+    <circle id="dot" cx="0" cy="0" r="2" fill="#1E5245" />
+  </defs>
+
+  <!-- Row 1 -->
+  <use href="#bag-round" transform="translate(55, 65) rotate(-14) scale(0.92)" />
+  <use href="#bag-tall" transform="translate(150, 48) rotate(4) scale(0.88)" />
+  <use href="#dollar-bill" transform="translate(255, 42) rotate(22) scale(0.9)" />
+  <use href="#bag-round" transform="translate(365, 58) rotate(-8) scale(0.9)" />
+
+  <!-- Row 2 -->
+  <use href="#dollar-bill" transform="translate(115, 138) rotate(16) scale(0.9)" />
+  <use href="#bag-round" transform="translate(220, 118) rotate(-6) scale(0.92)" />
+  <use href="#bag-tall" transform="translate(310, 128) rotate(12) scale(0.86)" />
+  <use href="#dollar-bill" transform="translate(405, 145) rotate(-18) scale(0.88)" />
+  <use href="#dollar-bill" transform="translate(-35, 145) rotate(-18) scale(0.88)" />
+
+  <!-- Row 3 -->
+  <use href="#bag-tall" transform="translate(48, 215) rotate(-6) scale(0.9)" />
+  <use href="#bag-round" transform="translate(152, 228) rotate(10) scale(0.94)" />
+  <use href="#dollar-bill" transform="translate(262, 205) rotate(-15) scale(0.9)" />
+  <use href="#bag-round" transform="translate(368, 225) rotate(18) scale(0.9)" />
+
+  <!-- Row 4 -->
+  <use href="#dollar-bill" transform="translate(65, 312) rotate(-28) scale(0.9)" />
+  <use href="#bag-tall" transform="translate(175, 318) rotate(-5) scale(0.88)" />
+  <use href="#bag-round" transform="translate(278, 298) rotate(-12) scale(0.92)" />
+  <use href="#dollar-bill" transform="translate(382, 315) rotate(14) scale(0.9)" />
+
+  <!-- Row 5 -->
+  <use href="#bag-round" transform="translate(45, 398) rotate(24) scale(0.88)" />
+  <use href="#dollar-bill" transform="translate(142, 395) rotate(-10) scale(0.9)" />
+  <use href="#bag-tall" transform="translate(245, 392) rotate(8) scale(0.88)" />
+  <use href="#bag-round" transform="translate(345, 396) rotate(-16) scale(0.92)" />
+
+  <!-- Scattered Swirls & Dots matching reference pattern -->
+  <use href="#swirl" transform="translate(102, 36) scale(0.85)" />
+  <use href="#swirl" transform="translate(198, 76) rotate(40) scale(0.85)" />
+  <use href="#swirl" transform="translate(318, 52) rotate(-25) scale(0.85)" />
+  <use href="#swirl" transform="translate(88, 178) rotate(15) scale(0.85)" />
+  <use href="#swirl" transform="translate(205, 175) rotate(-35) scale(0.85)" />
+  <use href="#swirl" transform="translate(325, 185) rotate(25) scale(0.85)" />
+  <use href="#swirl" transform="translate(115, 272) rotate(-20) scale(0.85)" />
+  <use href="#swirl" transform="translate(222, 258) rotate(30) scale(0.85)" />
+  <use href="#swirl" transform="translate(332, 272) rotate(-15) scale(0.85)" />
+  <use href="#swirl" transform="translate(95, 358) rotate(45) scale(0.85)" />
+  <use href="#swirl" transform="translate(215, 352) rotate(-10) scale(0.85)" />
+  <use href="#swirl" transform="translate(308, 355) rotate(20) scale(0.85)" />
+  <use href="#swirl" transform="translate(412, 268) rotate(-30) scale(0.85)" />
+  <use href="#swirl" transform="translate(18, 108) rotate(15) scale(0.85)" />
+
+  <use href="#dot" transform="translate(22, 28)" />
+  <use href="#dot" transform="translate(185, 25)" />
+  <use href="#dot" transform="translate(298, 92)" />
+  <use href="#dot" transform="translate(418, 88)" />
+  <use href="#dot" transform="translate(42, 158)" />
+  <use href="#dot" transform="translate(168, 162)" />
+  <use href="#dot" transform="translate(268, 152)" />
+  <use href="#dot" transform="translate(392, 192)" />
+  <use href="#dot" transform="translate(98, 222)" />
+  <use href="#dot" transform="translate(208, 220)" />
+  <use href="#dot" transform="translate(315, 238)" />
+  <use href="#dot" transform="translate(25, 282)" />
+  <use href="#dot" transform="translate(135, 338)" />
+  <use href="#dot" transform="translate(235, 315)" />
+  <use href="#dot" transform="translate(342, 335)" />
+  <use href="#dot" transform="translate(88, 418)" />
+  <use href="#dot" transform="translate(195, 422)" />
+  <use href="#dot" transform="translate(295, 418)" />
+  <use href="#dot" transform="translate(405, 412)" />
+</svg>
+

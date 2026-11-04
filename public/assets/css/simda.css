@@ -1966,3 +1966,108 @@ body.is-offline .offline-banner {
         padding: 15px;
     }
 }
+
+/* ============================================================================
+   ANIMATED MONEY / CASH BACKGROUND FOR HOMEPAGE (.fid-page)
+   ============================================================================ */
+.fid-page {
+    position: relative;
+    overflow-x: hidden;
+    background-color: #FAF8F5;
+}
+
+.fid-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.25; /* 25% opacity / muuqasho sida uu codsaday macmiilku */
+    background-image: url('../images/landing/money-pattern.svg');
+    background-repeat: repeat;
+    background-size: 380px 380px;
+    animation: simdaMoneyPatternScroll 42s linear infinite;
+}
+
+[data-theme="dark"] .fid-page {
+    background-color: #0E1815;
+}
+
+[data-theme="dark"] .fid-page::before {
+    opacity: 0.14;
+    filter: invert(1) brightness(0.7);
+}
+
+@keyframes simdaMoneyPatternScroll {
+    0% {
+        background-position: 0px 0px;
+    }
+    100% {
+        background-position: 380px -380px;
+    }
+}
+
+.fid-money-anim-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+    opacity: 0.25; /* 25% visibility */
+}
+
+.fid-page > header,
+.fid-page > section,
+.fid-page > .fid-footer-scene-wrap,
+.fid-page > footer {
+    position: relative;
+    z-index: 2;
+}
+
+.fid-money-floater {
+    position: absolute;
+    opacity: 0.85;
+    will-change: transform;
+    filter: drop-shadow(0 4px 10px rgba(18, 59, 50, 0.08));
+    animation: simdaMoneyFloatRise var(--dur, 18s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+}
+
+[data-theme="dark"] .fid-money-floater {
+    opacity: 0.7;
+}
+
+.fid-money-floater.drift-horiz {
+    animation-name: simdaMoneyDriftAcross;
+    animation-timing-function: linear;
+}
+
+@keyframes simdaMoneyFloatRise {
+    0% {
+        transform: translate3d(0, 35px, 0) rotate(var(--rot-start, -12deg)) scale(var(--sc, 1));
+    }
+    25% {
+        transform: translate3d(24px, -18px, 0) rotate(calc(var(--rot-start, -12deg) + 10deg)) scale(calc(var(--sc, 1) * 1.05));
+    }
+    50% {
+        transform: translate3d(-18px, -55px, 0) rotate(calc(var(--rot-start, -12deg) - 6deg)) scale(var(--sc, 1));
+    }
+    75% {
+        transform: translate3d(20px, -22px, 0) rotate(calc(var(--rot-start, -12deg) + 12deg)) scale(calc(var(--sc, 1) * 1.04));
+    }
+    100% {
+        transform: translate3d(0, 35px, 0) rotate(var(--rot-start, -12deg)) scale(var(--sc, 1));
+    }
+}
+
+@keyframes simdaMoneyDriftAcross {
+    0% {
+        transform: translate3d(-90px, 60px, 0) rotate(-18deg) scale(var(--sc, 0.95));
+    }
+    50% {
+        transform: translate3d(45px, -30px, 0) rotate(14deg) scale(calc(var(--sc, 0.95) * 1.06));
+    }
+    100% {
+        transform: translate3d(-90px, 60px, 0) rotate(-18deg) scale(var(--sc, 0.95));
+    }
+}
