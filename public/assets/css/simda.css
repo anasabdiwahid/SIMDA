@@ -1980,13 +1980,14 @@ body.is-offline .offline-banner {
 .fid-page::before {
     content: '';
     position: fixed;
-    inset: 0;
+    inset: -10px; /* Geesaha blur-ku yaanay goyn */
     pointer-events: none;
     z-index: 0;
-    opacity: 0.035; /* Aad iyo aad u jilicsan (3.5% ultra-subtle luxury watermark) */
+    opacity: 0.055;
     background-image: url('../images/landing/money-pattern.svg');
     background-repeat: repeat;
     background-size: 360px 360px;
+    filter: blur(1.8px); /* Wax yar oo blur jilicsan ah (soft subtle blur) */
     animation: simdaMoneyPatternScroll 50s linear infinite;
 }
 
@@ -1995,8 +1996,8 @@ body.is-offline .offline-banner {
 }
 
 [data-theme="dark"] .fid-page::before {
-    opacity: 0.025;
-    filter: invert(1) brightness(0.6);
+    opacity: 0.04;
+    filter: blur(1.8px) invert(1) brightness(0.6);
 }
 
 @keyframes simdaMoneyPatternScroll {
