@@ -82,9 +82,20 @@ final class Security
         return (string) ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
     }
 
+    public static function toArabicDigits(string|int|float $val): string
+    {
+        $western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        $eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return str_replace($western, $eastern, (string) $val);
+    }
+
     public static function formatMoney(string|float|int $amount, bool $withSymbol = true): string
     {
         $formatted = number_format((float) $amount, 2, '.', ',');
+        if (Lang::locale() === 'ar') {
+            $arFormatted = self::toArabicDigits($formatted);
+            return $withSymbol ? $arFormatted . ' $' : $arFormatted;
+        }
         return $withSymbol ? '$' . $formatted : $formatted;
     }
 }

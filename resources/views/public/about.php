@@ -763,3 +763,4 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
 </html>
+

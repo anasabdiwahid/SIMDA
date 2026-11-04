@@ -311,14 +311,34 @@
         return y + '-' + m + '-' + day;
     }
 
+    function toArabicDigitsStr(val) {
+        if (val === null || val === undefined) return '';
+        const map = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return String(val).replace(/[0-9]/g, function (d) { return map[+d]; });
+    }
+
+    function parseNumberClean(val) {
+        if (!val) return 0;
+        const map = {
+            '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+            '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+        };
+        const normalized = String(val).replace(/[٠-٩]/g, function (d) { return map[d] || d; });
+        return parseFloat(normalized) || 0;
+    }
+
     function computeInstantSchedule(principalVal, monthlyPaymentVal, termVal, freqVal, mode) {
-        const principalNum = Math.max(0, parseFloat(principalVal) || 0);
+        const principalNum = Math.max(0, parseNumberClean(principalVal));
         const principalCents = Math.round(principalNum * 100);
 
-        let term = Math.max(1, Math.min(120, parseInt(termVal, 10) || 1));
+        const cleanTermStr = String(termVal || '1').replace(/[٠-٩]/g, function (d) {
+            const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+            return map[d] || d;
+        });
+        let term = Math.max(1, Math.min(120, parseInt(cleanTermStr, 10) || 1));
         let regularCents = 0;
 
-        const monthlyNum = Math.max(0, parseFloat(monthlyPaymentVal) || 0);
+        const monthlyNum = Math.max(0, parseNumberClean(monthlyPaymentVal));
         const monthlyCents = Math.round(monthlyNum * 100);
 
         if (mode === 'payment' && monthlyCents > 0 && principalCents > 0) {
@@ -442,6 +462,29 @@
         };
         const t = i18n[lang] || i18n['en'];
 
+        const isAr = (lang === 'ar');
+
+        function fmtMoney(amt) {
+            if (isAr) {
+                return toArabicDigitsStr(amt) + ' $';
+            }
+            return '$' + amt;
+        }
+
+        function fmtDate(dt) {
+            if (isAr) {
+                return toArabicDigitsStr(dt);
+            }
+            return dt;
+        }
+
+        function fmtNum(n) {
+            if (isAr) {
+                return toArabicDigitsStr(n);
+            }
+            return String(n);
+        }
+
         let rowsHtml = '';
         const maxRows = Math.min(s.installments.length, 60);
         for (let i = 0; i < maxRows; i++) {
@@ -449,13 +492,20 @@
             const shiftBadge = inst.was_friday_shifted
                 ? ' <span class="badge badge-gold" title="' + t.satShiftTitle + '">' + t.satShift + '</span>'
                 : '';
+            const rowNum = isAr ? ('#' + toArabicDigitsStr(inst.installment_number)) : ('#' + inst.installment_number);
+            const dueDisplay = fmtDate(inst.due_date);
+            const princDisplay = fmtMoney(inst.principal_due);
+            const extraDisplay = fmtMoney(inst.profit_due);
+            const totalDisplay = fmtMoney(inst.total_due);
+            const balDisplay = fmtMoney(inst.principal_balance_after);
+
             rowsHtml += '<tr>' +
-                '<td class="num-tabular">#' + inst.installment_number + '</td>' +
-                '<td class="num-tabular"><span dir="ltr">' + inst.due_date + '</span>' + shiftBadge + '</td>' +
-                '<td class="num-tabular"><span dir="ltr">$' + inst.principal_due + '</span></td>' +
-                '<td class="num-tabular"><span dir="ltr">$' + inst.profit_due + '</span></td>' +
-                '<td class="num-tabular"><strong><span dir="ltr">$' + inst.total_due + '</span></strong></td>' +
-                '<td class="num-tabular"><span dir="ltr">$' + inst.principal_balance_after + '</span></td>' +
+                '<td class="num-tabular">' + rowNum + '</td>' +
+                '<td class="num-tabular">' + (isAr ? dueDisplay : '<span dir="ltr">' + dueDisplay + '</span>') + shiftBadge + '</td>' +
+                '<td class="num-tabular">' + (isAr ? princDisplay : '<span dir="ltr">' + princDisplay + '</span>') + '</td>' +
+                '<td class="num-tabular">' + (isAr ? extraDisplay : '<span dir="ltr">' + extraDisplay + '</span>') + '</td>' +
+                '<td class="num-tabular"><strong>' + (isAr ? totalDisplay : '<span dir="ltr">' + totalDisplay + '</span>') + '</strong></td>' +
+                '<td class="num-tabular">' + (isAr ? balDisplay : '<span dir="ltr">' + balDisplay + '</span>') + '</td>' +
                 '</tr>';
         }
 
@@ -466,23 +516,28 @@
         const regAmt = s.regular_installment || (s.installments[0] ? s.installments[0].total_due : '0.00');
         const count = s.term_installments || s.installments.length;
 
+        const regAmtDisplay = fmtMoney(regAmt);
+        const princDisplay = fmtMoney(s.principal);
+        const totalDisplay = fmtMoney(s.total_due);
+        const countDisplay = fmtNum(count);
+
         outBox.innerHTML =
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-bottom:14px;">' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
                     '<div style="font-size:0.74rem;color:var(--text-secondary);">' + t.amountGiven + '</div>' +
-                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:var(--text-primary);">$' + s.principal + '</div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:var(--text-primary);">' + (isAr ? princDisplay : '<span dir="ltr">' + princDisplay + '</span>') + '</div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
                     '<div style="font-size:0.74rem;color:var(--text-secondary);">' + periodTitle + '</div>' +
-                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">$' + regAmt + '<span style="font-size:0.76rem;font-weight:600;color:var(--text-secondary);">' + perUnit + '</span></div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">' + (isAr ? regAmtDisplay : '<span dir="ltr">' + regAmtDisplay + '</span>') + '<span style="font-size:0.76rem;font-weight:600;color:var(--text-secondary);">' + perUnit + '</span></div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:2px solid #D6B66C;">' +
                     '<div style="font-size:0.74rem;color:var(--text-secondary);">' + t.timeToFinish + '</div>' +
-                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">' + count + ' ' + unitLabel + '</div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#123B32;">' + countDisplay + ' ' + unitLabel + '</div>' +
                 '</div>' +
                 '<div style="background:var(--bg-surface);padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);">' +
                     '<div style="font-size:0.74rem;color:var(--text-secondary);">' + t.totalRepay + '</div>' +
-                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#23845B;">$' + s.total_due + '</div>' +
+                    '<div class="num-tabular" style="font-size:1.15rem;font-weight:800;color:#23845B;">' + (isAr ? totalDisplay : '<span dir="ltr">' + totalDisplay + '</span>') + '</div>' +
                 '</div>' +
             '</div>' +
             '<div class="table-responsive" style="max-height:320px;overflow-y:auto;">' +

@@ -885,9 +885,8 @@ table th.amount {
 
 [dir="rtl"] span.num-tabular,
 [dir="rtl"] div.num-tabular {
-    direction: ltr;
+    unicode-bidi: plaintext;
     display: inline-block;
-    unicode-bidi: embed;
 }
 
 [dir="rtl"] .fid-nav-links {

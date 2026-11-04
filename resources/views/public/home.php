@@ -621,15 +621,19 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
                             <!-- Bottom Floating Price Card -->
                             <div class="murabaha-asset-price-box">
+                                <?php
+                                $dispMonthly = ($locale === 'ar') ? Security::toArabicDigits(str_replace('$', '', $asset['monthly'])) . ' $' : $asset['monthly'];
+                                $dispPrice = ($locale === 'ar') ? Security::toArabicDigits(str_replace('$', '', $asset['price'])) . ' $' : $asset['price'];
+                                ?>
                                 <div class="murabaha-asset-info">
                                     <div class="murabaha-asset-name"><?= Security::e($asset['title_' . $locale] ?? $asset['title_en']) ?></div>
                                     <div class="murabaha-asset-terms">
-                                        <span class="num-tabular" style="color:#123B32;font-weight:800;"><?= Security::e($asset['monthly']) ?></span>/<?= $locale === 'so' ? 'bishii' : ($locale === 'ar' ? 'شهرياً' : 'mo') ?> • <span style="color:#23845B;font-weight:700;"><?= $locale === 'ar' ? '0% ربا' : ($locale === 'so' ? '0% Ribo' : '0% Riba') ?></span>
+                                        <span class="num-tabular" style="color:#123B32;font-weight:800;"><?= Security::e($dispMonthly) ?></span>/<?= $locale === 'so' ? 'bishii' : ($locale === 'ar' ? 'شهرياً' : 'mo') ?> • <span style="color:#23845B;font-weight:700;"><?= $locale === 'ar' ? '0% ربا' : ($locale === 'so' ? '0% Ribo' : '0% Riba') ?></span>
                                     </div>
                                 </div>
                                 <div class="murabaha-asset-price-badge">
                                     <div class="asset-price-label"><?= $locale === 'so' ? 'QIIMAHA' : ($locale === 'ar' ? 'السعر' : 'PRICE') ?></div>
-                                    <div class="asset-price-val num-tabular"><?= Security::e($asset['price']) ?></div>
+                                    <div class="asset-price-val num-tabular"><?= Security::e($dispPrice) ?></div>
                                 </div>
                             </div>
                         </div>
@@ -638,11 +642,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <!-- Bottom Thumbnail Navigator Pills -->
                     <div class="murabaha-asset-indicators" aria-label="Murabaha Products">
                         <?php foreach ($murabahaAssets as $aIdx => $asset): ?>
+                            <?php $thumbPrice = ($locale === 'ar') ? Security::toArabicDigits(str_replace('$', '', $asset['price'])) . ' $' : $asset['price']; ?>
                             <button type="button" class="murabaha-ind-btn <?= $aIdx === 0 ? 'active' : '' ?>" data-asset-target="<?= $aIdx ?>" title="<?= Security::e($asset['title_' . $locale] ?? $asset['title_en']) ?>">
                                 <span class="murabaha-ind-thumb">
                                     <img src="<?= Security::e($asset['img']) ?>" alt="thumb">
                                 </span>
-                                <span class="murabaha-ind-price num-tabular"><?= Security::e($asset['price']) ?></span>
+                                <span class="murabaha-ind-price num-tabular"><?= Security::e($thumbPrice) ?></span>
                             </button>
                         <?php endforeach; ?>
                     </div>
@@ -1048,10 +1053,10 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 </button>
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                     <span style="font-size:0.76rem;color:#5A6660;font-weight:600;"><?= Security::e($t['calc_quick_amounts']) ?></span>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000" data-monthly="200">$1,000 ($200/mo)</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000" data-monthly="200">$3,000 ($200/mo)</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000" data-monthly="500">$5,000 ($500/mo)</button>
-                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="10000" data-monthly="500">$10,000 ($500/mo)</button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000" data-monthly="200"><?= $locale === 'ar' ? '١,٠٠٠ $ (٢٠٠ $/شهرياً)' : ($locale === 'so' ? '$1,000 ($200/bishii)' : '$1,000 ($200/mo)') ?></button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000" data-monthly="200"><?= $locale === 'ar' ? '٣,٠٠٠ $ (٢٠٠ $/شهرياً)' : ($locale === 'so' ? '$3,000 ($200/bishii)' : '$3,000 ($200/mo)') ?></button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000" data-monthly="500"><?= $locale === 'ar' ? '٥,٠٠٠ $ (٥٠٠ $/شهرياً)' : ($locale === 'so' ? '$5,000 ($500/bishii)' : '$5,000 ($500/mo)') ?></button>
+                    <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="10000" data-monthly="500"><?= $locale === 'ar' ? '١٠,٠٠٠ $ (٥٠٠ $/شهرياً)' : ($locale === 'so' ? '$10,000 ($500/bishii)' : '$10,000 ($500/mo)') ?></button>
                 </div>
             </div>
 
