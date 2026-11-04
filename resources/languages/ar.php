@@ -114,5 +114,33 @@ return [
     'print_statement' => 'طباعة كشف الحساب',
     'connection_online' => 'متصل بالإنترنت',
     'connection_offline' => 'أنت غير متصل حالياً — تتطلب المعاملات المالية اتصالاً مباشراً بالخادم.',
+
+    // Tables & Actions
+    'th_contract' => 'رقم العقد',
+    'th_client' => 'العميل',
+    'th_type' => 'نوع التمويل',
+    'th_total_due' => 'إجمالي المستحق',
+    'th_outstanding' => 'الرصيد المتبقي',
+    'th_status' => 'الحالة',
+    'th_pdf' => 'كشف PDF',
+    'th_receipt' => 'رقم الإيصال',
+    'th_method' => 'طريقة الدفع',
+    'th_paid' => 'المبلغ المسدد',
+    'th_principal_profit' => 'الأصل / الربح',
+    'th_date' => 'التاريخ',
+    'btn_view_all' => 'عرض الكل',
+
+    // Dashboard Extras
+    'kpi_sub_verified_clients' => 'عملاء معتمدون مع الكفلاء',
+    'kpi_sub_disbursed' => 'المصروف',
+    'kpi_sub_balance' => 'أصل المبلغ + هامش الربح المتفق عليه',
+    'kpi_sub_gross_receipts' => 'إجمالي المقبوضات',
+    'kpi_sub_overdue' => 'عقود تأخرت مواعيد سدادها',
+    'kpi_sub_par30_risky' => 'أرصدة معرضة للمخاطر (>30 يوم)',
+    'kpi_sub_charity_pending' => 'غير محصل (لا يُعد دخلاً للمؤسسة)',
+    'chart_monthly_title' => 'أداء التحصيل الشهري',
+    'chart_monthly_sub' => 'مقارنة تحصيل الأصل والربح ورسوم صندوق الخيرات',
+    'chart_branch_title' => 'مخاطر الفروع (PAR30) وتوزيع المنتجات',
+    'chart_branch_sub' => 'محفظة المخاطر المباشرة ونسب المنتجات التمويلية',
 ];
 

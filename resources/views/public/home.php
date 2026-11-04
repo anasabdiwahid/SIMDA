@@ -39,6 +39,89 @@ $homeI18n = [
         'slide2_lead' => 'Direct zero-riba working capital for hardworking mothers and roadside grocery kiosks (dukaan) to stock quality goods and build household wealth.',
         'slide2_badge_val' => '0% Riba',
         'slide2_badge_sub' => 'Dukaamada & Qoyska',
+
+        // Services
+        'services_eyebrow' => 'OUR SERVICES',
+        'services_title' => 'Financial Solutions for Every Stage',
+        'srv1_title' => 'Home & Plot Construction',
+        'srv1_desc' => 'We construct modern homes for plot owners who lack building capital through ethical zero-riba installment plans.',
+        'srv2_title' => 'Murabaha Asset Financing',
+        'srv2_desc' => 'We purchase Cars, Motorbikes, Bajaj tuk-tuks, and Smartphones for you with fixed zero-riba monthly installments.',
+        'srv3_title' => 'Small Retail & Kiosk Financing',
+        'srv3_desc' => 'Direct working capital designed for neighborhood grocery shops, kiosks, and street retailers to expand inventory.',
+        'srv4_title' => 'Zero-Riba Micro-Loans',
+        'srv4_desc' => 'Direct zero-riba micro-loans provided with transparent terms — repay strictly the principal you borrowed without any extra fee.',
+
+        // Why Us
+        'why_eyebrow' => 'WHY CHOOSE US',
+        'why_title' => 'More than finance,<br>we build futures.',
+        'why1_t' => 'Fast approval',
+        'why1_d' => 'Get quick decisions with our dual-threshold officer and manager workflow.',
+        'why2_t' => 'Professional support',
+        'why2_d' => 'Our branch teams are here to support you at every stage.',
+        'why3_t' => 'Flexible payments',
+        'why3_d' => 'Weekly or monthly schedules with automatic Friday-to-Saturday shifts.',
+        'why4_t' => 'Community focused',
+        'why4_d' => 'We invest in people, solidarity groups, and a 100% segregated Charity Fund.',
+        'why5_t' => 'Secure transactions',
+        'why5_d' => 'Your security, privacy, and decimal-safe ledger accuracy are our priority.',
+        'why6_t' => 'Transparent pricing',
+        'why6_d' => 'Fixed Murabaha markup locked at origination — never compounding.',
+
+        // Process
+        'process_eyebrow' => 'HOW IT WORKS',
+        'step1_t' => 'Apply',
+        'step1_d' => 'Submit a simple application online or in branch with a guarantor.',
+        'step2_t' => 'Verification',
+        'step2_d' => 'We review your information, schedule preview, and assess eligibility.',
+        'step3_t' => 'Receive Funds',
+        'step3_d' => 'Once approved, receive your funds via EVC Plus, Zaad, or eDahab.',
+
+        // Testimonials
+        'testi_eyebrow' => 'WHAT OUR CLIENTS VALUE',
+        'testi1_q' => '"The Murabaha cost-plus structure is clear and transparent. Every installment is known from day one."',
+        'testi1_a' => 'Retail Trader',
+        'testi2_q' => '"The process was simple and transparent. Friday due dates automatically shift to Saturday."',
+        'testi2_a' => 'Market Vendor',
+        'testi3_q' => '"Professional, trustworthy and always ready to assist solidarity groups and small businesses."',
+        'testi3_a' => 'Group Leader',
+
+        // Education
+        'edu_eyebrow' => 'FINANCIAL EDUCATION',
+        'edu1_t' => 'Construction Plans',
+        'edu1_d' => 'How to construct a home on your plot with zero-riba installment plans.',
+        'edu2_t' => 'How Micro-Loans Work',
+        'edu2_d' => 'Understand how Sharia-compliant Murabaha helps achieve your goals.',
+        'edu3_t' => 'Investment Basics',
+        'edu3_d' => 'Learn simple inventory strategies for long-term growth.',
+        'edu4_t' => 'Office Location',
+        'edu4_d' => 'Mogadishu Main Boulevard, Hodan • Visit SIMDA office.',
+        'btn_read_more' => 'Read More',
+        'btn_open_maps' => 'Open in Google Maps',
+
+        // Calculator
+        'calc_eyebrow' => 'INTERACTIVE SCHEDULE ENGINE',
+        'calc_shift_badge' => 'Friday → Saturday Auto-Shift',
+        'calc_label_principal' => 'Amount Given ($ USD)',
+        'calc_label_monthly' => 'Monthly Payment ($ USD / Bishii)',
+        'calc_label_duration' => 'Duration (Months / Weeks)',
+        'calc_opt_months' => 'Months (Bille)',
+        'calc_opt_weeks' => 'Weeks (Toddobaadle)',
+        'calc_label_extra' => 'Extra / Riba (% — Locked at 0%)',
+        'calc_btn_generate' => 'Generate Exact Installment Schedule',
+        'calc_quick_amounts' => 'Quick Amounts:',
+
+        // Contact
+        'contact_eyebrow' => 'GET IN TOUCH',
+        'contact_title' => 'Ready to take the next step?',
+        'contact_lead' => 'We are here to help you achieve your ethical financial goals today.',
+        'contact_btn_start' => 'Get Started',
+
+        // Footer
+        'footer_about' => 'Somali Islamic Microfinance Development Association (SIMDA) is dedicated to ethical financing, small business growth, and community empowerment with 0% Riba.',
+        'footer_quick_links' => 'Quick Links',
+        'footer_rights' => 'SIMDA Microfinance. All rights reserved.',
+        'footer_developed_by' => 'Developed by',
     ],
     'so' => [
         'nav_home' => 'Bogga Hore',
@@ -68,6 +151,89 @@ $homeI18n = [
         'slide2_lead' => 'Waxaan taageernaa hooyooyinka iyo ganacsatada leh dukaamada yaryar ee waddooyinka iyo suuqyada si ay u ballaariyaan hantidooda, badeecadahooda iyo dakhliga qoysaska.',
         'slide2_badge_val' => '0% Ribo',
         'slide2_badge_sub' => 'Dukaamada & Qoysaska',
+
+        // Services
+        'services_eyebrow' => 'ADEEGYADAYADA',
+        'services_title' => 'Xalka Maalgelinta Ganacsiyada',
+        'srv1_title' => 'Dhismaha Boosaska & Guryaha',
+        'srv1_desc' => 'Dadka boosaska leh ee dhismaha awoodi waayay waxaan u dhisnaa guryo casri ah iyadoo lagu bixinayo heshiis xalaal ah oo 0% Ribo ah.',
+        'srv2_title' => 'Muraabaxada (Gaadiid & Qalab)',
+        'srv2_desc' => 'Waxaan kuu iibineynaa Baabuur, Mooto, Bajaj, iyo Telefoonno (iPhone) adigoo ku bixinaya bil kasta qayb yar oo aan dulsaar lahayn.',
+        'srv3_title' => 'Taageerada Dukaamada Yaryar',
+        'srv3_desc' => 'Raasamaal shaqo oo xalaal ah oo dukaamada yaryar iyo meheradaha waddooyinka lagu siiyo si ay u kordhiyaan badeecadahooda.',
+        'srv4_title' => 'Dayn Xalaal ah (0% Ribo)',
+        'srv4_desc' => 'Dayn toos ah oo degdeg ah oo dadka danyarta ah iyo ganacsatada la siiyo iyadoon waxba lagu darsanayn (waxaad heshay uun ayaad celinaysaa).',
+
+        // Why Us
+        'why_eyebrow' => 'MAXAAD NOO DOORANAYSAA',
+        'why_title' => 'In ka badan lacag,<br>waxaan dhisnaa mustaqbal.',
+        'why1_t' => 'Ansixin Degdeg ah',
+        'why1_d' => 'Go\'aanno degdeg ah oo hufan oo ay wada shaqeynayaan saraakiisha iyo maareeyayaasha.',
+        'why2_t' => 'Taageero Xirfadeed',
+        'why2_d' => 'Kooxaha laamaha waxay diyaar u yihiin inay ku caawiyaan tallaabo kasta.',
+        'why3_t' => 'Bixin Dabacsan',
+        'why3_d' => 'Jadwal bille ama toddobaadle ah iyadoo maalmaha Jimcaha si toos ah loogu wareejinayo Sabtida.',
+        'why4_t' => 'Bulshada oo la Taageero',
+        'why4_d' => 'Waxaan maalgelineynaa dadka, kooxaha danta wadaagta ah, iyo Sanduuqa Sadaqada ee gaarka ah.',
+        'why5_t' => 'Macaamil Ammaan ah',
+        'why5_d' => 'Amnigaaga, xogtaada gaarka ah, iyo saxnaanta xisaabta ayaa ah mudnaantayada koowaad.',
+        'why6_t' => 'Qiimeyn Cad & Hufan',
+        'why6_d' => 'Faa\'iidada Muraabaxada oo ah mid go\'an oo heshiiska lagu qoray—oo aan marnaba kor u kordhaynin.',
+
+        // Process
+        'process_eyebrow' => 'HABKA SHAQADA',
+        'step1_t' => 'Codso',
+        'step1_d' => 'Ku soo gudbi codsi fudud online ama xafiiska oo wata damiin.',
+        'step2_t' => 'Xaqiijin & Qiimeyn',
+        'step2_d' => 'Waxaan dib u eegis ku sameyneynaa xogtaada, jadwalka, iyo u qalmidda sharciga.',
+        'step3_t' => 'Qaado Maalgelinta',
+        'step3_d' => 'Marka laguu ansixiyo, ku hel hantida ama lacagta EVC Plus, Zaad, ama eDahab.',
+
+        // Testimonials
+        'testi_eyebrow' => 'ARAGTIDA MACAAMIISHA',
+        'testi1_q' => '"Heshiiska Muraabaxada waa mid aad u cad oo hufan. Qayb kasta oo lacag ah maalinta koowaad ayaad ogtahay."',
+        'testi1_a' => 'Ganacsade Tukaanka',
+        'testi2_q' => '"Nidaamku wuxuu ahaa mid fudud oo hufan. Maalmaha Jimcaha si toos ah ayay Sabtida ugu wareegayaan."',
+        'testi2_a' => 'Ganacsade Suuqa',
+        'testi3_q' => '"Waa shirkad lagu kalsoonaan karo oo had iyo jeer diyaar u ah inay taageerto ganacsiyada yaryar."',
+        'testi3_a' => 'Hoggaamiye Kooxeed',
+
+        // Education
+        'edu_eyebrow' => 'WACYIGELINTA MAALIYADDA',
+        'edu1_t' => 'Dhismaha Boosaska',
+        'edu1_d' => 'Sida aad booskaaga ugu dhisan karto guri adigoo lacagta qayb qayb u bixinaya.',
+        'edu2_t' => 'Sida Maalgelintu u Shaqeyso',
+        'edu2_d' => 'Fahan sida nidaamka Muraabaxada Islaamiga ahi kuugu caawin karo yoolalkaaga.',
+        'edu3_t' => 'Aasaaska Ganacsiga',
+        'edu3_d' => 'Baro xeelado fudud oo badeecadaada iyo ganacsigaaga lagu kobciyo.',
+        'edu4_t' => 'Goobta Xafiiska',
+        'edu4_d' => 'Waddada Weyn ee Muqdisho, Hodan • Booqo xafiiskeena SIMDA.',
+        'btn_read_more' => 'Faahfaahin',
+        'btn_open_maps' => 'Fur Google Maps',
+
+        // Calculator
+        'calc_eyebrow' => 'XISAABIYAHA JADWALKA XALAASHA AH',
+        'calc_shift_badge' => 'Jimco → Sabti u wareejin toos ah',
+        'calc_label_principal' => 'Lacagta la Bixinayo ($ USD)',
+        'calc_label_monthly' => 'Lacagta Bishii la Bixinayo ($ USD)',
+        'calc_label_duration' => 'Mudada (Bilood / Toddobaad)',
+        'calc_opt_months' => 'Bilood (Bille)',
+        'calc_opt_weeks' => 'Toddobaadyo (Toddobaadle)',
+        'calc_label_extra' => 'Dulsaar / Ribo (% — Waa 0% Xalaal)',
+        'calc_btn_generate' => 'Soo Saar Jadwalka Saxda ah',
+        'calc_quick_amounts' => 'Qaddarro Degdeg ah:',
+
+        // Contact
+        'contact_eyebrow' => 'NAGA SOO WAAC',
+        'contact_title' => 'Diyaar ma u tahay tallaabada xigta?',
+        'contact_lead' => 'Waxaan diyaar u nahay inaan kugu caawinno sidii aad u gaari lahayd yoolalkaaga xalaasha ah maanta.',
+        'contact_btn_start' => 'Bilow Hadda',
+
+        // Footer
+        'footer_about' => 'Ururka Horumarinta Maalgelinta Yar Yar ee Islaamiga ah ee Soomaaliya (SIMDA) waxaa ka go\'an maalgelin xalaal ah, kobcinta ganacsiyada yaryar, iyo dhisidda bulsho leh 0% Ribo.',
+        'footer_quick_links' => 'Xiriiryo Degdeg ah',
+        'footer_rights' => 'SIMDA Microfinance. Xuquuqda oo dhan way dhowran tahay.',
+        'footer_developed_by' => 'Waxaa diyaariyay',
     ],
     'ar' => [
         'nav_home' => 'الرئيسية',
@@ -97,6 +263,89 @@ $homeI18n = [
         'slide2_lead' => 'ندعم الأمهات المكافحات وأصحاب محال البقالة والمتاجر الصغرى على الطرقات بتمويل إسلامي ميسر لتوفير البضائع وتنمية دخل الأسرة.',
         'slide2_badge_val' => '0% ربا',
         'slide2_badge_sub' => 'المتاجر والمجتمع',
+
+        // Services
+        'services_eyebrow' => 'خدماتنا',
+        'services_title' => 'حلول تمويلية إسلامية لكافة مراحل مشروعك',
+        'srv1_title' => 'تمويل بناء الأراضي والمنازل',
+        'srv1_desc' => 'نبني منازل عصرية للمواطنين الذين يملكون أراضي وبحاجة للتمويل عبر خطط سداد ميسرة خالية تماماً من الربا.',
+        'srv2_title' => 'المرابحة للسيارات والمعدات',
+        'srv2_desc' => 'نشتري لك السيارات والدراجات النارية والتوك توك والهواتف الذكية بنظام المرابحة الإسلامية مع أقساط مريحة.',
+        'srv3_title' => 'تمويل المتاجر ومحلات التجزئة',
+        'srv3_desc' => 'رأس مال عامل ميسر ومباشر لدعم محال البقالة والمتاجر الصغرى على الطرقات لزيادة البضائع وتنمية الدخل.',
+        'srv4_title' => 'تمويلات حسنة بدون ربا (0%)',
+        'srv4_desc' => 'تمويلات مباشرة بدون أي فوائد ربوية (0% ربا) — تسديد أصل المبلغ المستلم فقط بدقة وأمانة وفق الشريعة.',
+
+        // Why Us
+        'why_eyebrow' => 'لماذا تختار سيمدا',
+        'why_title' => 'أكثر من مجرد تمويل،<br>نحن نبني مستقبلاً مستداماً.',
+        'why1_t' => 'موافقات سريعة وميسرة',
+        'why1_d' => 'إجراءات فحص واعتماد سريعة عبر مسؤولي الائتمان ومديري الفروع دون تعقيد.',
+        'why2_t' => 'دعم واستشارات مهنية',
+        'why2_d' => 'فريقنا في الفروع معك خطوة بخطوة لدعم نجاح مشروعك ونموه.',
+        'why3_t' => 'سداد مرن وأقساط مريحة',
+        'why3_d' => 'جداول أسبوعية أو شهرية مع ترحيل تلقائي لأيام الجمعة إلى السبت.',
+        'why4_t' => 'خدمة المجتمع والتضامن',
+        'why4_d' => 'ندعم مجموعات التضامن والتعاون، مع تخصيص كامل لرسوم الخيرات لصندوق التكافل.',
+        'why5_t' => 'أمان وشفافية مصرفية كاملة',
+        'why5_d' => 'أمان بياناتك ودقة سجلاتك المالية وفق أعلى معايير الحوكمة الإسلامية.',
+        'why6_t' => 'تسعير واضح بدون ربا',
+        'why6_d' => 'هامش ربح المرابحة محدد وثابت عند التعاقد ولا يتضاعف أبداً مع الوقت.',
+
+        // Process
+        'process_eyebrow' => 'كيف نعمل',
+        'step1_t' => 'تقديم الطلب',
+        'step1_d' => 'قدّم طلباً ميسراً إلكترونياً أو عبر زيارة أقرب فرع مع الكفيل.',
+        'step2_t' => 'المراجعة والتحقق',
+        'step2_d' => 'ندرس طلبك، ونراجع جدول السداد المقترح والأهلية الائتمانية.',
+        'step3_t' => 'استلام التمويل أو الأصل',
+        'step3_d' => 'بعد الاعتماد يتم توفير الأصل أو تحويل التمويل عبر EVC Plus أو Zaad أو eDahab.',
+
+        // Testimonials
+        'testi_eyebrow' => 'آراء وشهادات عملائنا',
+        'testi1_q' => '"صيغة المرابحة في سيمدا واضحة تماماً. جميع الأقساط محددة من اليوم الأول دون أي مفاجآت."',
+        'testi1_a' => 'تاجر تجزئة',
+        'testi2_q' => '"التعامل كان ميسراً وشفافاً. مواعيد السداد التي تصادف الجمعة تُرَحَّل تلقائياً إلى السبت."',
+        'testi2_a' => 'صاحب متجر بالسوق',
+        'testi3_q' => '"مؤسسة مهنية وموثوقة تقدم دعماً حقيقياً لأصحاب المشاريع الصغرى والأسر المنتجة."',
+        'testi3_a' => 'رئيسة مجموعة تضامن',
+
+        // Education
+        'edu_eyebrow' => 'التثقيف والتوعية المالية',
+        'edu1_t' => 'تمويل بناء المساكن',
+        'edu1_d' => 'كيف تبني منزلك على أرضك بدفعات ميسرة بدون ربا.',
+        'edu2_t' => 'كيف يعمل التمويل الإسلامي',
+        'edu2_d' => 'تعرف على صيغ المرابحة والقرض الحسن وكيف تنمي بها مشروعك.',
+        'edu3_t' => 'أساسيات إدارة التجارة',
+        'edu3_d' => 'استراتيجيات بسيطة لإدارة المخزون والتدفقات النقدية لمشروعك.',
+        'edu4_t' => 'مقر المكتب الرئيسي',
+        'edu4_d' => 'شارع مقديشو الرئيسي، حي هودان • تفضل بزيارة مقر سيمدا.',
+        'btn_read_more' => 'اقرأ المزيد',
+        'btn_open_maps' => 'فتح في خرائط جوجل',
+
+        // Calculator
+        'calc_eyebrow' => 'حاسبة جدول السداد التفاعلية',
+        'calc_shift_badge' => 'الجمعة ← السبت ترحيل تلقائي',
+        'calc_label_principal' => 'مبلغ التمويل ($ دولار)',
+        'calc_label_monthly' => 'القسط الشهري المستهدف ($ دولار)',
+        'calc_label_duration' => 'مدة السداد (أشهر / أسابيع)',
+        'calc_opt_months' => 'أشهر (شهرياً)',
+        'calc_opt_weeks' => 'أسابيع (أسبوعياً)',
+        'calc_label_extra' => 'الزيادة الربوية (مغلقة 0% ربا)',
+        'calc_btn_generate' => 'إنشاء جدول الأقساط الدقيق',
+        'calc_quick_amounts' => 'مبالغ سريعة:',
+
+        // Contact
+        'contact_eyebrow' => 'تواصل معنا',
+        'contact_title' => 'هل أنت مستعد لبدء مشروعك؟',
+        'contact_lead' => 'نحن هنا لمساعدتك في تحقيق أهدافك وتمويل طموحاتك وفق الشريعة الإسلامية.',
+        'contact_btn_start' => 'ابدأ الآن',
+
+        // Footer
+        'footer_about' => 'الجمعية الصومالية لتنمية التمويل الأصغر الإسلامي (سيمدا) مكرسة للتمويل الأخلاقي، ونمو المشاريع الصغيرة، وبناء مجتمع مُمَكَّن بنسبة 0% ربا.',
+        'footer_quick_links' => 'روابط سريعة',
+        'footer_rights' => 'سيمدا للتمويل الأصغر. جميع الحقوق محفوظة.',
+        'footer_developed_by' => 'تطوير وتصميم',
     ],
 ];
 $t = $homeI18n[$locale] ?? $homeI18n['en'];
@@ -394,8 +643,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 <section id="services" class="fid-section">
     <div class="fid-container">
         <div class="fid-section-head">
-            <span class="fid-eyebrow">OUR SERVICES</span>
-            <h2 class="fid-serif-h2">Financial Solutions for Every Stage</h2>
+            <span class="fid-eyebrow"><?= Security::e($t['services_eyebrow']) ?></span>
+            <h2 class="fid-serif-h2"><?= Security::e($t['services_title']) ?></h2>
         </div>
 
         <div class="fid-services-grid">
@@ -405,8 +654,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div class="fid-service-illust">
                         <img src="assets/images/landing/srv-construction.jpg" alt="Dhismaha Boosaska & Guryaha">
                     </div>
-                    <h3><?= $locale === 'so' ? 'Dhismaha Boosaska & Guryaha' : ($locale === 'ar' ? 'تمويل بناء الأراضي والمنازل' : 'Home & Plot Construction') ?></h3>
-                    <p><?= $locale === 'so' ? 'Dadka boosaska leh ee dhismaha awoodi waayay waxaan u dhisnaa guryo casri ah iyadoo lagu bixinayo heshiis xalaal ah oo 0% Ribo ah.' : ($locale === 'ar' ? 'نبني منازل عصرية للمواطنين الذين يملكون أراضي وبحاجة للتمويل عبر خطط سداد ميسرة خالية تماماً من الربا.' : 'We construct modern homes for plot owners who lack building capital through ethical zero-riba installment plans.') ?></p>
+                    <h3><?= Security::e($t['srv1_title']) ?></h3>
+                    <p><?= Security::e($t['srv1_desc']) ?></p>
                 </div>
                 <div>
                     <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -419,8 +668,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div class="fid-service-illust">
                         <img src="assets/images/landing/srv-business.jpg" alt="Muraabaxada Gaadiidka & Qalabka">
                     </div>
-                    <h3><?= $locale === 'so' ? 'Muraabaxada (Gaadiid & Qalab)' : ($locale === 'ar' ? 'المرابحة للسيارات والمعدات' : 'Murabaha Asset Financing') ?></h3>
-                    <p><?= $locale === 'so' ? 'Waxaan kuu iibineynaa Baabuur, Mooto, Bajaj, iyo Telefoonno (iPhone) adigoo ku bixinaya bil kasta qayb yar oo aan dulsaar lahayn.' : ($locale === 'ar' ? 'نشتري لك السيارات والدراجات النارية والتوك توك والهواتف الذكية بنظام المرابحة الإسلامية مع أقساط مريحة.' : 'We purchase Cars, Motorbikes, Bajaj tuk-tuks, and Smartphones for you with fixed zero-riba monthly installments.') ?></p>
+                    <h3><?= Security::e($t['srv2_title']) ?></h3>
+                    <p><?= Security::e($t['srv2_desc']) ?></p>
                 </div>
                 <div>
                     <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -433,8 +682,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div class="fid-service-illust">
                         <img src="assets/images/landing/srv-credit.jpg" alt="Taageerada Dukaamada Yaryar">
                     </div>
-                    <h3><?= $locale === 'so' ? 'Taageerada Dukaamada Yaryar' : ($locale === 'ar' ? 'تمويل المتاجر ومحلات التجزئة' : 'Small Retail & Kiosk Financing') ?></h3>
-                    <p><?= $locale === 'so' ? 'Raasamaal shaqo oo xalaal ah oo dukaamada yaryar iyo meheradaha waddooyinka lagu siiyo si ay u kordhiyaan badeecadahooda.' : ($locale === 'ar' ? 'رأس مال عامل ميسر ومباشر لدعم محال البقالة والمتاجر الصغرى على الطرقات لزيادة البضائع وتنمية الدخل.' : 'Direct working capital designed for neighborhood grocery shops, kiosks, and street retailers to expand inventory.') ?></p>
+                    <h3><?= Security::e($t['srv3_title']) ?></h3>
+                    <p><?= Security::e($t['srv3_desc']) ?></p>
                 </div>
                 <div>
                     <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -447,8 +696,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div class="fid-service-illust">
                         <img src="assets/images/landing/srv-consulting.jpg" alt="Dayn Xalaal ah">
                     </div>
-                    <h3><?= $locale === 'so' ? 'Dayn Xalaal ah (0% Ribo)' : ($locale === 'ar' ? 'قروض حسنة بدون ربا' : 'Zero-Riba Micro-Loans') ?></h3>
-                    <p><?= $locale === 'so' ? 'Dayn toos ah oo degdeg ah oo dadka danyarta ah iyo ganacsatada la siiyo iyadoon waxba lagu darsanayn (waxaad heshay uun ayaad celinaysaa).' : ($locale === 'ar' ? 'تمويلات مباشرة بدون أي فوائد ربوية (0% ربا) — تسديد أصل المبلغ المستلم فقط بدقة وأمانة وفق الشريعة.' : 'Direct zero-riba micro-loans provided with transparent terms — repay strictly the principal you borrowed without any extra fee.') ?></p>
+                    <h3><?= Security::e($t['srv4_title']) ?></h3>
+                    <p><?= Security::e($t['srv4_desc']) ?></p>
                 </div>
                 <div>
                     <a href="#calculator" class="fid-circle-arrow" aria-label="Open calculator"><?= Icons::svg('arrow-right', 14) ?></a>
@@ -486,55 +735,55 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             </div>
 
             <div class="fid-why-panel reveal-on-scroll">
-                <span class="fid-eyebrow">WHY CHOOSE US</span>
-                <h2 class="fid-serif-h2" style="margin-bottom:6px;">More than finance,<br>we build futures.</h2>
+                <span class="fid-eyebrow"><?= Security::e($t['why_eyebrow']) ?></span>
+                <h2 class="fid-serif-h2" style="margin-bottom:6px;"><?= $t['why_title'] ?></h2>
 
                 <div class="fid-why-features">
                     <div class="fid-why-item">
                         <div class="fid-why-badge"><?= Icons::svg('check-circle', 18) ?></div>
                         <div>
-                            <h4>Fast approval</h4>
-                            <p>Get quick decisions with our dual-threshold officer and manager workflow.</p>
+                            <h4><?= Security::e($t['why1_t']) ?></h4>
+                            <p><?= Security::e($t['why1_d']) ?></p>
                         </div>
                     </div>
 
                     <div class="fid-why-item">
                         <div class="fid-why-badge"><?= Icons::svg('users', 18) ?></div>
                         <div>
-                            <h4>Professional support</h4>
-                            <p>Our branch teams are here to support you at every stage.</p>
+                            <h4><?= Security::e($t['why2_t']) ?></h4>
+                            <p><?= Security::e($t['why2_d']) ?></p>
                         </div>
                     </div>
 
                     <div class="fid-why-item">
                         <div class="fid-why-badge"><?= Icons::svg('calendar', 18) ?></div>
                         <div>
-                            <h4>Flexible payments</h4>
-                            <p>Weekly or monthly schedules with automatic Friday-to-Saturday shifts.</p>
+                            <h4><?= Security::e($t['why3_t']) ?></h4>
+                            <p><?= Security::e($t['why3_d']) ?></p>
                         </div>
                     </div>
 
                     <div class="fid-why-item">
                         <div class="fid-why-badge"><?= Icons::svg('heart-handshake', 18) ?></div>
                         <div>
-                            <h4>Community focused</h4>
-                            <p>We invest in people, solidarity groups, and a 100% segregated Charity Fund.</p>
+                            <h4><?= Security::e($t['why4_t']) ?></h4>
+                            <p><?= Security::e($t['why4_d']) ?></p>
                         </div>
                     </div>
 
                     <div class="fid-why-item">
                         <div class="fid-why-badge"><?= Icons::svg('shield', 18) ?></div>
                         <div>
-                            <h4>Secure transactions</h4>
-                            <p>Your security, privacy, and decimal-safe ledger accuracy are our priority.</p>
+                            <h4><?= Security::e($t['why5_t']) ?></h4>
+                            <p><?= Security::e($t['why5_d']) ?></p>
                         </div>
                     </div>
 
                     <div class="fid-why-item">
                         <div class="fid-why-badge"><?= Icons::svg('award', 18) ?></div>
                         <div>
-                            <h4>Transparent pricing</h4>
-                            <p>Fixed Murabaha markup locked at originationâ€”never compounding.</p>
+                            <h4><?= Security::e($t['why6_t']) ?></h4>
+                            <p><?= Security::e($t['why6_d']) ?></p>
                         </div>
                     </div>
                 </div>
@@ -550,7 +799,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <!-- Left: HOW IT WORKS -->
             <div>
                 <div style="text-align:center;margin-bottom:14px;">
-                    <span class="fid-eyebrow">HOW IT WORKS</span>
+                    <span class="fid-eyebrow"><?= Security::e($t['process_eyebrow']) ?></span>
                 </div>
                 <div class="fid-steps-grid">
                     <div class="fid-step-card reveal-on-scroll">
@@ -558,8 +807,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                         <div class="fid-step-inner">
                             <img src="assets/images/landing/step-1.jpg" alt="Apply">
                             <div>
-                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;">Apply</h4>
-                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;">Submit a simple application online or in branch with a guarantor.</p>
+                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step1_t']) ?></h4>
+                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step1_d']) ?></p>
                             </div>
                         </div>
                     </div>
@@ -569,8 +818,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                         <div class="fid-step-inner">
                             <img src="assets/images/landing/step-2.jpg" alt="Verification">
                             <div>
-                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;">Verification</h4>
-                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;">We review your information, schedule preview, and assess eligibility.</p>
+                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step2_t']) ?></h4>
+                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step2_d']) ?></p>
                             </div>
                         </div>
                     </div>
@@ -580,8 +829,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                         <div class="fid-step-inner">
                             <img src="assets/images/landing/step-3.jpg" alt="Receive Funds">
                             <div>
-                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;">Receive Funds</h4>
-                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;">Once approved, receive your funds via EVC Plus, Zaad, or eDahab.</p>
+                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step3_t']) ?></h4>
+                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step3_d']) ?></p>
                             </div>
                         </div>
                     </div>
@@ -591,44 +840,44 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <!-- Right: WHAT OUR CLIENTS SAY / SHARIA TRUST HIGHLIGHTS -->
             <div id="testimonials">
                 <div style="text-align:center;margin-bottom:14px;">
-                    <span class="fid-eyebrow">WHAT OUR CLIENTS VALUE</span>
+                    <span class="fid-eyebrow"><?= Security::e($t['testi_eyebrow']) ?></span>
                 </div>
                 <div class="fid-testi-grid">
                     <div class="fid-testi-card reveal-on-scroll">
                         <div>
-                            <div class="fid-stars">â˜…â˜…â˜…â˜…â˜…</div>
+                            <div class="fid-stars">★★★★★</div>
                             <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
-                                "The Murabaha cost-plus structure is clear and transparent. Every installment is known from day one."
+                                <?= Security::e($t['testi1_q']) ?>
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">â€“ Retail Trader</strong>
+                            <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi1_a']) ?></strong>
                             <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                         </div>
                     </div>
 
                     <div class="fid-testi-card reveal-on-scroll">
                         <div>
-                            <div class="fid-stars">â˜…â˜…â˜…â˜…â˜…</div>
+                            <div class="fid-stars">★★★★★</div>
                             <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
-                                "The process was simple and transparent. Friday due dates automatically shift to Saturday."
+                                <?= Security::e($t['testi2_q']) ?>
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">â€“ Market Vendor</strong>
+                            <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi2_a']) ?></strong>
                             <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                         </div>
                     </div>
 
                     <div class="fid-testi-card reveal-on-scroll">
                         <div>
-                            <div class="fid-stars">â˜…â˜…â˜…â˜…â˜…</div>
+                            <div class="fid-stars">★★★★★</div>
                             <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
-                                "Professional, trustworthy and always ready to assist solidarity groups and small businesses."
+                                <?= Security::e($t['testi3_q']) ?>
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">â€“ Group Leader</strong>
+                            <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi3_a']) ?></strong>
                             <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                         </div>
                     </div>
@@ -638,38 +887,38 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </div>
 </section>
 
-<!-- 6. FINANCIAL EDUCATION â€” 4 HORIZONTAL MEDIA CARDS + LIVE SCHEDULE CALCULATOR -->
+<!-- 6. FINANCIAL EDUCATION — 4 HORIZONTAL MEDIA CARDS + LIVE SCHEDULE CALCULATOR -->
 <section id="education" class="fid-section">
     <div class="fid-container">
         <div class="fid-section-head">
-            <span class="fid-eyebrow">FINANCIAL EDUCATION</span>
+            <span class="fid-eyebrow"><?= Security::e($t['edu_eyebrow']) ?></span>
         </div>
 
         <div class="fid-edu-grid">
             <div class="fid-edu-card reveal-on-scroll">
                 <img src="assets/images/landing/srv-construction.jpg" alt="Dhismaha Boosaska & Guryaha">
                 <div>
-                    <h4><?= $locale === 'so' ? 'Dhismaha Boosaska' : ($locale === 'ar' ? 'تمويل البناء' : 'Construction Plans') ?></h4>
-                    <p><?= $locale === 'so' ? 'Sida aad booskaaga ugu dhisan karto guri adigoo lacagta qayb qayb u bixinaya.' : ($locale === 'ar' ? 'كيف تبني منزلك على أرضك بدفعات ميسرة بدون ربا.' : 'How to construct a home on your plot with zero-riba installment plans.') ?></p>
-                    <a href="#calculator" class="fid-read-more">Read More <?= Icons::svg('arrow-right', 12) ?></a>
+                    <h4><?= Security::e($t['edu1_t']) ?></h4>
+                    <p><?= Security::e($t['edu1_d']) ?></p>
+                    <a href="#calculator" class="fid-read-more"><?= Security::e($t['btn_read_more']) ?> <?= Icons::svg('arrow-right', 12) ?></a>
                 </div>
             </div>
 
             <div class="fid-edu-card reveal-on-scroll">
                 <img src="assets/images/landing/edu-2.jpg" alt="How Micro-Loans Work">
                 <div>
-                    <h4>How Micro-Loans Work</h4>
-                    <p>Understand how Sharia-compliant Murabaha helps achieve your goals.</p>
-                    <a href="#calculator" class="fid-read-more">Read More <?= Icons::svg('arrow-right', 12) ?></a>
+                    <h4><?= Security::e($t['edu2_t']) ?></h4>
+                    <p><?= Security::e($t['edu2_d']) ?></p>
+                    <a href="#calculator" class="fid-read-more"><?= Security::e($t['btn_read_more']) ?> <?= Icons::svg('arrow-right', 12) ?></a>
                 </div>
             </div>
 
             <div class="fid-edu-card reveal-on-scroll">
                 <img src="assets/images/landing/edu-3.jpg" alt="Investment Basics">
                 <div>
-                    <h4>Investment Basics</h4>
-                    <p>Learn simple inventory strategies for long-term growth.</p>
-                    <a href="#calculator" class="fid-read-more">Read More <?= Icons::svg('arrow-right', 12) ?></a>
+                    <h4><?= Security::e($t['edu3_t']) ?></h4>
+                    <p><?= Security::e($t['edu3_d']) ?></p>
+                    <a href="#calculator" class="fid-read-more"><?= Security::e($t['btn_read_more']) ?> <?= Icons::svg('arrow-right', 12) ?></a>
                 </div>
             </div>
 
@@ -678,10 +927,10 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <img src="assets/images/landing/edu-4.jpg" alt="SIMDA Office Location Mogadishu, Somalia">
                 </a>
                 <div>
-                    <h4><?= $locale === 'so' ? 'Goobta Xafiiska' : ($locale === 'ar' ? 'موقع المكتب الرئيسي' : 'Office Location') ?></h4>
-                    <p><?= $locale === 'so' ? 'Mogadishu Main Boulevard, Hodan • Booqo xafiiskeena SIMDA.' : ($locale === 'ar' ? 'شارع مقديشو الرئيسي، حي هودان • تفضل بزيارة مكتبنا.' : 'Mogadishu Main Boulevard, Hodan • Visit SIMDA office.') ?></p>
+                    <h4><?= Security::e($t['edu4_t']) ?></h4>
+                    <p><?= Security::e($t['edu4_d']) ?></p>
                     <a href="https://share.google/zYlgwxdkUvoUtrjog" target="_blank" rel="noopener noreferrer" class="fid-read-more" style="color:#123B32;font-weight:700;">
-                        <?= $locale === 'so' ? 'Fur Google Maps' : ($locale === 'ar' ? 'فتح في خرائط جوجل' : 'Open in Google Maps') ?> <?= Icons::svg('arrow-right', 12) ?>
+                        <?= Security::e($t['btn_open_maps']) ?> <?= Icons::svg('arrow-right', 12) ?>
                     </a>
                 </div>
             </div>
@@ -691,33 +940,33 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         <div id="calculator" class="fid-why-panel reveal-on-scroll" style="margin-top:28px;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
                 <div>
-                    <span class="fid-eyebrow" style="margin-bottom:4px;">INTERACTIVE SCHEDULE ENGINE</span>
+                    <span class="fid-eyebrow" style="margin-bottom:4px;"><?= Security::e($t['calc_eyebrow']) ?></span>
                     <h3 class="fid-serif-h2" style="font-size:1.45rem;"><?= Security::e(Lang::get('calc_preview_title')) ?></h3>
                 </div>
-                <span class="badge badge-gold"><?= Icons::svg('calendar', 14) ?> Friday â†’ Saturday Auto-Shift</span>
+                <span class="badge badge-gold"><?= Icons::svg('calendar', 14) ?> <?= Security::e($t['calc_shift_badge']) ?></span>
             </div>
 
             <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
                 <div class="form-group">
-                    <label>Amount Given ($ USD)</label>
+                    <label><?= Security::e($t['calc_label_principal']) ?></label>
                     <input type="number" id="calc_principal" class="form-control num-tabular" value="3000" min="50" max="100000" step="50" placeholder="e.g. 3000">
                 </div>
                 <div class="form-group">
-                    <label>Monthly Payment ($ USD / Bishii)</label>
+                    <label><?= Security::e($t['calc_label_monthly']) ?></label>
                     <input type="number" id="calc_monthly_payment" class="form-control num-tabular" value="200" min="10" max="100000" step="10" placeholder="e.g. 200">
                 </div>
                 <div class="form-group">
-                    <label>Duration (Months / Weeks)</label>
+                    <label><?= Security::e($t['calc_label_duration']) ?></label>
                     <div style="display:flex;gap:6px;">
                         <input type="number" id="calc_term" class="form-control num-tabular" value="15" min="1" max="120" style="width:82px;">
                         <select id="calc_frequency" class="form-control" style="flex:1;">
-                            <option value="monthly">Months (Bille)</option>
-                            <option value="weekly">Weeks (Toddobaadle)</option>
+                            <option value="monthly"><?= Security::e($t['calc_opt_months']) ?></option>
+                            <option value="weekly"><?= Security::e($t['calc_opt_weeks']) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Extra / Riba (% â€” Locked at 0%)</label>
+                    <label><?= Security::e($t['calc_label_extra']) ?></label>
                     <input type="number" id="calc_rate" class="form-control num-tabular" value="0.00" readonly style="background:rgba(35,132,91,0.08);color:#23845B;font-weight:700;">
                     <input type="hidden" id="calc_product_type" value="flat">
                 </div>
@@ -726,10 +975,10 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:10px 0 14px;">
                 <button type="button" id="btnPreviewSchedule" class="fid-btn-green">
                     <?= Icons::svg('calendar', 15) ?>
-                    <span>Generate Exact Installment Schedule</span>
+                    <span><?= Security::e($t['calc_btn_generate']) ?></span>
                 </button>
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                    <span style="font-size:0.76rem;color:#5A6660;font-weight:600;">Quick Amounts:</span>
+                    <span style="font-size:0.76rem;color:#5A6660;font-weight:600;"><?= Security::e($t['calc_quick_amounts']) ?></span>
                     <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000" data-monthly="200">$1,000 ($200/mo)</button>
                     <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000" data-monthly="200">$3,000 ($200/mo)</button>
                     <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000" data-monthly="500">$5,000 ($500/mo)</button>
@@ -748,7 +997,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         <div class="fid-contact-grid">
             <div class="fid-contact-box reveal-on-scroll">
                 <div>
-                    <span class="fid-eyebrow" style="margin-bottom:6px;">GET IN TOUCH</span>
+                    <span class="fid-eyebrow" style="margin-bottom:6px;"><?= Security::e($t['contact_eyebrow']) ?></span>
                     <ul class="fid-contact-list">
                         <li>
                             <span class="fid-contact-dot"><?= Icons::svg('phone', 12) ?></span>
@@ -772,12 +1021,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 </div>
 
                 <div style="text-align:center;border-left:1px solid rgba(0,0,0,0.08);padding-left:20px;">
-                    <h3 class="fid-serif-h2" style="font-size:1.35rem;margin-bottom:8px;">Ready to take the next step?</h3>
+                    <h3 class="fid-serif-h2" style="font-size:1.35rem;margin-bottom:8px;"><?= Security::e($t['contact_title']) ?></h3>
                     <p style="font-size:0.82rem;color:#5A6660;margin-bottom:14px;">
-                        We are here to help you achieve your ethical financial goals today.
+                        <?= Security::e($t['contact_lead']) ?>
                     </p>
                     <a href="?route=<?= $isLoggedIn ? 'dashboard' : 'login' ?>" class="fid-btn-green">
-                        <span>Get Started</span>
+                        <span><?= Security::e($t['contact_btn_start']) ?></span>
                         <?= Icons::svg('arrow-right', 14) ?>
                     </a>
                 </div>
@@ -1030,8 +1279,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                             <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
                         </a>
                     </div>
-                    <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> SIMDA Microfinance. All rights reserved.</div>
-                    <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;">Developed by <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
+                    <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> <?= Security::e($t['footer_rights'] ?? 'SIMDA Microfinance. All rights reserved.') ?></div>
+                    <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;"><?= Security::e($t['footer_developed_by'] ?? 'Developed by') ?> <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
                 </div>
                 <div></div>
             </div>

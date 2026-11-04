@@ -113,5 +113,33 @@ return [
     'print_statement' => 'Print Statement',
     'connection_online' => 'Connection Online',
     'connection_offline' => 'You are currently offline — Financial transactions require a live server connection.',
+
+    // Tables & Actions
+    'th_contract' => 'Contract',
+    'th_client' => 'Client',
+    'th_type' => 'Type',
+    'th_total_due' => 'Total Due',
+    'th_outstanding' => 'Outstanding',
+    'th_status' => 'Status',
+    'th_pdf' => 'PDF',
+    'th_receipt' => 'Receipt #',
+    'th_method' => 'Method',
+    'th_paid' => 'Paid',
+    'th_principal_profit' => 'Principal / Profit',
+    'th_date' => 'Date',
+    'btn_view_all' => 'View All',
+
+    // Dashboard Extras
+    'kpi_sub_verified_clients' => 'Verified clients with guarantors',
+    'kpi_sub_disbursed' => 'Disbursed',
+    'kpi_sub_balance' => 'Principal + agreed profit balance',
+    'kpi_sub_gross_receipts' => 'Gross receipts',
+    'kpi_sub_overdue' => 'Contracts with missed due dates',
+    'kpi_sub_par30_risky' => 'Risky balance (>30d)',
+    'kpi_sub_charity_pending' => 'Pending (Non-Income)',
+    'chart_monthly_title' => 'Monthly Repayment Performance',
+    'chart_monthly_sub' => 'Principal vs Profit vs Segregated Charity Collections',
+    'chart_branch_title' => 'Branch PAR30 & Financing by Product Type',
+    'chart_branch_sub' => 'Live Portfolio at Risk (>30 days overdue) & Product Mix',
 ];
 

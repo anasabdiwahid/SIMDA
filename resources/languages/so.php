@@ -114,5 +114,33 @@ return [
     'print_statement' => 'Daabac Bayaanka',
     'connection_online' => 'Internet-ku wuu shaqaynayaa',
     'connection_offline' => 'Internet ma jiro — Xogta maaliyadeed lama gudbin karo ilaa khadku soo laabto.',
+
+    // Tables & Actions
+    'th_contract' => 'Heshiiska',
+    'th_client' => 'Macaamiilka',
+    'th_type' => 'Nooca',
+    'th_total_due' => 'Wadarta Guud',
+    'th_outstanding' => 'Haraga',
+    'th_status' => 'Xaaladda',
+    'th_pdf' => 'PDF',
+    'th_receipt' => 'Rasiidka #',
+    'th_method' => 'Habka',
+    'th_paid' => 'La Bixiyay',
+    'th_principal_profit' => 'Raasamaal / Faa\'iido',
+    'th_date' => 'Taariikhda',
+    'btn_view_all' => 'Eeg Dhammaan',
+
+    // Dashboard Extras
+    'kpi_sub_verified_clients' => 'Macaamiil xaqiijisan oo damiin leh',
+    'kpi_sub_disbursed' => 'La Bixiyay',
+    'kpi_sub_balance' => 'Raasamaalka + faa\'iidada heshiiska',
+    'kpi_sub_gross_receipts' => 'Wadarta la soo xereeyay',
+    'kpi_sub_overdue' => 'Heshiisyada waqtigoodii la dhaafay',
+    'kpi_sub_par30_risky' => 'Khatarta (>30 maalmood)',
+    'kpi_sub_charity_pending' => 'La sugayo (Ma aha dakhli shirkadeed)',
+    'chart_monthly_title' => 'Wax-soo-saarka Lacag-qabashada Bil kasta',
+    'chart_monthly_sub' => 'Raasamaal vs Faa\'iido vs Lacagaha Sadaqada',
+    'chart_branch_title' => 'PAR30 Laamaha & Qeybaha Badeecadaha',
+    'chart_branch_sub' => 'Heerka khatarta tooska ah iyo noocyada maalgelinta',
 ];
 

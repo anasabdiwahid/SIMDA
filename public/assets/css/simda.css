@@ -829,9 +829,103 @@ table th.amount {
     animation: simdaLangFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-[dir="rtl"] .simda-lang-menu {
-    right: auto;
-    left: 0;
+/* ==========================================================================
+   Full RTL Layout Support for Arabic (العربية)
+   ========================================================================== */
+[dir="rtl"] {
+    text-align: right;
+    direction: rtl;
+}
+
+[dir="rtl"] .sidebar {
+    left: auto !important;
+    right: 0 !important;
+    border-right: none !important;
+    border-left: 1px solid rgba(214, 182, 108, 0.18) !important;
+}
+
+[dir="rtl"] .app-main {
+    margin-left: 0 !important;
+    margin-right: var(--sidebar-width) !important;
+}
+
+[dir="rtl"] body.sidebar-collapsed .app-main {
+    margin-left: 0 !important;
+    margin-right: var(--sidebar-collapsed-width) !important;
+}
+
+[dir="rtl"] .sidebar-link.active {
+    border-left: none !important;
+    border-right: 3px solid var(--simda-gold) !important;
+}
+
+[dir="rtl"] .global-search svg {
+    left: auto !important;
+    right: 12px !important;
+}
+
+[dir="rtl"] .global-search input {
+    padding-left: 12px !important;
+    padding-right: 36px !important;
+}
+
+[dir="rtl"] .table th,
+[dir="rtl"] .table td,
+[dir="rtl"] .simda-table th,
+[dir="rtl"] .simda-table td {
+    text-align: right;
+}
+
+[dir="rtl"] .table th.amount,
+[dir="rtl"] .table td.amount,
+[dir="rtl"] .simda-table th.amount,
+[dir="rtl"] .simda-table td.amount,
+[dir="rtl"] .num-tabular {
+    direction: ltr;
+    display: inline-block;
+    text-align: right;
+}
+
+[dir="rtl"] .fid-nav-links {
+    padding-right: 0;
+}
+
+[dir="rtl"] .fid-service-card {
+    text-align: right;
+}
+
+[dir="rtl"] .fid-step-inner {
+    text-align: right;
+}
+
+[dir="rtl"] .fid-contact-list {
+    padding-right: 0;
+}
+
+[dir="rtl"] .fid-contact-box > div:last-child {
+    border-left: none !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+    padding-left: 0 !important;
+    padding-right: 20px !important;
+}
+
+[dir="rtl"] .fid-map-card a[target="_blank"] {
+    right: auto !important;
+    left: 10px !important;
+}
+
+@media (max-width: 992px) {
+    [dir="rtl"] .sidebar {
+        transform: translateX(100%) !important;
+    }
+    [dir="rtl"] body.mobile-nav-open .sidebar {
+        transform: translateX(0) !important;
+    }
+    [dir="rtl"] .app-main,
+    [dir="rtl"] body.sidebar-collapsed .app-main {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
 }
 
 [data-theme="dark"] .simda-lang-menu {

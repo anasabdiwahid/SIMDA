@@ -17,7 +17,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('users', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= (int) $m['total_clients'] ?></div>
-        <div class="kpi-sub">Verified clients with guarantors</div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_verified_clients')) ?></div>
     </div>
 
     <div class="kpi-card kpi-gold">
@@ -26,7 +26,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('file-text', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= (int) $m['active_financing_count'] ?></div>
-        <div class="kpi-sub">Disbursed: <span class="num-tabular"><?= Security::formatMoney($m['total_disbursed_amount']) ?></span></div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_disbursed')) ?>: <span class="num-tabular"><?= Security::formatMoney($m['total_disbursed_amount']) ?></span></div>
     </div>
 
     <div class="kpi-card kpi-gold">
@@ -35,7 +35,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('briefcase', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= Security::formatMoney($m['total_outstanding_balance']) ?></div>
-        <div class="kpi-sub">Principal + agreed profit balance</div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_balance')) ?></div>
     </div>
 
     <div class="kpi-card kpi-success">
@@ -44,7 +44,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('check-circle', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= Security::formatMoney($m['total_repayments_collected']) ?></div>
-        <div class="kpi-sub">Gross receipts: <span class="num-tabular"><?= Security::formatMoney($m['gross_receipts']) ?></span></div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_gross_receipts')) ?>: <span class="num-tabular"><?= Security::formatMoney($m['gross_receipts']) ?></span></div>
     </div>
 
     <div class="kpi-card">
@@ -53,7 +53,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('clock', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= (int) $m['pending_applications_count'] ?></div>
-        <div class="kpi-sub"><a href="?route=approval_queue" style="text-decoration:underline;">Open Approval Queue</a></div>
+        <div class="kpi-sub"><a href="?route=approval_queue" style="text-decoration:underline;"><?= Security::e(Lang::get('menu_approval_queue')) ?></a></div>
     </div>
 
     <div class="kpi-card kpi-danger">
@@ -62,7 +62,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('alert-triangle', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= (int) $m['overdue_financing_count'] ?></div>
-        <div class="kpi-sub">Contracts with missed due dates</div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_overdue')) ?></div>
     </div>
 
     <div class="kpi-card kpi-danger">
@@ -71,7 +71,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('bar-chart', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= Security::e($m['par30_percentage']) ?>%</div>
-        <div class="kpi-sub">Risky (&gt;30d): <span class="num-tabular"><?= Security::formatMoney($m['par30_risky_balance']) ?></span></div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_par30_risky')) ?>: <span class="num-tabular"><?= Security::formatMoney($m['par30_risky_balance']) ?></span></div>
     </div>
 
     <div class="kpi-card kpi-gold">
@@ -80,7 +80,7 @@ $m = $metrics;
             <span class="kpi-icon"><?= Icons::svg('heart-handshake', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular"><?= Security::formatMoney($m['charity_account_balance']) ?></div>
-        <div class="kpi-sub">Pending: <span class="num-tabular"><?= Security::formatMoney($m['charity_pending_balance']) ?></span> (Non-Income)</div>
+        <div class="kpi-sub"><?= Security::e(Lang::get('kpi_sub_charity_pending')) ?>: <span class="num-tabular"><?= Security::formatMoney($m['charity_pending_balance']) ?></span></div>
     </div>
 </div>
 
@@ -89,8 +89,8 @@ $m = $metrics;
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;">
             <div>
-                <h3 style="font-size:1rem;">Monthly Repayment Performance</h3>
-                <div style="font-size:0.76rem;color:var(--text-muted);">Principal vs Profit vs Segregated Charity Collections</div>
+                <h3 style="font-size:1rem;"><?= Security::e(Lang::get('chart_monthly_title')) ?></h3>
+                <div style="font-size:0.76rem;color:var(--text-muted);"><?= Security::e(Lang::get('chart_monthly_sub')) ?></div>
             </div>
             <span class="badge badge-info">Live SQL</span>
         </div>
@@ -102,8 +102,8 @@ $m = $metrics;
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;">
             <div>
-                <h3 style="font-size:1rem;">Branch PAR30 & Financing by Product Type</h3>
-                <div style="font-size:0.76rem;color:var(--text-muted);">Live Portfolio at Risk (&gt;30 days overdue) & Product Mix</div>
+                <h3 style="font-size:1rem;"><?= Security::e(Lang::get('chart_branch_title')) ?></h3>
+                <div style="font-size:0.76rem;color:var(--text-muted);"><?= Security::e(Lang::get('chart_branch_sub')) ?></div>
             </div>
             <span class="badge badge-gold">Module 12</span>
         </div>
@@ -119,7 +119,7 @@ $m = $metrics;
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <h3 style="font-size:1rem;"><?= Security::e(Lang::get('menu_active_financing')) ?></h3>
-            <a href="?route=financings" class="btn btn-sm btn-outline">View All <?= Icons::svg('arrow-right', 14) ?></a>
+            <a href="?route=financings" class="btn btn-sm btn-outline"><?= Security::e(Lang::get('btn_view_all')) ?> <?= Icons::svg('arrow-right', 14) ?></a>
         </div>
         <?php if (empty($recentFinancings)): ?>
             <div style="padding:24px;text-align:center;color:var(--text-muted);">
@@ -131,13 +131,13 @@ $m = $metrics;
                 <table class="simda-table">
                     <thead>
                         <tr>
-                            <th>Contract</th>
-                            <th>Client</th>
-                            <th>Type</th>
-                            <th>Total Due</th>
-                            <th>Outstanding</th>
-                            <th>Status</th>
-                            <th>PDF</th>
+                            <th><?= Security::e(Lang::get('th_contract')) ?></th>
+                            <th><?= Security::e(Lang::get('th_client')) ?></th>
+                            <th><?= Security::e(Lang::get('th_type')) ?></th>
+                            <th><?= Security::e(Lang::get('th_total_due')) ?></th>
+                            <th><?= Security::e(Lang::get('th_outstanding')) ?></th>
+                            <th><?= Security::e(Lang::get('th_status')) ?></th>
+                            <th><?= Security::e(Lang::get('th_pdf')) ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -150,7 +150,7 @@ $m = $metrics;
                                 <td class="num-tabular"><strong><?= Security::formatMoney($f['outstanding_balance']) ?></strong></td>
                                 <td>
                                     <span class="badge badge-<?= $f['status'] === 'completed' ? 'success' : ($f['status'] === 'overdue' ? 'danger' : 'info') ?>">
-                                        <?= Security::e($f['status']) ?>
+                                        <?= Security::e(Lang::get('status_' . $f['status'])) ?>
                                     </span>
                                 </td>
                                 <td>
@@ -167,7 +167,7 @@ $m = $metrics;
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <h3 style="font-size:1rem;"><?= Security::e(Lang::get('menu_repayment_history')) ?></h3>
-            <a href="?route=repayments" class="btn btn-sm btn-outline">View All <?= Icons::svg('arrow-right', 14) ?></a>
+            <a href="?route=repayments" class="btn btn-sm btn-outline"><?= Security::e(Lang::get('btn_view_all')) ?> <?= Icons::svg('arrow-right', 14) ?></a>
         </div>
         <?php if (empty($recentRepayments)): ?>
             <div style="padding:24px;text-align:center;color:var(--text-muted);">
@@ -179,12 +179,12 @@ $m = $metrics;
                 <table class="simda-table">
                     <thead>
                         <tr>
-                            <th>Receipt</th>
-                            <th>Client</th>
-                            <th>Method</th>
-                            <th>Paid</th>
-                            <th>Principal / Profit</th>
-                            <th>Date</th>
+                            <th><?= Security::e(Lang::get('th_receipt')) ?></th>
+                            <th><?= Security::e(Lang::get('th_client')) ?></th>
+                            <th><?= Security::e(Lang::get('th_method')) ?></th>
+                            <th><?= Security::e(Lang::get('th_paid')) ?></th>
+                            <th><?= Security::e(Lang::get('th_principal_profit')) ?></th>
+                            <th><?= Security::e(Lang::get('th_date')) ?></th>
                         </tr>
                     </thead>
                     <tbody>
