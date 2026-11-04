@@ -250,9 +250,9 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                     [
                         'id' => 'phone_red',
                         'img' => 'assets/images/landing/murabaha/murabaha-phone-red.png',
-                        'title_so' => 'iPhone 17 Pro Max (Deep Crimson Red)',
-                        'title_en' => 'iPhone 17 Pro Max (Deep Crimson Red)',
-                        'title_ar' => 'آيفون 17 برو ماكس قرمزي',
+                        'title_so' => 'iPhone 18 Pro Max (Deep Crimson Red)',
+                        'title_en' => 'iPhone 18 Pro Max (Deep Crimson Red)',
+                        'title_ar' => 'آيفون 18 برو ماكس قرمزي',
                         'category_so' => 'Qalabka Casriga ah ee Ganacsiga',
                         'category_en' => 'Smart Enterprise Tech',
                         'category_ar' => 'الأجهزة الذكية للأعمال',
