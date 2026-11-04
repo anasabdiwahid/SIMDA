@@ -399,9 +399,15 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <span>Remember me</span>
                     </label>
                     <div style="display:flex;gap:8px;align-items:center;">
-                        <a href="?route=login&lang=en" style="color:<?= $locale === 'en' ? '#123B32' : '#87938C' ?>;font-weight:700;">EN</a>
-                        <span>|</span>
-                        <a href="?route=login&lang=so" style="color:<?= $locale === 'so' ? '#123B32' : '#87938C' ?>;font-weight:700;">SO</a>
+                        <a href="?route=login&lang=so" title="Af-Soomaali (Somalia)" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : '#E2E7E4' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 2px #123B32' : 'none' ?>;">
+                            <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                        <a href="?route=login&lang=en" title="English (USA)" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : '#E2E7E4' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 2px #123B32' : 'none' ?>;">
+                            <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                        <a href="?route=login&lang=ar" title="العربية (Arabic)" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : '#E2E7E4' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 2px #123B32' : 'none' ?>;">
+                            <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
                     </div>
                 </div>
 

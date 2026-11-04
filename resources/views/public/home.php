@@ -9,9 +9,61 @@ use App\Middleware\AuthMiddleware;
 $locale = Lang::locale();
 $isLoggedIn = AuthMiddleware::check();
 $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
+
+$homeI18n = [
+    'en' => [
+        'nav_home' => 'Home',
+        'nav_about' => 'About Us',
+        'nav_services' => 'Services',
+        'nav_process' => 'Our Process',
+        'nav_testimonials' => 'Testimonials',
+        'nav_faq' => 'FAQ & Education',
+        'nav_contact' => 'Contact',
+        'cta_dashboard' => 'Dashboard',
+        'cta_start' => 'Get Started',
+        'hero_eyebrow' => 'WELCOME TO SIMDA MICROFINANCE',
+        'hero_title' => 'Your Financial<br>Growth Partner',
+        'hero_lead' => 'We help individuals, small businesses, and solidarity groups achieve their financial goals through accessible, ethical, and transparent Sharia-compliant micro-finance services.',
+        'btn_learn' => 'Learn More',
+        'btn_calc' => 'Schedule Simulator',
+    ],
+    'so' => [
+        'nav_home' => 'Bogga Hore',
+        'nav_about' => 'Nagu Saabsan',
+        'nav_services' => 'Adeegyada',
+        'nav_process' => 'Habka Shaqada',
+        'nav_testimonials' => 'Aragtida Macaamiisha',
+        'nav_faq' => 'Wacyigelinta',
+        'nav_contact' => 'Xiriirka',
+        'cta_dashboard' => 'Dashboard',
+        'cta_start' => 'Bilow Hadda',
+        'hero_eyebrow' => 'KUSOO DHAWOOW SIMDA MICROFINANCE',
+        'hero_title' => 'Saaxiibkaaga Kobaca<br>Maaliyadeed',
+        'hero_lead' => 'Waxaan ka caawinaa shakhsiyaadka, ganacsiyada yaryar, iyo kooxaha iskaashiga inay gaaraan yoolkooda maaliyadeed iyadoo loo marayo maalgelin Islaami ah oo hufan oo aan Ribo lahayn (0% Riba).',
+        'btn_learn' => 'Faahfaahin Dheeraad ah',
+        'btn_calc' => 'Xisaabiyaha Jadwalka',
+    ],
+    'ar' => [
+        'nav_home' => 'الرئيسية',
+        'nav_about' => 'من نحن',
+        'nav_services' => 'خدماتنا',
+        'nav_process' => 'آلية العمل',
+        'nav_testimonials' => 'آراء العملاء',
+        'nav_faq' => 'التثقيف المالي',
+        'nav_contact' => 'اتصل بنا',
+        'cta_dashboard' => 'لوحة التحكم',
+        'cta_start' => 'ابدأ الآن',
+        'hero_eyebrow' => 'مرحباً بكم في سيمدا للتمويل الأصغر الإسلامي',
+        'hero_title' => 'شريكك الموثوق<br>للنمو المالي',
+        'hero_lead' => 'نساعد الأفراد والشركات الصغيرة ومجموعات التضامن على تحقيق أهدافهم المالية من خلال خدمات تمويل أصغر إسلامية شفافة وأخلاقية خالية تماماً من الربا (0% ربا).',
+        'btn_learn' => 'اعرف المزيد',
+        'btn_calc' => 'حاسبة جدول السداد',
+    ],
+];
+$t = $homeI18n[$locale] ?? $homeI18n['en'];
 ?>
 <!DOCTYPE html>
-<html lang="<?= Security::e($locale) ?>" data-theme="light">
+<html lang="<?= Security::e($locale) ?>" dir="<?= $locale === 'ar' ? 'rtl' : 'ltr' ?>" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,18 +100,29 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
         </a>
 
         <ul class="fid-nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#why-us">About Us</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#our-process">Our Process</a></li>
-            <li><a href="#testimonials">Testimonials</a></li>
-            <li><a href="#education">FAQ & Education</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="#home"><?= Security::e($t['nav_home']) ?></a></li>
+            <li><a href="#why-us"><?= Security::e($t['nav_about']) ?></a></li>
+            <li><a href="#services"><?= Security::e($t['nav_services']) ?></a></li>
+            <li><a href="#our-process"><?= Security::e($t['nav_process']) ?></a></li>
+            <li><a href="#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
+            <li><a href="#education"><?= Security::e($t['nav_faq']) ?></a></li>
+            <li><a href="#contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>
 
         <div style="display:flex;align-items:center;gap:10px;">
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(18,59,50,0.06);padding:4px 8px;border-radius:999px;">
+                <a href="?route=home&lang=so" title="Af-Soomaali (Somalia)" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.15)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
+                </a>
+                <a href="?route=home&lang=en" title="English (USA)" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.15)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
+                </a>
+                <a href="?route=home&lang=ar" title="العربية (Arabic)" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.15)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
+                </a>
+            </div>
             <a href="?route=<?= $isLoggedIn ? 'dashboard' : 'login' ?>" class="fid-btn-green">
-                <span><?= $isLoggedIn ? 'Dashboard' : 'Get Started' ?></span>
+                <span><?= Security::e($isLoggedIn ? $t['cta_dashboard'] : $t['cta_start']) ?></span>
                 <?= Icons::svg('arrow-right', 14) ?>
             </a>
         </div>
@@ -71,19 +134,19 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
     <div class="fid-container">
         <div class="fid-hero-card animate-in">
             <div class="fid-hero-copy">
-                <span class="fid-eyebrow">WELCOME TO SIMDA MICROFINANCE</span>
-                <h1 class="fid-serif-h1">Your Financial<br>Growth Partner</h1>
+                <span class="fid-eyebrow"><?= Security::e($t['hero_eyebrow']) ?></span>
+                <h1 class="fid-serif-h1"><?= $t['hero_title'] ?></h1>
                 <p class="fid-hero-lead">
-                    We help individuals, small businesses, and solidarity groups achieve their financial goals through accessible, ethical, and transparent Sharia-compliant micro-finance services.
+                    <?= Security::e($t['hero_lead']) ?>
                 </p>
                 <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                     <a href="#services" class="fid-btn-green">
-                        <span>Learn More</span>
+                        <span><?= Security::e($t['btn_learn']) ?></span>
                         <?= Icons::svg('arrow-right', 14) ?>
                     </a>
                     <a href="#calculator" class="btn btn-outline" style="border-radius:999px;padding:10px 18px;border-color:#123B32;color:#123B32;font-weight:600;">
                         <?= Icons::svg('calendar', 14) ?>
-                        <span>Schedule Simulator</span>
+                        <span><?= Security::e($t['btn_calc']) ?></span>
                     </a>
                 </div>
             </div>
@@ -729,9 +792,16 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
                     <div>Part of SIMDA (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
                     <div><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
-                    <div style="display:flex;justify-content:center;gap:8px;margin:10px 0;">
-                        <a href="?route=home&lang=so" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'so' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">SO</a>
-                        <a href="?route=home&lang=en" style="padding:2px 8px;border-radius:4px;background:<?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.12)' ?>;color:<?= $locale === 'en' ? '#123B32' : '#FFF' ?>;font-weight:700;font-size:0.7rem;">EN</a>
+                    <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin:12px 0;">
+                        <a href="?route=home&lang=so" title="Af-Soomaali (Somalia)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                        <a href="?route=home&lang=en" title="English (USA)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                        <a href="?route=home&lang=ar" title="العربية (Arabic)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
                     </div>
                     <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> SIMDA Microfinance. All rights reserved.</div>
                     <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;">Developed by <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>

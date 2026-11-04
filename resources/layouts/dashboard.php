@@ -237,10 +237,17 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </form>
                 <?php endif; ?>
 
-                <!-- Language Switcher (English Default) -->
-                <div style="display:flex;gap:4px;">
-                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=en" class="btn btn-sm <?= $locale === 'en' ? 'btn-primary' : 'btn-outline' ?>">EN</a>
-                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=so" class="btn btn-sm <?= $locale === 'so' ? 'btn-primary' : 'btn-outline' ?>">SO</a>
+                <!-- Language Switcher (Somalia, USA, Arabic Flags) -->
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=so" title="Af-Soomaali (Somalia)" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.18)' ?>;">
+                        <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
+                    </a>
+                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=en" title="English (USA)" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.18)' ?>;">
+                        <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
+                    </a>
+                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=ar" title="العربية (Arabic)" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.18)' ?>;">
+                        <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
+                    </a>
                 </div>
 
                 <!-- Theme Switcher -->

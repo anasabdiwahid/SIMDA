@@ -10,7 +10,7 @@ final class Lang
 
     public static function init(?string $requestedLocale = null): void
     {
-        $supported = ['en', 'so'];
+        $supported = ['en', 'so', 'ar'];
         if ($requestedLocale !== null && in_array($requestedLocale, $supported, true)) {
             self::$locale = $requestedLocale;
             if (session_status() === PHP_SESSION_ACTIVE) {
@@ -27,7 +27,7 @@ final class Lang
 
     public static function setLocale(string $locale): void
     {
-        if (in_array($locale, ['en', 'so'], true)) {
+        if (in_array($locale, ['en', 'so', 'ar'], true)) {
             self::$locale = $locale;
             if (session_status() === PHP_SESSION_ACTIVE) {
                 $_SESSION['locale'] = $locale;
