@@ -650,11 +650,15 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
             </div>
 
             <div class="fid-edu-card reveal-on-scroll">
-                <img src="assets/images/landing/edu-4.jpg" alt="Budget Planning">
+                <a href="https://share.google/zYlgwxdkUvoUtrjog" target="_blank" rel="noopener noreferrer" style="display:block;flex-shrink:0;" title="Open in Google Maps">
+                    <img src="assets/images/landing/edu-4.jpg" alt="SIMDA Office Location Mogadishu, Somalia">
+                </a>
                 <div>
-                    <h4>Budget Planning</h4>
-                    <p>Smart budgeting tips to manage your installments better.</p>
-                    <a href="#calculator" class="fid-read-more">Read More <?= Icons::svg('arrow-right', 12) ?></a>
+                    <h4><?= $locale === 'so' ? 'Goobta Xafiiska' : ($locale === 'ar' ? 'موقع المكتب الرئيسي' : 'Office Location') ?></h4>
+                    <p><?= $locale === 'so' ? 'Mogadishu Main Boulevard, Hodan • Booqo xafiiskeena SIMDA.' : ($locale === 'ar' ? 'شارع مقديشو الرئيسي، حي هودان • تفضل بزيارة مكتبنا.' : 'Mogadishu Main Boulevard, Hodan • Visit SIMDA office.') ?></p>
+                    <a href="https://share.google/zYlgwxdkUvoUtrjog" target="_blank" rel="noopener noreferrer" class="fid-read-more" style="color:#123B32;font-weight:700;">
+                        <?= $locale === 'so' ? 'Fur Google Maps' : ($locale === 'ar' ? 'فتح في خرائط جوجل' : 'Open in Google Maps') ?> <?= Icons::svg('arrow-right', 12) ?>
+                    </a>
                 </div>
             </div>
         </div>
