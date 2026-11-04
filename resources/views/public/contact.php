@@ -530,7 +530,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <rect x="69" y="116" width="4" height="5" /><rect x="76" y="116" width="4" height="5" />
             </g>
 
-            <!-- LEFT HILL MONEY / CASH STACK & GOLD COINS ILLUSTRATION -->
+            <!-- LEFT HILL MONEY / CASH STACK & GOLD COINS ILLUSTRATION (Replaces Left Shoe) -->
             <g transform="translate(95, 78)">
                 <!-- Isometric Cash Bundle Stack -->
                 <path d="M0,48 L95,28 L155,52 L60,72 Z" fill="#1E5C4C" stroke="#D6B66C" stroke-width="2" />
@@ -545,59 +545,109 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <g transform="translate(132, 26)">
                     <ellipse cx="22" cy="36" rx="18" ry="6" fill="#B89242" />
                     <ellipse cx="22" cy="30" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
-                    <ellipse cx="22" cy="24" rx="18" ry="6" fill="#F0CE81" stroke="#123B32" stroke-width="1.2" />
+                    <ellipse cx="22" cy="24" rx="18" ry="6" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
                     <ellipse cx="22" cy="18" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
-                    <ellipse cx="22" cy="12" rx="18" ry="6" fill="#FBE4A8" stroke="#123B32" stroke-width="1.2" />
-                    <text x="22" y="15" text-anchor="middle" fill="#123B32" font-size="8" font-weight="800" font-family="sans-serif">★</text>
+                    <text x="22" y="21" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
                 </g>
             </g>
 
-            <!-- Rolling Green Hills Base Path -->
-            <path d="M0,136 Q180,96 360,118 T720,126 T1080,108 T1440,128 L1440,210 L0,210 Z" fill="#123B32" />
-            <path d="M0,154 Q220,122 460,140 T920,138 T1440,146 L1440,210 L0,210 Z" fill="#0E2D26" />
-
-            <!-- Tree Silhouettes on Rolling Hills -->
-            <g fill="#16493C">
-                <circle cx="280" cy="116" r="14" /><rect x="278" y="122" width="4" height="12" fill="#0A221D" />
-                <circle cx="304" cy="112" r="11" /><rect x="302" y="118" width="4" height="10" fill="#0A221D" />
-                <circle cx="324" cy="118" r="9" /><rect x="323" y="122" width="3" height="8" fill="#0A221D" />
-                <circle cx="820" cy="124" r="13" /><rect x="818" y="130" width="4" height="10" fill="#0A221D" />
-                <circle cx="842" cy="120" r="10" /><rect x="840" y="126" width="4" height="9" fill="#0A221D" />
-            </g>
-
-            <!-- Center City Skyline Elements -->
-            <g fill="#16493C">
-                <rect x="420" y="98" width="26" height="58" />
-                <polygon points="420,98 433,78 446,98" />
-                <rect x="450" y="106" width="32" height="50" />
-                <rect x="486" y="92" width="22" height="64" />
-                <line x1="497" y1="92" x2="497" y2="76" stroke="#D6B66C" stroke-width="2" />
-            </g>
-
-            <!-- RIGHT HILL MONEY / CASH & COINS (Symmetrical Right Accent) -->
-            <g transform="translate(1180, 80)">
-                <ellipse cx="20" cy="40" rx="20" ry="7" fill="#B89242" />
-                <ellipse cx="20" cy="34" rx="20" ry="7" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
-                <ellipse cx="20" cy="28" rx="20" ry="7" fill="#F0CE81" stroke="#123B32" stroke-width="1.2" />
-                <ellipse cx="20" cy="22" rx="20" ry="7" fill="#FBE4A8" stroke="#123B32" stroke-width="1.2" />
-                <text x="20" y="25" text-anchor="middle" fill="#123B32" font-size="8" font-weight="800" font-family="sans-serif">$</text>
-                <path d="M42,32 L110,18 L152,36 L84,50 Z" fill="#1E5C4C" stroke="#D6B66C" stroke-width="1.5" />
-                <path d="M42,32 L42,44 L84,62 L84,50 Z" fill="#123B32" stroke="#D6B66C" stroke-width="1.2" />
-                <path d="M84,50 L84,62 L152,48 L152,36 Z" fill="#16493C" stroke="#D6B66C" stroke-width="1.2" />
-                <path d="M80,24 L102,20 L122,42 L100,47 Z" fill="#D6B66C" />
-            </g>
-
-            <!-- Far Right City Skyline -->
+            <!-- Lollipop Trees & Floating Coins Left-Center -->
             <g fill="#123B32">
-                <rect x="1350" y="98" width="24" height="65" />
-                <rect x="1378" y="86" width="20" height="77" />
-                <rect x="1402" y="104" width="26" height="59" />
-                <polygon points="1378,86 1388,68 1398,86" fill="#16493C" />
+                <rect x="313" y="102" width="3" height="28" />
+                <circle cx="314.5" cy="96" r="11" />
+                <circle cx="300" cy="110" r="6" />
+                <rect x="299" y="114" width="2" height="16" />
+                <circle cx="334" cy="104" r="8" />
+                <rect x="333" y="110" width="2.5" height="18" />
+                <circle cx="352" cy="96" r="3.5" fill="#D6B66C" />
+                <circle cx="678" cy="100" r="9" />
+                <rect x="677" y="106" width="2.5" height="22" />
+                <circle cx="702" cy="95" r="4" fill="#D6B66C" />
             </g>
+
+            <!-- Center Financial District Skyline & Wheel -->
+            <g fill="#123B32">
+                <rect x="720" y="92" width="24" height="75" />
+                <!-- Ferris / Growth Wheel -->
+                <circle cx="788" cy="112" r="32" fill="none" stroke="#123B32" stroke-width="2.5" />
+                <circle cx="788" cy="112" r="24" fill="none" stroke="#D6B66C" stroke-width="1.5" stroke-dasharray="4 4" />
+                <circle cx="788" cy="112" r="6" fill="#D6B66C" />
+                <line x1="788" y1="80" x2="788" y2="144" stroke="#123B32" stroke-width="1.5" />
+                <line x1="756" y1="112" x2="820" y2="112" stroke="#123B32" stroke-width="1.5" />
+                <line x1="765" y1="89" x2="811" y2="135" stroke="#123B32" stroke-width="1.5" />
+                <line x1="811" y1="89" x2="765" y2="135" stroke="#123B32" stroke-width="1.5" />
+                <!-- Center Towers -->
+                <rect x="832" y="110" width="20" height="60" />
+                <rect x="856" y="96" width="24" height="74" />
+                <rect x="896" y="102" width="22" height="68" />
+                <rect x="922" y="122" width="18" height="48" />
+                <rect x="960" y="114" width="20" height="58" />
+            </g>
+            <!-- Center Building Windows -->
+            <g fill="#FFFFFF" opacity="0.88">
+                <rect x="725" y="98" width="5" height="5" /><rect x="734" y="98" width="5" height="5" />
+                <rect x="725" y="107" width="5" height="5" /><rect x="734" y="107" width="5" height="5" />
+                <rect x="725" y="116" width="5" height="5" /><rect x="734" y="116" width="5" height="5" />
+                <rect x="861" y="102" width="5" height="5" /><rect x="870" y="102" width="5" height="5" />
+                <rect x="861" y="111" width="5" height="5" /><rect x="870" y="111" width="5" height="5" />
+                <rect x="901" y="108" width="4" height="5" /><rect x="909" y="108" width="4" height="5" />
+                <rect x="901" y="117" width="4" height="5" /><rect x="909" y="117" width="4" height="5" />
+                <rect x="964" y="120" width="4" height="5" /><rect x="971" y="120" width="4" height="5" />
+            </g>
+
+            <!-- Floating Hot-Air Money Balloon in Sky -->
+            <g transform="translate(925, 22)">
+                <path d="M24,0 C38,0 48,11 48,25 C48,39 30,54 27,62 L21,62 C18,54 0,39 0,25 C0,11 10,0 24,0 Z" fill="#123B32" />
+                <circle cx="24" cy="23" r="11" fill="#D6B66C" />
+                <text x="24" y="28" text-anchor="middle" fill="#123B32" font-size="14" font-weight="800" font-family="sans-serif">$</text>
+                <rect x="21" y="65" width="6" height="6" rx="1" fill="#123B32" />
+            </g>
+
+            <!-- Right-Center Lollipop Trees -->
+            <g fill="#123B32">
+                <circle cx="1044" cy="112" r="11" />
+                <rect x="1042.5" y="120" width="3" height="28" />
+                <circle cx="1064" cy="124" r="7" />
+                <rect x="1063" y="129" width="2" height="20" />
+                <circle cx="1115" cy="110" r="9" />
+                <rect x="1114" y="117" width="2.5" height="24" />
+                <circle cx="1135" cy="102" r="4" fill="#D6B66C" />
+                <circle cx="1408" cy="96" r="11" />
+                <rect x="1406.5" y="105" width="3" height="30" />
+                <circle cx="1426" cy="112" r="7" />
+                <rect x="1425" y="117" width="2" height="22" />
+            </g>
+
+            <!-- RIGHT HILL MONEY WALLET, BANKNOTES & COINS ILLUSTRATION (Replaces Right Shoe) -->
+            <g transform="translate(1178, 56)">
+                <!-- Fanning Dollar Bills Emerging from Wallet -->
+                <g transform="rotate(-12, 60, 35)">
+                    <rect x="22" y="6" width="96" height="44" rx="5" fill="#23845B" stroke="#D6B66C" stroke-width="1.8" />
+                    <circle cx="70" cy="28" r="11" fill="#123B32" />
+                    <text x="70" y="33" text-anchor="middle" fill="#D6B66C" font-size="13" font-weight="800" font-family="sans-serif">$</text>
+                </g>
+                <g transform="rotate(-3, 75, 35)">
+                    <rect x="34" y="12" width="96" height="44" rx="5" fill="#1B5246" stroke="#D6B66C" stroke-width="1.8" />
+                </g>
+                <!-- Rounded Microfinance Wallet / Vault Body -->
+                <rect x="10" y="28" width="142" height="54" rx="14" fill="#123B32" stroke="#D6B66C" stroke-width="2" />
+                <path d="M18,68 Q80,82 144,66" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.85" />
+                <!-- Wallet Gold Clasp -->
+                <rect x="116" y="45" width="36" height="20" rx="10" fill="#D6B66C" />
+                <circle cx="127" cy="55" r="5" fill="#123B32" />
+                <!-- Gold Coin Stack Beside Wallet -->
+                <ellipse cx="170" cy="72" rx="16" ry="5.5" fill="#B89242" />
+                <ellipse cx="170" cy="65" rx="16" ry="5.5" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                <ellipse cx="170" cy="58" rx="16" ry="5.5" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
+                <text x="170" y="61" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
+            </g>
+
+            <!-- Main Rolling Hills Silhouette Path Connecting Seamlessly to Footer -->
+            <path d="M0,145 C110,162 210,162 320,122 C430,82 515,74 635,116 C755,158 890,165 1035,142 C1165,120 1265,105 1370,118 C1405,123 1425,132 1440,140 L1440,212 L0,212 Z" fill="#123B32" />
         </svg>
     </div>
 
-    <!-- Deep Green Footer Content (Identical to Index Footer) -->
+    <!-- Main 4-Column Footer Body -->
     <footer class="fid-footer">
         <div class="fid-container">
             <div class="fid-footer-grid">
@@ -690,10 +740,6 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> <?= Security::e($t['footer_rights'] ?? 'SIMDA Microfinance. All rights reserved.') ?></div>
                     <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;"><?= Security::e($t['footer_developed_by'] ?? 'Developed by') ?> <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
                 </div>
-                <div></div>
-            </div>
-        </div>
-    </footer>
                 <div></div>
             </div>
         </div>

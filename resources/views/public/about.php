@@ -567,198 +567,243 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 </div>
 
 <!-- 8. THE EXACT SIGNATURE INDEX FOOTER (ROLLING HILLS SVG + 4 COLUMNS + SEALS) -->
-<div class="fid-footer-hills-wrap">
-    <svg class="fid-footer-hills-svg" viewBox="0 0 1440 212" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Far Background Rolling Ridge -->
-        <path d="M0,168 C220,135 440,158 660,132 C880,106 1100,148 1440,118 L1440,212 L0,212 Z" fill="#0A241E" opacity="0.65" />
-
-        <!-- Midground Soft Ridge -->
-        <path d="M0,152 C180,122 360,140 540,118 C720,96 900,135 1140,108 C1280,92 1360,115 1440,128 L1440,212 L0,212 Z" fill="#0E2D26" opacity="0.9" />
-
-        <!-- LEFT HILL CITY BUILDINGS & WINDOWS ILLUSTRATION -->
-        <g fill="#16493C">
-            <rect x="0" y="88" width="22" height="85" />
-            <rect x="18" y="104" width="28" height="68" />
-            <rect x="44" y="116" width="18" height="55" />
-            <rect x="65" y="102" width="20" height="70" />
-        </g>
-        <!-- Left Building Windows -->
-        <g fill="#FFFFFF" opacity="0.88">
-            <rect x="4" y="102" width="4" height="5" /><rect x="10" y="102" width="4" height="5" />
-            <rect x="4" y="110" width="4" height="5" /><rect x="10" y="110" width="4" height="5" />
-            <rect x="4" y="118" width="4" height="5" /><rect x="10" y="118" width="4" height="5" />
-            <rect x="24" y="114" width="4" height="5" /><rect x="31" y="114" width="4" height="5" />
-            <rect x="24" y="122" width="4" height="5" /><rect x="31" y="122" width="4" height="5" />
-            <rect x="69" y="108" width="4" height="5" /><rect x="76" y="108" width="4" height="5" />
-            <rect x="69" y="116" width="4" height="5" /><rect x="76" y="116" width="4" height="5" />
-        </g>
-
-        <!-- LEFT HILL MONEY / CASH STACK & GOLD COINS ILLUSTRATION -->
-        <g transform="translate(95, 78)">
-            <!-- Isometric Cash Bundle Stack -->
-            <path d="M0,48 L95,28 L155,52 L60,72 Z" fill="#1E5C4C" stroke="#D6B66C" stroke-width="2" />
-            <path d="M0,48 L0,64 L60,88 L60,72 Z" fill="#123B32" stroke="#D6B66C" stroke-width="1.5" />
-            <path d="M60,72 L60,88 L155,68 L155,52 Z" fill="#16493C" stroke="#D6B66C" stroke-width="1.5" />
-            <!-- Currency Band Strap -->
-            <path d="M52,37 L82,31 L112,61 L82,67 Z" fill="#D6B66C" />
-            <!-- Dollar Emblem on Top Bill -->
-            <ellipse cx="78" cy="50" rx="16" ry="8" fill="#123B32" stroke="#FFFFFF" stroke-width="1.5" />
-            <text x="78" y="54" text-anchor="middle" fill="#D6B66C" font-size="12" font-weight="800" font-family="sans-serif">$</text>
-            <!-- Stacked Gold Coins Beside Cash Bundle -->
-            <g transform="translate(132, 26)">
-                <ellipse cx="22" cy="36" rx="18" ry="6" fill="#B89242" />
-                <ellipse cx="22" cy="30" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
-                <ellipse cx="22" cy="24" rx="18" ry="6" fill="#F0CE81" stroke="#123B32" stroke-width="1.2" />
-                <ellipse cx="22" cy="18" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
-                <ellipse cx="22" cy="12" rx="18" ry="6" fill="#FBE4A8" stroke="#123B32" stroke-width="1.2" />
-                <text x="22" y="15" text-anchor="middle" fill="#123B32" font-size="8" font-weight="800" font-family="sans-serif">★</text>
+<div class="fid-footer-wrap">
+    <!-- Scenic Rolling Hills + City Skyline + Money / Cash / Coin Illustrations -->
+    <div class="fid-footer-scenic" aria-hidden="true">
+        <svg viewBox="0 0 1440 210" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Far Left City Buildings -->
+            <g fill="#123B32">
+                <rect x="0" y="96" width="18" height="75" />
+                <rect x="20" y="108" width="22" height="65" />
+                <rect x="44" y="116" width="18" height="55" />
+                <rect x="65" y="102" width="20" height="70" />
             </g>
-        </g>
-
-        <!-- CENTER WIND TURBINE / ISLAMIC GROWTH EMBLEM -->
-        <g transform="translate(740, 52)">
-            <line x1="0" y1="20" x2="0" y2="95" stroke="#FFFFFF" stroke-width="3" opacity="0.6" />
-            <circle cx="0" cy="20" r="4.5" fill="#D6B66C" />
-            <!-- 8 Radiating Spoke Blades -->
-            <g stroke="#FFFFFF" stroke-width="1.8" opacity="0.75">
-                <line x1="0" y1="20" x2="0" y2="-4" />
-                <line x1="0" y1="20" x2="17" y2="3" />
-                <line x1="0" y1="20" x2="24" y2="20" />
-                <line x1="0" y1="20" x2="17" y2="37" />
-                <line x1="0" y1="20" x2="0" y2="44" />
-                <line x1="0" y1="20" x2="-17" y2="37" />
-                <line x1="0" y1="20" x2="-24" y2="20" />
-                <line x1="0" y1="20" x2="-17" y2="3" />
+            <!-- Left Building Windows -->
+            <g fill="#FFFFFF" opacity="0.88">
+                <rect x="4" y="102" width="4" height="5" /><rect x="10" y="102" width="4" height="5" />
+                <rect x="4" y="110" width="4" height="5" /><rect x="10" y="110" width="4" height="5" />
+                <rect x="4" y="118" width="4" height="5" /><rect x="10" y="118" width="4" height="5" />
+                <rect x="24" y="114" width="4" height="5" /><rect x="31" y="114" width="4" height="5" />
+                <rect x="24" y="122" width="4" height="5" /><rect x="31" y="122" width="4" height="5" />
+                <rect x="69" y="108" width="4" height="5" /><rect x="76" y="108" width="4" height="5" />
+                <rect x="69" y="116" width="4" height="5" /><rect x="76" y="116" width="4" height="5" />
             </g>
-            <circle cx="0" cy="20" r="24" fill="none" stroke="#D6B66C" stroke-width="1.2" opacity="0.85" />
-        </g>
 
-        <!-- RIGHT HILL MONEY WALLET, BANKNOTES & COINS ILLUSTRATION -->
-        <g transform="translate(1178, 56)">
-            <!-- Fanning Dollar Bills Emerging from Wallet -->
-            <g transform="rotate(-12, 60, 35)">
-                <rect x="22" y="6" width="96" height="44" rx="5" fill="#23845B" stroke="#D6B66C" stroke-width="1.8" />
-                <circle cx="70" cy="28" r="11" fill="#123B32" />
-                <text x="70" y="33" text-anchor="middle" fill="#D6B66C" font-size="13" font-weight="800" font-family="sans-serif">$</text>
+            <!-- LEFT HILL MONEY / CASH STACK & GOLD COINS ILLUSTRATION -->
+            <g transform="translate(95, 78)">
+                <!-- Isometric Cash Bundle Stack -->
+                <path d="M0,48 L95,28 L155,52 L60,72 Z" fill="#1E5C4C" stroke="#D6B66C" stroke-width="2" />
+                <path d="M0,48 L0,64 L60,88 L60,72 Z" fill="#123B32" stroke="#D6B66C" stroke-width="1.5" />
+                <path d="M60,72 L60,88 L155,68 L155,52 Z" fill="#16493C" stroke="#D6B66C" stroke-width="1.5" />
+                <!-- Currency Band Strap -->
+                <path d="M52,37 L82,31 L112,61 L82,67 Z" fill="#D6B66C" />
+                <!-- Dollar Emblem on Top Bill -->
+                <ellipse cx="78" cy="50" rx="16" ry="8" fill="#123B32" stroke="#FFFFFF" stroke-width="1.5" />
+                <text x="78" y="54" text-anchor="middle" fill="#D6B66C" font-size="12" font-weight="800" font-family="sans-serif">$</text>
+                <!-- Stacked Gold Coins Beside Cash Bundle -->
+                <g transform="translate(132, 26)">
+                    <ellipse cx="22" cy="36" rx="18" ry="6" fill="#B89242" />
+                    <ellipse cx="22" cy="30" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                    <ellipse cx="22" cy="24" rx="18" ry="6" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
+                    <ellipse cx="22" cy="18" rx="18" ry="6" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                    <text x="22" y="21" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
+                </g>
             </g>
-            <g transform="rotate(-3, 75, 35)">
-                <rect x="34" y="12" width="96" height="44" rx="5" fill="#1B5246" stroke="#D6B66C" stroke-width="1.8" />
+
+            <!-- Lollipop Trees & Floating Coins Left-Center -->
+            <g fill="#123B32">
+                <rect x="313" y="102" width="3" height="28" />
+                <circle cx="314.5" cy="96" r="11" />
+                <circle cx="300" cy="110" r="6" />
+                <rect x="299" y="114" width="2" height="16" />
+                <circle cx="334" cy="104" r="8" />
+                <rect x="333" y="110" width="2.5" height="18" />
+                <circle cx="352" cy="96" r="3.5" fill="#D6B66C" />
+                <circle cx="678" cy="100" r="9" />
+                <rect x="677" y="106" width="2.5" height="22" />
+                <circle cx="702" cy="95" r="4" fill="#D6B66C" />
             </g>
-            <!-- Rounded Microfinance Wallet / Vault Body -->
-            <rect x="10" y="28" width="142" height="54" rx="14" fill="#123B32" stroke="#D6B66C" stroke-width="2" />
-            <path d="M18,68 Q80,82 144,66" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.85" />
-            <!-- Wallet Gold Clasp -->
-            <rect x="116" y="45" width="36" height="20" rx="10" fill="#D6B66C" />
-            <circle cx="127" cy="55" r="5" fill="#123B32" />
-            <!-- Gold Coin Stack Beside Wallet -->
-            <ellipse cx="170" cy="72" rx="16" ry="5.5" fill="#B89242" />
-            <ellipse cx="170" cy="65" rx="16" ry="5.5" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
-            <ellipse cx="170" cy="58" rx="16" ry="5.5" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
-            <text x="170" y="61" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
-        </g>
 
-        <!-- Main Rolling Hills Silhouette Path Connecting Seamlessly to Footer -->
-        <path d="M0,145 C110,162 210,162 320,122 C430,82 515,74 635,116 C755,158 890,165 1035,142 C1165,120 1265,105 1370,118 C1405,123 1425,132 1440,140 L1440,212 L0,212 Z" fill="#123B32" />
-    </svg>
-</div>
+            <!-- Center Financial District Skyline & Wheel -->
+            <g fill="#123B32">
+                <rect x="720" y="92" width="24" height="75" />
+                <!-- Ferris / Growth Wheel -->
+                <circle cx="788" cy="112" r="32" fill="none" stroke="#123B32" stroke-width="2.5" />
+                <circle cx="788" cy="112" r="24" fill="none" stroke="#D6B66C" stroke-width="1.5" stroke-dasharray="4 4" />
+                <circle cx="788" cy="112" r="6" fill="#D6B66C" />
+                <line x1="788" y1="80" x2="788" y2="144" stroke="#123B32" stroke-width="1.5" />
+                <line x1="756" y1="112" x2="820" y2="112" stroke="#123B32" stroke-width="1.5" />
+                <line x1="765" y1="89" x2="811" y2="135" stroke="#123B32" stroke-width="1.5" />
+                <line x1="811" y1="89" x2="765" y2="135" stroke="#123B32" stroke-width="1.5" />
+                <!-- Center Towers -->
+                <rect x="832" y="110" width="20" height="60" />
+                <rect x="856" y="96" width="24" height="74" />
+                <rect x="896" y="102" width="22" height="68" />
+                <rect x="922" y="122" width="18" height="48" />
+                <rect x="960" y="114" width="20" height="58" />
+            </g>
+            <!-- Center Building Windows -->
+            <g fill="#FFFFFF" opacity="0.88">
+                <rect x="725" y="98" width="5" height="5" /><rect x="734" y="98" width="5" height="5" />
+                <rect x="725" y="107" width="5" height="5" /><rect x="734" y="107" width="5" height="5" />
+                <rect x="725" y="116" width="5" height="5" /><rect x="734" y="116" width="5" height="5" />
+                <rect x="861" y="102" width="5" height="5" /><rect x="870" y="102" width="5" height="5" />
+                <rect x="861" y="111" width="5" height="5" /><rect x="870" y="111" width="5" height="5" />
+                <rect x="901" y="108" width="4" height="5" /><rect x="909" y="108" width="4" height="5" />
+                <rect x="901" y="117" width="4" height="5" /><rect x="909" y="117" width="4" height="5" />
+                <rect x="964" y="120" width="4" height="5" /><rect x="971" y="120" width="4" height="5" />
+            </g>
 
-<!-- Main 4-Column Footer Body -->
-<footer class="fid-footer">
-    <div class="fid-container">
-        <div class="fid-footer-grid">
-            <!-- Col 1: Newsletter -->
-            <div>
-                <h5><?= Security::e($t['footer_col_newsletter']) ?></h5>
-                <form class="fid-footway-newsletter" onsubmit="event.preventDefault(); alert('<?= Security::e($t['footer_newsletter_alert']) ?>');">
-                    <input type="email" placeholder="<?= Security::e($t['footer_placeholder_email']) ?>" required>
-                    <button type="submit" class="fid-footway-sub-btn"><?= Security::e($t['footer_btn_subscribe']) ?></button>
-                </form>
-            </div>
+            <!-- Floating Hot-Air Money Balloon in Sky -->
+            <g transform="translate(925, 22)">
+                <path d="M24,0 C38,0 48,11 48,25 C48,39 30,54 27,62 L21,62 C18,54 0,39 0,25 C0,11 10,0 24,0 Z" fill="#123B32" />
+                <circle cx="24" cy="23" r="11" fill="#D6B66C" />
+                <text x="24" y="28" text-anchor="middle" fill="#123B32" font-size="14" font-weight="800" font-family="sans-serif">$</text>
+                <rect x="21" y="65" width="6" height="6" rx="1" fill="#123B32" />
+            </g>
 
-            <!-- Col 2: Terms and conditions -->
-            <div>
-                <h5><?= Security::e($t['footer_col_terms']) ?></h5>
-                <ul class="fid-footer-links">
-                    <li><?= Security::e($t['footer_term_riba']) ?></li>
-                    <li><?= Security::e($t['footer_term_shift']) ?></li>
-                    <li><?= Security::e($t['footer_term_charity']) ?></li>
-                </ul>
-                <div style="margin-top:24px;display:flex;align-items:center;gap:12px;">
-                    <span style="font-weight:700;font-size:0.84rem;color:#FFFFFF;"><?= Security::e($t['footer_follow_simda']) ?></span>
-                    <a href="?route=contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Website"><?= Icons::svg('globe', 18) ?></a>
-                    <a href="?route=contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Community"><?= Icons::svg('users', 18) ?></a>
-                </div>
-            </div>
+            <!-- Right-Center Lollipop Trees -->
+            <g fill="#123B32">
+                <circle cx="1044" cy="112" r="11" />
+                <rect x="1042.5" y="120" width="3" height="28" />
+                <circle cx="1064" cy="124" r="7" />
+                <rect x="1063" y="129" width="2" height="20" />
+                <circle cx="1115" cy="110" r="9" />
+                <rect x="1114" y="117" width="2.5" height="24" />
+                <circle cx="1135" cy="102" r="4" fill="#D6B66C" />
+                <circle cx="1408" cy="96" r="11" />
+                <rect x="1406.5" y="105" width="3" height="30" />
+                <circle cx="1426" cy="112" r="7" />
+                <rect x="1425" y="117" width="2" height="22" />
+            </g>
 
-            <!-- Col 3: Information -->
-            <div>
-                <h5><?= Security::e($t['footer_col_info']) ?></h5>
-                <ul class="fid-footer-links">
-                    <li><a href="?route=home#education"><?= Security::e($t['footer_faq']) ?></a></li>
-                    <li><a href="?route=about"><?= Security::e($t['footer_about_simda']) ?></a></li>
-                    <li><a href="?route=home#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
-                </ul>
-                <ul class="fid-footer-links" style="margin-top:20px;">
-                    <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
-                    <li dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
-                </ul>
-            </div>
+            <!-- RIGHT HILL MONEY WALLET, BANKNOTES & COINS ILLUSTRATION -->
+            <g transform="translate(1178, 56)">
+                <!-- Fanning Dollar Bills Emerging from Wallet -->
+                <g transform="rotate(-12, 60, 35)">
+                    <rect x="22" y="6" width="96" height="44" rx="5" fill="#23845B" stroke="#D6B66C" stroke-width="1.8" />
+                    <circle cx="70" cy="28" r="11" fill="#123B32" />
+                    <text x="70" y="33" text-anchor="middle" fill="#D6B66C" font-size="13" font-weight="800" font-family="sans-serif">$</text>
+                </g>
+                <g transform="rotate(-3, 75, 35)">
+                    <rect x="34" y="12" width="96" height="44" rx="5" fill="#1B5246" stroke="#D6B66C" stroke-width="1.8" />
+                </g>
+                <!-- Rounded Microfinance Wallet / Vault Body -->
+                <rect x="10" y="28" width="142" height="54" rx="14" fill="#123B32" stroke="#D6B66C" stroke-width="2" />
+                <path d="M18,68 Q80,82 144,66" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.85" />
+                <!-- Wallet Gold Clasp -->
+                <rect x="116" y="45" width="36" height="20" rx="10" fill="#D6B66C" />
+                <circle cx="127" cy="55" r="5" fill="#123B32" />
+                <!-- Gold Coin Stack Beside Wallet -->
+                <ellipse cx="170" cy="72" rx="16" ry="5.5" fill="#B89242" />
+                <ellipse cx="170" cy="65" rx="16" ry="5.5" fill="#D6B66C" stroke="#123B32" stroke-width="1.2" />
+                <ellipse cx="170" cy="58" rx="16" ry="5.5" fill="#E4C782" stroke="#123B32" stroke-width="1.2" />
+                <text x="170" y="61" text-anchor="middle" fill="#123B32" font-size="9" font-weight="800" font-family="sans-serif">$</text>
+            </g>
 
-            <!-- Col 4: Contact -->
-            <div>
-                <h5><?= Security::e($t['footer_col_contact']) ?></h5>
-                <ul class="fid-footer-links">
-                    <li><strong style="color:#FFFFFF;"><?= Security::e($t['footer_brand_sub']) ?></strong></li>
-                    <li><?= Security::e($t['footer_reg']) ?></li>
-                </ul>
-                <ul class="fid-footer-links" style="margin-top:18px;">
-                    <li><strong style="color:#FFFFFF;"><?= Security::e($t['footer_head_office']) ?></strong></li>
-                    <li><?= Security::e($settings['institution_address'] ?? 'Mogadishu Main Boulevard, Hodan') ?></li>
-                    <li><?= Security::e($t['footer_country']) ?></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Bottom Row: Trust Seals (Left) + Group Info & Flags (Center) + Copyright -->
-        <div class="fid-footer-bottom-bar">
-            <!-- Left: Trust & Security Seals -->
-            <div class="fid-trust-badges">
-                <div class="fid-trust-seal">
-                    <div class="fid-trust-seal-circle">0%</div>
-                    <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
-                        <?= Security::e($t['footer_seal_zero_riba']) ?><br><span style="color:#D6B66C;"><?= Security::e($t['footer_seal_guaranteed']) ?></span>
-                    </div>
-                </div>
-                <div class="fid-trust-seal">
-                    <div class="fid-trust-seal-circle"><?= Icons::svg('shield', 18) ?></div>
-                    <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
-                        <?= Security::e($t['footer_seal_sharia']) ?><br><span style="color:#23845B;"><?= Security::e($t['footer_seal_compliant']) ?></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Center: Group Info, Language Switcher & Copyright -->
-            <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
-                <div><?= Security::e($t['footer_part_of']) ?> (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
-                <div dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
-                <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin:12px 0;">
-                    <a href="?route=about&lang=so" title="Af-Soomaali (Somalia)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
-                        <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    </a>
-                    <a href="?route=about&lang=en" title="English (USA)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
-                        <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    </a>
-                    <a href="?route=about&lang=ar" title="العربية (Arabic)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
-                        <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    </a>
-                </div>
-                <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> <?= Security::e($t['footer_rights'] ?? 'SIMDA Microfinance. All rights reserved.') ?></div>
-                <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;"><?= Security::e($t['footer_developed_by'] ?? 'Developed by') ?> <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
-            </div>
-            <div></div>
-        </div>
+            <!-- Main Rolling Hills Silhouette Path Connecting Seamlessly to Footer -->
+            <path d="M0,145 C110,162 210,162 320,122 C430,82 515,74 635,116 C755,158 890,165 1035,142 C1165,120 1265,105 1370,118 C1405,123 1425,132 1440,140 L1440,212 L0,212 Z" fill="#123B32" />
+        </svg>
     </div>
-</footer>
+
+    <!-- Main 4-Column Footer Body -->
+    <footer class="fid-footer">
+        <div class="fid-container">
+            <div class="fid-footer-grid">
+                <!-- Col 1: Newsletter -->
+                <div>
+                    <h5><?= Security::e($t['footer_col_newsletter']) ?></h5>
+                    <form class="fid-footway-newsletter" onsubmit="event.preventDefault(); alert('<?= Security::e($t['footer_newsletter_alert']) ?>');">
+                        <input type="email" placeholder="<?= Security::e($t['footer_placeholder_email']) ?>" required>
+                        <button type="submit" class="fid-footway-sub-btn"><?= Security::e($t['footer_btn_subscribe']) ?></button>
+                    </form>
+                </div>
+
+                <!-- Col 2: Terms and conditions -->
+                <div>
+                    <h5><?= Security::e($t['footer_col_terms']) ?></h5>
+                    <ul class="fid-footer-links">
+                        <li><?= Security::e($t['footer_term_riba']) ?></li>
+                        <li><?= Security::e($t['footer_term_shift']) ?></li>
+                        <li><?= Security::e($t['footer_term_charity']) ?></li>
+                    </ul>
+                    <div style="margin-top:24px;display:flex;align-items:center;gap:12px;">
+                        <span style="font-weight:700;font-size:0.84rem;color:#FFFFFF;"><?= Security::e($t['footer_follow_simda']) ?></span>
+                        <a href="?route=contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Website"><?= Icons::svg('globe', 18) ?></a>
+                        <a href="?route=contact" style="color:#FFFFFF;display:inline-flex;" aria-label="Community"><?= Icons::svg('users', 18) ?></a>
+                    </div>
+                </div>
+
+                <!-- Col 3: Information -->
+                <div>
+                    <h5><?= Security::e($t['footer_col_info']) ?></h5>
+                    <ul class="fid-footer-links">
+                        <li><a href="?route=home#education"><?= Security::e($t['footer_faq']) ?></a></li>
+                        <li><a href="?route=about"><?= Security::e($t['footer_about_simda']) ?></a></li>
+                        <li><a href="?route=home#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
+                    </ul>
+                    <ul class="fid-footer-links" style="margin-top:20px;">
+                        <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
+                        <li dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Contact -->
+                <div>
+                    <h5><?= Security::e($t['footer_col_contact']) ?></h5>
+                    <ul class="fid-footer-links">
+                        <li><strong style="color:#FFFFFF;"><?= Security::e($t['footer_brand_sub']) ?></strong></li>
+                        <li><?= Security::e($t['footer_reg']) ?></li>
+                    </ul>
+                    <ul class="fid-footer-links" style="margin-top:18px;">
+                        <li><strong style="color:#FFFFFF;"><?= Security::e($t['footer_head_office']) ?></strong></li>
+                        <li><?= Security::e($settings['institution_address'] ?? 'Mogadishu Main Boulevard, Hodan') ?></li>
+                        <li><?= Security::e($t['footer_country']) ?></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Trust Seals (Left) + Group Info & Flags (Center) + Copyright -->
+            <div class="fid-footer-bottom-bar">
+                <!-- Left: Trust & Security Seals -->
+                <div class="fid-trust-badges">
+                    <div class="fid-trust-seal">
+                        <div class="fid-trust-seal-circle">0%</div>
+                        <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
+                            <?= Security::e($t['footer_seal_zero_riba']) ?><br><span style="color:#D6B66C;"><?= Security::e($t['footer_seal_guaranteed']) ?></span>
+                        </div>
+                    </div>
+                    <div class="fid-trust-seal">
+                        <div class="fid-trust-seal-circle"><?= Icons::svg('shield', 18) ?></div>
+                        <div style="font-size:0.72rem;font-weight:800;line-height:1.25;color:#FFFFFF;">
+                            <?= Security::e($t['footer_seal_sharia']) ?><br><span style="color:#23845B;"><?= Security::e($t['footer_seal_compliant']) ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center: Group Info, Language Switcher & Copyright -->
+                <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
+                    <div><?= Security::e($t['footer_part_of']) ?> (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
+                    <div dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
+                    <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin:12px 0;">
+                        <a href="?route=about&lang=so" title="Af-Soomaali (Somalia)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                        <a href="?route=about&lang=en" title="English (USA)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                        <a href="?route=about&lang=ar" title="العربية (Arabic)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        </a>
+                    </div>
+                    <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> <?= Security::e($t['footer_rights'] ?? 'SIMDA Microfinance. All rights reserved.') ?></div>
+                    <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;"><?= Security::e($t['footer_developed_by'] ?? 'Developed by') ?> <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
+                </div>
+                <div></div>
+            </div>
+        </div>
+    </footer>
+</div>
 
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
