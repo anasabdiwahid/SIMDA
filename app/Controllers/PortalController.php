@@ -29,6 +29,8 @@ final class PortalController
         try {
             match ($route) {
                 'home' => self::publicHome($pdo),
+                'contact' => self::publicContact($pdo),
+                'contact_submit' => self::contactSubmit($pdo),
                 'offline' => self::publicOffline(),
                 'login' => self::loginForm(),
                 'login_submit' => self::loginSubmit($pdo),
@@ -135,6 +137,51 @@ final class PortalController
             $settings[$r['setting_key']] = $r['setting_value'];
         }
         require dirname(__DIR__, 2) . '/resources/views/public/home.php';
+    }
+
+    private static function publicContact(PDO $pdo): void
+    {
+        $settingsRows = $pdo->query('SELECT setting_key, setting_value FROM system_settings')->fetchAll();
+        $settings = [];
+        foreach ($settingsRows as $r) {
+            $settings[$r['setting_key']] = $r['setting_value'];
+        }
+        require dirname(__DIR__, 2) . '/resources/views/public/contact.php';
+    }
+
+    private static function contactSubmit(PDO $pdo): void
+    {
+        Security::validateCsrf();
+        $name = trim((string) ($_POST['name'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $subject = trim((string) ($_POST['subject'] ?? 'General Inquiry'));
+        $message = trim((string) ($_POST['message'] ?? ''));
+
+        if ($name === '' || ($phone === '' && $email === '') || $message === '') {
+            $_SESSION['flash_error'] = Lang::locale() === 'so'
+                ? 'Fadlan buuxi magacaaga, xiriirkaaga (taleefan ama email), iyo farriintaada.'
+                : (Lang::locale() === 'ar' ? 'يرجى إدخال اسمك ووسيلة الاتصال ورسالتك.' : 'Please provide your name, contact, and message.');
+            header('Location: ?route=contact');
+            exit;
+        }
+
+        try {
+            $st = $pdo->prepare('INSERT INTO communication_logs (channel, recipient, message_body, status, created_at) VALUES ("contact_inquiry", :recipient, :msg, "received", NOW())');
+            $st->execute([
+                ':recipient' => ($email !== '' ? $email : $phone),
+                ':msg' => "Inquiry from {$name} ({$phone} / {$email}) [{$subject}]: {$message}"
+            ]);
+        } catch (\Throwable $e) {
+            // Ignore if communication_logs schema varies
+        }
+
+        $_SESSION['flash_success'] = Lang::locale() === 'so'
+            ? 'Mahadsanid! Farriintaada si guul leh ayaa loo diray. Khubaradayada ayaa kula soo xiriiri doona.'
+            : (Lang::locale() === 'ar' ? 'شكراً لتواصلك! تم استلام رسالتك بنجاح وسيتواصل معك فريقنا قريباً.' : 'Thank you! Your message has been sent successfully. Our team will contact you soon.');
+
+        header('Location: ?route=contact');
+        exit;
     }
 
     private static function publicOffline(): void

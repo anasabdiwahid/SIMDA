@@ -405,7 +405,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <li><a href="#our-process"><?= Security::e($t['nav_process']) ?></a></li>
             <li><a href="#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
             <li><a href="#education"><?= Security::e($t['nav_faq']) ?></a></li>
-            <li><a href="#contact"><?= Security::e($t['nav_contact']) ?></a></li>
+            <li><a href="?route=contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>
 
         <div style="display:flex;align-items:center;gap:10px;">
