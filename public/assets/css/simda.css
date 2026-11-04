@@ -1982,11 +1982,11 @@ body.is-offline .offline-banner {
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.25; /* 25% opacity / muuqasho sida uu codsaday macmiilku */
+    opacity: 0.08; /* Aad u yaraanaya (8% faint luxury watermark) si aanu u mashquulin indhaha */
     background-image: url('../images/landing/money-pattern.svg');
     background-repeat: repeat;
     background-size: 380px 380px;
-    animation: simdaMoneyPatternScroll 42s linear infinite;
+    animation: simdaMoneyPatternScroll 45s linear infinite;
 }
 
 [data-theme="dark"] .fid-page {
@@ -1994,8 +1994,8 @@ body.is-offline .offline-banner {
 }
 
 [data-theme="dark"] .fid-page::before {
-    opacity: 0.14;
-    filter: invert(1) brightness(0.7);
+    opacity: 0.05;
+    filter: invert(1) brightness(0.6);
 }
 
 @keyframes simdaMoneyPatternScroll {
@@ -2013,7 +2013,7 @@ body.is-offline .offline-banner {
     pointer-events: none;
     z-index: 1;
     overflow: hidden;
-    opacity: 0.25; /* 25% visibility */
+    opacity: 0.10; /* Aad u jilicsan (10% subtle floating motion) */
 }
 
 .fid-page > header,
@@ -2026,15 +2026,15 @@ body.is-offline .offline-banner {
 
 .fid-money-floater {
     position: absolute;
-    opacity: 0.85;
+    opacity: 0.5;
     will-change: transform;
-    filter: drop-shadow(0 4px 10px rgba(18, 59, 50, 0.08));
-    animation: simdaMoneyFloatRise var(--dur, 18s) ease-in-out infinite;
+    filter: drop-shadow(0 2px 6px rgba(18, 59, 50, 0.06));
+    animation: simdaMoneyFloatRise var(--dur, 20s) ease-in-out infinite;
     animation-delay: var(--delay, 0s);
 }
 
 [data-theme="dark"] .fid-money-floater {
-    opacity: 0.7;
+    opacity: 0.35;
 }
 
 .fid-money-floater.drift-horiz {
