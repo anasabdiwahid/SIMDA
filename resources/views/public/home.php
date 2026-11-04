@@ -68,7 +68,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#123B32">
-    <title>SIMDA â€” <?= Security::e(Lang::get('app_full_name')) ?></title>
+    <title>SIMDA — <?= Security::e(Lang::get('app_full_name')) ?></title>
     <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
     <link rel="manifest" href="manifest.json">
     <script>
@@ -730,7 +730,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                 <div>
                     <h5>Terms and conditions</h5>
                     <ul class="fid-footer-links">
-                        <li>0% Riba â€” Principal only!</li>
+                        <li>0% Riba — Principal only!</li>
                         <li>Friday to Saturday shift!</li>
                         <li>100% Segregated Charity Fund!</li>
                     </ul>
