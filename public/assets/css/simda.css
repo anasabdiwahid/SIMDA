@@ -741,6 +741,173 @@ table th.amount {
     box-shadow: 0 8px 20px rgba(18, 59, 50, 0.22);
 }
 
+/* ==========================================================================
+   Language Dropdown Selector (Active flag shown, click opens all options)
+   ========================================================================== */
+.simda-lang-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.simda-lang-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px 5px 6px;
+    background: rgba(18, 59, 50, 0.06);
+    border: 1.5px solid rgba(18, 59, 50, 0.12);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.80rem;
+    font-weight: 700;
+    color: #123B32;
+    transition: all 0.18s ease;
+    line-height: 1;
+    font-family: inherit;
+}
+
+.simda-lang-trigger:hover,
+.simda-lang-dropdown.is-open .simda-lang-trigger {
+    background: rgba(18, 59, 50, 0.12);
+    border-color: #D6B66C;
+}
+
+[data-theme="dark"] .simda-lang-trigger {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #F4F5F0;
+}
+
+[data-theme="dark"] .simda-lang-trigger:hover,
+[data-theme="dark"] .simda-lang-dropdown.is-open .simda-lang-trigger {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: #D6B66C;
+}
+
+.simda-lang-flag-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 1.5px solid #FFFFFF;
+    flex-shrink: 0;
+}
+
+.simda-lang-code {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+}
+
+.simda-lang-caret {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    margin-left: 1px;
+}
+
+.simda-lang-dropdown.is-open .simda-lang-caret {
+    transform: rotate(180deg);
+}
+
+.simda-lang-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 175px;
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 14px 34px rgba(18, 59, 50, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(18, 59, 50, 0.1);
+    display: none;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 10000;
+    animation: simdaLangFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[dir="rtl"] .simda-lang-menu {
+    right: auto;
+    left: 0;
+}
+
+[data-theme="dark"] .simda-lang-menu {
+    background: #182A24;
+    border-color: rgba(214, 182, 108, 0.25);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+}
+
+.simda-lang-dropdown.is-open .simda-lang-menu {
+    display: flex;
+}
+
+@keyframes simdaLangFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.simda-lang-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #1A2822;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .simda-lang-item {
+    color: #E2E8E4;
+}
+
+.simda-lang-item:hover {
+    background: rgba(18, 59, 50, 0.08);
+    color: #123B32;
+}
+
+[data-theme="dark"] .simda-lang-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #D6B66C;
+}
+
+.simda-lang-item.is-active {
+    background: rgba(18, 59, 50, 0.08);
+    color: #123B32;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .simda-lang-item.is-active {
+    background: rgba(214, 182, 108, 0.16);
+    color: #D6B66C;
+}
+
+.simda-lang-item .check-icon {
+    margin-left: auto;
+    color: #123B32;
+    flex-shrink: 0;
+}
+
+[dir="rtl"] .simda-lang-item .check-icon {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+[data-theme="dark"] .simda-lang-item .check-icon {
+    color: #D6B66C;
+}
+
 /* 2. Hero Rounded Cream Banner Card */
 .fid-hero-wrap {
     padding: 22px 0 36px;

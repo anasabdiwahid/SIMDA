@@ -237,17 +237,36 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </form>
                 <?php endif; ?>
 
-                <!-- Language Switcher (Somalia, USA, Arabic Flags) -->
-                <div style="display:flex;gap:6px;align-items:center;">
-                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=so" title="Af-Soomaali (Somalia)" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.18)' ?>;">
-                        <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    </a>
-                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=en" title="English (USA)" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'en' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'en' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.18)' ?>;">
-                        <img src="assets/images/flags/flag-us.jpg" alt="USA" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    </a>
-                    <a href="?route=<?= Security::e($currentRoute) ?>&lang=ar" title="العربية (Arabic)" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'ar' ? '#D6B66C' : 'transparent' ?>;box-shadow:<?= $locale === 'ar' ? '0 0 0 2px #123B32' : '0 1px 3px rgba(0,0,0,0.18)' ?>;">
-                        <img src="assets/images/flags/flag-ar.jpg" alt="Arabic" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    </a>
+                <!-- Language Switcher Dropdown (Active flag shown, tap opens dropdown menu) -->
+                <?php
+                $dashLanguagesList = [
+                    'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
+                    'en' => ['label' => 'English (US)', 'code' => 'EN', 'flag' => 'assets/images/flags/flag-us.jpg'],
+                    'ar' => ['label' => 'العربية', 'code' => 'AR', 'flag' => 'assets/images/flags/flag-ar.jpg'],
+                ];
+                $dashActiveLang = $dashLanguagesList[$locale] ?? $dashLanguagesList['en'];
+                ?>
+                <div class="simda-lang-dropdown">
+                    <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
+                        <img src="<?= Security::e($dashActiveLang['flag']) ?>" alt="<?= Security::e($dashActiveLang['label']) ?>" class="simda-lang-flag-circle">
+                        <span class="simda-lang-code"><?= Security::e($dashActiveLang['code']) ?></span>
+                        <svg class="simda-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="1 1 5 5 9 1"></polyline>
+                        </svg>
+                    </button>
+                    <div class="simda-lang-menu" role="menu">
+                        <?php foreach ($dashLanguagesList as $code => $info): ?>
+                            <a href="?route=<?= Security::e($currentRoute) ?>&lang=<?= $code ?>" class="simda-lang-item <?= $locale === $code ? 'is-active' : '' ?>" role="menuitem">
+                                <img src="<?= Security::e($info['flag']) ?>" alt="<?= Security::e($info['label']) ?>" class="simda-lang-flag-circle">
+                                <span class="simda-lang-name"><?= Security::e($info['label']) ?></span>
+                                <?php if ($locale === $code): ?>
+                                    <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
 
                 <!-- Theme Switcher -->

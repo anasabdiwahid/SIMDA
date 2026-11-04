@@ -453,5 +453,26 @@
 
         renderScheduleHtml(instantSchedule, outBox);
     }
+
+    // 9. Language Dropdown Selector Guard (Global click outside & escape)
+    document.addEventListener('click', function (e) {
+        document.querySelectorAll('.simda-lang-dropdown.is-open').forEach(function (dd) {
+            if (!dd.contains(e.target)) {
+                dd.classList.remove('is-open');
+                const btn = dd.querySelector('.simda-lang-trigger');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.simda-lang-dropdown.is-open').forEach(function (dd) {
+                dd.classList.remove('is-open');
+                const btn = dd.querySelector('.simda-lang-trigger');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
 })();
 
