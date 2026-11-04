@@ -197,7 +197,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                 $murabahaAssets = [
                     [
                         'id' => 'car',
-                        'img' => 'assets/images/landing/murabaha/murabaha-car.jpg',
+                        'img' => 'assets/images/landing/murabaha/murabaha-car.png',
                         'title_so' => 'Gaari MG HS Luxury SUV',
                         'title_en' => 'MG HS Luxury SUV (2024)',
                         'title_ar' => 'سيارة إم جي إتش إس الفاخرة',
@@ -210,7 +210,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                     ],
                     [
                         'id' => 'scooter',
-                        'img' => 'assets/images/landing/murabaha/murabaha-scooter.jpg',
+                        'img' => 'assets/images/landing/murabaha/murabaha-scooter.png',
                         'title_so' => 'Mooto Scooter Pleasure+ (Delivery)',
                         'title_en' => 'Hero Pleasure+ Scooter (Work & Delivery)',
                         'title_ar' => 'سكوتر هيرو بليجر للتوصيل والعمل',
@@ -223,7 +223,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                     ],
                     [
                         'id' => 'bike',
-                        'img' => 'assets/images/landing/murabaha/murabaha-bike.jpg',
+                        'img' => 'assets/images/landing/murabaha/murabaha-bike.png',
                         'title_so' => 'Mooto Honda CBR Sport (250cc)',
                         'title_en' => 'Honda CBR Sport Motorcycle',
                         'title_ar' => 'دراجة هوندا سي بي آر الرياضية',
@@ -236,7 +236,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                     ],
                     [
                         'id' => 'phone_orange',
-                        'img' => 'assets/images/landing/murabaha/murabaha-phone-orange.jpg',
+                        'img' => 'assets/images/landing/murabaha/murabaha-phone-orange.png',
                         'title_so' => 'iPhone 16 Pro (Cosmic Orange)',
                         'title_en' => 'iPhone 16 Pro (Desert Titanium)',
                         'title_ar' => 'آيفون 16 برو تيتانيوم برتقالي',
@@ -249,7 +249,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                     ],
                     [
                         'id' => 'phone_red',
-                        'img' => 'assets/images/landing/murabaha/murabaha-phone-red.jpg',
+                        'img' => 'assets/images/landing/murabaha/murabaha-phone-red.png',
                         'title_so' => 'iPhone 16 Pro (Crimson Red Edition)',
                         'title_en' => 'iPhone 16 Pro (Deep Crimson Red)',
                         'title_ar' => 'آيفون 16 برو الإصدار القرمزي',
