@@ -205,6 +205,61 @@
             startTimer();
         }
 
+        // 5b. Murabaha 5-Asset Dynamic Showcase (Auto-switches every 4 seconds)
+        const assetShowcase = document.getElementById('murabahaAssetShowcase');
+        if (assetShowcase) {
+            const assetItems = assetShowcase.querySelectorAll('.murabaha-asset-item');
+            const indBtns = assetShowcase.querySelectorAll('.murabaha-ind-btn');
+            let assetCurrent = 0;
+            let assetTimer = null;
+
+            function goToAsset(idx) {
+                if (!assetItems.length) return;
+                assetCurrent = (idx + assetItems.length) % assetItems.length;
+                assetItems.forEach(function (item, i) {
+                    if (i === assetCurrent) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                indBtns.forEach(function (btn, i) {
+                    if (i === assetCurrent) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            function startAssetTimer() {
+                stopAssetTimer();
+                assetTimer = setInterval(function () {
+                    goToAsset(assetCurrent + 1);
+                }, 4000); // 4 seconds interval per user requirement!
+            }
+
+            function stopAssetTimer() {
+                if (assetTimer) {
+                    clearInterval(assetTimer);
+                    assetTimer = null;
+                }
+            }
+
+            indBtns.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const target = parseInt(this.getAttribute('data-asset-target') || '0', 10);
+                    goToAsset(target);
+                    startAssetTimer();
+                });
+            });
+
+            assetShowcase.addEventListener('mouseenter', stopAssetTimer);
+            assetShowcase.addEventListener('mouseleave', startAssetTimer);
+            startAssetTimer();
+        }
+
         // 6. Online / Offline Connection Status Monitoring
         function updateConnectionState() {
             if (navigator.onLine) {

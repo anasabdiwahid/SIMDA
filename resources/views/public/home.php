@@ -192,16 +192,117 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
                     </div>
                 </div>
 
-                <div class="fid-hero-media">
-                    <img src="assets/images/landing/hero-entrepreneurs.jpg" alt="SIMDA Murabaha Financing">
-                    <div class="fid-hero-float-badge">
-                        <div class="fid-float-icon">
-                            <?= Icons::svg('shield', 20) ?>
+                <!-- DYNAMIC MURABAHA 5-ASSET SHOWCASE (Switches every 4 seconds) -->
+                <?php
+                $murabahaAssets = [
+                    [
+                        'id' => 'car',
+                        'img' => 'assets/images/landing/murabaha/murabaha-car.jpg',
+                        'title_so' => 'Gaari MG HS Luxury SUV',
+                        'title_en' => 'MG HS Luxury SUV (2024)',
+                        'title_ar' => 'سيارة إم جي إتش إس الفاخرة',
+                        'category_so' => 'Maalgalinta Gaadiidka',
+                        'category_en' => 'Vehicle Financing',
+                        'category_ar' => 'تمويل السيارات',
+                        'price' => '$16,500',
+                        'monthly' => '$345',
+                        'badge' => '0% Ribo • Murabaha'
+                    ],
+                    [
+                        'id' => 'scooter',
+                        'img' => 'assets/images/landing/murabaha/murabaha-scooter.jpg',
+                        'title_so' => 'Mooto Scooter Pleasure+ (Delivery)',
+                        'title_en' => 'Hero Pleasure+ Scooter (Work & Delivery)',
+                        'title_ar' => 'سكوتر هيرو بليجر للتوصيل والعمل',
+                        'category_so' => 'Gaadiidka Tafaariiqda & Shaqada',
+                        'category_en' => 'Delivery & Commuter',
+                        'category_ar' => 'وسائل النقل الخفيفة',
+                        'price' => '$1,250',
+                        'monthly' => '$65',
+                        'badge' => '0% Ribo • Murabaha'
+                    ],
+                    [
+                        'id' => 'bike',
+                        'img' => 'assets/images/landing/murabaha/murabaha-bike.jpg',
+                        'title_so' => 'Mooto Honda CBR Sport (250cc)',
+                        'title_en' => 'Honda CBR Sport Motorcycle',
+                        'title_ar' => 'دراجة هوندا سي بي آر الرياضية',
+                        'category_so' => 'Mootooyinka Xawaaraha & Shaqada',
+                        'category_en' => 'Performance Transport',
+                        'category_ar' => 'دراجات نارية متطورة',
+                        'price' => '$3,200',
+                        'monthly' => '$135',
+                        'badge' => '0% Ribo • Murabaha'
+                    ],
+                    [
+                        'id' => 'phone_orange',
+                        'img' => 'assets/images/landing/murabaha/murabaha-phone-orange.jpg',
+                        'title_so' => 'iPhone 16 Pro (Cosmic Orange)',
+                        'title_en' => 'iPhone 16 Pro (Desert Titanium)',
+                        'title_ar' => 'آيفون 16 برو تيتانيوم برتقالي',
+                        'category_so' => 'Qalabka Casriga ah ee Ganacsiga',
+                        'category_en' => 'Smart Enterprise Tech',
+                        'category_ar' => 'الأجهزة الذكية للأعمال',
+                        'price' => '$1,150',
+                        'monthly' => '$95',
+                        'badge' => '0% Ribo • Murabaha'
+                    ],
+                    [
+                        'id' => 'phone_red',
+                        'img' => 'assets/images/landing/murabaha/murabaha-phone-red.jpg',
+                        'title_so' => 'iPhone 16 Pro (Crimson Red Edition)',
+                        'title_en' => 'iPhone 16 Pro (Deep Crimson Red)',
+                        'title_ar' => 'آيفون 16 برو الإصدار القرمزي',
+                        'category_so' => 'Qalabka Casriga ah ee Ganacsiga',
+                        'category_en' => 'Smart Enterprise Tech',
+                        'category_ar' => 'الأجهزة الذكية للأعمال',
+                        'price' => '$1,280',
+                        'monthly' => '$105',
+                        'badge' => '0% Ribo • Murabaha'
+                    ],
+                ];
+                ?>
+
+                <div class="fid-hero-media murabaha-asset-showcase" id="murabahaAssetShowcase">
+                    <?php foreach ($murabahaAssets as $aIdx => $asset): ?>
+                        <div class="murabaha-asset-item <?= $aIdx === 0 ? 'active' : '' ?>" data-asset-idx="<?= $aIdx ?>">
+                            <!-- Top Category / Murabaha badge -->
+                            <div class="murabaha-asset-cat-chip">
+                                <span class="asset-cat-pulse"></span>
+                                <span><?= Security::e($asset['category_' . $locale] ?? $asset['category_en']) ?></span>
+                            </div>
+
+                            <!-- Centered Clean Product Canvas -->
+                            <div class="murabaha-asset-canvas">
+                                <img src="<?= Security::e($asset['img']) ?>" alt="<?= Security::e($asset['title_' . $locale] ?? $asset['title_en']) ?>" class="murabaha-asset-img">
+                            </div>
+
+                            <!-- Bottom Floating Price Card -->
+                            <div class="murabaha-asset-price-box">
+                                <div class="murabaha-asset-info">
+                                    <div class="murabaha-asset-name"><?= Security::e($asset['title_' . $locale] ?? $asset['title_en']) ?></div>
+                                    <div class="murabaha-asset-terms">
+                                        <span class="num-tabular" style="color:#123B32;font-weight:800;"><?= Security::e($asset['monthly']) ?></span>/<?= $locale === 'so' ? 'bishii' : ($locale === 'ar' ? 'شهرياً' : 'mo') ?> • <span style="color:#23845B;font-weight:700;">0% Ribo</span>
+                                    </div>
+                                </div>
+                                <div class="murabaha-asset-price-badge">
+                                    <div class="asset-price-label"><?= $locale === 'so' ? 'QIIMAHA' : ($locale === 'ar' ? 'السعر' : 'PRICE') ?></div>
+                                    <div class="asset-price-val num-tabular"><?= Security::e($asset['price']) ?></div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-size:1.05rem;font-weight:800;color:#123B32;line-height:1.15;"><?= Security::e($t['slide1_badge_val']) ?></div>
-                            <div style="font-size:0.74rem;color:#6A756F;font-weight:500;"><?= Security::e($t['slide1_badge_sub']) ?></div>
-                        </div>
+                    <?php endforeach; ?>
+
+                    <!-- Bottom Thumbnail Navigator Pills -->
+                    <div class="murabaha-asset-indicators" aria-label="Murabaha Products">
+                        <?php foreach ($murabahaAssets as $aIdx => $asset): ?>
+                            <button type="button" class="murabaha-ind-btn <?= $aIdx === 0 ? 'active' : '' ?>" data-asset-target="<?= $aIdx ?>" title="<?= Security::e($asset['title_' . $locale] ?? $asset['title_en']) ?>">
+                                <span class="murabaha-ind-thumb">
+                                    <img src="<?= Security::e($asset['img']) ?>" alt="thumb">
+                                </span>
+                                <span class="murabaha-ind-price num-tabular"><?= Security::e($asset['price']) ?></span>
+                            </button>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>

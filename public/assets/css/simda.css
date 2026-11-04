@@ -968,6 +968,258 @@ table th.amount {
     justify-content: center;
 }
 
+/* ============================================================================
+   MURABAHA 5-ASSET SHOWCASE SLIDER (Switches every 4 seconds)
+   ============================================================================ */
+.murabaha-asset-showcase {
+    position: relative;
+    min-height: 440px;
+    background: radial-gradient(circle at 50% 36%, #FFFFFF 0%, #F5EFE3 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(18, 59, 50, 0.08);
+}
+
+[data-theme="dark"] .murabaha-asset-showcase {
+    background: radial-gradient(circle at 50% 36%, #1D342B 0%, #12221B 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.murabaha-asset-item {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px 68px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.92) translateY(10px);
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.murabaha-asset-item.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+.murabaha-asset-canvas {
+    width: 100%;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.murabaha-asset-img {
+    max-height: 230px;
+    max-width: 88%;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 14px 22px rgba(18, 59, 50, 0.16));
+    transition: transform 0.35s ease;
+}
+
+.murabaha-asset-item:hover .murabaha-asset-img {
+    transform: scale(1.05);
+}
+
+.murabaha-asset-cat-chip {
+    position: absolute;
+    top: 16px;
+    left: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(18, 59, 50, 0.12);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #123B32;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    z-index: 4;
+}
+
+[data-theme="dark"] .murabaha-asset-cat-chip {
+    background: rgba(20, 36, 30, 0.94);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #F4F5F0;
+}
+
+.asset-cat-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #23845B;
+    box-shadow: 0 0 0 3px rgba(35, 132, 91, 0.22);
+}
+
+.murabaha-asset-price-box {
+    position: absolute;
+    bottom: 60px;
+    left: 18px;
+    right: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(18, 59, 50, 0.12);
+    border-radius: 16px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+    z-index: 4;
+}
+
+[data-theme="dark"] .murabaha-asset-price-box {
+    background: rgba(20, 36, 30, 0.95);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.murabaha-asset-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: #123B32;
+    line-height: 1.25;
+}
+
+[data-theme="dark"] .murabaha-asset-name {
+    color: #FFFFFF;
+}
+
+.murabaha-asset-terms {
+    font-size: 0.74rem;
+    color: #5F6D67;
+    margin-top: 2px;
+}
+
+[data-theme="dark"] .murabaha-asset-terms {
+    color: #B2BFB9;
+}
+
+.murabaha-asset-price-badge {
+    text-align: right;
+    background: linear-gradient(135deg, #123B32 0%, #1C4D41 100%);
+    color: #FFFFFF;
+    padding: 6px 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(18, 59, 50, 0.25);
+    flex-shrink: 0;
+}
+
+.asset-price-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #D6B66C;
+}
+
+.asset-price-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #FFFFFF;
+}
+
+.murabaha-asset-indicators {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    z-index: 5;
+}
+
+.murabaha-ind-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px 3px 4px;
+    border-radius: 999px;
+    border: 1px solid rgba(18, 59, 50, 0.14);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .murabaha-ind-btn {
+    background: rgba(20, 36, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.murabaha-ind-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 1px;
+}
+
+.murabaha-ind-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important;
+}
+
+.murabaha-ind-price {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #123B32;
+}
+
+[data-theme="dark"] .murabaha-ind-price {
+    color: #E2ECE6;
+}
+
+.murabaha-ind-btn.active {
+    background: #123B32;
+    border-color: #123B32;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(18, 59, 50, 0.28);
+}
+
+.murabaha-ind-btn.active .murabaha-ind-price {
+    color: #D6B66C;
+}
+
+@media (max-width: 540px) {
+    .murabaha-asset-price-box {
+        bottom: 52px;
+        padding: 8px 12px;
+    }
+    .murabaha-ind-price {
+        display: none;
+    }
+    .murabaha-ind-btn {
+        padding: 3px;
+    }
+}
+
 /* 3. Section Titles & 4-Column Service Cards */
 .fid-section {
     padding: 36px 0;
