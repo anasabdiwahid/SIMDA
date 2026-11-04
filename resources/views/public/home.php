@@ -21,11 +21,24 @@ $homeI18n = [
         'nav_contact' => 'Contact',
         'cta_dashboard' => 'Dashboard',
         'cta_start' => 'Get Started',
-        'hero_eyebrow' => 'WELCOME TO SIMDA MICROFINANCE',
-        'hero_title' => 'Your Financial<br>Growth Partner',
-        'hero_lead' => 'We help individuals, small businesses, and solidarity groups achieve their financial goals through accessible, ethical, and transparent Sharia-compliant micro-finance services.',
         'btn_learn' => 'Learn More',
         'btn_calc' => 'Schedule Simulator',
+
+        // Slide 1: Murabaha
+        'slide1_tag' => 'Muraabaxo (Murabaha)',
+        'slide1_eyebrow' => 'SHARIA-COMPLIANT FINANCING • MURABAHA',
+        'slide1_title' => 'Ethical Murabaha<br>Asset Financing',
+        'slide1_lead' => 'Transparent cost-plus asset and equipment financing with fixed zero-riba terms, empowering Somali entrepreneurs to scale with certainty.',
+        'slide1_badge_val' => '100% Sharia',
+        'slide1_badge_sub' => 'Ethical & Audited',
+
+        // Slide 2: Maalgalin / Dukaanada (Somali Mother Kiosk)
+        'slide2_tag' => 'Maalgalinta Dukaamada',
+        'slide2_eyebrow' => 'MICRO-ENTERPRISE • WORKING CAPITAL',
+        'slide2_title' => 'Empowering Small Shops<br>& Local Retailers',
+        'slide2_lead' => 'Direct zero-riba working capital for hardworking mothers and roadside grocery kiosks (dukaan) to stock quality goods and build household wealth.',
+        'slide2_badge_val' => '0% Riba',
+        'slide2_badge_sub' => 'Dukaamada & Qoyska',
     ],
     'so' => [
         'nav_home' => 'Bogga Hore',
@@ -37,11 +50,24 @@ $homeI18n = [
         'nav_contact' => 'Xiriirka',
         'cta_dashboard' => 'Dashboard',
         'cta_start' => 'Bilow Hadda',
-        'hero_eyebrow' => 'KUSOO DHAWOOW SIMDA MICROFINANCE',
-        'hero_title' => 'Saaxiibkaaga Kobaca<br>Maaliyadeed',
-        'hero_lead' => 'Waxaan ka caawinaa shakhsiyaadka, ganacsiyada yaryar, iyo kooxaha iskaashiga inay gaaraan yoolkooda maaliyadeed iyadoo loo marayo maalgelin Islaami ah oo hufan oo aan Ribo lahayn (0% Riba).',
         'btn_learn' => 'Faahfaahin Dheeraad ah',
         'btn_calc' => 'Xisaabiyaha Jadwalka',
+
+        // Slide 1: Murabaha
+        'slide1_tag' => 'Muraabaxada Ganacsiga',
+        'slide1_eyebrow' => 'MAALGELINTA ISLAAMIGA EE MURAABAXADA',
+        'slide1_title' => 'Maalgeli Ganacsigaaga<br>Nidaamka Muraabaxada',
+        'slide1_lead' => 'Ku iibso agabka, qalabka shaqada, iyo badeecadaha ganacsigaaga nidaamka Muraabaxada ee 100% xalaasha ah oo leh heshiis hufan iyo 0% Ribo.',
+        'slide1_badge_val' => '100% Sharia',
+        'slide1_badge_sub' => 'Xalaal & Hufan',
+
+        // Slide 2: Maalgalin / Dukaanada (Hooyada Soomaaliyeed & Dukaanka)
+        'slide2_tag' => 'Maalgalinta Dukaamada Yaryar',
+        'slide2_eyebrow' => 'MAALGALINTA GANACSIYADA YARYAR',
+        'slide2_title' => 'Kobci Dukaankaaga<br>& Ganacsiga Yaryar',
+        'slide2_lead' => 'Waxaan taageernaa hooyooyinka iyo ganacsatada leh dukaamada yaryar ee waddooyinka iyo suuqyada si ay u ballaariyaan hantidooda, badeecadahooda iyo dakhliga qoysaska.',
+        'slide2_badge_val' => '0% Ribo',
+        'slide2_badge_sub' => 'Dukaamada & Qoysaska',
     ],
     'ar' => [
         'nav_home' => 'الرئيسية',
@@ -53,11 +79,24 @@ $homeI18n = [
         'nav_contact' => 'اتصل بنا',
         'cta_dashboard' => 'لوحة التحكم',
         'cta_start' => 'ابدأ الآن',
-        'hero_eyebrow' => 'مرحباً بكم في سيمدا للتمويل الأصغر الإسلامي',
-        'hero_title' => 'شريكك الموثوق<br>للنمو المالي',
-        'hero_lead' => 'نساعد الأفراد والشركات الصغيرة ومجموعات التضامن على تحقيق أهدافهم المالية من خلال خدمات تمويل أصغر إسلامية شفافة وأخلاقية خالية تماماً من الربا (0% ربا).',
         'btn_learn' => 'اعرف المزيد',
         'btn_calc' => 'حاسبة جدول السداد',
+
+        // Slide 1: Murabaha
+        'slide1_tag' => 'تمويل المرابحة',
+        'slide1_eyebrow' => 'التمويل الإسلامي • صيغة المرابحة',
+        'slide1_title' => 'تمويل المرابحة الإسلامي<br>لشراء الأصول والبضائع',
+        'slide1_lead' => 'امتلك بضائع ومعدات مشروعك بصيغة المرابحة الشرعية الشفافة وبدون أي فوائد ربوية (0% ربا) لتمكين رواد الأعمال الصوماليين من النمو بثقة.',
+        'slide1_badge_val' => '100% شريعة',
+        'slide1_badge_sub' => 'أخلاقي ومتوافق',
+
+        // Slide 2: Maalgalin / Dukaanada
+        'slide2_tag' => 'تمويل المتاجر الصغرى',
+        'slide2_eyebrow' => 'رأس المال العامل • المشاريع الصغرى',
+        'slide2_title' => 'دعم وتطوير المتاجر<br>ومنافذ البيع بالتجزئة',
+        'slide2_lead' => 'ندعم الأمهات المكافحات وأصحاب محال البقالة والمتاجر الصغرى على الطرقات بتمويل إسلامي ميسر لتوفير البضائع وتنمية دخل الأسرة.',
+        'slide2_badge_val' => '0% ربا',
+        'slide2_badge_sub' => 'المتاجر والمجتمع',
     ],
 ];
 $t = $homeI18n[$locale] ?? $homeI18n['en'];
@@ -79,7 +118,7 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
             if ('caches' in window) {
                 caches.keys().then(function(keys) {
                     keys.forEach(function(k) {
-                        if (k !== 'simda-static-shell-v3') { caches.delete(k); }
+                        if (k !== 'simda-static-shell-v4') { caches.delete(k); }
                     });
                 });
             }
@@ -129,38 +168,97 @@ $t = $homeI18n[$locale] ?? $homeI18n['en'];
     </div>
 </header>
 
-<!-- 2. ROUNDED WARM CREAM HERO BANNER CARD -->
+<!-- 2. ROUNDED WARM CREAM HERO BANNER CARD (DYNAMIC CAROUSEL: MURABAHA & MAALGALIN / DUKAANADA) -->
 <section id="home" class="fid-hero-wrap">
     <div class="fid-container">
-        <div class="fid-hero-card animate-in">
-            <div class="fid-hero-copy">
-                <span class="fid-eyebrow"><?= Security::e($t['hero_eyebrow']) ?></span>
-                <h1 class="fid-serif-h1"><?= $t['hero_title'] ?></h1>
-                <p class="fid-hero-lead">
-                    <?= Security::e($t['hero_lead']) ?>
-                </p>
-                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                    <a href="#services" class="fid-btn-green">
-                        <span><?= Security::e($t['btn_learn']) ?></span>
-                        <?= Icons::svg('arrow-right', 14) ?>
-                    </a>
-                    <a href="#calculator" class="btn btn-outline" style="border-radius:999px;padding:10px 18px;border-color:#123B32;color:#123B32;font-weight:600;">
-                        <?= Icons::svg('calendar', 14) ?>
-                        <span><?= Security::e($t['btn_calc']) ?></span>
-                    </a>
+        <div class="fid-hero-card fid-hero-carousel animate-in" id="simdaHeroCarousel">
+            <!-- SLIDE 1: MURAABAXO (Murabaha Asset Financing) -->
+            <div class="fid-hero-slide active" data-slide="0">
+                <div class="fid-hero-copy">
+                    <span class="fid-eyebrow"><?= Security::e($t['slide1_eyebrow']) ?></span>
+                    <h1 class="fid-serif-h1"><?= $t['slide1_title'] ?></h1>
+                    <p class="fid-hero-lead">
+                        <?= Security::e($t['slide1_lead']) ?>
+                    </p>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px;">
+                        <a href="#services" class="fid-btn-green">
+                            <span><?= Security::e($t['btn_learn']) ?></span>
+                            <?= Icons::svg('arrow-right', 14) ?>
+                        </a>
+                        <a href="#calculator" class="btn btn-outline" style="border-radius:999px;padding:10px 18px;border-color:#123B32;color:#123B32;font-weight:600;">
+                            <?= Icons::svg('calendar', 14) ?>
+                            <span><?= Security::e($t['btn_calc']) ?></span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="fid-hero-media">
+                    <img src="assets/images/landing/hero-entrepreneurs.jpg" alt="SIMDA Murabaha Financing">
+                    <div class="fid-hero-float-badge">
+                        <div class="fid-float-icon">
+                            <?= Icons::svg('shield', 20) ?>
+                        </div>
+                        <div>
+                            <div style="font-size:1.05rem;font-weight:800;color:#123B32;line-height:1.15;"><?= Security::e($t['slide1_badge_val']) ?></div>
+                            <div style="font-size:0.74rem;color:#6A756F;font-weight:500;"><?= Security::e($t['slide1_badge_sub']) ?></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="fid-hero-media">
-                <img src="assets/images/landing/hero-entrepreneurs.jpg" alt="SIMDA Microfinance Entrepreneurs">
-                <div class="fid-hero-float-badge">
-                    <div class="fid-float-icon">
-                        <?= Icons::svg('users', 20) ?>
+            <!-- SLIDE 2: MAALGALINTA DUKAAMADA (Somali Mother Roadside Kiosk / Dukaan) -->
+            <div class="fid-hero-slide" data-slide="1">
+                <div class="fid-hero-copy">
+                    <span class="fid-eyebrow" style="color:#23845B;"><?= Security::e($t['slide2_eyebrow']) ?></span>
+                    <h1 class="fid-serif-h1"><?= $t['slide2_title'] ?></h1>
+                    <p class="fid-hero-lead">
+                        <?= Security::e($t['slide2_lead']) ?>
+                    </p>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px;">
+                        <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-btn-green" style="background-color:#194E3F;border-color:#194E3F;">
+                            <span><?= Security::e($isLoggedIn ? 'Dashboard' : $t['cta_start']) ?></span>
+                            <?= Icons::svg('arrow-right', 14) ?>
+                        </a>
+                        <a href="#calculator" class="btn btn-outline" style="border-radius:999px;padding:10px 18px;border-color:#123B32;color:#123B32;font-weight:600;">
+                            <?= Icons::svg('calendar', 14) ?>
+                            <span><?= Security::e($t['btn_calc']) ?></span>
+                        </a>
                     </div>
-                    <div>
-                        <div style="font-size:1.05rem;font-weight:800;color:#123B32;line-height:1.15;">100% Sharia</div>
-                        <div style="font-size:0.74rem;color:#6A756F;font-weight:500;">Ethical & Transparent</div>
+                </div>
+
+                <div class="fid-hero-media">
+                    <img src="assets/images/landing/hero-somali-mama-shop.jpg" alt="Somali Mother Roadside Dukaan Shop">
+                    <div class="fid-hero-float-badge">
+                        <div class="fid-float-icon" style="background:rgba(35,132,91,0.16);color:#23845B;">
+                            <?= Icons::svg('users', 20) ?>
+                        </div>
+                        <div>
+                            <div style="font-size:1.05rem;font-weight:800;color:#123B32;line-height:1.15;"><?= Security::e($t['slide2_badge_val']) ?></div>
+                            <div style="font-size:0.74rem;color:#6A756F;font-weight:500;"><?= Security::e($t['slide2_badge_sub']) ?></div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- CAROUSEL FLOATING NAVIGATION CONTROLS (PILLS + ARROWS) -->
+            <div class="fid-hero-nav-bar">
+                <div class="fid-hero-pills">
+                    <button type="button" class="fid-hero-pill active" data-target="0" aria-label="Slide 1: Muraabaxo">
+                        <span class="fid-pill-dot"></span>
+                        <span><?= Security::e($t['slide1_tag']) ?></span>
+                    </button>
+                    <button type="button" class="fid-hero-pill" data-target="1" aria-label="Slide 2: Maalgalinta">
+                        <span class="fid-pill-dot"></span>
+                        <span><?= Security::e($t['slide2_tag']) ?></span>
+                    </button>
+                </div>
+                <div class="fid-hero-arrows">
+                    <button type="button" class="fid-hero-arrow" id="heroPrevBtn" aria-label="Previous Slide">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button type="button" class="fid-hero-arrow" id="heroNextBtn" aria-label="Next Slide">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                 </div>
             </div>
         </div>

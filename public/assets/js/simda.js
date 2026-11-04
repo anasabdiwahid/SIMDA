@@ -135,7 +135,77 @@
             runSchedulePreview('payment');
         }
 
-        // 5. Online / Offline Connection Status Monitoring
+        // 5. Dynamic Hero Carousel (Murabaha & Maalgalinta Dukaamada)
+        const heroCarousel = document.getElementById('simdaHeroCarousel');
+        if (heroCarousel) {
+            const slides = heroCarousel.querySelectorAll('.fid-hero-slide');
+            const pills = heroCarousel.querySelectorAll('.fid-hero-pill');
+            const prevBtn = document.getElementById('heroPrevBtn');
+            const nextBtn = document.getElementById('heroNextBtn');
+            let current = 0;
+            let timer = null;
+
+            function goTo(idx) {
+                if (!slides.length) return;
+                current = (idx + slides.length) % slides.length;
+                slides.forEach(function (s, i) {
+                    if (i === current) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+                pills.forEach(function (p, i) {
+                    if (i === current) {
+                        p.classList.add('active');
+                    } else {
+                        p.classList.remove('active');
+                    }
+                });
+            }
+
+            function startTimer() {
+                stopTimer();
+                timer = setInterval(function () {
+                    goTo(current + 1);
+                }, 6500);
+            }
+
+            function stopTimer() {
+                if (timer) {
+                    clearInterval(timer);
+                    timer = null;
+                }
+            }
+
+            pills.forEach(function (pill) {
+                pill.addEventListener('click', function () {
+                    const target = parseInt(this.getAttribute('data-target') || '0', 10);
+                    goTo(target);
+                    startTimer();
+                });
+            });
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function () {
+                    goTo(current - 1);
+                    startTimer();
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function () {
+                    goTo(current + 1);
+                    startTimer();
+                });
+            }
+
+            heroCarousel.addEventListener('mouseenter', stopTimer);
+            heroCarousel.addEventListener('mouseleave', startTimer);
+            startTimer();
+        }
+
+        // 6. Online / Offline Connection Status Monitoring
         function updateConnectionState() {
             if (navigator.onLine) {
                 document.body.classList.remove('is-offline');
