@@ -665,8 +665,8 @@ table th.amount {
 }
 
 [data-theme="dark"] .fid-header {
-    background-color: #13221D;
-    border-bottom-color: #263D34;
+    background-color: #0A1B15;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .fid-nav {
@@ -2817,10 +2817,81 @@ body.is-offline .offline-banner {
     position: sticky !important;
     top: 0 !important;
     z-index: 9999 !important;
-    background-color: rgba(255, 255, 255, 0.98) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #EFECE6;
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ========================================================================== */
+/* DARK MODE: PUBLIC HEADER, ALL-WHITE LOGO & NAV FONTS                       */
+/* ========================================================================== */
+[data-theme="dark"] .fid-page > header.fid-header,
+[data-theme="dark"] .fid-header,
+[data-theme="dark"] header.fid-header {
+    background-color: #0A1B15 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* All-White Logo in Dark Mode */
+[data-theme="dark"] .fid-logo-link img,
+[data-theme="dark"] .fid-header .fid-logo-link img {
+    filter: brightness(0) invert(1) !important;
+    transition: filter 0.25s ease;
+}
+
+[data-theme="dark"] .fid-logo-tagline-stacked span {
+    color: #FFFFFF !important;
+    transition: color 0.25s ease;
+}
+
+[data-theme="dark"] .fid-logo-tagline-stacked span:last-child {
+    color: #D6B66C !important;
+}
+
+/* Nav fonts in Dark Mode: High contrast readable white & gold */
+[data-theme="dark"] .fid-nav-links a {
+    color: #E2ECE7 !important;
+    font-weight: 600 !important;
+    transition: color 0.18s ease, text-shadow 0.18s ease;
+}
+
+[data-theme="dark"] .fid-nav-links a:hover,
+[data-theme="dark"] .fid-nav-links a.active {
+    color: #D6B66C !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 12px rgba(214, 182, 108, 0.4) !important;
+}
+
+/* Header Action Button in Dark Mode */
+[data-theme="dark"] .fid-header .fid-btn-green {
+    background-color: #174E3E !important;
+    border-color: #246B55 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .fid-header .fid-btn-green:hover {
+    background-color: #1F6954 !important;
+    border-color: #318E72 !important;
+    box-shadow: 0 6px 18px rgba(36, 107, 85, 0.4);
+}
+
+/* Hero Simulator Button in Dark Mode */
+[data-theme="dark"] .fid-hero-card .btn-outline {
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .fid-hero-card .btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: #D6B66C !important;
+    color: #D6B66C !important;
 }
 
 .fid-money-floater.drift-horiz {
