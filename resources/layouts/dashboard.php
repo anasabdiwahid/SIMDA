@@ -226,7 +226,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </a>
             <?php endif; ?>
 
-            <?php if ($role === 'admin'): ?>
+            <?php if (in_array($role, ['admin', 'manager', 'branch_manager'], true)): ?>
                 <!-- ADMINISTRATION -->
                 <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_admin')) ?></div>
                 <a href="?route=branches" class="sidebar-link <?= $currentRoute === 'branches' ? 'active' : '' ?>">
@@ -237,6 +237,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <?= Icons::svg('users', 18) ?>
                     <span class="sidebar-text"><?= Security::e(Lang::get('menu_users')) ?></span>
                 </a>
+                <?php if (in_array($role, ['admin', 'manager'], true)): ?>
                 <a href="?route=audit_logs" class="sidebar-link <?= $currentRoute === 'audit_logs' ? 'active' : '' ?>">
                     <?= Icons::svg('shield', 18) ?>
                     <span class="sidebar-text"><?= Security::e(Lang::get('menu_audit_logs')) ?></span>
@@ -245,6 +246,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <?= Icons::svg('settings', 18) ?>
                     <span class="sidebar-text"><?= Security::e(Lang::get('menu_settings')) ?></span>
                 </a>
+                <?php endif; ?>
             <?php endif; ?>
         </nav>
 

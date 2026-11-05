@@ -35,8 +35,9 @@ final class DatabaseSeeder
         // 1. Roles
         $roles = [
             ['slug' => 'admin', 'name_so' => 'Maamulaha Guud', 'name_en' => 'System Administrator', 'desc' => 'Full institution management and governance'],
-            ['slug' => 'branch_manager', 'name_so' => 'Maamulaha Laanta', 'name_en' => 'Branch Manager', 'desc' => 'Branch portfolio oversight, >$5,000 & group approvals, charity waivers'],
-            ['slug' => 'loan_officer', 'name_so' => 'Sarkaalka Maalgelinta', 'name_en' => 'Loan Officer', 'desc' => 'Client registration, financing applications, <=$5,000 approvals, disbursements & repayments'],
+            ['slug' => 'manager', 'name_so' => 'Maamulaha Guud (Manager)', 'name_en' => 'General Operations Manager', 'desc' => 'Operations management, cross-branch oversight, staff administration'],
+            ['slug' => 'branch_manager', 'name_so' => 'Maamulaha Laanta (Header Branch)', 'name_en' => 'Branch Manager', 'desc' => 'Branch portfolio oversight, >$5,000 & group approvals, charity waivers'],
+            ['slug' => 'loan_officer', 'name_so' => 'Sarkaalka Maalgelinta (Employee)', 'name_en' => 'Loan Officer', 'desc' => 'Client registration, financing applications, <=$5,000 approvals, disbursements & repayments'],
             ['slug' => 'client', 'name_so' => 'Macmiil', 'name_en' => 'Client', 'desc' => 'Self-service access to own financing, schedule, repayments and PDF statements'],
         ];
 

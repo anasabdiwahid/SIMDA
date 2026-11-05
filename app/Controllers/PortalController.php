@@ -1581,24 +1581,75 @@ final class PortalController
 
     private static function adminSection(PDO $pdo, string $mode): void
     {
-        AuthMiddleware::requireRoles(['admin']);
-        $branches = $pdo->query('SELECT * FROM branches ORDER BY id ASC')->fetchAll();
-        $roles = $pdo->query('SELECT * FROM roles ORDER BY id ASC')->fetchAll();
-        $users = $pdo->query('
-            SELECT u.*, r.slug AS role_slug, b.name AS branch_name
-            FROM users u
-            INNER JOIN roles r ON r.id = u.role_id
-            LEFT JOIN branches b ON b.id = u.branch_id
-            ORDER BY u.id ASC
+        $user = AuthMiddleware::requireAuth();
+        $role = $user['role_slug'] ?? '';
+
+        if (!in_array($role, ['admin', 'manager', 'branch_manager'], true)) {
+            throw new \RuntimeException(Lang::get('unauthorized_access'));
+        }
+
+        // Branch managers cannot access settings or audit_logs
+        if (in_array($mode, ['settings', 'audit_logs'], true) && !in_array($role, ['admin', 'manager'], true)) {
+            throw new \RuntimeException(Lang::get('unauthorized_access'));
+        }
+
+        $branches = $pdo->query('
+            SELECT b.*,
+                   (SELECT COUNT(*) FROM users u WHERE u.branch_id = b.id) AS staff_count,
+                   (SELECT COUNT(*) FROM clients c WHERE c.branch_id = b.id) AS clients_count
+            FROM branches b
+            ORDER BY b.id ASC
         ')->fetchAll();
-        $settingsList = $pdo->query('SELECT * FROM system_settings ORDER BY setting_key ASC')->fetchAll();
-        $auditLogs = $pdo->query('
-            SELECT a.*, u.full_name AS user_name
-            FROM audit_logs a
-            LEFT JOIN users u ON u.id = a.user_id
-            ORDER BY a.id DESC
-            LIMIT 100
-        ')->fetchAll();
+
+        // Roles allowed to be created by the currently logged-in user (Strict Hierarchy Rule)
+        $allowedRoleSlugs = match ($role) {
+            'admin' => ['manager', 'branch_manager', 'loan_officer', 'client'],
+            'manager' => ['branch_manager', 'loan_officer', 'client'],
+            'branch_manager' => ['loan_officer', 'client'],
+            default => [],
+        };
+
+        $rolesStmt = $pdo->query('SELECT * FROM roles ORDER BY id ASC');
+        $allRoles = $rolesStmt->fetchAll();
+        $assignableRoles = array_values(array_filter($allRoles, function ($r) use ($allowedRoleSlugs) {
+            return in_array($r['slug'], $allowedRoleSlugs, true);
+        }));
+
+        // Users list scoped by branch for branch managers
+        if ($role === 'branch_manager') {
+            $uStmt = $pdo->prepare('
+                SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en, b.name AS branch_name
+                FROM users u
+                INNER JOIN roles r ON r.id = u.role_id
+                LEFT JOIN branches b ON b.id = u.branch_id
+                WHERE u.branch_id = :bid
+                ORDER BY u.id ASC
+            ');
+            $uStmt->execute([':bid' => (int) ($user['branch_id'] ?? 0)]);
+            $users = $uStmt->fetchAll();
+        } else {
+            $users = $pdo->query('
+                SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en, b.name AS branch_name
+                FROM users u
+                INNER JOIN roles r ON r.id = u.role_id
+                LEFT JOIN branches b ON b.id = u.branch_id
+                ORDER BY u.id ASC
+            ')->fetchAll();
+        }
+
+        $settingsList = in_array($role, ['admin', 'manager'], true)
+            ? $pdo->query('SELECT * FROM system_settings ORDER BY setting_key ASC')->fetchAll()
+            : [];
+
+        $auditLogs = in_array($role, ['admin', 'manager'], true)
+            ? $pdo->query('
+                SELECT a.*, u.full_name AS user_name
+                FROM audit_logs a
+                LEFT JOIN users u ON u.id = a.user_id
+                ORDER BY a.id DESC
+                LIMIT 100
+            ')->fetchAll()
+            : [];
 
         $titleMap = [
             'branches' => Lang::get('menu_branches'),
@@ -1612,54 +1663,108 @@ final class PortalController
             'sectionTitle' => $titleMap[$mode] ?? 'Administration',
             'mode' => $mode,
             'branches' => $branches,
-            'roles' => $roles,
+            'roles' => $assignableRoles,
+            'allRoles' => $allRoles,
             'users' => $users,
             'settingsList' => $settingsList,
             'auditLogs' => $auditLogs,
+            'currentUser' => $user,
         ]);
     }
 
     private static function branchCreate(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager']);
         AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+
+        $code = trim((string) ($_POST['code'] ?? ''));
+        $name = trim((string) ($_POST['name'] ?? ''));
+        $city = trim((string) ($_POST['city'] ?? ''));
+        $dist = trim((string) ($_POST['district'] ?? ''));
+        $addr = trim((string) ($_POST['address'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+        $mgr = trim((string) ($_POST['manager_name'] ?? ''));
+
+        if ($code === '' || $name === '' || $city === '') {
+            throw new \RuntimeException($locale === 'so' ? 'Fadlan geli koodhka, magaca, iyo magaalada laanta.' : 'Please provide branch code, name, and city.');
+        }
+
         $stmt = $pdo->prepare('
-            INSERT INTO branches (code, name, city, district, address, phone, is_active)
-            VALUES (:code, :name, :city, :dist, :addr, :phone, 1)
+            INSERT INTO branches (code, name, city, district, address, phone, manager_name, is_active)
+            VALUES (:code, :name, :city, :dist, :addr, :phone, :mgr, 1)
         ');
         $stmt->execute([
-            ':code' => trim((string) ($_POST['code'] ?? '')),
-            ':name' => trim((string) ($_POST['name'] ?? '')),
-            ':city' => trim((string) ($_POST['city'] ?? '')),
-            ':dist' => trim((string) ($_POST['district'] ?? '')),
-            ':addr' => trim((string) ($_POST['address'] ?? '')),
-            ':phone' => trim((string) ($_POST['phone'] ?? '')),
+            ':code' => $code,
+            ':name' => $name,
+            ':city' => $city,
+            ':dist' => $dist,
+            ':addr' => $addr,
+            ':phone' => $phone,
+            ':mgr' => $mgr !== '' ? $mgr : null,
         ]);
-        AuditLogger::log('branch.created', 'branches', (int) $pdo->lastInsertId(), 'Created branch ' . $_POST['code'], [], (int) $user['id']);
-        $_SESSION['flash_success'] = 'New branch created successfully.';
+        AuditLogger::log('branch.created', 'branches', (int) $pdo->lastInsertId(), 'Created branch ' . $code, [], (int) $user['id']);
+        $_SESSION['flash_success'] = $locale === 'so' ? 'Laanta cusub si guul leh ayaa loo abuuray.' : 'New branch created successfully.';
         header('Location: ?route=branches');
         exit;
     }
 
     private static function userCreate(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
         AuthMiddleware::verifyCsrfOrAbort();
+        $creatorRole = (string) ($user['role_slug'] ?? '');
+        $locale = Lang::locale();
+
+        $targetRoleId = (int) ($_POST['role_id'] ?? 0);
+        $st = $pdo->prepare("SELECT slug FROM roles WHERE id = :id");
+        $st->execute([':id' => $targetRoleId]);
+        $targetRoleSlug = (string) $st->fetchColumn();
+
+        // Strict Hierarchy Rule Enforcement:
+        // Admin -> [manager, branch_manager, loan_officer, client] (cannot create admin)
+        // Manager -> [branch_manager, loan_officer, client] (cannot create admin or manager)
+        // Header Branch -> [loan_officer, client] (cannot create admin, manager, or branch_manager)
+        $allowedRoleSlugs = match ($creatorRole) {
+            'admin' => ['manager', 'branch_manager', 'loan_officer', 'client'],
+            'manager' => ['branch_manager', 'loan_officer', 'client'],
+            'branch_manager' => ['loan_officer', 'client'],
+            default => [],
+        };
+
+        if (!in_array($targetRoleSlug, $allowedRoleSlugs, true)) {
+            throw new \RuntimeException(
+                $locale === 'so'
+                    ? "Ma laguu ogola inaad abuurto isticmaale leh doorkaan. Xeerka nidaamku ma ogola inaad abuurto qof kula awood ah ama kaa sarreeya."
+                    : "You are not authorized to create a user with this role. System rules prohibit creating accounts with equal or higher authority."
+            );
+        }
+
+        // Branch assignment logic
+        if ($creatorRole === 'branch_manager') {
+            $branchId = (int) ($user['branch_id'] ?? 0);
+            if ($branchId <= 0) {
+                throw new \RuntimeException($locale === 'so' ? 'Akoonkaaga maamule kuma xirna laan gaar ah.' : 'Your branch manager account is not assigned to a valid branch.');
+            }
+        } else {
+            $branchId = !empty($_POST['branch_id']) ? (int) $_POST['branch_id'] : null;
+        }
+
         $stmt = $pdo->prepare('
             INSERT INTO users (role_id, branch_id, full_name, username, email, phone, password_hash, is_active)
             VALUES (:rid, :bid, :name, :uname, :email, :phone, :phash, 1)
         ');
         $stmt->execute([
-            ':rid' => (int) ($_POST['role_id'] ?? 3),
-            ':bid' => !empty($_POST['branch_id']) ? (int) $_POST['branch_id'] : null,
+            ':rid' => $targetRoleId,
+            ':bid' => $branchId,
             ':name' => trim((string) ($_POST['full_name'] ?? '')),
             ':uname' => trim((string) ($_POST['username'] ?? '')),
             ':email' => trim((string) ($_POST['email'] ?? '')),
             ':phone' => trim((string) ($_POST['phone'] ?? '')),
             ':phash' => Security::hashPassword((string) ($_POST['password'] ?? 'Staff@123')),
         ]);
-        AuditLogger::log('user.created', 'users', (int) $pdo->lastInsertId(), 'Created user ' . $_POST['username'], [], (int) $user['id']);
-        $_SESSION['flash_success'] = 'Staff user account created successfully.';
+        AuditLogger::log('user.created', 'users', (int) $pdo->lastInsertId(), 'Created user ' . $_POST['username'] . ' (' . $targetRoleSlug . ')', [], (int) $user['id']);
+        $_SESSION['flash_success'] = $locale === 'so' ? 'Akoonka shaqaalaha cusub si guul leh ayaa loo abuuray.' : 'Staff user account created successfully.';
         header('Location: ?route=users');
         exit;
     }
