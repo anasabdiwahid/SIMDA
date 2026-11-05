@@ -716,8 +716,10 @@ table th.amount {
     color: #E2E8E4;
 }
 
-.fid-nav-links a:hover {
-    color: #C59B47;
+.fid-nav-links a:hover,
+.fid-nav-links a.active {
+    color: #C59B47 !important;
+    font-weight: 700 !important;
 }
 
 .fid-btn-green {

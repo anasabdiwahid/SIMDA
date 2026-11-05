@@ -467,8 +467,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             </span>
         </a>
 
-        <ul class="fid-nav-links">
-            <li><a href="#home" style="color:#C59B47;font-weight:700;"><?= Security::e($t['nav_home']) ?></a></li>
+        <ul class="fid-nav-links" id="homeNavLinks">
+            <li><a href="#home" class="active"><?= Security::e($t['nav_home']) ?></a></li>
             <li><a href="?route=about"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="#our-process"><?= Security::e($t['nav_process']) ?></a></li>
@@ -1369,5 +1369,96 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 </div>
 
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const navLinks = document.querySelectorAll('#homeNavLinks a');
+    const hashLinks = document.querySelectorAll('#homeNavLinks a[href^="#"]');
+    const sections = [];
+
+    hashLinks.forEach(function (link) {
+        const hash = link.getAttribute('href');
+        const section = document.querySelector(hash);
+        if (section) {
+            sections.push({ id: hash, el: section, link: link });
+        }
+    });
+
+    function setActiveLink(link) {
+        navLinks.forEach(function (l) { l.classList.remove('active'); });
+        if (link) {
+            link.classList.add('active');
+        }
+    }
+
+    // 1. Click Handler with Smooth Offset Scroll
+    hashLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            const targetEl = document.querySelector(targetId);
+            if (targetEl) {
+                e.preventDefault();
+                setActiveLink(this);
+                const header = document.querySelector('.fid-header');
+                const headerH = header ? header.offsetHeight : 80;
+                const top = targetEl.getBoundingClientRect().top + window.pageYOffset - headerH - 10;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+                if (history.pushState) {
+                    history.pushState(null, null, targetId);
+                }
+            }
+        });
+    });
+
+    // 2. ScrollSpy for on-page sections
+    function updateScrollSpy() {
+        const scrollPos = window.pageYOffset + 120;
+        let currentSection = null;
+
+        for (let i = 0; i < sections.length; i++) {
+            const top = sections[i].el.offsetTop;
+            const height = sections[i].el.offsetHeight;
+            if (scrollPos >= top && scrollPos < top + height) {
+                currentSection = sections[i];
+                break;
+            }
+        }
+
+        if (!currentSection && window.pageYOffset < 200 && sections.length > 0) {
+            currentSection = sections[0];
+        }
+
+        if (currentSection) {
+            setActiveLink(currentSection.link);
+        }
+    }
+
+    let isScrolling;
+    window.addEventListener('scroll', function () {
+        window.clearTimeout(isScrolling);
+        isScrolling = setTimeout(updateScrollSpy, 30);
+    }, { passive: true });
+
+    // 3. Initial check on load (check hash)
+    if (window.location.hash) {
+        const matching = Array.from(hashLinks).find(function (l) {
+            return l.getAttribute('href') === window.location.hash;
+        });
+        if (matching) {
+            setActiveLink(matching);
+            setTimeout(function () {
+                const target = document.querySelector(window.location.hash);
+                if (target) {
+                    const header = document.querySelector('.fid-header');
+                    const headerH = header ? header.offsetHeight : 80;
+                    const top = target.getBoundingClientRect().top + window.pageYOffset - headerH - 10;
+                    window.scrollTo({ top: top, behavior: 'smooth' });
+                }
+            }, 100);
+        }
+    } else {
+        updateScrollSpy();
+    }
+});
+</script>
 </body>
 </html>
