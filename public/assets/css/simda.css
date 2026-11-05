@@ -2856,13 +2856,17 @@ body.is-offline .offline-banner {
 
 /* Nav fonts in Dark Mode: High contrast readable white & gold */
 [data-theme="dark"] .fid-nav-links a {
-    color: #E2ECE7 !important;
-    font-weight: 600 !important;
+    color: #E2ECE7;
+    font-weight: 600;
     transition: color 0.18s ease, text-shadow 0.18s ease;
 }
 
+.fid-nav-links a.active,
+.fid-nav-links a.is-active,
+.fid-nav-links a:hover,
 [data-theme="dark"] .fid-nav-links a:hover,
-[data-theme="dark"] .fid-nav-links a.active {
+[data-theme="dark"] .fid-nav-links a.active,
+[data-theme="dark"] .fid-nav-links a.is-active {
     color: #D6B66C !important;
     font-weight: 700 !important;
     text-shadow: 0 0 12px rgba(214, 182, 108, 0.4) !important;

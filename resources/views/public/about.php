@@ -330,7 +330,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
         <ul class="fid-nav-links">
             <li><a href="?route=home#home"><?= Security::e($t['nav_home']) ?></a></li>
-            <li><a href="?route=about" style="color:#C59B47;font-weight:700;"><?= Security::e($t['nav_about']) ?></a></li>
+            <li><a href="?route=about" class="active"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="?route=home#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="?route=home#our-process"><?= Security::e($t['nav_process']) ?></a></li>
             <li><a href="?route=home#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
