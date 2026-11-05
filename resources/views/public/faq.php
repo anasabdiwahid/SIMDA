@@ -225,13 +225,30 @@ $tAll = [
 $t = $tAll[$locale] ?? $tAll['en'];
 $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
 $isRtl = ($locale === 'ar');
+$isLoggedIn = !empty($_SESSION['user_id']);
+
+$languagesList = [
+    'so' => ['code' => 'SO', 'label' => 'Af-Soomaali', 'flag' => 'assets/images/flags/flag-so.jpg'],
+    'en' => ['code' => 'EN', 'label' => 'English', 'flag' => 'assets/images/flags/flag-us.jpg'],
+    'ar' => ['code' => 'AR', 'label' => 'العربية', 'flag' => 'assets/images/flags/flag-ar.jpg'],
+];
+$activeLang = $languagesList[$locale] ?? $languagesList['en'];
 ?>
 <!DOCTYPE html>
-<html lang="<?= Security::e($locale) ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+<html lang="<?= Security::e($locale) ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= Security::e($t['page_title']) ?></title>
+    <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <script>
+        (function() {
+            var p = localStorage.getItem('simda_theme_pref') || 'light';
+            var t = (p === 'dark' || p === 'light') ? p : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -524,58 +541,54 @@ $isRtl = ($locale === 'ar');
 </head>
 <body class="fid-page">
 
-<!-- 1. STICKY TOP NAVIGATION BAR -->
+<!-- 1. TOP EDITORIAL NAVIGATION HEADER -->
 <header class="fid-header">
-    <div class="fid-nav-wrap">
-        <a href="?route=home" class="fid-brand" aria-label="SIMDA Home">
-            <span class="fid-logo-badge">
-                <img src="assets/images/brand/simda-logo.png" alt="SIMDA Logo" class="fid-logo-img">
-            </span>
-            <span class="fid-brand-text">
-                <span class="fid-brand-title">SIMDA</span>
-                <span class="fid-brand-subtitle">
-                    <span>SOMALI ISLAMIC MICROFINANCE</span>
-                    <span>DEVELOPMENT ASSOCIATION</span>
-                </span>
+    <div class="fid-container fid-nav">
+        <a href="?route=home" class="fid-logo-link" title="SIMDA - Somali Islamic Microfinance Development Association">
+            <img src="assets/images/simda-logo.png" alt="SIMDA Microfinance">
+            <span class="fid-logo-tagline-stacked">
+                <span>SOMALI ISLAMIC MICROFINANCE</span>
+                <span>DEVELOPMENT ASSOCIATION</span>
             </span>
         </a>
 
         <ul class="fid-nav-links">
-            <li><a href="?route=home"><?= Security::e($t['nav_home']) ?></a></li>
+            <li><a href="?route=home#home"><?= Security::e($t['nav_home']) ?></a></li>
             <li><a href="?route=about"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="?route=home#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="?route=home#our-process"><?= Security::e($t['nav_process']) ?></a></li>
             <li><a href="?route=home#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
-            <li><a href="?route=faq" style="color:#D6B66C;font-weight:700;"><?= Security::e($t['nav_faq']) ?></a></li>
+            <li><a href="?route=faq" style="color:#C59B47;font-weight:700;"><?= Security::e($t['nav_faq']) ?></a></li>
             <li><a href="?route=contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>
 
         <div style="display:flex;align-items:center;gap:10px;">
-            <!-- Language Dropdown Selector -->
-            <div class="fid-lang-picker" id="fidLangPicker">
-                <button type="button" class="fid-lang-btn" id="fidLangBtn" aria-expanded="false" aria-haspopup="true">
-                    <img src="assets/images/flags/<?= $locale === 'so' ? 'flag-so.jpg' : ($locale === 'ar' ? 'flag-ar.jpg' : 'flag-us.jpg') ?>" alt="Lang Flag" class="fid-lang-flag">
-                    <span class="fid-lang-code"><?= strtoupper($locale) ?></span>
-                    <svg class="fid-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <!-- Language Dropdown Selector (Active flag shown, tap opens dropdown menu) -->
+            <div class="simda-lang-dropdown" id="faqLangDropdown">
+                <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
+                    <img src="<?= Security::e($activeLang['flag']) ?>" alt="<?= Security::e($activeLang['label']) ?>" class="simda-lang-flag-circle">
+                    <span class="simda-lang-code"><?= Security::e($activeLang['code']) ?></span>
+                    <svg class="simda-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 1 5 5 9 1"></polyline>
+                    </svg>
                 </button>
-                <div class="fid-lang-dropdown" id="fidLangMenu">
-                    <a href="?route=faq&lang=so" class="fid-lang-option <?= $locale === 'so' ? 'active' : '' ?>">
-                        <img src="assets/images/flags/flag-so.jpg" alt="Somalia">
-                        <span>Af-Soomaali</span>
-                    </a>
-                    <a href="?route=faq&lang=en" class="fid-lang-option <?= $locale === 'en' ? 'active' : '' ?>">
-                        <img src="assets/images/flags/flag-us.jpg" alt="USA">
-                        <span>English</span>
-                    </a>
-                    <a href="?route=faq&lang=ar" class="fid-lang-option <?= $locale === 'ar' ? 'active' : '' ?>">
-                        <img src="assets/images/flags/flag-ar.jpg" alt="Arabic">
-                        <span>العربية</span>
-                    </a>
+                <div class="simda-lang-menu" role="menu">
+                    <?php foreach ($languagesList as $code => $info): ?>
+                        <a href="?route=faq&lang=<?= $code ?>" class="simda-lang-item <?= $locale === $code ? 'is-active' : '' ?>" role="menuitem">
+                            <img src="<?= Security::e($info['flag']) ?>" alt="<?= Security::e($info['label']) ?>" class="simda-lang-flag-circle">
+                            <span class="simda-lang-name"><?= Security::e($info['label']) ?></span>
+                            <?php if ($locale === $code): ?>
+                                <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
             </div>
 
-            <a href="?route=login" class="fid-cta-btn">
-                <span><?= Security::e($t['cta_start']) ?></span>
+            <a href="?route=<?= $isLoggedIn ? 'dashboard' : 'login' ?>" class="fid-btn-green">
+                <span><?= Security::e($isLoggedIn ? $t['cta_dashboard'] : $t['cta_start']) ?></span>
                 <?= Icons::svg('arrow-right', 14) ?>
             </a>
         </div>
@@ -982,27 +995,13 @@ $isRtl = ($locale === 'ar');
         input.value = '';
     }
 
-    // Language Dropdown Toggle
-    (function() {
-        var btn = document.getElementById('fidLangBtn');
-        var menu = document.getElementById('fidLangMenu');
-        var picker = document.getElementById('fidLangPicker');
-        if (!btn || !menu || !picker) return;
-
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            var isOpen = menu.classList.contains('open');
-            menu.classList.toggle('open', !isOpen);
-            btn.setAttribute('aria-expanded', !isOpen);
+    // Close language dropdown on outside click
+    document.addEventListener('click', function(e) {
+        document.querySelectorAll('.simda-lang-dropdown.is-open').forEach(function(d) {
+            if (!d.contains(e.target)) d.classList.remove('is-open');
         });
-
-        document.addEventListener('click', function(e) {
-            if (!picker.contains(e.target)) {
-                menu.classList.remove('open');
-                btn.setAttribute('aria-expanded', 'false');
-            }
-        });
-    })();
+    });
 </script>
 </body>
 </html>
+
