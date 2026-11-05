@@ -27,9 +27,15 @@ final class MailService
 
     /**
      * Send an SMTP email using Gmail or configured SMTP provider over SSL/TLS.
+     * Supports both plain HTML/alternative and multipart/related with inline CID images.
      */
-    public static function send(string $to, string $subject, string $htmlBody, string $plainBody = ''): array
-    {
+    public static function send(
+        string $to,
+        string $subject,
+        string $htmlBody,
+        string $plainBody = '',
+        array $inlineAttachments = []
+    ): array {
         $host = (string) Env::get('MAIL_HOST', 'smtp.gmail.com');
         $port = (int) Env::get('MAIL_PORT', 465);
         $username = (string) Env::get('MAIL_USERNAME', 'anasrk85@gmail.com');
@@ -117,28 +123,80 @@ final class MailService
             return ['success' => false, 'error' => "DATA command rejected: {$dataCmd}"];
         }
 
-        $boundary = 'bnd_' . md5(uniqid((string) mt_rand(), true));
-        $headers = [
-            'MIME-Version: 1.0',
-            'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
-            'To: <' . $to . '>',
-            'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
-            'Date: ' . date('r'),
-            'X-Mailer: SIMDA Institutional Mailer v1.0',
-            'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
-        ];
+        $textPlain = $plainBody !== '' ? $plainBody : strip_tags($htmlBody);
 
-        $payload = implode("\r\n", $headers) . "\r\n\r\n";
-        $payload .= "--{$boundary}\r\n";
-        $payload .= "Content-Type: text/plain; charset=UTF-8\r\n";
-        $payload .= "Content-Transfer-Encoding: base64\r\n\r\n";
-        $payload .= chunk_split(base64_encode($plainBody !== '' ? $plainBody : strip_tags($htmlBody))) . "\r\n";
-        $payload .= "--{$boundary}\r\n";
-        $payload .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $payload .= "Content-Transfer-Encoding: base64\r\n\r\n";
-        $payload .= chunk_split(base64_encode($htmlBody)) . "\r\n";
-        $payload .= "--{$boundary}--\r\n";
-        $payload .= ".\r\n";
+        if (!empty($inlineAttachments)) {
+            $relBoundary = 'bnd_rel_' . md5(uniqid((string) mt_rand(), true));
+            $altBoundary = 'bnd_alt_' . md5(uniqid((string) mt_rand(), true));
+
+            $headers = [
+                'MIME-Version: 1.0',
+                'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
+                'To: <' . $to . '>',
+                'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
+                'Date: ' . date('r'),
+                'X-Mailer: SIMDA Institutional Mailer v1.0',
+                'Content-Type: multipart/related; boundary="' . $relBoundary . '"',
+            ];
+
+            $payload = implode("\r\n", $headers) . "\r\n\r\n";
+            $payload .= "--{$relBoundary}\r\n";
+            $payload .= "Content-Type: multipart/alternative; boundary=\"{$altBoundary}\"\r\n\r\n";
+
+            $payload .= "--{$altBoundary}\r\n";
+            $payload .= "Content-Type: text/plain; charset=UTF-8\r\n";
+            $payload .= "Content-Transfer-Encoding: base64\r\n\r\n";
+            $payload .= chunk_split(base64_encode($textPlain)) . "\r\n";
+
+            $payload .= "--{$altBoundary}\r\n";
+            $payload .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $payload .= "Content-Transfer-Encoding: base64\r\n\r\n";
+            $payload .= chunk_split(base64_encode($htmlBody)) . "\r\n";
+            $payload .= "--{$altBoundary}--\r\n\r\n";
+
+            foreach ($inlineAttachments as $att) {
+                $cid = (string) ($att['cid'] ?? 'img');
+                $filePath = (string) ($att['path'] ?? '');
+                $mimeType = (string) ($att['mime'] ?? 'image/png');
+                $filename = (string) ($att['filename'] ?? basename($filePath));
+
+                if (is_file($filePath)) {
+                    $fileBytes = file_get_contents($filePath);
+                    $payload .= "--{$relBoundary}\r\n";
+                    $payload .= "Content-Type: {$mimeType}; name=\"{$filename}\"\r\n";
+                    $payload .= "Content-Transfer-Encoding: base64\r\n";
+                    $payload .= "Content-ID: <{$cid}>\r\n";
+                    $payload .= "Content-Disposition: inline; filename=\"{$filename}\"\r\n\r\n";
+                    $payload .= chunk_split(base64_encode($fileBytes)) . "\r\n";
+                }
+            }
+
+            $payload .= "--{$relBoundary}--\r\n";
+            $payload .= ".\r\n";
+        } else {
+            $boundary = 'bnd_' . md5(uniqid((string) mt_rand(), true));
+            $headers = [
+                'MIME-Version: 1.0',
+                'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
+                'To: <' . $to . '>',
+                'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
+                'Date: ' . date('r'),
+                'X-Mailer: SIMDA Institutional Mailer v1.0',
+                'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+            ];
+
+            $payload = implode("\r\n", $headers) . "\r\n\r\n";
+            $payload .= "--{$boundary}\r\n";
+            $payload .= "Content-Type: text/plain; charset=UTF-8\r\n";
+            $payload .= "Content-Transfer-Encoding: base64\r\n\r\n";
+            $payload .= chunk_split(base64_encode($textPlain)) . "\r\n";
+            $payload .= "--{$boundary}\r\n";
+            $payload .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $payload .= "Content-Transfer-Encoding: base64\r\n\r\n";
+            $payload .= chunk_split(base64_encode($htmlBody)) . "\r\n";
+            $payload .= "--{$boundary}--\r\n";
+            $payload .= ".\r\n";
+        }
 
         fputs($socket, $payload);
         $finalRes = $readResponse();
@@ -202,11 +260,17 @@ final class MailService
                 ? "SIMDA: Hambalyo! Waxaa laguu diiwaangeliyay Maamulaha Laanta ({$branchText})"
                 : "SIMDA: Ku soo dhowow Nidaamka SIMDA - Faahfaahinta Akoonkaaga Cusub");
 
-        // Read logo base64 if available for embedding
+        // Prepare inline logo attachment for CID embedding (supported by Gmail, Outlook, Apple Mail)
         $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
-        $logoBase64 = is_file($logoPath)
-            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath))
-            : '';
+        $inlineAttachments = [];
+        if (is_file($logoPath)) {
+            $inlineAttachments[] = [
+                'cid' => 'simda_logo',
+                'path' => $logoPath,
+                'mime' => 'image/png',
+                'filename' => 'simda-logo.png',
+            ];
+        }
 
         $html = <<<HTML
 <!DOCTYPE html>
@@ -225,21 +289,20 @@ final class MailService
                     
                     <!-- HEADER BANNER -->
                     <tr>
-                        <td style="background:linear-gradient(135deg, #0C2D24 0%, #164E3F 100%);padding:36px 30px 30px;text-align:center;border-bottom:4px solid #D6B66C;">
-HTML;
-
-        if ($logoBase64 !== '') {
-            $html .= <<<HTML
-                            <img src="{$logoBase64}" alt="SIMDA Logo" width="180" style="max-width:180px;height:auto;margin-bottom:14px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.25));" />
-HTML;
-        } else {
-            $html .= <<<HTML
-                            <h1 style="margin:0 0 6px;color:#FFFFFF;font-size:28px;font-weight:900;letter-spacing:1px;font-family:Georgia,serif;">SIMDA</h1>
-HTML;
-        }
-
-        $html .= <<<HTML
-                            <p style="margin:0;color:#D6B66C;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">Somali Islamic Microfinance Development Association</p>
+                        <td style="background:linear-gradient(135deg, #0C2D24 0%, #164E3F 100%);padding:36px 30px 28px;text-align:center;border-bottom:4px solid #D6B66C;">
+                            <!-- BRAND LOGO PILL -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto 14px;">
+                                <tr>
+                                    <td style="background-color:#FFFFFF;border-radius:14px;padding:10px 22px;box-shadow:0 6px 18px rgba(0,0,0,0.22);text-align:center;">
+                                        <img src="cid:simda_logo" alt="SIMDA" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;border:0;outline:none;" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <h1 style="margin:0 0 4px;color:#FFFFFF;font-size:24px;font-weight:900;letter-spacing:1px;font-family:Georgia,serif;">SIMDA</h1>
+                            <p style="margin:0;color:#D6B66C;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">Somali Islamic Microfinance Development Association</p>
+                            <p style="margin:5px 0 0;color:rgba(255,255,255,0.78);font-size:11px;">Building Trust • Zero-Riba Islamic Financing</p>
+                        </td>
+                    </tr>
                             <p style="margin:6px 0 0;color:rgba(255,255,255,0.78);font-size:12px;">Building Trust • Zero-Riba Islamic Financing</p>
                         </td>
                     </tr>
@@ -358,6 +421,7 @@ Wabilahi Tawfiiq,
 Maamulka SIMDA
 TEXT;
 
-        return self::send($email, $subject, $html, $plain);
+        return self::send($email, $subject, $html, $plain, $inlineAttachments);
     }
 }
+
