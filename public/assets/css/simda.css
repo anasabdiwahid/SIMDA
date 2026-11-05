@@ -3119,6 +3119,18 @@ body.is-offline .offline-banner {
     overflow: hidden;
 }
 
+.faq-hero-section {
+    position: relative;
+    background-color: #123B32;
+    background-image: linear-gradient(180deg, rgba(14, 43, 36, 0.82) 0%, rgba(18, 59, 50, 0.94) 100%), url('../images/landing/faq-hero-bg.jpg');
+    background-size: cover;
+    background-position: center 30%;
+    padding: 85px 0 115px;
+    text-align: center;
+    color: #FFFFFF;
+    overflow: hidden;
+}
+
 .about-stats-strip {
     background: #FFFFFF;
     border-radius: 20px;

@@ -19,6 +19,7 @@ $tAll = [
         'cta_dashboard' => 'Dashboard',
         'cta_start' => 'Get Started',
 
+        'hero_badge' => 'SIMDA Knowledge & Advisory Base',
         'watermark' => 'Frequently Ask Question',
         'faq_title' => 'Frequently Asked Questions',
         'faq_subtitle' => 'Have questions about Sharia-compliant financing? We are here to guide you with complete clarity.',
@@ -90,6 +91,7 @@ $tAll = [
         'cta_dashboard' => 'Dashboard',
         'cta_start' => 'Bilow Hadda',
 
+        'hero_badge' => 'Xogta & Su\'aalaha Badanaa La Isweydiiyo',
         'watermark' => 'Frequently Ask Question',
         'faq_title' => 'Su\'aalaha Badanaa La Isweydiiyo',
         'faq_subtitle' => 'Su\'aalo ma ka qabtaa maalgelinta xalaasha ah? Waxaan halkan kuugu diyaarinay jawaabo buuxa oo cad.',
@@ -161,6 +163,7 @@ $tAll = [
         'cta_dashboard' => 'لوحة التحكم',
         'cta_start' => 'ابدأ الآن',
 
+        'hero_badge' => 'مركز المعرفة والاستشارات بسيمدا',
         'watermark' => 'Frequently Ask Question',
         'faq_title' => 'الأسئلة الشائعة',
         'faq_subtitle' => 'هل لديك استفسارات حول التمويل الإسلامي المتوافق مع الشريعة؟ نحن هنا لمساعدتك بوضوح تام.',
@@ -595,21 +598,36 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </div>
 </header>
 
-<!-- 2. FAQ PAGE MAIN BODY WITH SPLIT 2-COLUMN DESIGN -->
-<main class="faq-page-wrap">
+<!-- 2. EDITORIAL HERO BANNER WITH HIGH-RES BACKGROUND & ORGANIC WAVE -->
+<section class="faq-hero-section">
+    <div class="fid-container">
+        <div class="contact-hero-badge">
+            <?= Icons::svg('help-circle', 15) ?>
+            <span><?= Security::e($t['hero_badge']) ?></span>
+        </div>
+        <h1 class="contact-hero-title"><?= Security::e($t['faq_title']) ?></h1>
+        <p class="contact-hero-lead"><?= Security::e($t['faq_subtitle']) ?></p>
+        <div style="margin-top:16px;">
+            <a href="#faqMainArea" style="display:inline-flex;align-items:center;gap:6px;color:#D6B66C;font-size:0.88rem;font-weight:700;text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                <?= Security::e($t['click_here_lead']) ?> <?= Icons::svg('arrow-down', 13) ?>
+            </a>
+        </div>
+    </div>
+
+    <!-- Organic wave divider transitioning into page body -->
+    <div class="contact-hero-wave" aria-hidden="true">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,50 L1200,120 L0,120 Z"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- 3. FAQ PAGE MAIN BODY WITH SPLIT 2-COLUMN DESIGN -->
+<main class="faq-page-wrap" id="faqMainArea">
     <div class="fid-container">
 
-        <!-- Watermark Heading Section Matching Reference Design -->
-        <div class="faq-watermark-wrap">
-            <div class="faq-watermark-bg"><?= Security::e($t['watermark']) ?></div>
-            <div class="faq-hero-content">
-                <h1><?= Security::e($t['faq_title']) ?></h1>
-                <a href="#anyQuestionCard" class="faq-hero-lead"><?= Security::e($t['click_here_lead']) ?></a>
-            </div>
-        </div>
-
         <!-- 2-Column Split Layout -->
-        <div class="faq-main-grid">
+        <div class="faq-main-grid" style="margin-top:0;">
 
             <!-- Left Column: Sleek Accordion Cards -->
             <div>
