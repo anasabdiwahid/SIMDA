@@ -7,6 +7,7 @@ use App\Helpers\Security;
 use App\Middleware\AuthMiddleware;
 
 $locale = Lang::locale();
+$isSo = ($locale === 'so');
 $isLoggedIn = AuthMiddleware::check();
 $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
 
