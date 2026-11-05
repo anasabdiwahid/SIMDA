@@ -2854,6 +2854,59 @@ body.is-offline .offline-banner {
     color: #D6B66C !important;
 }
 
+/* ========================================================================== */
+/* LIGHT MODE: ORIGINAL LOGO (ASAL AH) & WHITE HEADER                         */
+/* ========================================================================== */
+[data-theme="light"] .fid-logo-link img,
+html:not([data-theme="dark"]) .fid-logo-link img {
+    filter: none !important;
+    transition: filter 0.25s ease;
+}
+
+[data-theme="light"] .fid-logo-tagline-stacked span:first-child,
+html:not([data-theme="dark"]) .fid-logo-tagline-stacked span:first-child {
+    color: #123B32 !important;
+}
+
+[data-theme="light"] .fid-logo-tagline-stacked span:last-child,
+html:not([data-theme="dark"]) .fid-logo-tagline-stacked span:last-child {
+    color: #C59B47 !important;
+}
+
+[data-theme="light"] .fid-page > header.fid-header,
+[data-theme="light"] .fid-header,
+html:not([data-theme="dark"]) .fid-header {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    border-bottom: 1px solid #EFECE6 !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .fid-nav-links a:not(.active),
+html:not([data-theme="dark"]) .fid-nav-links a:not(.active) {
+    color: #2B3B34 !important;
+}
+
+/* Dashboard Sidebar Logo Pill (Dark vs Light) */
+[data-theme="dark"] .sidebar .brand-logo-pill {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .sidebar .brand-logo-pill img.brand-logo-full {
+    filter: brightness(0) invert(1) !important;
+}
+
+[data-theme="light"] .sidebar .brand-logo-pill {
+    background: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-full {
+    filter: none !important;
+}
+
 /* Nav fonts in Dark Mode: High contrast readable white & gold */
 [data-theme="dark"] .fid-nav-links a {
     color: #E2ECE7;
