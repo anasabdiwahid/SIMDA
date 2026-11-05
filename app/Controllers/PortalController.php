@@ -197,12 +197,13 @@ final class PortalController
             $msgLower = mb_strtolower($message, 'UTF-8');
             $soMarkers = [
                 'xog', 'xogta', 'mesha', 'meesha', 'meeshan', 'meshan', 'wax', 'waxba', 'iga', 'sheeg', 'sheegtaan',
-                'iiga', 'ii', 'waran', 'warbixin', 'fahamsii', 'fahansi', 'halkan', 'halkee', 'shirkad', 'shirkadda',
+                'iiga', 'ii', 'isi', 'isii', 'sii', 'number', 'lambar', 'lambarka', 'whatsapp', 'whataap', 'whatsap',
+                'waran', 'warbixin', 'fahamsii', 'fahansi', 'halkan', 'halkee', 'shirkad', 'shirkadda',
                 'hay\'ad', 'hay\'adda', 'qabataan', 'qabataa', 'socda', 'socoto', 'rabay', 'rabaa', 'rabnaa', 'doonayaa',
                 'donaya', 'fadlan', 'walaal', 'abaayo', 'abowe', 'sxb', 'soo', 'dhowow', 'wcs', 'calaykum', 'alaykum',
                 'waa', 'maxay', 'sidee', 'sideed', 'ma ', 'leedihiin', 'jiraa', 'jirtaa', 'ribo', 'ribada', 'dulsaar',
                 'keyd', 'kayd', 'lacag', 'codsi', 'codsadaa', 'mashiin', 'kiosk', 'baqaar', 'dhul', 'dhismaha', 'jimco',
-                'sabti', 'ganaax', 'sadaqo', 'dammaanad', 'garab', 'wadaag', 'koox', 'xafiis', 'xagee', 'lambarka',
+                'sabti', 'ganaax', 'sadaqo', 'dammaanad', 'garab', 'wadaag', 'koox', 'xafiis', 'xagee',
                 'asc', 'nabad', 'mahadsanid', 'subax', 'galab', 'haye', 'haa', 'maya'
             ];
             $enMarkers = [
@@ -234,9 +235,54 @@ final class PortalController
         $reply = '';
         $topic = 'general';
         $suggestions = [];
+        $actionBtn = null;
 
-        // 1. Overview / "Xogta meesha wax iga sheeg" / "Tell me about this place / SIMDA"
+        // 1. WhatsApp & Direct Messenger Intent
         if (
+            preg_match('/(whatsapp|whataap|whatsap|watshap|watsap|واتساب|واتس|wa\.me)/iu', $message) ||
+            preg_match('/(number.*whatsapp|whatsapp.*number|lambarka.*whatsapp|whatsapp.*isi|whatsapp.*sii)/iu', $message)
+        ) {
+            $topic = 'whatsapp';
+            $waUrl = 'https://wa.me/252616256534?text=' . rawurlencode(
+                $lang === 'ar' ? 'مرحباً سيمدا، أرغب في الاستفسار عن التمويل الإسلامي' :
+                ($lang === 'en' ? 'Hello SIMDA, I would like to inquire about Islamic microfinance' :
+                'Asc SIMDA, waxaan rabaa in aan wax ka ogaado maalgelinta xalaasha ah')
+            );
+
+            if ($lang === 'ar') {
+                $reply = "نعم بكل سرور! يمكنك التحدث معنا والتواصل الفوري مع مسؤولي سيمدا عبر واتساب على الرقم:\n\n"
+                    . "+252 61 6256534\n\n"
+                    . "انقر على زر الواتساب الأخضر أدناه لبدء المحادثة المباشرة فوراً:";
+                $actionBtn = [
+                    'type' => 'whatsapp',
+                    'label' => 'تواصل عبر واتساب (+252 61 6256534)',
+                    'url' => $waUrl
+                ];
+                $suggestions = ['أخبرني عن هذا المكان', 'كيف أتقدم بطلب تمويل؟', 'هل التمويل 0% ربا؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Yes, absolutely! You can chat directly with our SIMDA loan advisors on WhatsApp at:\n\n"
+                    . "+252 61 6256534\n\n"
+                    . "Click the green button below to open WhatsApp chat instantly:";
+                $actionBtn = [
+                    'type' => 'whatsapp',
+                    'label' => 'Chat on WhatsApp (+252 61 6256534)',
+                    'url' => $waUrl
+                ];
+                $suggestions = ['Tell me about this place', 'How can I apply?', 'Is it 0% Riba?'];
+            } else {
+                $reply = "Haa, diyaar ayaan kuu nahay! Waxaad toos ula xiriiri kartaa mas'uuliyiinta SIMDA adoo adeegsanaya WhatsApp:\n\n"
+                    . "+252 61 6256534\n\n"
+                    . "Guji batoonka cagaaran ee hoose si uu WhatsApp toos kuugu furo:";
+                $actionBtn = [
+                    'type' => 'whatsapp',
+                    'label' => 'La Hadal WhatsApp (+252 61 6256534)',
+                    'url' => $waUrl
+                ];
+                $suggestions = ['Xogta meesha wax iga sheeg', 'Sideen u codsadaa?', '0% Ribo ma dhabbaa?'];
+            }
+        }
+        // 2. Overview / "Xogta meesha wax iga sheeg" / "Tell me about this place / SIMDA"
+        elseif (
             preg_match('/(xog|xogta|waran|meesha|mesha|meeshan|meshan|halkan|waxa socda|shirkaddan|hay\'addan|maxaad qabataan|maxaa la qabtaa|wax iga sheeg|iiga waran|i fahamsii|about this place|tell me about|what is this place|overview|what does simda do|عن هذا المكان|أخبرني عن|ما هي هذه المؤسسة|ماذا تفعلون|نبذة)/iu', $message)
         ) {
             $topic = 'overview';
@@ -522,7 +568,8 @@ final class PortalController
             'reply' => $reply,
             'language' => $lang,
             'topic' => $topic,
-            'suggestions' => $suggestions
+            'suggestions' => $suggestions,
+            'action_btn' => $actionBtn
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }

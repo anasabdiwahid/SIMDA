@@ -503,6 +503,54 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             border-color: #E11D48;
             background: rgba(225, 29, 72, 0.05);
         }
+        .faq-chat-header-wa-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #25D366;
+            color: #FFFFFF !important;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 999px;
+            text-decoration: none !important;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 6px rgba(37, 211, 102, 0.25);
+            flex-shrink: 0;
+        }
+        .faq-chat-header-wa-btn:hover {
+            background: #1EBE5D;
+            transform: translateY(-1px);
+            color: #FFFFFF !important;
+        }
+        .faq-chat-wa-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: #25D366;
+            color: #FFFFFF !important;
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: 999px;
+            text-decoration: none !important;
+            margin-top: 8px;
+            box-shadow: 0 3px 10px rgba(37, 211, 102, 0.35);
+            transition: all 0.15s ease;
+            width: fit-content;
+        }
+        .faq-chat-wa-btn:hover {
+            background: #1EBE5D;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(37, 211, 102, 0.45);
+            color: #FFFFFF !important;
+        }
+        .faq-chat-wa-btn svg {
+            width: 15px;
+            height: 15px;
+            fill: #FFFFFF;
+        }
 
         /* Messages stream */
         .faq-chat-stream {
@@ -891,9 +939,17 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                             </div>
                             <div class="faq-chat-sub"><?= Security::e($t['any_q_desc']) ?></div>
                         </div>
-                        <button type="button" class="faq-chat-clear-btn" onclick="resetFaqChat()" title="<?= Security::e($t['chat_clear_title']) ?>" aria-label="Reset Chat">
-                            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
-                        </button>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <a href="https://wa.me/252616256534?text=Asc%20SIMDA%2C%20waxaan%20rabaa%20in%20aan%20wax%20ka%20ogaado%20maalgelinta%20xalaasha%20ah" target="_blank" rel="noopener noreferrer" class="faq-chat-header-wa-btn" title="Chat on WhatsApp" aria-label="WhatsApp">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                                    <path d="M12.031 2C6.5 2 2 6.5 2 12.031c0 1.906.531 3.703 1.516 5.25L2.125 22l4.875-1.344A9.957 9.957 0 0 0 12.031 22c5.531 0 10.031-4.5 10.031-10.031C22.062 6.5 17.562 2 12.031 2zm0 18.25c-1.64 0-3.187-.453-4.515-1.25l-.328-.188-3.047.844.828-2.953-.203-.344A8.136 8.136 0 0 1 3.781 12c0-4.547 3.703-8.25 8.25-8.25s8.25 3.703 8.25 8.25-3.703 8.25-8.25 8.25zm4.563-6.172c-.25-.125-1.469-.734-1.688-.812-.234-.094-.406-.14-.578.125-.172.266-.672.812-.828.984-.156.172-.312.188-.562.062-.25-.125-1.062-.39-2.031-1.25-.75-.672-1.266-1.5-1.406-1.75-.156-.25-.016-.39.109-.516.109-.109.25-.281.375-.422.125-.14.172-.25.25-.406.078-.172.047-.328-.016-.453-.062-.125-.578-1.406-.797-1.922-.219-.516-.438-.438-.609-.438h-.516c-.172 0-.453.062-.688.328-.234.25-.906.89-.906 2.156s.922 2.5 1.047 2.672c.14.172 1.813 2.766 4.391 3.875.609.266 1.094.422 1.469.547.625.188 1.188.172 1.64.094.5-.078 1.469-.609 1.688-1.203.203-.594.203-1.094.14-1.203-.062-.109-.234-.172-.484-.297z"/>
+                                </svg>
+                                <span>WhatsApp</span>
+                            </a>
+                            <button type="button" class="faq-chat-clear-btn" onclick="resetFaqChat()" title="<?= Security::e($t['chat_clear_title']) ?>" aria-label="Reset Chat">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Messages Scroll Stream -->
@@ -909,6 +965,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                             <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_2']) ?></button>
                             <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_3']) ?></button>
                             <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_4']) ?></button>
+                            <button type="button" class="faq-chat-chip" onclick="askChip(this)" style="background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.4);color:#107C3A;">💬 WhatsApp Number</button>
                         </div>
                     </div>
 
@@ -1206,7 +1263,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         }
     }
 
-    function appendChatMsg(sender, text) {
+    function appendChatMsg(sender, text, actionBtn) {
         var stream = document.getElementById('faqChatStream');
         if (!stream) return;
 
@@ -1216,6 +1273,19 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         var bubble = document.createElement('div');
         bubble.className = 'faq-chat-bubble';
         bubble.textContent = text;
+
+        if (actionBtn && actionBtn.url) {
+            var btnWrap = document.createElement('div');
+            btnWrap.style.marginTop = '8px';
+            var a = document.createElement('a');
+            a.className = 'faq-chat-wa-btn';
+            a.href = actionBtn.url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12.031 2C6.5 2 2 6.5 2 12.031c0 1.906.531 3.703 1.516 5.25L2.125 22l4.875-1.344A9.957 9.957 0 0 0 12.031 22c5.531 0 10.031-4.5 10.031-10.031C22.062 6.5 17.562 2 12.031 2zm0 18.25c-1.64 0-3.187-.453-4.515-1.25l-.328-.188-3.047.844.828-2.953-.203-.344A8.136 8.136 0 0 1 3.781 12c0-4.547 3.703-8.25 8.25-8.25s8.25 3.703 8.25 8.25-3.703 8.25-8.25 8.25zm4.563-6.172c-.25-.125-1.469-.734-1.688-.812-.234-.094-.406-.14-.578.125-.172.266-.672.812-.828.984-.156.172-.312.188-.562.062-.25-.125-1.062-.39-2.031-1.25-.75-.672-1.266-1.5-1.406-1.75-.156-.25-.016-.39.109-.516.109-.109.25-.281.375-.422.125-.14.172-.25.25-.406.078-.172.047-.328-.016-.453-.062-.125-.578-1.406-.797-1.922-.219-.516-.438-.438-.609-.438h-.516c-.172 0-.453.062-.688.328-.234.25-.906.89-.906 2.156s.922 2.5 1.047 2.672c.14.172 1.813 2.766 4.391 3.875.609.266 1.094.422 1.469.547.625.188 1.188.172 1.64.094.5-.078 1.469-.609 1.688-1.203.203-.594.203-1.094.14-1.203-.062-.109-.234-.172-.484-.297z"/></svg><span>' + (actionBtn.label || 'WhatsApp') + '</span>';
+            btnWrap.appendChild(a);
+            bubble.appendChild(btnWrap);
+        }
 
         var timeSpan = document.createElement('span');
         timeSpan.className = 'faq-chat-time';
@@ -1296,6 +1366,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_2'])) ?></button>' +
                 '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_3'])) ?></button>' +
                 '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_4'])) ?></button>' +
+                '<button type="button" class="faq-chat-chip" onclick="askChip(this)" style="background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.4);color:#107C3A;">💬 WhatsApp Number</button>' +
             '</div>';
         
         var input = document.getElementById('faqChatInput');
@@ -1341,7 +1412,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             if (sendBtn) sendBtn.disabled = false;
 
             if (data && data.reply) {
-                appendChatMsg('bot', data.reply);
+                appendChatMsg('bot', data.reply, data.action_btn);
                 if (data.suggestions) {
                     updateSuggestionChips(data.suggestions);
                 }
@@ -1356,15 +1427,23 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
             // Intelligent Offline / Network Fallback
             var fallback = '';
+            var waAction = null;
             var lower = message.toLowerCase();
-            if (/[\u0600-\u06FF]/.test(message)) {
+            if (/whatsapp|whataap|whatsap/i.test(message)) {
+                fallback = "Haa! Waxaad toos noogala soo xiriiri kartaa WhatsApp (+252 61 6256534). Guji batoonka hoose:";
+                waAction = {
+                    type: 'whatsapp',
+                    label: 'La Hadal WhatsApp (+252 61 6256534)',
+                    url: 'https://wa.me/252616256534?text=Asc%20SIMDA'
+                };
+            } else if (/[\u0600-\u06FF]/.test(message)) {
                 fallback = "نعم! في سيمدا نعمل بنسبة 0% ربا تماماً، ونقدم تمويل المرابحة الإسلامي للأصول والأعمال الصغيرة. يمكنك أيضاً التواصل معنا هاتفياً: 6256534 61 252+ أو زيارة فرعنا بمقديشو.";
             } else if (/riba|interest|loan|apply|savings|murabaha|where|office|contact/i.test(lower)) {
                 fallback = "SIMDA operates strictly on 0% Riba through Murabaha financing for productive assets and kiosks (no savings accounts). Visit KM4 Mogadishu or call +252 61 6256534!";
             } else {
                 fallback = "SIMDA waxay u taagan tahay 100% ribo la'aan (0% Riba) iyo maalgelinta xalaasha ah ee ganacsiyada yaryar. Waxaan ku shaqeynaa nidaamka Murabaha. Xafiiskeennu waa KM4, Muqdisho (Tel: +252 61 6256534).";
             }
-            appendChatMsg('bot', fallback);
+            appendChatMsg('bot', fallback, waAction);
         });
     }
 
