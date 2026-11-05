@@ -89,7 +89,7 @@ html {
     scroll-behavior: smooth;
     font-size: 15px;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 body {
@@ -100,7 +100,7 @@ body {
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.2s ease, color 0.2s ease;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     background-image:
         radial-gradient(circle at 90% 5%, rgba(214, 182, 108, 0.07) 0%, transparent 35%),
         radial-gradient(circle at 8% 88%, rgba(18, 59, 50, 0.05) 0%, transparent 40%);
@@ -1914,12 +1914,12 @@ table th.amount {
 
 /* 8. Scenic Silhouette Skyline & Money Illustration Footer (Footway Reference Style) */
 .fid-page {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
 }
 
 html:has(body.fid-page) {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .fid-footer-wrap {
@@ -2656,7 +2656,7 @@ body.is-offline .offline-banner {
    ============================================================================ */
 .fid-page {
     position: relative;
-    overflow-x: hidden;
+    overflow-x: clip;
     background-color: #FAF8F5;
 }
 
@@ -2704,6 +2704,10 @@ body.is-offline .offline-banner {
     position: sticky !important;
     top: 0 !important;
     z-index: 9999 !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05) !important;
 }
 
 .fid-money-floater.drift-horiz {
