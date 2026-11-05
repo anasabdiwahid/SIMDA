@@ -2187,6 +2187,109 @@ html:has(body.fid-page) {
     flex-wrap: wrap;
 }
 
+.fid-footer-brand-col {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+[dir="rtl"] .fid-footer-brand-col {
+    justify-content: flex-start;
+}
+
+.fid-footer-logo-link {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-decoration: none;
+    line-height: 1;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+[dir="rtl"] .fid-footer-logo-link {
+    align-items: flex-start;
+}
+
+.fid-footer-logo-link:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+}
+
+.fid-footer-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.fid-footer-logo-img {
+    height: 34px;
+    width: auto;
+    display: block;
+    transition: filter 0.25s ease;
+}
+
+.fid-footer-logo-tagline {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    margin-top: 4px;
+    font-size: 0.48rem;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    line-height: 1.15;
+    white-space: nowrap;
+    transition: color 0.25s ease;
+}
+
+[dir="rtl"] .fid-footer-logo-tagline {
+    align-items: flex-start;
+}
+
+/* 1. LIGHT MODE: Original Logo with white/clean capsule on dark footer */
+[data-theme="light"] .fid-footer-logo-badge,
+html:not([data-theme="dark"]) .fid-footer-logo-badge {
+    background-color: #FFFFFF;
+    padding: 6px 14px;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .fid-footer-logo-img,
+html:not([data-theme="dark"]) .fid-footer-logo-img {
+    filter: none !important;
+}
+
+[data-theme="light"] .fid-footer-logo-tagline span,
+html:not([data-theme="dark"]) .fid-footer-logo-tagline span {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="light"] .fid-footer-logo-tagline span:last-child,
+html:not([data-theme="dark"]) .fid-footer-logo-tagline span:last-child {
+    color: #D6B66C !important;
+}
+
+/* 2. DARK MODE: Pure White Logo with NO background box */
+[data-theme="dark"] .fid-footer-logo-badge {
+    background-color: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .fid-footer-logo-img {
+    filter: brightness(0) invert(1) !important;
+}
+
+[data-theme="dark"] .fid-footer-logo-tagline span {
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .fid-footer-logo-tagline span:last-child {
+    color: #D6B66C !important;
+}
+
 .fid-pay-pill {
     display: inline-flex;
     align-items: center;
@@ -2207,8 +2310,13 @@ html:has(body.fid-page) {
         text-align: center;
     }
     .fid-trust-badges,
-    .fid-payment-logos {
+    .fid-payment-logos,
+    .fid-footer-brand-col {
         justify-content: center;
+    }
+    .fid-footer-logo-link,
+    .fid-footer-logo-tagline {
+        align-items: center !important;
     }
 }
 

@@ -809,7 +809,18 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <div style="font-size:0.74rem;color:rgba(244,245,240,0.68);">&copy; <?= date('Y') ?> <?= Security::e($t['footer_rights'] ?? 'SIMDA Microfinance. All rights reserved.') ?></div>
                     <div style="font-size:0.78rem;color:rgba(244,245,240,0.8);margin-top:4px;"><?= Security::e($t['footer_developed_by'] ?? 'Developed by') ?> <a href="https://anazabdiwahid.netlify.app/" target="_blank" rel="noopener noreferrer" style="color:#D6B66C;font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(214,182,108,0.6);" onmouseover="this.style.color='#E4C782'" onmouseout="this.style.color='#D6B66C'">Anas Abdiwahid</a></div>
                 </div>
-                <div></div>
+                <!-- Right: SIMDA Brand Logo -->
+                <div class="fid-footer-brand-col">
+                    <a href="?route=home" class="fid-footer-logo-link" title="SIMDA — Somali Islamic Microfinance Development Association">
+                        <div class="fid-footer-logo-badge">
+                            <img src="assets/images/simda-logo.png" alt="SIMDA Microfinance" class="fid-footer-logo-img">
+                        </div>
+                        <span class="fid-footer-logo-tagline">
+                            <span>SOMALI ISLAMIC MICROFINANCE</span>
+                            <span>DEVELOPMENT ASSOCIATION</span>
+                        </span>
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
