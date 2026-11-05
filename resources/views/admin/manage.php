@@ -164,63 +164,168 @@ $curRole = $curUser['role_slug'] ?? 'admin';
 
         <!-- CREATE STAFF USER FORM -->
         <?php if (!empty($roles)): ?>
-            <form method="POST" action="?route=user_create" style="background:var(--bg-elevated);padding:18px;border-radius:12px;margin:14px 0 22px;border:1px solid var(--border-color);">
+            <form method="POST" action="?route=user_create" id="createUserForm" style="background:var(--bg-elevated);padding:20px;border-radius:14px;margin:14px 0 24px;border:1px solid var(--border-color);box-shadow:0 4px 14px rgba(0,0,0,0.03);">
                 <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                    <span class="fid-contact-dot" style="background:var(--simda-green);color:#FFFFFF;width:24px;height:24px;"><?= Icons::svg('user-plus', 14) ?></span>
-                    <h4 style="font-size:1rem;font-weight:800;margin:0;color:var(--text-main);"><?= $isSo ? 'Diiwaangeli Isticmaale / Shaqaale Cusub' : 'Create Staff or User Account' ?></h4>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                    <span class="fid-contact-dot" style="background:var(--simda-green);color:#FFFFFF;width:26px;height:26px;"><?= Icons::svg('user-plus', 14) ?></span>
+                    <h4 style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);"><?= $isSo ? 'Diiwaangeli Isticmaale / Shaqaale Cusub' : 'Create Staff or User Account' ?></h4>
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label><?= $isSo ? 'Magaca Buuxa *' : 'Full Name *' ?></label>
-                        <input type="text" name="full_name" class="form-control" required placeholder="Axmed Maxamed Cali">
+                        <input type="text" name="full_name" id="userFullNameInput" class="form-control" required placeholder="Cali Cabdi Cali" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Username *' : 'Username *' ?></label>
-                        <input type="text" name="username" class="form-control" required placeholder="ahmed.ali">
+                        <input type="text" name="username" id="userUsernameInput" class="form-control" required placeholder="ali.abdi" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label><?= $isSo ? 'Email *' : 'Email Address *' ?></label>
-                        <input type="email" name="email" class="form-control" required placeholder="ahmed@simda.so">
+                        <label><?= $isSo ? 'Email-ka Shaqaalaha * (Halkan ayaa farriinta loogu diri doonaa)' : 'Email Address * (Credentials will be sent here)' ?></label>
+                        <input type="email" name="email" id="userEmailInput" class="form-control" required placeholder="ali@simda.so" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Telefoonka *' : 'Phone Number *' ?></label>
                         <input type="text" name="phone" class="form-control" required placeholder="+252 61 700 0000">
                     </div>
                     <div class="form-group">
-                        <label><?= $isSo ? 'Doorka / Role-ka * (Allowed Hierarchy)' : 'Assignable Role * (Allowed Hierarchy)' ?></label>
-                        <select name="role_id" class="form-control" required style="font-weight:700;">
+                        <label><?= $isSo ? 'Doorka Shaqada (Role) *' : 'Assignable Role *' ?></label>
+                        <select name="role_id" id="userRoleSelect" class="form-control" required style="font-weight:700;">
                             <?php foreach ($roles as $r): ?>
-                                <option value="<?= (int) $r['id'] ?>">
+                                <option value="<?= (int) $r['id'] ?>" data-slug="<?= Security::e($r['slug']) ?>">
                                     <?= Security::e($isSo ? $r['name_so'] : $r['name_en']) ?> (<?= Security::e($r['slug']) ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label><?= $isSo ? 'Qoondaynta Laanta (Branch Assignment) *' : 'Branch Assignment *' ?></label>
+                    <div class="form-group" id="userBranchFormGroup">
+                        <label id="userBranchLabel"><?= $isSo ? 'Qoondaynta Laanta * (Branch Assignment)' : 'Branch Assignment *' ?></label>
                         <?php if ($curRole === 'branch_manager'): ?>
                             <!-- Branch manager is locked to their own branch -->
                             <input type="hidden" name="branch_id" value="<?= (int) ($curUser['branch_id'] ?? 0) ?>">
                             <input type="text" class="form-control" value="<?= Security::e($curUser['branch_name'] ?? 'Your Assigned Branch') ?> (Locked to your branch)" readonly style="background:var(--bg-surface);color:var(--text-muted);font-weight:700;">
                         <?php else: ?>
-                            <select name="branch_id" class="form-control" style="font-weight:600;">
-                                <option value="">-- <?= $isSo ? 'Xarunta Guud / Dhammaan Laamaha (Head Office)' : 'Head Office (All Branches)' ?> --</option>
+                            <select name="branch_id" id="userBranchSelect" class="form-control" style="font-weight:600;">
+                                <option value="" id="userBranchEmptyOption">-- <?= $isSo ? 'Dooro Laanta Gaarka ah' : 'Select Branch' ?> --</option>
                                 <?php foreach ($branches as $b): ?>
                                     <option value="<?= (int) $b['id'] ?>"><?= Security::e($b['name']) ?> (<?= Security::e($b['code']) ?>)</option>
                                 <?php endforeach; ?>
                             </select>
+                            <div id="userBranchManagerNote" style="display:none;margin-top:6px;font-size:0.83rem;color:var(--gold-color);font-weight:700;background:rgba(214,182,108,0.1);padding:8px 12px;border-radius:8px;border:1px solid rgba(214,182,108,0.3);">
+                                <?= Icons::svg('check-circle', 14) ?> <?= $isSo ? 'Maamulaha Guud (Manager) wuxuu maamulaa dhammaan shirkadda (Dhammaan Laamaha / Company-Wide) looma qoondeeyo hal laan.' : 'General Operations Manager oversees the entire company across all branches.' ?>
+                            </div>
                         <?php endif; ?>
                     </div>
-                    <div class="form-group">
-                        <label><?= $isSo ? 'Furaha Sirta ah (Initial Password) *' : 'Initial Password *' ?></label>
-                        <input type="password" name="password" class="form-control" required value="Staff@123">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label><?= $isSo ? 'Furaha Sirta ah (Password) *' : 'Account Initial Password *' ?></label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" name="password" id="userPasswordInput" class="form-control" placeholder="<?= $isSo ? 'Si toos ah ayaa loo dhalinayaa (tusaale: ali8788@!)' : 'Auto-generated (e.g. ali8788@!)' ?>" style="font-family:monospace;font-weight:800;letter-spacing:1px;max-width:380px;">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnGenPassword" style="white-space:nowrap;font-weight:700;">
+                                <?= Icons::svg('refresh-cw', 14) ?> <?= $isSo ? 'Dhal Fure Cusub' : 'Regenerate' ?>
+                            </button>
+                        </div>
+                        <small style="display:block;margin-top:5px;font-size:0.8rem;color:var(--text-muted);">
+                            <?= $isSo
+                                ? '💡 <strong>Fiiro gaar ah:</strong> Qof kasta waxaa loo dhalinayaa fure sir ah oo u gaar ah (magaciisa koowaad + 4 god oo random ah + @! sida <code>ali8788@!</code>). Furahan iyo macluumaadka akoonkiisa waxaa si toos ah loogu diri doonaa email-ka shaqaalaha.'
+                                : '💡 <strong>Notice:</strong> Each user gets a unique generated password (e.g. <code>ali8788@!</code>) which will be automatically delivered to their registered email address along with login instructions.' ?>
+                        </small>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;margin-top:4px;">
-                    <?= Icons::svg('user-plus', 14) ?> <?= $isSo ? 'Abuur Isticmaalaha' : 'Create User Account' ?>
+                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;margin-top:6px;padding:8px 20px;">
+                    <?= Icons::svg('user-plus', 14) ?> <?= $isSo ? 'Diiwaangeli & U Dir Email-ka' : 'Create User & Send Welcome Email' ?>
                 </button>
             </form>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const roleSelect = document.getElementById('userRoleSelect');
+                const branchSelect = document.getElementById('userBranchSelect');
+                const branchNote = document.getElementById('userBranchManagerNote');
+                const branchLabel = document.getElementById('userBranchLabel');
+                const nameInput = document.getElementById('userFullNameInput');
+                const usernameInput = document.getElementById('userUsernameInput');
+                const pwdInput = document.getElementById('userPasswordInput');
+                const genBtn = document.getElementById('btnGenPassword');
+
+                function updateRoleBranchState() {
+                    if (!roleSelect) return;
+                    const opt = roleSelect.options[roleSelect.selectedIndex];
+                    const slug = opt ? opt.getAttribute('data-slug') : '';
+
+                    if (slug === 'manager') {
+                        if (branchSelect) {
+                            branchSelect.value = '';
+                            branchSelect.disabled = true;
+                            branchSelect.required = false;
+                            branchSelect.style.opacity = '0.55';
+                        }
+                        if (branchNote) branchNote.style.display = 'block';
+                        if (branchLabel) branchLabel.innerHTML = '<?= $isSo ? 'Maamulka Laamaha: Dhammaan Shirkadda (Company-Wide)' : 'Branch Management: Company-Wide (All Branches)' ?>';
+                    } else {
+                        if (branchSelect) {
+                            branchSelect.disabled = false;
+                            branchSelect.style.opacity = '1';
+                            if (slug === 'branch_manager' || slug === 'loan_officer') {
+                                branchSelect.required = true;
+                                if (branchLabel) branchLabel.innerHTML = '<?= $isSo ? 'Qoondaynta Laanta * (Waa Qasab in la doorto)' : 'Branch Assignment * (Required)' ?>';
+                            } else {
+                                branchSelect.required = false;
+                                if (branchLabel) branchLabel.innerHTML = '<?= $isSo ? 'Qoondaynta Laanta (Branch Assignment)' : 'Branch Assignment' ?>';
+                            }
+                        }
+                        if (branchNote) branchNote.style.display = 'none';
+                    }
+                }
+
+                function makeUniquePassword() {
+                    const raw = nameInput ? nameInput.value.trim() : '';
+                    const first = raw.split(/\s+/)[0] || 'simda';
+                    const clean = first.toLowerCase().replace(/[^a-z0-9]/g, '') || 'simda';
+                    const digits = Math.floor(1000 + Math.random() * 9000);
+                    return clean + digits + '@!';
+                }
+
+                if (genBtn && pwdInput) {
+                    genBtn.addEventListener('click', function () {
+                        pwdInput.value = makeUniquePassword();
+                    });
+                }
+
+                if (nameInput && pwdInput) {
+                    nameInput.addEventListener('input', function () {
+                        // Generate username suggestion if empty
+                        if (usernameInput && (!usernameInput.value || usernameInput.dataset.auto === 'true')) {
+                            const words = nameInput.value.trim().toLowerCase().split(/\s+/);
+                            if (words.length >= 2) {
+                                usernameInput.value = words[0].replace(/[^a-z0-9]/g, '') + '.' + words[1].replace(/[^a-z0-9]/g, '');
+                                usernameInput.dataset.auto = 'true';
+                            } else if (words.length === 1 && words[0]) {
+                                usernameInput.value = words[0].replace(/[^a-z0-9]/g, '');
+                                usernameInput.dataset.auto = 'true';
+                            }
+                        }
+                        // Generate password suggestion
+                        if (!pwdInput.value || pwdInput.dataset.auto === 'true') {
+                            pwdInput.value = makeUniquePassword();
+                            pwdInput.dataset.auto = 'true';
+                        }
+                    });
+                    pwdInput.addEventListener('input', function () {
+                        pwdInput.dataset.auto = 'false';
+                    });
+                }
+
+                if (usernameInput) {
+                    usernameInput.addEventListener('input', function () {
+                        usernameInput.dataset.auto = 'false';
+                    });
+                }
+
+                if (roleSelect) {
+                    roleSelect.addEventListener('change', updateRoleBranchState);
+                    updateRoleBranchState();
+                }
+            });
+            </script>
         <?php endif; ?>
 
         <!-- USERS TABLE -->
@@ -231,7 +336,7 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                         <th><?= $isSo ? 'Username' : 'Username' ?></th>
                         <th><?= $isSo ? 'Magaca Buuxa' : 'Full Name' ?></th>
                         <th><?= $isSo ? 'Doorka (Role)' : 'Role' ?></th>
-                        <th><?= $isSo ? 'Laanta (Branch)' : 'Branch Assignment' ?></th>
+                        <th><?= $isSo ? 'Laanta (Branch Assignment)' : 'Branch Assignment' ?></th>
                         <th><?= $isSo ? 'Email / Telefoon' : 'Contact' ?></th>
                         <th><?= $isSo ? 'Galitaankii Ugu Dambeeyay' : 'Last Login' ?></th>
                     </tr>
@@ -247,10 +352,14 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                                 </span>
                             </td>
                             <td>
-                                <?php if (!empty($u['branch_name'])): ?>
+                                <?php if ($u['role_slug'] === 'manager'): ?>
+                                    <span class="badge badge-gold" style="font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                                        ★ <?= $isSo ? 'Dhammaan Laamaha (All Branches)' : 'All Branches (Company-Wide)' ?>
+                                    </span>
+                                <?php elseif (!empty($u['branch_name'])): ?>
                                     <span style="font-weight:600;color:var(--simda-green);"><?= Security::e($u['branch_name']) ?></span>
                                 <?php else: ?>
-                                    <span class="badge badge-secondary"><?= $isSo ? 'Xarunta Dhexe (HQ)' : 'Head Office (All)' ?></span>
+                                    <span class="badge badge-secondary"><?= $isSo ? 'Xarunta Guud (HQ)' : 'Head Office' ?></span>
                                 <?php endif; ?>
                             </td>
                             <td><?= Security::e($u['email']) ?> • <span class="num-tabular"><?= Security::e($u['phone']) ?></span></td>

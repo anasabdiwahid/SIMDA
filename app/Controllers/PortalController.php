@@ -13,6 +13,7 @@ use App\Services\CharityChargeService;
 use App\Services\DashboardAnalyticsService;
 use App\Services\DisbursementService;
 use App\Services\FinancingDomainService;
+use App\Services\MailService;
 use App\Services\Par30Service;
 use App\Services\RepaymentEngine;
 use App\Services\ScheduleEngine;
@@ -1717,9 +1718,13 @@ final class PortalController
         $locale = Lang::locale();
 
         $targetRoleId = (int) ($_POST['role_id'] ?? 0);
-        $st = $pdo->prepare("SELECT slug FROM roles WHERE id = :id");
+        $st = $pdo->prepare("SELECT id, slug, name_en, name_so FROM roles WHERE id = :id");
         $st->execute([':id' => $targetRoleId]);
-        $targetRoleSlug = (string) $st->fetchColumn();
+        $targetRole = $st->fetch();
+        if (!$targetRole) {
+            throw new \RuntimeException($locale === 'so' ? 'Doorka la doortay lama helin.' : 'Selected role was not found.');
+        }
+        $targetRoleSlug = (string) ($targetRole['slug'] ?? '');
 
         // Strict Hierarchy Rule Enforcement:
         // Admin -> [manager, branch_manager, loan_officer, client] (cannot create admin)
@@ -1740,14 +1745,67 @@ final class PortalController
             );
         }
 
-        // Branch assignment logic
-        if ($creatorRole === 'branch_manager') {
+        $fullName = trim((string) ($_POST['full_name'] ?? ''));
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+
+        if ($fullName === '' || $username === '' || $email === '') {
+            throw new \RuntimeException(
+                $locale === 'so'
+                    ? 'Fadlan buuxi magaca buuxa, username-ka, iyo email-ka.'
+                    : 'Please provide full name, username, and email address.'
+            );
+        }
+
+        // Check if username or email already exists
+        $dupSt = $pdo->prepare("SELECT id FROM users WHERE username = :u OR email = :e LIMIT 1");
+        $dupSt->execute([':u' => $username, ':e' => $email]);
+        if ($dupSt->fetch()) {
+            throw new \RuntimeException(
+                $locale === 'so'
+                    ? 'Username-kaan ama Email-kaan horey ayaa looga diiwaangeliyay nidaamka. Fadlan dooro mid kale.'
+                    : 'This username or email address is already registered in the system.'
+            );
+        }
+
+        // Branch assignment logic:
+        // 1. Manager: NOT assigned to a specific branch (Manages company-wide / all branches).
+        // 2. Branch Manager & Employee (loan_officer): MUST be assigned to a specific branch!
+        $branchInfo = null;
+        if ($targetRoleSlug === 'manager') {
+            $branchId = null;
+        } elseif ($creatorRole === 'branch_manager') {
             $branchId = (int) ($user['branch_id'] ?? 0);
             if ($branchId <= 0) {
                 throw new \RuntimeException($locale === 'so' ? 'Akoonkaaga maamule kuma xirna laan gaar ah.' : 'Your branch manager account is not assigned to a valid branch.');
             }
+            $bSt = $pdo->prepare("SELECT id, code, name, city FROM branches WHERE id = :bid");
+            $bSt->execute([':bid' => $branchId]);
+            $branchInfo = $bSt->fetch() ?: null;
         } else {
-            $branchId = !empty($_POST['branch_id']) ? (int) $_POST['branch_id'] : null;
+            $rawBranchId = !empty($_POST['branch_id']) ? (int) $_POST['branch_id'] : 0;
+            if (in_array($targetRoleSlug, ['branch_manager', 'loan_officer'], true) && $rawBranchId <= 0) {
+                throw new \RuntimeException(
+                    $locale === 'so'
+                        ? 'Fadlan dooro laanta loo qoondeeyey isticmaalahan. Maamulaha Laanta (Header Branch) iyo Shaqaalaha waa inay laan gaar ah leeyihiin.'
+                        : 'Please select a specific branch for this user. Branch Managers and Staff must be assigned to a specific branch.'
+                );
+            }
+            $branchId = $rawBranchId > 0 ? $rawBranchId : null;
+            if ($branchId) {
+                $bSt = $pdo->prepare("SELECT id, code, name, city FROM branches WHERE id = :bid");
+                $bSt->execute([':bid' => $branchId]);
+                $branchInfo = $bSt->fetch() ?: null;
+            }
+        }
+
+        // Dynamic Default Password Generation (e.g. "ali8788@!"):
+        $inputPassword = trim((string) ($_POST['password'] ?? ''));
+        if ($inputPassword === '' || $inputPassword === 'Staff@123') {
+            $plainPassword = MailService::generateDefaultPassword($fullName);
+        } else {
+            $plainPassword = $inputPassword;
         }
 
         $stmt = $pdo->prepare('
@@ -1757,14 +1815,43 @@ final class PortalController
         $stmt->execute([
             ':rid' => $targetRoleId,
             ':bid' => $branchId,
-            ':name' => trim((string) ($_POST['full_name'] ?? '')),
-            ':uname' => trim((string) ($_POST['username'] ?? '')),
-            ':email' => trim((string) ($_POST['email'] ?? '')),
-            ':phone' => trim((string) ($_POST['phone'] ?? '')),
-            ':phash' => Security::hashPassword((string) ($_POST['password'] ?? 'Staff@123')),
+            ':name' => $fullName,
+            ':uname' => $username,
+            ':email' => $email,
+            ':phone' => $phone,
+            ':phash' => Security::hashPassword($plainPassword),
         ]);
-        AuditLogger::log('user.created', 'users', (int) $pdo->lastInsertId(), 'Created user ' . $_POST['username'] . ' (' . $targetRoleSlug . ')', [], (int) $user['id']);
-        $_SESSION['flash_success'] = $locale === 'so' ? 'Akoonka shaqaalaha cusub si guul leh ayaa loo abuuray.' : 'Staff user account created successfully.';
+        $newUserId = (int) $pdo->lastInsertId();
+
+        AuditLogger::log('user.created', 'users', $newUserId, 'Created user ' . $username . ' (' . $targetRoleSlug . ')', [], (int) $user['id']);
+
+        // Send Email notification with credentials, role, and branch details
+        $mailStatus = MailService::sendWelcomeUserEmail(
+            [
+                'id' => $newUserId,
+                'full_name' => $fullName,
+                'username' => $username,
+                'email' => $email,
+                'phone' => $phone,
+            ],
+            $plainPassword,
+            $branchInfo,
+            $targetRole,
+            $locale
+        );
+
+        if ($mailStatus['success']) {
+            AuditLogger::log('mail.welcome_sent', 'users', $newUserId, 'Welcome credentials email sent to ' . $email, [], (int) $user['id']);
+            $_SESSION['flash_success'] = $locale === 'so'
+                ? "Akoonka ({$fullName}) si guul leh ayaa loo diiwaangeliyay! Furaha sirta ah ee loo dhalay waa ({$plainPassword}), waxaana email faahfaahsan loogu diray: {$email}."
+                : "User account for {$fullName} created successfully! Generated password is ({$plainPassword}), and welcome details were emailed to {$email}.";
+        } else {
+            AuditLogger::log('mail.welcome_failed', 'users', $newUserId, 'Failed sending email to ' . $email . ': ' . ($mailStatus['error'] ?? 'Unknown'), [], (int) $user['id']);
+            $_SESSION['flash_warning'] = $locale === 'so'
+                ? "Akoonka ({$fullName}) waa la abuuray (Furaha sirta ah: {$plainPassword}), laakiin email-ka lama diri karin: " . ($mailStatus['error'] ?? '')
+                : "User account created (Password: {$plainPassword}), but email notification failed: " . ($mailStatus['error'] ?? '');
+        }
+
         header('Location: ?route=users');
         exit;
     }
