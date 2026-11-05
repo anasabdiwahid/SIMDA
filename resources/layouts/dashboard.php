@@ -66,12 +66,20 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <span class="sidebar-text"><?= Security::e(Lang::get('menu_dashboard')) ?></span>
             </a>
 
+            <?php if ($role === 'admin'): ?>
+                <!-- USERS (Directly in main group as requested) -->
+                <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
+                    <?= Icons::svg('user-check', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Users & Shaqaalaha' : 'Users & Staff' ?></span>
+                </a>
+            <?php endif; ?>
+
             <?php if (in_array($role, ['admin', 'branch_manager', 'loan_officer'], true)): ?>
                 <!-- CLIENT MANAGEMENT -->
-                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_clients')) ?></div>
+                <div class="sidebar-group-label"><?= $locale === 'so' ? 'MACAAMIISHA' : 'CLIENTS' ?></div>
                 <a href="?route=clients" class="sidebar-link <?= in_array($currentRoute, ['clients', 'client_view'], true) ? 'active' : '' ?>">
                     <?= Icons::svg('users', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_all_clients')) ?></span>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'All Clients (Macaamiisha)' : 'All Clients' ?></span>
                 </a>
                 <?php if (in_array($role, ['admin', 'loan_officer'], true)): ?>
                 <a href="?route=client_register" class="sidebar-link <?= $currentRoute === 'client_register' ? 'active' : '' ?>">
@@ -83,11 +91,56 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <?= Icons::svg('shield', 18) ?>
                     <span class="sidebar-text"><?= Security::e(Lang::get('menu_guarantors')) ?></span>
                 </a>
-                <a href="?route=groups" class="sidebar-link <?= $currentRoute === 'groups' ? 'active' : '' ?>">
-                    <?= Icons::svg('group', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_client_groups')) ?></span>
-                </a>
             <?php endif; ?>
+
+            <!-- DAYMAHA (LOANS / QARD HASSAN — Requested Sections) -->
+            <div class="sidebar-group-label"><?= $locale === 'so' ? 'DAYMAHA (LOANS)' : 'CASH LOANS' ?></div>
+            <a href="?route=loans&filter=active" class="sidebar-link <?= ($currentRoute === 'loans' && (($_GET['filter'] ?? '') === 'active' || empty($_GET['filter']))) ? 'active' : '' ?>">
+                <?= Icons::svg('activity', 18) ?>
+                <span class="sidebar-text"><?= $locale === 'so' ? 'Dadka Deynta Qaatay' : 'Active Borrowers' ?></span>
+            </a>
+            <a href="?route=loans&filter=settled_ontime" class="sidebar-link <?= ($currentRoute === 'loans' && ($_GET['filter'] ?? '') === 'settled_ontime') ? 'active' : '' ?>">
+                <?= Icons::svg('check-circle', 18) ?>
+                <span class="sidebar-text"><?= $locale === 'so' ? 'Deynta Iska Bixiyay (Waqtiga)' : 'Settled On-Time' ?></span>
+            </a>
+            <a href="?route=loans&filter=settled_late" class="sidebar-link <?= ($currentRoute === 'loans' && ($_GET['filter'] ?? '') === 'settled_late') ? 'active' : '' ?>">
+                <?= Icons::svg('clock', 18) ?>
+                <span class="sidebar-text"><?= $locale === 'so' ? 'Deynta Bixiyay (Dib u Dhacay)' : 'Settled Late' ?></span>
+            </a>
+
+            <!-- MURABAXO (MURABAHA ASSET FINANCING — Accordion Submenu) -->
+            <div class="sidebar-group-label"><?= $locale === 'so' ? 'MURABAXO (ASSET FINANCING)' : 'MURABAHA' ?></div>
+            <div class="sidebar-dropdown-wrap">
+                <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>" style="justify-content:space-between;">
+                    <span style="display:flex;align-items:center;gap:12px;">
+                        <?= Icons::svg('shopping-bag', 18) ?>
+                        <span class="sidebar-text"><?= $locale === 'so' ? 'Heshiiska Murabaxada' : 'Murabaha Financing' ?></span>
+                    </span>
+                    <span style="display:inline-flex;padding:2px;opacity:0.75;" onclick="event.preventDefault(); event.stopPropagation(); const sm = document.getElementById('murabahaSubMenu'); if(sm){ sm.style.display = sm.style.display === 'none' ? 'flex' : 'none'; }">
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="1 1 5 5 9 1"></polyline>
+                        </svg>
+                    </span>
+                </a>
+                <div class="sidebar-submenu" id="murabahaSubMenu" style="display:<?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'flex' : 'flex' ?>;">
+                    <a href="?route=murabaha_new" class="sidebar-sublink <?= $currentRoute === 'murabaha_new' ? 'active' : '' ?>">
+                        <?= Icons::svg('plus', 13) ?>
+                        <span><?= $locale === 'so' ? 'Qof Cusub u Diwaangeli' : 'New Murabaha Application' ?></span>
+                    </a>
+                    <a href="?route=murabaha&filter=all" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && (($_GET['filter'] ?? '') === 'all' || empty($_GET['filter']))) ? 'active' : '' ?>">
+                        <?= Icons::svg('layers', 13) ?>
+                        <span><?= $locale === 'so' ? 'Dadka Murabaxada Qaatay' : 'All Murabaha Contracts' ?></span>
+                    </a>
+                    <a href="?route=murabaha&filter=settled" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'settled') ? 'active' : '' ?>">
+                        <?= Icons::svg('check-circle', 13) ?>
+                        <span><?= $locale === 'so' ? 'Inta Qaadatay & Soo Celisay' : 'Settled Murabaha' ?></span>
+                    </a>
+                    <a href="?route=murabaha&filter=unpaid" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'unpaid') ? 'active' : '' ?>">
+                        <?= Icons::svg('alert-triangle', 13) ?>
+                        <span><?= $locale === 'so' ? 'Inta Aan Weli Soo Celin' : 'Unpaid / Active' ?></span>
+                    </a>
+                </div>
+            </div>
 
             <!-- FINANCING -->
             <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_financing')) ?></div>

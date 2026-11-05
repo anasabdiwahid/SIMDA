@@ -2252,6 +2252,49 @@ html:has(body.fid-page) {
     border-left: 3px solid var(--simda-gold);
 }
 
+/* Sidebar Mini Accordion / Submenu */
+.sidebar-submenu {
+    padding-left: 28px;
+    margin: 4px 0 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+[dir="rtl"] .sidebar-submenu {
+    padding-left: 0;
+    padding-right: 28px;
+}
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    color: rgba(244, 245, 240, 0.74);
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background 0.15s ease, color 0.15s ease;
+    text-decoration: none;
+}
+.sidebar-sublink:hover, .sidebar-sublink.active {
+    background: rgba(214, 182, 108, 0.18);
+    color: var(--simda-gold);
+    font-weight: 700;
+}
+.sidebar-sublink svg {
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+.sidebar-sublink.active svg {
+    opacity: 1;
+}
+.sidebar-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .sidebar-footer {
     padding: 12px 14px;
     border-top: 1px solid rgba(255, 255, 255, 0.09);

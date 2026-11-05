@@ -65,6 +65,9 @@ final class PortalController
 
                 'disbursements' => self::disbursementsList($pdo),
                 'disburse_submit' => self::disburseSubmit($pdo),
+                'loans' => self::loansView($pdo),
+                'murabaha' => self::murabahaView($pdo),
+                'murabaha_new' => self::murabahaNew($pdo),
                 'financings', 'schedules', 'statements' => self::financingsList($pdo, $route),
                 'financing_view' => self::financingView($pdo),
                 'statement_pdf' => self::statementPdf($pdo),
@@ -682,7 +685,20 @@ final class PortalController
     private static function dashboard(PDO $pdo): void
     {
         $user = AuthMiddleware::requireAuth();
-        $metrics = DashboardAnalyticsService::getOverviewMetrics($user, $pdo);
+
+        $filterPeriod = (string) ($_GET['filter_period'] ?? 'all');
+        $filterYear = (string) ($_GET['filter_year'] ?? date('Y'));
+        $filterMonth = (string) ($_GET['filter_month'] ?? date('Y-m'));
+        $filterDate = (string) ($_GET['filter_date'] ?? date('Y-m-d'));
+
+        $dateFilter = [
+            'period' => in_array($filterPeriod, ['all', 'year', 'month', 'day'], true) ? $filterPeriod : 'all',
+            'year' => $filterYear,
+            'month' => $filterMonth,
+            'day' => $filterDate,
+        ];
+
+        $metrics = DashboardAnalyticsService::getOverviewMetrics($user, $pdo, $dateFilter);
 
         [$finScope, $finParams] = self::scopeSql($user, 'f');
         $st = $pdo->prepare("
@@ -713,6 +729,7 @@ final class PortalController
             'metrics' => $metrics,
             'recentFinancings' => $recentFinancings,
             'recentRepayments' => $recentRepayments,
+            'dateFilter' => $dateFilter,
         ]);
     }
 
@@ -1203,6 +1220,117 @@ final class PortalController
         $res = DisbursementService::disburse($appId, (int) $user['id'], $provider, $phone, null, $pdo);
         $_SESSION['flash_success'] = "Disbursed {$res['financing_number']} via {$res['provider']} (Ref: {$res['disbursement_reference']}). Net Disbursed: \${$res['net_disbursed_amount']}.";
         header('Location: ?route=financing_view&id=' . $res['financing_id']);
+        exit;
+    }
+
+    private static function loansView(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireAuth();
+        [$scopeSql, $params] = self::scopeSql($user, 'f');
+        $filter = (string) ($_GET['filter'] ?? 'active');
+
+        // Total Counts & financial aggregates for badge indicators
+        $countsStmt = $pdo->prepare("
+            SELECT
+                COUNT(*) AS count_all,
+                COUNT(CASE WHEN f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 THEN 1 END) AS count_active,
+                COUNT(CASE WHEN f.status = 'completed' AND (f.closed_at <= f.maturity_date OR f.closed_at IS NULL) AND NOT EXISTS (SELECT 1 FROM installments i_l WHERE i_l.financing_id = f.id AND i_l.paid_at > i_l.due_date) THEN 1 END) AS count_settled_ontime,
+                COUNT(CASE WHEN f.status = 'completed' AND ((f.closed_at > f.maturity_date) OR EXISTS (SELECT 1 FROM installments i_l WHERE i_l.financing_id = f.id AND i_l.paid_at > i_l.due_date) OR EXISTS (SELECT 1 FROM charity_charges cc WHERE cc.financing_id = f.id)) THEN 1 END) AS count_settled_late,
+                COALESCE(SUM(f.approved_amount), 0.00) AS sum_principal,
+                COALESCE(SUM(f.total_paid), 0.00) AS sum_paid,
+                COALESCE(SUM(CASE WHEN f.status IN ('active', 'overdue') THEN f.outstanding_balance ELSE 0 END), 0.00) AS sum_outstanding
+            FROM financings f
+            WHERE f.product_type IN ('flat', 'declining_balance') {$scopeSql}
+        ");
+        $countsStmt->execute($params);
+        $summary = $countsStmt->fetch() ?: [];
+
+        $whereFilter = match ($filter) {
+            'settled_ontime' => " AND f.status = 'completed' AND (f.closed_at <= f.maturity_date OR f.closed_at IS NULL) AND NOT EXISTS (SELECT 1 FROM installments i_l WHERE i_l.financing_id = f.id AND i_l.paid_at > i_l.due_date) ",
+            'settled_late' => " AND f.status = 'completed' AND ((f.closed_at > f.maturity_date) OR EXISTS (SELECT 1 FROM installments i_l WHERE i_l.financing_id = f.id AND i_l.paid_at > i_l.due_date) OR EXISTS (SELECT 1 FROM charity_charges cc WHERE cc.financing_id = f.id)) ",
+            'all' => "",
+            default => " AND f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 ",
+        };
+
+        $stmt = $pdo->prepare("
+            SELECT f.*, c.full_name AS client_name, c.phone AS client_phone, b.name AS branch_name,
+                   (SELECT COUNT(*) FROM charity_charges cc WHERE cc.financing_id = f.id) AS charity_charges_count,
+                   (SELECT COUNT(*) FROM installments i_l WHERE i_l.financing_id = f.id AND i_l.paid_at > i_l.due_date) AS late_installments_count
+            FROM financings f
+            INNER JOIN clients c ON c.id = f.client_id
+            INNER JOIN branches b ON b.id = f.branch_id
+            WHERE f.product_type IN ('flat', 'declining_balance') {$scopeSql} {$whereFilter}
+            ORDER BY f.id DESC
+        ");
+        $stmt->execute($params);
+        $loans = $stmt->fetchAll();
+
+        self::renderDashboard('financings/loans.php', [
+            'pageTitle' => 'Daymaha (Cash Loans / Qard Hassan)',
+            'filter' => $filter,
+            'summary' => $summary,
+            'loans' => $loans,
+        ]);
+    }
+
+    private static function murabahaView(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireAuth();
+        [$scopeSql, $params] = self::scopeSql($user, 'f');
+        $filter = (string) ($_GET['filter'] ?? 'all');
+
+        // Summary counts for badges & KPIs
+        $countsStmt = $pdo->prepare("
+            SELECT
+                COUNT(*) AS count_all,
+                COUNT(CASE WHEN f.status = 'completed' THEN 1 END) AS count_settled,
+                COUNT(CASE WHEN f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 THEN 1 END) AS count_unpaid,
+                COALESCE(SUM(f.approved_amount), 0.00) AS sum_cost,
+                COALESCE(SUM(f.total_profit), 0.00) AS sum_markup,
+                COALESCE(SUM(f.total_paid), 0.00) AS sum_paid,
+                COALESCE(SUM(CASE WHEN f.status IN ('active', 'overdue') THEN f.outstanding_balance ELSE 0 END), 0.00) AS sum_outstanding
+            FROM financings f
+            WHERE f.product_type = 'murabaha' {$scopeSql}
+        ");
+        $countsStmt->execute($params);
+        $summary = $countsStmt->fetch() ?: [];
+
+        $whereFilter = match ($filter) {
+            'settled' => " AND f.status = 'completed' ",
+            'unpaid' => " AND f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 ",
+            default => "",
+        };
+
+        $stmt = $pdo->prepare("
+            SELECT f.*, c.full_name AS client_name, c.phone AS client_phone, b.name AS branch_name
+            FROM financings f
+            INNER JOIN clients c ON c.id = f.client_id
+            INNER JOIN branches b ON b.id = f.branch_id
+            WHERE f.product_type = 'murabaha' {$scopeSql} {$whereFilter}
+            ORDER BY f.id DESC
+        ");
+        $stmt->execute($params);
+        $contracts = $stmt->fetchAll();
+
+        self::renderDashboard('financings/murabaha.php', [
+            'pageTitle' => 'Maalgelinta Hantida (Murabaxa / Murabaha)',
+            'filter' => $filter,
+            'summary' => $summary,
+            'contracts' => $contracts,
+        ]);
+    }
+
+    private static function murabahaNew(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
+        $st = $pdo->prepare("SELECT id FROM products WHERE product_type = 'murabaha' AND is_active = 1 LIMIT 1");
+        $st->execute();
+        $pid = (int) $st->fetchColumn();
+        if ($pid > 0) {
+            header('Location: ?route=applications&product_id=' . $pid . '#newApp');
+        } else {
+            header('Location: ?route=applications#newApp');
+        }
         exit;
     }
 

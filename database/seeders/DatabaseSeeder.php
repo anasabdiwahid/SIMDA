@@ -129,7 +129,7 @@ final class DatabaseSeeder
             ':phash' => Security::hashPassword('Admin@123'),
         ]);
 
-        // 6. Default Zero-Riba (0% Extra â€” Principal-Only) Financing Facility
+        // 6. Default Financing Facilities (Zero-Riba Qard Hassan & Murabaha Asset Financing)
         $prdStmt = $pdo->prepare('
             INSERT INTO products (
                 product_code, name_so, name_en, description_so, description_en,
@@ -149,8 +149,8 @@ final class DatabaseSeeder
             ':code' => 'PRD-QRD-01',
             ':n_so' => 'Maalgelinta Bilaashka Riba (Qard Xasan)',
             ':n_en' => 'Zero-Riba Principal-Only Financing (Qard Hassan)',
-            ':d_so' => 'Maalgelin 0% dheeraad ah â€” macmiilku wuxuu soo celinayaa oo keliya lacagtii la siiyay ($1,000 -> $1,000).',
-            ':d_en' => '100% Zero-Riba financing with $0.00 extra charges â€” if a client receives $1,000, they repay strictly $1,000.',
+            ':d_so' => 'Maalgelin 0% dheeraad ah — macmiilku wuxuu soo celinayaa oo keliya lacagtii la siiyay ($1,000 -> $1,000).',
+            ':d_en' => '100% Zero-Riba financing with $0.00 extra charges — if a client receives $1,000, they repay strictly $1,000.',
             ':type' => 'flat',
             ':apr' => '0.0000',
             ':mrb' => '0.0000',
@@ -158,6 +158,22 @@ final class DatabaseSeeder
             ':max_a' => '50000.00',
             ':min_t' => 1,
             ':max_t' => 36,
+            ':freq' => 'both',
+            ':fee' => '0.00',
+        ]);
+        $prdStmt->execute([
+            ':code' => 'PRD-MRB-01',
+            ':n_so' => 'Maalgelinta Hantida (Murabaxa)',
+            ':n_en' => 'Murabaha Asset & Commodity Financing',
+            ':d_so' => 'Heshiis iib ah oo qiimaha badeecada iyo faa\'iidada go\'an si cad loogu heshiiyo (Cost-plus-markup).',
+            ':d_en' => 'Sharia-compliant cost-plus markup sale for assets, machinery, and inventory.',
+            ':type' => 'murabaha',
+            ':apr' => '0.0000',
+            ':mrb' => '5.0000',
+            ':min_a' => '200.00',
+            ':max_a' => '100000.00',
+            ':min_t' => 1,
+            ':max_t' => 48,
             ':freq' => 'both',
             ':fee' => '0.00',
         ]);
