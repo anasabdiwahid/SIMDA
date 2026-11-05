@@ -1751,12 +1751,29 @@ table th.amount {
     margin-top: 12px;
 }
 
+.fid-step-card h4 {
+    color: #123B32;
+    font-weight: 700;
+}
+
+.fid-step-card p {
+    color: #5A6660;
+}
+
 [data-theme="dark"] .fid-step-card,
 [data-theme="dark"] .fid-testi-card,
 [data-theme="dark"] .fid-edu-card,
 [data-theme="dark"] .fid-contact-box {
     background-color: #172822;
     border-color: #2A4239;
+}
+
+[data-theme="dark"] .fid-step-card h4 {
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .fid-step-card p {
+    color: #C5D4CE !important;
 }
 
 .fid-step-num {
@@ -1773,6 +1790,11 @@ table th.amount {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+[data-theme="dark"] .fid-step-num {
+    background-color: #23845B;
+    color: #FFFFFF;
 }
 
 .fid-step-inner {
@@ -1799,6 +1821,22 @@ table th.amount {
     flex-direction: column;
     justify-content: space-between;
     min-height: 138px;
+}
+
+.fid-testi-quote {
+    color: #4A5751;
+}
+
+.fid-testi-author {
+    color: #123B32;
+}
+
+[data-theme="dark"] .fid-testi-quote {
+    color: #E2ECE7 !important;
+}
+
+[data-theme="dark"] .fid-testi-author {
+    color: #D6B66C !important;
 }
 
 .fid-stars {
@@ -1854,6 +1892,61 @@ table th.amount {
     color: #5A6660;
     line-height: 1.4;
     margin: 0 0 6px;
+}
+
+[data-theme="dark"] .fid-edu-card p {
+    color: #C5D4CE !important;
+}
+
+/* Database Products Strip in Dark Mode */
+.fid-product-title {
+    color: #123B32;
+}
+
+.fid-product-code {
+    color: #6A756F;
+}
+
+.fid-product-meta {
+    color: #5A6660;
+}
+
+.fid-product-meta strong {
+    color: #123B32;
+}
+
+[data-theme="dark"] .fid-product-title {
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .fid-product-code {
+    color: #A0B3AB !important;
+}
+
+[data-theme="dark"] .fid-product-meta {
+    color: #C5D4CE !important;
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .fid-product-meta strong {
+    color: #D6B66C !important;
+}
+
+/* Calculator & Contact Lead text */
+.calc-quick-label {
+    color: #5A6660;
+}
+
+[data-theme="dark"] .calc-quick-label {
+    color: #C5D4CE !important;
+}
+
+.fid-contact-lead {
+    color: #5A6660;
+}
+
+[data-theme="dark"] .fid-contact-lead {
+    color: #C5D4CE !important;
 }
 
 .fid-read-more {

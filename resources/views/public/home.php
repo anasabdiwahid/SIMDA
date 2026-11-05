@@ -797,12 +797,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <div class="fid-service-card" style="padding:16px 18px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span class="badge badge-gold"><?= Security::e(strtoupper((string) $prod['product_type'])) ?></span>
-                        <span class="num-tabular" style="font-size:0.75rem;color:#6A756F;"><?= Security::e($prod['product_code']) ?></span>
+                        <span class="num-tabular fid-product-code" style="font-size:0.75rem;"><?= Security::e($prod['product_code']) ?></span>
                     </div>
-                    <h4 style="font-size:0.96rem;color:#123B32;margin:0 0 4px;"><?= Security::e($prod['name_en']) ?></h4>
-                    <div style="font-size:0.78rem;color:#5A6660;display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);">
+                    <h4 class="fid-product-title" style="font-size:0.96rem;margin:0 0 4px;"><?= Security::e($prod['name_en']) ?></h4>
+                    <div class="fid-product-meta" style="font-size:0.78rem;display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);">
                         <span>Rate: <strong class="num-tabular"><?= Security::e(number_format((float) ($prod['product_type'] === 'murabaha' ? $prod['murabaha_markup_pct'] : $prod['annual_profit_rate']), 2)) ?>%</strong></span>
-                        <span class="num-tabular"><?= Security::formatMoney($prod['min_amount']) ?> â€“ <?= Security::formatMoney($prod['max_amount']) ?></span>
+                        <span class="num-tabular"><?= Security::formatMoney($prod['min_amount']) ?> – <?= Security::formatMoney($prod['max_amount']) ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -891,8 +891,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <div class="fid-step-inner">
                     <img src="assets/images/landing/step-1.jpg" alt="Apply">
                     <div>
-                        <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step1_t']) ?></h4>
-                        <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step1_d']) ?></p>
+                        <h4 style="font-size:0.86rem;margin:0 0 3px;"><?= Security::e($t['step1_t']) ?></h4>
+                        <p style="font-size:0.72rem;margin:0;line-height:1.38;"><?= Security::e($t['step1_d']) ?></p>
                     </div>
                 </div>
             </div>
@@ -902,8 +902,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <div class="fid-step-inner">
                     <img src="assets/images/landing/step-2.jpg" alt="Verification">
                     <div>
-                        <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step2_t']) ?></h4>
-                        <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step2_d']) ?></p>
+                        <h4 style="font-size:0.86rem;margin:0 0 3px;"><?= Security::e($t['step2_t']) ?></h4>
+                        <p style="font-size:0.72rem;margin:0;line-height:1.38;"><?= Security::e($t['step2_d']) ?></p>
                     </div>
                 </div>
             </div>
@@ -913,8 +913,8 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <div class="fid-step-inner">
                     <img src="assets/images/landing/step-3.jpg" alt="Receive Funds">
                     <div>
-                        <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step3_t']) ?></h4>
-                        <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step3_d']) ?></p>
+                        <h4 style="font-size:0.86rem;margin:0 0 3px;"><?= Security::e($t['step3_t']) ?></h4>
+                        <p style="font-size:0.72rem;margin:0;line-height:1.38;"><?= Security::e($t['step3_d']) ?></p>
                     </div>
                 </div>
             </div>
@@ -934,12 +934,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <div class="fid-testi-card reveal-on-scroll">
                 <div>
                     <div class="fid-stars">★★★★★</div>
-                    <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
+                    <p class="fid-testi-quote" style="font-size:0.73rem;line-height:1.45;margin:0;">
                         <?= Security::e($t['testi1_q']) ?>
                     </p>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                    <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi1_a']) ?></strong>
+                    <strong class="fid-testi-author" style="font-size:0.74rem;">– <?= Security::e($t['testi1_a']) ?></strong>
                     <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                 </div>
             </div>
@@ -947,12 +947,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <div class="fid-testi-card reveal-on-scroll">
                 <div>
                     <div class="fid-stars">★★★★★</div>
-                    <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
+                    <p class="fid-testi-quote" style="font-size:0.73rem;line-height:1.45;margin:0;">
                         <?= Security::e($t['testi2_q']) ?>
                     </p>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                    <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi2_a']) ?></strong>
+                    <strong class="fid-testi-author" style="font-size:0.74rem;">– <?= Security::e($t['testi2_a']) ?></strong>
                     <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                 </div>
             </div>
@@ -960,12 +960,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <div class="fid-testi-card reveal-on-scroll">
                 <div>
                     <div class="fid-stars">★★★★★</div>
-                    <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
+                    <p class="fid-testi-quote" style="font-size:0.73rem;line-height:1.45;margin:0;">
                         <?= Security::e($t['testi3_q']) ?>
                     </p>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                    <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi3_a']) ?></strong>
+                    <strong class="fid-testi-author" style="font-size:0.74rem;">– <?= Security::e($t['testi3_a']) ?></strong>
                     <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                 </div>
             </div>
@@ -1021,7 +1021,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <div>
                     <h4><?= Security::e($t['edu4_t']) ?></h4>
                     <p><?= Security::e($t['edu4_d']) ?></p>
-                    <a href="https://share.google/zYlgwxdkUvoUtrjog" target="_blank" rel="noopener noreferrer" class="fid-read-more" style="color:#123B32;font-weight:700;">
+                    <a href="https://share.google/zYlgwxdkUvoUtrjog" target="_blank" rel="noopener noreferrer" class="fid-read-more">
                         <?= Security::e($t['btn_open_maps']) ?> <?= Icons::svg('arrow-right', 12) ?>
                     </a>
                 </div>
@@ -1070,7 +1070,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <span><?= Security::e($t['calc_btn_generate']) ?></span>
                 </button>
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                    <span style="font-size:0.76rem;color:#5A6660;font-weight:600;"><?= Security::e($t['calc_quick_amounts']) ?></span>
+                    <span class="calc-quick-label" style="font-size:0.76rem;font-weight:600;"><?= Security::e($t['calc_quick_amounts']) ?></span>
                     <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="1000" data-monthly="200"><?= $locale === 'ar' ? '١,٠٠٠ $ (٢٠٠ $/شهرياً)' : ($locale === 'so' ? '$1,000 ($200/bishii)' : '$1,000 ($200/mo)') ?></button>
                     <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="3000" data-monthly="200"><?= $locale === 'ar' ? '٣,٠٠٠ $ (٢٠٠ $/شهرياً)' : ($locale === 'so' ? '$3,000 ($200/bishii)' : '$3,000 ($200/mo)') ?></button>
                     <button type="button" class="btn btn-sm btn-outline calc-preset-btn" data-amount="5000" data-monthly="500"><?= $locale === 'ar' ? '٥,٠٠٠ $ (٥٠٠ $/شهرياً)' : ($locale === 'so' ? '$5,000 ($500/bishii)' : '$5,000 ($500/mo)') ?></button>
@@ -1114,7 +1114,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
                 <div style="text-align:center;border-left:1px solid rgba(0,0,0,0.08);padding-left:20px;">
                     <h3 class="fid-serif-h2" style="font-size:1.35rem;margin-bottom:8px;"><?= Security::e($t['contact_title']) ?></h3>
-                    <p style="font-size:0.82rem;color:#5A6660;margin-bottom:14px;">
+                    <p class="fid-contact-lead" style="font-size:0.82rem;margin-bottom:14px;">
                         <?= Security::e($t['contact_lead']) ?>
                     </p>
                     <a href="?route=<?= $isLoggedIn ? 'dashboard' : 'login' ?>" class="fid-btn-green">
