@@ -2219,11 +2219,13 @@ html:has(body.fid-page) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.25s ease;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
 }
 
 .fid-footer-logo-img {
-    height: 34px;
+    height: 38px;
     width: auto;
     display: block;
     transition: filter 0.25s ease;
@@ -2247,13 +2249,12 @@ html:has(body.fid-page) {
     align-items: flex-start;
 }
 
-/* 1. LIGHT MODE: Original Logo with white/clean capsule on dark footer */
+/* 1. LIGHT MODE: Original Logo with NO background box (Transparent) */
 [data-theme="light"] .fid-footer-logo-badge,
 html:not([data-theme="dark"]) .fid-footer-logo-badge {
-    background-color: #FFFFFF;
-    padding: 6px 14px;
-    border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
 }
 
 [data-theme="light"] .fid-footer-logo-img,
@@ -2263,7 +2264,7 @@ html:not([data-theme="dark"]) .fid-footer-logo-img {
 
 [data-theme="light"] .fid-footer-logo-tagline span,
 html:not([data-theme="dark"]) .fid-footer-logo-tagline span {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
 }
 
 [data-theme="light"] .fid-footer-logo-tagline span:last-child,
@@ -2271,9 +2272,9 @@ html:not([data-theme="dark"]) .fid-footer-logo-tagline span:last-child {
     color: #D6B66C !important;
 }
 
-/* 2. DARK MODE: Pure White Logo with NO background box */
+/* 2. DARK MODE: Pure White Logo with NO background box (Transparent) */
 [data-theme="dark"] .fid-footer-logo-badge {
-    background-color: transparent !important;
+    background: transparent !important;
     padding: 0 !important;
     box-shadow: none !important;
 }
