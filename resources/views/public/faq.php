@@ -260,90 +260,46 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         .faq-page-wrap {
             position: relative;
             background: #FAFAF7;
-            padding: 48px 0 72px;
+            padding: 24px 0 42px;
             overflow: hidden;
-        }
-        /* Faint Watermark Background Behind Title */
-        .faq-watermark-wrap {
-            position: relative;
-            text-align: center;
-            padding: 24px 0 36px;
-        }
-        .faq-watermark-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: clamp(2.5rem, 6.5vw, 4.8rem);
-            font-weight: 800;
-            color: rgba(18, 59, 50, 0.045);
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-            user-select: none;
-            pointer-events: none;
-            z-index: 1;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .faq-hero-content {
-            position: relative;
-            z-index: 2;
-        }
-        .faq-hero-content h1 {
-            font-size: clamp(1.85rem, 3.2vw, 2.5rem);
-            font-weight: 800;
-            color: #123B32;
-            margin: 0 0 10px;
-            letter-spacing: -0.02em;
-        }
-        .faq-hero-lead {
-            display: inline-block;
-            color: #23845B;
-            font-size: 0.88rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: color 0.15s ease;
-        }
-        .faq-hero-lead:hover {
-            color: #123B32;
-            text-decoration: underline;
         }
 
         /* 2-Column Grid (Left: Accordions, Right: Any Question card) */
         .faq-main-grid {
             display: grid;
-            grid-template-columns: 1.55fr 1fr;
-            gap: 40px;
+            grid-template-columns: 1.45fr 1fr;
+            gap: 24px;
             align-items: start;
-            margin-top: 24px;
+            margin-top: 6px;
         }
 
         /* Left Column FAQ Accordion Items */
         .faq-accordion-list {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 9px;
         }
         .faq-card {
             background: #FFFFFF;
-            border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.035);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.025);
             border: 1px solid rgba(220, 226, 222, 0.65);
             overflow: hidden;
             transition: box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .faq-card:hover {
-            box-shadow: 0 8px 24px rgba(18, 59, 50, 0.07);
+            box-shadow: 0 6px 16px rgba(18, 59, 50, 0.06);
             border-color: rgba(35, 132, 91, 0.35);
         }
         .faq-card-header {
             width: 100%;
             background: transparent;
             border: none;
-            padding: 20px 24px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: 12px;
             cursor: pointer;
             text-align: left;
             font-family: inherit;
@@ -352,15 +308,15 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             text-align: right;
         }
         .faq-card-question {
-            font-size: 0.98rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #1F2D2A;
             margin: 0;
-            line-height: 1.4;
+            line-height: 1.35;
         }
         .faq-toggle-btn {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #23845B;
             color: #FFFFFF;
@@ -369,7 +325,11 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             justify-content: center;
             flex-shrink: 0;
             transition: transform 0.25s ease, background 0.2s ease;
-            box-shadow: 0 4px 10px rgba(35, 132, 91, 0.25);
+            box-shadow: 0 2px 6px rgba(35, 132, 91, 0.25);
+        }
+        .faq-toggle-btn svg {
+            width: 12px;
+            height: 12px;
         }
         .faq-card.is-open .faq-toggle-btn {
             transform: rotate(45deg);
@@ -379,32 +339,32 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.35s ease-out, padding 0.3s ease;
-            padding: 0 24px;
+            padding: 0 16px;
             background: #FCFCF9;
             border-top: 1px solid transparent;
         }
         .faq-card.is-open .faq-card-body {
-            max-height: 280px;
-            padding: 16px 24px 22px;
+            max-height: 240px;
+            padding: 8px 16px 14px;
             border-top-color: rgba(0, 0, 0, 0.04);
         }
         .faq-card-answer {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.79rem;
             color: #4A5751;
-            line-height: 1.65;
+            line-height: 1.5;
         }
 
         /* Carousel / Pagination buttons below accordion */
         .faq-pagination-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-top: 16px;
+            gap: 8px;
+            margin-top: 12px;
         }
         .faq-page-arrow {
-            width: 38px;
-            height: 38px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: #23845B;
             color: #FFFFFF;
@@ -413,8 +373,12 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(35, 132, 91, 0.24);
+            box-shadow: 0 2px 8px rgba(35, 132, 91, 0.2);
             transition: transform 0.15s ease, background 0.15s ease;
+        }
+        .faq-page-arrow svg {
+            width: 11px;
+            height: 11px;
         }
         .faq-page-arrow:hover {
             transform: scale(1.08);
@@ -424,39 +388,39 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         /* Right Column "Any Question?" Card */
         .faq-ask-card {
             background: #FFFFFF;
-            border-radius: 20px;
-            padding: 36px 32px;
-            box-shadow: 0 10px 32px rgba(18, 59, 50, 0.06);
-            border: 1px solid rgba(220, 226, 222, 0.8);
+            border-radius: 14px;
+            padding: 18px 18px;
+            box-shadow: 0 6px 20px rgba(18, 59, 50, 0.05);
+            border: 1px solid rgba(220, 226, 222, 0.75);
             text-align: center;
             position: sticky;
-            top: 96px;
+            top: 85px;
         }
         .faq-ask-illustration {
             width: 100%;
-            max-width: 260px;
+            max-width: 110px;
             height: auto;
-            border-radius: 16px;
-            margin: 0 auto 20px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
             display: block;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         .faq-ask-card h3 {
-            font-size: 1.45rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: #123B32;
-            margin: 0 0 8px;
+            margin: 0 0 4px;
         }
         .faq-ask-card p {
-            font-size: 0.86rem;
+            font-size: 0.76rem;
             color: #63736D;
-            line-height: 1.55;
-            margin: 0 0 24px;
+            line-height: 1.45;
+            margin: 0 0 12px;
         }
         .faq-ask-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
             text-align: left;
         }
         html[dir="rtl"] .faq-ask-form {
@@ -466,70 +430,70 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             position: relative;
         }
         .faq-input-label {
-            font-size: 0.76rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: #8C9993;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
             display: block;
             text-transform: capitalize;
         }
         .faq-input-field {
             width: 100%;
-            padding: 13px 40px 13px 16px;
-            border-radius: 10px;
-            border: 1.5px solid #D6DFDB;
+            padding: 8px 30px 8px 11px;
+            border-radius: 7px;
+            border: 1.2px solid #D6DFDB;
             background: #FDFDFB;
-            font-size: 0.88rem;
+            font-size: 0.78rem;
             font-family: inherit;
             color: #1F2D2A;
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
             box-sizing: border-box;
         }
         html[dir="rtl"] .faq-input-field {
-            padding: 13px 16px 13px 40px;
+            padding: 8px 11px 8px 30px;
         }
         .faq-input-field:focus {
             outline: none;
             border-color: #23845B;
-            box-shadow: 0 0 0 3px rgba(35, 132, 91, 0.14);
+            box-shadow: 0 0 0 2px rgba(35, 132, 91, 0.14);
         }
         .faq-input-clear {
             position: absolute;
-            right: 14px;
-            top: 36px;
+            right: 10px;
+            top: 24px;
             background: transparent;
             border: none;
             color: #A0ABA6;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.85rem;
             line-height: 1;
             padding: 0;
         }
         html[dir="rtl"] .faq-input-clear {
             right: auto;
-            left: 14px;
+            left: 10px;
         }
         .faq-submit-btn {
             background: #23845B;
             color: #FFFFFF;
             border: none;
-            padding: 14px 36px;
+            padding: 7px 22px;
             border-radius: 999px;
             font-weight: 700;
-            font-size: 0.94rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            box-shadow: 0 8px 22px rgba(35, 132, 91, 0.32);
+            box-shadow: 0 4px 14px rgba(35, 132, 91, 0.28);
             transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-            margin: 8px auto 0;
+            margin: 4px auto 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 140px;
+            min-width: 95px;
         }
         .faq-submit-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             background: #123B32;
-            box-shadow: 0 12px 26px rgba(18, 59, 50, 0.35);
+            box-shadow: 0 6px 18px rgba(18, 59, 50, 0.3);
         }
 
         @media (max-width: 900px) {
