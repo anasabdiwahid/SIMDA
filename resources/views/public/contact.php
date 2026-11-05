@@ -307,6 +307,16 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         </ul>
 
         <div style="display:flex;align-items:center;gap:10px;">
+            <!-- Theme Switcher: Light & Dark Mode Icons -->
+            <div class="theme-toggle-pill" id="contactThemeToggle" title="Light Mode / Dark Mode">
+                <button type="button" class="theme-pill-btn" data-theme-val="light" aria-label="Light Mode" title="<?= $locale === 'so' ? 'Habka Maalintii (Light Mode)' : 'Light Mode' ?>">
+                    <?= Icons::svg('sun', 16) ?>
+                </button>
+                <button type="button" class="theme-pill-btn" data-theme-val="dark" aria-label="Dark Mode" title="<?= $locale === 'so' ? 'Habka Habeenkii (Dark Mode)' : 'Dark Mode' ?>">
+                    <?= Icons::svg('moon', 16) ?>
+                </button>
+            </div>
+
             <!-- Language Dropdown Selector (Active flag shown, tap opens dropdown menu) -->
             <div class="simda-lang-dropdown" id="contactLangDropdown">
                 <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
