@@ -2184,6 +2184,16 @@ html:has(body.fid-page) {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 12px 10px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.sidebar-nav::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
 }
 
 .sidebar-group-label {
