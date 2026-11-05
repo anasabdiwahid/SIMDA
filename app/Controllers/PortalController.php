@@ -237,12 +237,12 @@ final class PortalController
         $suggestions = [];
         $actionBtn = null;
 
-        // 1. WhatsApp & Direct Messenger Intent
+        // 1. WhatsApp, Number, Phone & Direct Contact Intent
         if (
             preg_match('/(whatsapp|whataap|whatsap|watshap|watsap|واتساب|واتس|wa\.me)/iu', $message) ||
-            preg_match('/(number.*whatsapp|whatsapp.*number|lambarka.*whatsapp|whatsapp.*isi|whatsapp.*sii)/iu', $message)
+            preg_match('/(number|lambar|lambarka|phone|telefoon|taleefan|tel|contact|xiriir|wac|call|رقم|هاتف|اتصال)/iu', $message)
         ) {
-            $topic = 'whatsapp';
+            $topic = 'contact_number';
             $waUrl = 'https://wa.me/252616256534?text=' . rawurlencode(
                 $lang === 'ar' ? 'مرحباً سيمدا، أرغب في الاستفسار عن التمويل الإسلامي' :
                 ($lang === 'en' ? 'Hello SIMDA, I would like to inquire about Islamic microfinance' :
@@ -250,32 +250,41 @@ final class PortalController
             );
 
             if ($lang === 'ar') {
-                $reply = "نعم بكل سرور! يمكنك التحدث معنا والتواصل الفوري مع مسؤولي سيمدا عبر واتساب على الرقم:\n\n"
-                    . "+252 61 6256534\n\n"
+                $reply = "أهلاً بك! يمكنك التواصل المباشر مع مسؤولي سيمدا عبر الأرقام ووسائل الاتصال الرسمية التالية:\n\n"
+                    . "📱 رقم الواتساب والهاتف: +252 61 6256534\n"
+                    . "📞 هاتف إضافي: +252 61 5000000\n"
+                    . "✉️ البريد الإلكتروني: info@simda.so\n"
+                    . "📍 المقر: تقاطع KM4، مديرية هودن، مقديشو\n\n"
                     . "انقر على زر الواتساب الأخضر أدناه لبدء المحادثة المباشرة فوراً:";
                 $actionBtn = [
                     'type' => 'whatsapp',
-                    'label' => 'تواصل عبر واتساب (+252 61 6256534)',
+                    'label' => '💬 تواصل عبر واتساب (+252 61 6256534)',
                     'url' => $waUrl
                 ];
                 $suggestions = ['أخبرني عن هذا المكان', 'كيف أتقدم بطلب تمويل؟', 'هل التمويل 0% ربا؟'];
             } elseif ($lang === 'en') {
-                $reply = "Yes, absolutely! You can chat directly with our SIMDA loan advisors on WhatsApp at:\n\n"
-                    . "+252 61 6256534\n\n"
-                    . "Click the green button below to open WhatsApp chat instantly:";
+                $reply = "Here are SIMDA's official contact numbers and direct support channels:\n\n"
+                    . "📱 WhatsApp & Phone: +252 61 6256534\n"
+                    . "📞 Office Line: +252 61 5000000\n"
+                    . "✉️ Email: info@simda.so\n"
+                    . "📍 Location: KM4, Hodan District, Mogadishu\n\n"
+                    . "Click the green WhatsApp button below to chat with our advisors immediately:";
                 $actionBtn = [
                     'type' => 'whatsapp',
-                    'label' => 'Chat on WhatsApp (+252 61 6256534)',
+                    'label' => '💬 Chat on WhatsApp (+252 61 6256534)',
                     'url' => $waUrl
                 ];
                 $suggestions = ['Tell me about this place', 'How can I apply?', 'Is it 0% Riba?'];
             } else {
-                $reply = "Haa, diyaar ayaan kuu nahay! Waxaad toos ula xiriiri kartaa mas'uuliyiinta SIMDA adoo adeegsanaya WhatsApp:\n\n"
-                    . "+252 61 6256534\n\n"
-                    . "Guji batoonka cagaaran ee hoose si uu WhatsApp toos kuugu furo:";
+                $reply = "Waa kuwan lambarada rasmiga ah iyo xiriirka tooska ah ee SIMDA:\n\n"
+                    . "📱 WhatsApp & Taleefan: +252 61 6256534\n"
+                    . "📞 Khadka Xafiiska: +252 61 5000000\n"
+                    . "✉️ Email: info@simda.so\n"
+                    . "📍 Goobta: KM4, Degmada Hodan, Muqdisho\n\n"
+                    . "Guji batoonka cagaaran ee hoose si aad toos noogala hadasho WhatsApp:";
                 $actionBtn = [
                     'type' => 'whatsapp',
-                    'label' => 'La Hadal WhatsApp (+252 61 6256534)',
+                    'label' => '💬 La Hadal WhatsApp (+252 61 6256534)',
                     'url' => $waUrl
                 ];
                 $suggestions = ['Xogta meesha wax iga sheeg', 'Sideen u codsadaa?', '0% Ribo ma dhabbaa?'];
@@ -489,14 +498,24 @@ final class PortalController
             preg_match('/(xafiis|xagee|address|location|phone|email|contact|saacadaha|hours|ciwaan|أين|موقع|عنوان|هاتف|تواصل|ساعات العمل)/iu', $message)
         ) {
             $topic = 'contact';
+            $waUrl = 'https://wa.me/252616256534?text=' . rawurlencode(
+                $lang === 'ar' ? 'مرحباً سيمدا، أرغب في الاستفسار عن التمويل الإسلامي' :
+                ($lang === 'en' ? 'Hello SIMDA, I would like to inquire about Islamic microfinance' :
+                'Asc SIMDA, waxaan rabaa in aan wax ka ogaado maalgelinta xalaasha ah')
+            );
+            $actionBtn = [
+                'type' => 'whatsapp',
+                'label' => ($lang === 'ar' ? '💬 تواصل عبر واتساب (+252 61 6256534)' : ($lang === 'en' ? '💬 Chat on WhatsApp (+252 61 6256534)' : '💬 La Hadal WhatsApp (+252 61 6256534)')),
+                'url' => $waUrl
+            ];
             if ($lang === 'ar') {
-                $reply = "يقع المقر الرئيسي لسيمدا في تقاطع KM4، مديرية هودن، مقديشو، الصومال. هاتف: 6256534 61 252+ / 5000000 61 252+. البريد: info@simda.so. ساعات العمل: السبت إلى الخميس، من 8:00 صباحاً حتى 4:30 مساءً (الجمعة عطلة).";
+                $reply = "يقع المقر الرئيسي لسيمدا في تقاطع KM4، مديرية هودن، مقديشو، الصومال. هاتف: 6256534 61 252+ / 5000000 61 252+. البريد: info@simda.so. ساعات العمل: السبت إلى الخميس، من 8:00 صباحاً حتى 4:30 مساءً (الجمعة عطلة).\n\nيمكنك أيضاً التحدث معنا فوراً عبر واتساب بالنقر أدناه:";
                 $suggestions = ['كيف أتقدم بطلب؟', 'هل التمويل 0% ربا؟', 'ما هي المنتجات؟'];
             } elseif ($lang === 'en') {
-                $reply = "SIMDA Head Office is located at KM4, Hodan District, Mogadishu, Somalia. Phone: +252 61 6256534 / +252 61 5000000. Email: info@simda.so. Working hours: Saturday to Thursday, 8:00 AM – 4:30 PM (Closed on Friday).";
+                $reply = "SIMDA Head Office is located at KM4, Hodan District, Mogadishu, Somalia. Phone: +252 61 6256534 / +252 61 5000000. Email: info@simda.so. Working hours: Saturday to Thursday, 8:00 AM – 4:30 PM (Closed on Friday).\n\nYou can also click below to chat with us directly on WhatsApp:";
                 $suggestions = ['How to apply?', 'Is it 0% Riba?', 'What are the products?'];
             } else {
-                $reply = "Xafiiska Sare ee SIMDA wuxuu ku yaallaa: KM4, Degmada Hodan, Muqdisho, Soomaaliya. Tel: +252 61 6256534 ama +252 61 5000000. Email: info@simda.so. Saacadaha shaqadu waa Sabti ilaa Khamiis 8:00 subaxnimo ilaa 4:30 galabnimo (Jimcaha waa fasax).";
+                $reply = "Xafiiska Sare ee SIMDA wuxuu ku yaallaa: KM4, Degmada Hodan, Muqdisho, Soomaaliya. Tel: +252 61 6256534 ama +252 61 5000000. Email: info@simda.so. Saacadaha shaqadu waa Sabti ilaa Khamiis 8:00 subaxnimo ilaa 4:30 galabnimo (Jimcaha waa fasax).\n\nWaxaad sidoo kale toos noogala soo xiriiri kartaa WhatsApp adoo gujinaya batoonka hoose:";
                 $suggestions = ['Sideen u codsadaa?', '0% Ribo ma dhabbaa?', 'Maxaad maalgeliyaan?'];
             }
         }
