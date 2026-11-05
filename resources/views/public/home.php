@@ -866,95 +866,96 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </div>
 </section>
 
-<!-- 5. DUAL SPLIT: HOW IT WORKS (LEFT) & WHAT OUR CLIENTS SAY / PILLARS (RIGHT) -->
+<!-- 5. HOW IT WORKS (OUR PROCESS) -->
 <section id="our-process" class="fid-section">
     <div class="fid-container">
-        <div class="fid-dual-row">
-            <!-- Left: HOW IT WORKS -->
-            <div>
-                <div style="text-align:center;margin-bottom:14px;">
-                    <span class="fid-eyebrow"><?= Security::e($t['process_eyebrow']) ?></span>
-                </div>
-                <div class="fid-steps-grid">
-                    <div class="fid-step-card reveal-on-scroll">
-                        <span class="fid-step-num">1</span>
-                        <div class="fid-step-inner">
-                            <img src="assets/images/landing/step-1.jpg" alt="Apply">
-                            <div>
-                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step1_t']) ?></h4>
-                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step1_d']) ?></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="fid-step-card reveal-on-scroll">
-                        <span class="fid-step-num">2</span>
-                        <div class="fid-step-inner">
-                            <img src="assets/images/landing/step-2.jpg" alt="Verification">
-                            <div>
-                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step2_t']) ?></h4>
-                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step2_d']) ?></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="fid-step-card reveal-on-scroll">
-                        <span class="fid-step-num">3</span>
-                        <div class="fid-step-inner">
-                            <img src="assets/images/landing/step-3.jpg" alt="Receive Funds">
-                            <div>
-                                <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step3_t']) ?></h4>
-                                <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step3_d']) ?></p>
-                            </div>
-                        </div>
+        <div style="text-align:center;margin-bottom:26px;">
+            <span class="fid-eyebrow"><?= Security::e($t['process_eyebrow'] ?? 'HOW IT WORKS') ?></span>
+            <h2 class="fid-section-title" style="margin-top:6px;"><?= $isSo ? 'Habka Fudud ee Maalgelinta' : 'Simple 3-Step Financing Process' ?></h2>
+            <p class="fid-section-subtitle" style="margin:4px auto 0 auto;max-width:540px;"><?= $isSo ? 'U mar heshiiskaaga 3 tallaabo oo hufan oo waafaqsan Shareecada Islaamka.' : 'Get your Sharia-compliant financing approved in three transparent steps.' ?></p>
+        </div>
+        <div class="fid-steps-grid">
+            <div class="fid-step-card reveal-on-scroll">
+                <span class="fid-step-num">1</span>
+                <div class="fid-step-inner">
+                    <img src="assets/images/landing/step-1.jpg" alt="Apply">
+                    <div>
+                        <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step1_t']) ?></h4>
+                        <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step1_d']) ?></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Right: WHAT OUR CLIENTS SAY / SHARIA TRUST HIGHLIGHTS -->
-            <div id="testimonials">
-                <div style="text-align:center;margin-bottom:14px;">
-                    <span class="fid-eyebrow"><?= Security::e($t['testi_eyebrow']) ?></span>
+            <div class="fid-step-card reveal-on-scroll">
+                <span class="fid-step-num">2</span>
+                <div class="fid-step-inner">
+                    <img src="assets/images/landing/step-2.jpg" alt="Verification">
+                    <div>
+                        <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step2_t']) ?></h4>
+                        <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step2_d']) ?></p>
+                    </div>
                 </div>
-                <div class="fid-testi-grid">
-                    <div class="fid-testi-card reveal-on-scroll">
-                        <div>
-                            <div class="fid-stars">★★★★★</div>
-                            <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
-                                <?= Security::e($t['testi1_q']) ?>
-                            </p>
-                        </div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi1_a']) ?></strong>
-                            <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
-                        </div>
-                    </div>
+            </div>
 
-                    <div class="fid-testi-card reveal-on-scroll">
-                        <div>
-                            <div class="fid-stars">★★★★★</div>
-                            <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
-                                <?= Security::e($t['testi2_q']) ?>
-                            </p>
-                        </div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi2_a']) ?></strong>
-                            <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
-                        </div>
+            <div class="fid-step-card reveal-on-scroll">
+                <span class="fid-step-num">3</span>
+                <div class="fid-step-inner">
+                    <img src="assets/images/landing/step-3.jpg" alt="Receive Funds">
+                    <div>
+                        <h4 style="font-size:0.86rem;margin:0 0 3px;color:#123B32;"><?= Security::e($t['step3_t']) ?></h4>
+                        <p style="font-size:0.72rem;color:#5A6660;margin:0;line-height:1.38;"><?= Security::e($t['step3_d']) ?></p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                    <div class="fid-testi-card reveal-on-scroll">
-                        <div>
-                            <div class="fid-stars">★★★★★</div>
-                            <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
-                                <?= Security::e($t['testi3_q']) ?>
-                            </p>
-                        </div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                            <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi3_a']) ?></strong>
-                            <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
-                        </div>
-                    </div>
+<!-- 6. WHAT OUR CLIENTS VALUE (TESTIMONIALS) -->
+<section id="testimonials" class="fid-section" style="padding-top:20px;">
+    <div class="fid-container">
+        <div style="text-align:center;margin-bottom:26px;">
+            <span class="fid-eyebrow"><?= Security::e($t['testi_eyebrow'] ?? 'WHAT OUR CLIENTS VALUE') ?></span>
+            <h2 class="fid-section-title" style="margin-top:6px;"><?= $isSo ? 'Kalsoonida Macaamiisheenna' : 'What Our Clients Value' ?></h2>
+            <p class="fid-section-subtitle" style="margin:4px auto 0 auto;max-width:540px;"><?= $isSo ? 'Aragtiyada ganacsatada iyo qoysaska ka faa\'iidaystay adeegyada SIMDA.' : 'Real experiences from entrepreneurs scaling their businesses with 0% Riba.' ?></p>
+        </div>
+        <div class="fid-testi-grid">
+            <div class="fid-testi-card reveal-on-scroll">
+                <div>
+                    <div class="fid-stars">★★★★★</div>
+                    <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
+                        <?= Security::e($t['testi1_q']) ?>
+                    </p>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                    <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi1_a']) ?></strong>
+                    <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
+                </div>
+            </div>
+
+            <div class="fid-testi-card reveal-on-scroll">
+                <div>
+                    <div class="fid-stars">★★★★★</div>
+                    <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
+                        <?= Security::e($t['testi2_q']) ?>
+                    </p>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                    <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi2_a']) ?></strong>
+                    <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
+                </div>
+            </div>
+
+            <div class="fid-testi-card reveal-on-scroll">
+                <div>
+                    <div class="fid-stars">★★★★★</div>
+                    <p style="font-size:0.73rem;color:#4A5751;line-height:1.45;margin:0;">
+                        <?= Security::e($t['testi3_q']) ?>
+                    </p>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                    <strong style="font-size:0.74rem;color:#123B32;">– <?= Security::e($t['testi3_a']) ?></strong>
+                    <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
                 </div>
             </div>
         </div>
@@ -1390,6 +1391,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    let isClickScrolling = false;
+
     // 1. Click Handler with Smooth Offset Scroll
     hashLinks.forEach(function (link) {
         link.addEventListener('click', function (e) {
@@ -1398,6 +1401,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (targetEl) {
                 e.preventDefault();
                 setActiveLink(this);
+                isClickScrolling = true;
                 const header = document.querySelector('.fid-header');
                 const headerH = header ? header.offsetHeight : 80;
                 const top = targetEl.getBoundingClientRect().top + window.pageYOffset - headerH - 10;
@@ -1405,30 +1409,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (history.pushState) {
                     history.pushState(null, null, targetId);
                 }
+                setTimeout(function () {
+                    isClickScrolling = false;
+                }, 850);
             }
         });
     });
 
     // 2. ScrollSpy for on-page sections
     function updateScrollSpy() {
-        const scrollPos = window.pageYOffset + 120;
-        let currentSection = null;
+        if (isClickScrolling) return;
+
+        const header = document.querySelector('.fid-header');
+        const headerH = header ? header.offsetHeight : 80;
+        const triggerPoint = window.pageYOffset + headerH + 60;
+        let activeSection = null;
 
         for (let i = 0; i < sections.length; i++) {
-            const top = sections[i].el.offsetTop;
-            const height = sections[i].el.offsetHeight;
-            if (scrollPos >= top && scrollPos < top + height) {
-                currentSection = sections[i];
-                break;
+            const secTop = sections[i].el.getBoundingClientRect().top + window.pageYOffset;
+            if (secTop <= triggerPoint) {
+                activeSection = sections[i];
             }
         }
 
-        if (!currentSection && window.pageYOffset < 200 && sections.length > 0) {
-            currentSection = sections[0];
+        if (!activeSection && window.pageYOffset < 200 && sections.length > 0) {
+            activeSection = sections[0];
         }
 
-        if (currentSection) {
-            setActiveLink(currentSection.link);
+        if (activeSection) {
+            setActiveLink(activeSection.link);
         }
     }
 
