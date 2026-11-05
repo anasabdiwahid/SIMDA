@@ -692,7 +692,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <div>
                 <div class="faq-ask-card" id="anyQuestionCard">
                     <!-- Clean 3D Vector Illustration of Support Question -->
-                    <img src="assets/images/landing/faq-support-illustration.jpg" alt="SIMDA Support Guide" class="faq-ask-illustration">
+                    <img src="assets/images/landing/faq-support-illustration.jpg?v=2" alt="SIMDA Support Guide" class="faq-ask-illustration">
 
                     <h3><?= Security::e($t['any_q_title']) ?></h3>
                     <p><?= Security::e($t['any_q_desc']) ?></p>
