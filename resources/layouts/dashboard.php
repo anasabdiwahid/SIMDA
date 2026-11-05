@@ -322,12 +322,15 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     </div>
                 </div>
 
-                <!-- Theme Switcher -->
-                <select id="simdaThemeSelect" class="form-control" style="padding:5px 10px;font-size:0.78rem;width:auto;" aria-label="Theme Switcher">
-                    <option value="light"><?= Security::e(Lang::get('theme_light')) ?></option>
-                    <option value="dark"><?= Security::e(Lang::get('theme_dark')) ?></option>
-                    <option value="system"><?= Security::e(Lang::get('theme_system')) ?></option>
-                </select>
+                <!-- Theme Switcher: Sun & Moon Icons -->
+                <div class="theme-toggle-pill" id="themeToggleGroup" title="<?= Security::e(Lang::get('theme_light')) ?> / <?= Security::e(Lang::get('theme_dark')) ?>">
+                    <button type="button" class="theme-pill-btn" data-theme-val="light" aria-label="Light Mode" title="<?= Security::e(Lang::get('theme_light')) ?>">
+                        <?= Icons::svg('sun', 16) ?>
+                    </button>
+                    <button type="button" class="theme-pill-btn" data-theme-val="dark" aria-label="Dark Mode" title="<?= Security::e(Lang::get('theme_dark')) ?>">
+                        <?= Icons::svg('moon', 16) ?>
+                    </button>
+                </div>
 
                 <a href="?route=home" class="btn btn-sm btn-outline">
                     <?= Icons::svg('home', 15) ?>

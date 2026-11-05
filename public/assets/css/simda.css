@@ -2330,6 +2330,48 @@ body.sidebar-collapsed .app-main {
     max-width: calc(100vw - var(--sidebar-collapsed-width));
 }
 
+/* Top Header Theme Icons Switcher */
+.theme-toggle-pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 3px;
+}
+.theme-pill-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    padding: 0;
+}
+.theme-pill-btn:hover {
+    color: var(--simda-gold);
+    transform: scale(1.08);
+}
+.theme-pill-btn svg {
+    display: block;
+}
+[data-theme="light"] .theme-pill-btn[data-theme-val="light"] {
+    background: #123B32;
+    color: #D6B66C;
+    box-shadow: 0 2px 6px rgba(18, 59, 50, 0.28);
+}
+[data-theme="dark"] .theme-pill-btn[data-theme-val="dark"] {
+    background: #D6B66C;
+    color: #0C2821;
+    box-shadow: 0 2px 6px rgba(214, 182, 108, 0.35);
+}
+
 /* Top Header */
 .top-header {
     min-height: var(--header-height);

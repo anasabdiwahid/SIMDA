@@ -42,6 +42,14 @@
             });
         }
 
+        // Theme Icon Buttons (Sun / Moon)
+        document.querySelectorAll('.theme-pill-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetTheme = this.getAttribute('data-theme-val') || 'light';
+                applyTheme(targetTheme);
+            });
+        });
+
         // 2. Sidebar Collapse & Mobile Drawer
         const toggleBtn = document.getElementById('sidebarToggleBtn');
         const backdrop = document.getElementById('sidebarBackdrop');
