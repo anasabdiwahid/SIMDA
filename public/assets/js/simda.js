@@ -64,16 +64,10 @@
             document.body.classList.add('sidebar-collapsed');
         }
 
-        // 3. Financial Action Confirmation & Double-Submission Prevention
-        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        // 3. Double-Submission Prevention (Direct submission without blocking alerts/confirm popups)
+        document.querySelectorAll('form[data-confirm], form').forEach(function (form) {
             form.addEventListener('submit', function (e) {
                 if (document.body.classList.contains('is-offline')) {
-                    e.preventDefault();
-                    alert('Offline Mode: Financial operations cannot be submitted without an active server connection.');
-                    return;
-                }
-                const msg = form.getAttribute('data-confirm') || 'Confirm this financial operation?';
-                if (!window.confirm(msg)) {
                     e.preventDefault();
                     return;
                 }

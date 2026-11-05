@@ -713,7 +713,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <!-- Col 1: Newsletter -->
                 <div>
                     <h5><?= Security::e($t['footer_col_newsletter']) ?></h5>
-                    <form class="fid-footway-newsletter" onsubmit="event.preventDefault(); alert('<?= Security::e($t['footer_newsletter_alert']) ?>');">
+                    <form class="fid-footway-newsletter" onsubmit="event.preventDefault(); this.innerHTML = '<div style=\'color:#D6B66C;font-size:0.84rem;font-weight:600;padding:10px 0;line-height:1.4;\'>✓ <?= Security::e($t['footer_newsletter_alert']) ?></div>';">
                         <input type="email" placeholder="<?= Security::e($t['footer_placeholder_email']) ?>" required>
                         <button type="submit" class="fid-footway-sub-btn"><?= Security::e($t['footer_btn_subscribe']) ?></button>
                     </form>
