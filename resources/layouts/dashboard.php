@@ -215,6 +215,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 
     <!-- MAIN CONTENT SHELL -->
     <div class="app-main">
+        <?php if ($currentRoute !== 'dashboard'): ?>
         <header class="top-header">
             <div class="header-left">
                 <button type="button" id="sidebarToggleBtn" class="btn btn-sm btn-outline" aria-label="Toggle Sidebar">
@@ -282,8 +283,9 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </a>
             </div>
         </header>
+        <?php endif; ?>
 
-        <main class="content-area">
+        <main class="content-area <?= $currentRoute === 'dashboard' ? 'content-area-finnova' : '' ?>">
             <?php if (!empty($_SESSION['flash_success'])): ?>
                 <div class="alert alert-success animate-in">
                     <?= Icons::svg('check-circle', 18) ?>
