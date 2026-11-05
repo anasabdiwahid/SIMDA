@@ -27,28 +27,6 @@ $isSo = $locale === 'so';
             <span class="finnova-badge-count">80</span>
         </div>
 
-        <!-- Center Capsule Navigation Menu -->
-        <nav class="finnova-menu-capsule" aria-label="Finnova Quick Menu">
-            <a href="?route=dashboard" class="finnova-menu-link active">
-                <span class="bullet"></span> Overview
-            </a>
-            <a href="?route=applications" class="finnova-menu-link">
-                Estimates
-            </a>
-            <a href="?route=financings" class="finnova-menu-link">
-                <span class="bullet"></span> Invoices
-            </a>
-            <a href="?route=repayments" class="finnova-menu-link">
-                Payments
-            </a>
-            <a href="?route=schedules" class="finnova-menu-link">
-                Recurring
-            </a>
-            <a href="?route=clients" class="finnova-menu-link">
-                Checkouts
-            </a>
-        </nav>
-
         <!-- Right Utility Icons & Profile -->
         <div class="finnova-utils-group">
             <a href="?route=statements" class="finnova-util-btn" title="Statements & Reports">
