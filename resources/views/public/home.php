@@ -473,7 +473,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <li><a href="#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="#our-process"><?= Security::e($t['nav_process']) ?></a></li>
             <li><a href="#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
-            <li><a href="#education"><?= Security::e($t['nav_faq']) ?></a></li>
+            <li><a href="?route=faq"><?= Security::e($t['nav_faq']) ?></a></li>
             <li><a href="?route=contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>
 
@@ -964,8 +964,14 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 <!-- 6. FINANCIAL EDUCATION — 4 HORIZONTAL MEDIA CARDS + LIVE SCHEDULE CALCULATOR -->
 <section id="education" class="fid-section">
     <div class="fid-container">
-        <div class="fid-section-head">
-            <span class="fid-eyebrow"><?= Security::e($t['edu_eyebrow']) ?></span>
+        <div class="fid-section-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+                <span class="fid-eyebrow"><?= Security::e($t['edu_eyebrow']) ?></span>
+            </div>
+            <a href="?route=faq" class="fid-btn-green" style="padding:7px 18px;font-size:0.8rem;border-radius:999px;box-shadow:none;">
+                <span><?= Security::e($t['footer_faq']) ?></span>
+                <?= Icons::svg('arrow-right', 12) ?>
+            </a>
         </div>
 
         <div class="fid-edu-grid">
@@ -1295,7 +1301,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <div>
                     <h5><?= Security::e($t['footer_col_info']) ?></h5>
                     <ul class="fid-footer-links">
-                        <li><a href="#education"><?= Security::e($t['footer_faq']) ?></a></li>
+                        <li><a href="?route=faq"><?= Security::e($t['footer_faq']) ?></a></li>
                         <li><a href="?route=about"><?= Security::e($t['footer_about_simda']) ?></a></li>
                         <li><a href="#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
                     </ul>

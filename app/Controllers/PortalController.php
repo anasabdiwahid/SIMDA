@@ -31,6 +31,7 @@ final class PortalController
                 'home' => self::publicHome($pdo),
                 'about' => self::publicAbout($pdo),
                 'contact' => self::publicContact($pdo),
+                'faq' => self::publicFaq($pdo),
                 'contact_submit' => self::contactSubmit($pdo),
                 'offline' => self::publicOffline(),
                 'login' => self::loginForm(),
@@ -158,6 +159,16 @@ final class PortalController
             $settings[$r['setting_key']] = $r['setting_value'];
         }
         require dirname(__DIR__, 2) . '/resources/views/public/contact.php';
+    }
+
+    private static function publicFaq(PDO $pdo): void
+    {
+        $settingsRows = $pdo->query('SELECT setting_key, setting_value FROM system_settings')->fetchAll();
+        $settings = [];
+        foreach ($settingsRows as $r) {
+            $settings[$r['setting_key']] = $r['setting_value'];
+        }
+        require dirname(__DIR__, 2) . '/resources/views/public/faq.php';
     }
 
     private static function contactSubmit(PDO $pdo): void
