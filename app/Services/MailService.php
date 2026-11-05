@@ -125,19 +125,29 @@ final class MailService
 
         $textPlain = $plainBody !== '' ? $plainBody : strip_tags($htmlBody);
 
+        // Standard high-deliverability email headers (prevents spam classifier flags)
+        $msgDomain = (strpos($fromEmail, '@') !== false) ? substr(strrchr($fromEmail, '@'), 1) : 'gmail.com';
+        $messageId = '<simda.' . bin2hex(random_bytes(12)) . '.' . time() . '@' . $msgDomain . '>';
+
+        $baseHeaders = [
+            'MIME-Version: 1.0',
+            'Message-ID: ' . $messageId,
+            'Date: ' . date('r'),
+            'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
+            'Reply-To: <' . $fromEmail . '>',
+            'To: <' . $to . '>',
+            'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
+            'Auto-Submitted: auto-generated',
+            'X-Auto-Response-Suppress: All',
+        ];
+
         if (!empty($inlineAttachments)) {
             $relBoundary = 'bnd_rel_' . md5(uniqid((string) mt_rand(), true));
             $altBoundary = 'bnd_alt_' . md5(uniqid((string) mt_rand(), true));
 
-            $headers = [
-                'MIME-Version: 1.0',
-                'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
-                'To: <' . $to . '>',
-                'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
-                'Date: ' . date('r'),
-                'X-Mailer: SIMDA Institutional Mailer v1.0',
+            $headers = array_merge($baseHeaders, [
                 'Content-Type: multipart/related; boundary="' . $relBoundary . '"',
-            ];
+            ]);
 
             $payload = implode("\r\n", $headers) . "\r\n\r\n";
             $payload .= "--{$relBoundary}\r\n";
@@ -175,15 +185,9 @@ final class MailService
             $payload .= ".\r\n";
         } else {
             $boundary = 'bnd_' . md5(uniqid((string) mt_rand(), true));
-            $headers = [
-                'MIME-Version: 1.0',
-                'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
-                'To: <' . $to . '>',
-                'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
-                'Date: ' . date('r'),
-                'X-Mailer: SIMDA Institutional Mailer v1.0',
+            $headers = array_merge($baseHeaders, [
                 'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
-            ];
+            ]);
 
             $payload = implode("\r\n", $headers) . "\r\n\r\n";
             $payload .= "--{$boundary}\r\n";
@@ -254,11 +258,11 @@ final class MailService
             $branchSubtext = 'Xarunta dhexe ee SIMDA.';
         }
 
-        $subject = ($roleSlug === 'manager')
-            ? "SIMDA: Hambalyo! Waxaa laguu diiwaangeliyay Maamulaha Guud (General Operations Manager)"
-            : (($roleSlug === 'branch_manager')
-                ? "SIMDA: Hambalyo! Waxaa laguu diiwaangeliyay Maamulaha Laanta ({$branchText})"
-                : "SIMDA: Ku soo dhowow Nidaamka SIMDA - Faahfaahinta Akoonkaaga Cusub");
+        $subject = match ($roleSlug) {
+            'manager' => "SIMDA: Akoonkaaga Cusub ee Maamulaha Guud (General Operations Manager)",
+            'branch_manager' => "SIMDA: Akoonkaaga Maamulaha Laanta ({$branchText})",
+            default => "SIMDA: Macluumaadka Gelitaanka Akoonkaaga Cusub",
+        };
 
         // Prepare inline logo attachment for CID embedding (supported by Gmail, Outlook, Apple Mail)
         $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
@@ -300,10 +304,7 @@ final class MailService
                             </table>
                             <h1 style="margin:0 0 4px;color:#FFFFFF;font-size:24px;font-weight:900;letter-spacing:1px;font-family:Georgia,serif;">SIMDA</h1>
                             <p style="margin:0;color:#D6B66C;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">Somali Islamic Microfinance Development Association</p>
-                            <p style="margin:5px 0 0;color:rgba(255,255,255,0.78);font-size:11px;">Building Trust • Zero-Riba Islamic Financing</p>
-                        </td>
-                    </tr>
-                            <p style="margin:6px 0 0;color:rgba(255,255,255,0.78);font-size:12px;">Building Trust • Zero-Riba Islamic Financing</p>
+                            <p style="margin:5px 0 0;color:rgba(255,255,255,0.78);font-size:11px;">Building Trust • Islamic Microfinance</p>
                         </td>
                     </tr>
 
