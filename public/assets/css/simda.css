@@ -2228,6 +2228,7 @@ html:has(body.fid-page) {
     height: 38px;
     width: auto;
     display: block;
+    filter: brightness(0) invert(1) !important;
     transition: filter 0.25s ease;
 }
 
@@ -2249,45 +2250,34 @@ html:has(body.fid-page) {
     align-items: flex-start;
 }
 
-/* 1. LIGHT MODE: Original Logo with NO background box (Transparent) */
+/* Footer Logo ALWAYS Pure White on the dark green footer */
+.fid-footer-logo-badge,
 [data-theme="light"] .fid-footer-logo-badge,
+[data-theme="dark"] .fid-footer-logo-badge,
 html:not([data-theme="dark"]) .fid-footer-logo-badge {
     background: transparent !important;
     padding: 0 !important;
     box-shadow: none !important;
 }
 
+.fid-footer-logo-img,
 [data-theme="light"] .fid-footer-logo-img,
+[data-theme="dark"] .fid-footer-logo-img,
 html:not([data-theme="dark"]) .fid-footer-logo-img {
-    filter: none !important;
-}
-
-[data-theme="light"] .fid-footer-logo-tagline span,
-html:not([data-theme="dark"]) .fid-footer-logo-tagline span {
-    color: rgba(255, 255, 255, 0.95) !important;
-}
-
-[data-theme="light"] .fid-footer-logo-tagline span:last-child,
-html:not([data-theme="dark"]) .fid-footer-logo-tagline span:last-child {
-    color: #D6B66C !important;
-}
-
-/* 2. DARK MODE: Pure White Logo with NO background box (Transparent) */
-[data-theme="dark"] .fid-footer-logo-badge {
-    background: transparent !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-}
-
-[data-theme="dark"] .fid-footer-logo-img {
     filter: brightness(0) invert(1) !important;
 }
 
-[data-theme="dark"] .fid-footer-logo-tagline span {
+.fid-footer-logo-tagline span,
+[data-theme="light"] .fid-footer-logo-tagline span,
+[data-theme="dark"] .fid-footer-logo-tagline span,
+html:not([data-theme="dark"]) .fid-footer-logo-tagline span {
     color: #FFFFFF !important;
 }
 
-[data-theme="dark"] .fid-footer-logo-tagline span:last-child {
+.fid-footer-logo-tagline span:last-child,
+[data-theme="light"] .fid-footer-logo-tagline span:last-child,
+[data-theme="dark"] .fid-footer-logo-tagline span:last-child,
+html:not([data-theme="dark"]) .fid-footer-logo-tagline span:last-child {
     color: #D6B66C !important;
 }
 
