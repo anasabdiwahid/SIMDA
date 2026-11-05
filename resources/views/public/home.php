@@ -805,7 +805,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     <div class="fid-container">
         <div class="fid-why-grid">
             <div class="fid-why-photo reveal-on-scroll">
-                <img src="assets/images/landing/why-choose-us.jpg?v=<?= Security::e($assetVer) ?>" alt="SIMDA Somali Professional Entrepreneur">
+                <img src="assets/images/landing/why-choose-us.jpg?v=<?= filemtime(BASE_PATH . '/public/assets/images/landing/why-choose-us.jpg') ?>" alt="SIMDA Executive Leader with Apple MacBook">
             </div>
 
             <div class="fid-why-panel reveal-on-scroll">
