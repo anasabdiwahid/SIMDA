@@ -195,8 +195,22 @@ final class PortalController
             $lang = 'ar';
         } else {
             $msgLower = mb_strtolower($message, 'UTF-8');
-            $soMarkers = ['waa', 'maxay', 'sidee', 'ma ', 'leedihiin', 'jiraa', 'jirtaa', 'ribo', 'ribada', 'dulsaar', 'keyd', 'kayd', 'lacag', 'codsi', 'codsadaa', 'mashiin', 'kiosk', 'baqaar', 'dhul', 'dhismaha', 'jimco', 'sabti', 'ganaax', 'sadaqo', 'dammaanad', 'garab', 'wadaag', 'koox', 'xafiis', 'xagee', 'lambarka', 'asc', 'nabad', 'mahadsanid', 'subax', 'galab', 'haye', 'haa', 'maya'];
-            $enMarkers = ['what', 'how', 'why', 'who', 'is ', 'are ', 'can ', 'do ', 'does ', 'interest', 'riba', 'savings', 'deposit', 'account', 'apply', 'application', 'eligible', 'murabaha', 'loan', 'financing', 'friday', 'saturday', 'shift', 'penalty', 'charity', 'guarantor', 'solidarity', 'office', 'where', 'location', 'contact', 'phone', 'email', 'hello', 'hi', 'thanks', 'thank you', 'yes', 'no'];
+            $soMarkers = [
+                'xog', 'xogta', 'mesha', 'meesha', 'meeshan', 'meshan', 'wax', 'waxba', 'iga', 'sheeg', 'sheegtaan',
+                'iiga', 'ii', 'waran', 'warbixin', 'fahamsii', 'fahansi', 'halkan', 'halkee', 'shirkad', 'shirkadda',
+                'hay\'ad', 'hay\'adda', 'qabataan', 'qabataa', 'socda', 'socoto', 'rabay', 'rabaa', 'rabnaa', 'doonayaa',
+                'donaya', 'fadlan', 'walaal', 'abaayo', 'abowe', 'sxb', 'soo', 'dhowow', 'wcs', 'calaykum', 'alaykum',
+                'waa', 'maxay', 'sidee', 'sideed', 'ma ', 'leedihiin', 'jiraa', 'jirtaa', 'ribo', 'ribada', 'dulsaar',
+                'keyd', 'kayd', 'lacag', 'codsi', 'codsadaa', 'mashiin', 'kiosk', 'baqaar', 'dhul', 'dhismaha', 'jimco',
+                'sabti', 'ganaax', 'sadaqo', 'dammaanad', 'garab', 'wadaag', 'koox', 'xafiis', 'xagee', 'lambarka',
+                'asc', 'nabad', 'mahadsanid', 'subax', 'galab', 'haye', 'haa', 'maya'
+            ];
+            $enMarkers = [
+                'what', 'how', 'why', 'who', 'where', 'when', 'is ', 'are ', 'can ', 'do ', 'does ', 'tell ', 'about',
+                'interest', 'riba', 'savings', 'deposit', 'account', 'apply', 'application', 'eligible', 'murabaha',
+                'loan', 'financing', 'friday', 'saturday', 'shift', 'penalty', 'charity', 'guarantor', 'solidarity',
+                'office', 'location', 'contact', 'phone', 'email', 'hello', 'hi', 'hey', 'thanks', 'thank you', 'yes', 'no'
+            ];
 
             $soCount = 0;
             foreach ($soMarkers as $sm) {
@@ -207,9 +221,9 @@ final class PortalController
                 if (mb_strpos($msgLower, $em) !== false) $enCount++;
             }
 
-            if ($soCount > $enCount && $soCount > 0) {
+            if ($soCount > 0 && $soCount >= $enCount) {
                 $lang = 'so';
-            } elseif ($enCount > $soCount && $enCount > 0) {
+            } elseif ($enCount > 0 && $enCount > $soCount) {
                 $lang = 'en';
             }
         }
@@ -221,8 +235,67 @@ final class PortalController
         $topic = 'general';
         $suggestions = [];
 
-        // 1. Riba & Interest Check
+        // 1. Overview / "Xogta meesha wax iga sheeg" / "Tell me about this place / SIMDA"
         if (
+            preg_match('/(xog|xogta|waran|meesha|mesha|meeshan|meshan|halkan|waxa socda|shirkaddan|hay\'addan|maxaad qabataan|maxaa la qabtaa|wax iga sheeg|iiga waran|i fahamsii|about this place|tell me about|what is this place|overview|what does simda do|عن هذا المكان|أخبرني عن|ما هي هذه المؤسسة|ماذا تفعلون|نبذة)/iu', $message)
+        ) {
+            $topic = 'overview';
+            if ($lang === 'ar') {
+                $reply = "مرحباً بك في سيمدا (SIMDA) - جمعية تطوير التمويل الأصغر الإسلامي الصومالية!\n\n"
+                    . "إليك أهم ما تحتاج لمعرفته حول المؤسسة ونظامنا التمويلي:\n\n"
+                    . "1. 0% ربا (تمويل إسلامي نقي): جميع معاملاتنا خالية 100% من الفوائد الربوية، ونعمل بصيغة المرابحة الشرعية (Cost-Plus) بهامش ربح ثابت ومعلوم مسبقاً.\n"
+                    . "2. لا توجد حسابات توفير: سيمدا مؤسسة تمويل أصغر متخصصة حصرياً في تقديم التمويل التنموي والإنتاجي، ولا نقبل ودائع الادخار.\n"
+                    . "3. مجالات التمويل: نمول الآلات والمعدات، تأسيس الأكشاك ومحلات التجزئة، أعمال بناء الأراضي ذات الملكية الموثقة، ومركبات النقل.\n"
+                    . "4. نظام الموافقة الثنائي: رقابة صارمة عبر مسؤول التمويل (Loan Officer) واعتماد رسمي من مدير الفرع (Branch Manager).\n"
+                    . "5. ترحيل أقساط الجمعة: احتراماً لعطلة الجمعة، تُرحل الأقساط آلياً إلى السبت دون أي غرامة.\n"
+                    . "6. صندوق الصدقات: غرامات التأخير التأديبية تذهب 100% لصالح الفقراء والمحتاجين ($0 للمؤسسة).\n\n"
+                    . "المقر الرئيسي: تقاطع KM4، مديرية هودن، مقديشو | هاتف: 6256534 61 252+ | بريد: info@simda.so";
+                $suggestions = ['هل التمويل 0% ربا؟', 'كيف أتقدم بطلب تمويل؟', 'ما هي المرابحة؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Welcome to SIMDA (Somali Islamic Microfinance Development Association)!\n\n"
+                    . "Here is a complete overview of what we do and how our system works:\n\n"
+                    . "1. 0% Riba (Zero Interest): All financing is 100% Sharia-compliant through Murabaha cost-plus sales contracts with zero compounding interest and no hidden fees.\n"
+                    . "2. Financing Only (No Savings): We are an ethical microfinance institution focused purely on financing small businesses; we do not accept public savings deposits.\n"
+                    . "3. What We Finance: Productive machinery & tools, market kiosk construction, commercial inventory, plot construction, and business transport.\n"
+                    . "4. Dual-Threshold Approval: Fast, transparent governance managed by Loan Officers and authorized by Branch Managers.\n"
+                    . "5. Automatic Friday Shift: Due dates falling on Islamic Friday weekend shift automatically to Saturday with zero late penalties.\n"
+                    . "6. Segregated Charity Fund: Disciplinary late fees are never taken as income ($0 to SIMDA); they are 100% transferred to our community welfare Charity Fund.\n\n"
+                    . "Head Office: KM4, Hodan District, Mogadishu | Tel: +252 61 6256534 | Email: info@simda.so";
+                $suggestions = ['Is it 0% Riba?', 'How can I apply?', 'What is Murabaha?'];
+            } else {
+                $reply = "Ku soo dhowow SIMDA (Somali Islamic Microfinance Development Association)!\n\n"
+                    . "Meeshan waa hay'ad maaliyadeed oo Islaami ah oo loogu talagalay in ay maalgashato ganacsatada yaryar, baqaarrada, iyo bulshada Soomaaliyeed.\n\n"
+                    . "Waa kuwan qodobbada ugu muhiimsan ee aad u baahan tahay inaad ka ogaato SIMDA:\n\n"
+                    . "1. 0% Ribo (Ribo La'aan Buuxda): Dhammaan maalgelinteennu waa 100% shareecada waafaqsan, wax dulsaar ah ma jiraan, waxaana ku shaqeynaa nidaamka xalaasha ah ee Murabaha.\n"
+                    . "2. Ma bixinno Keyd (No Savings): SIMDA ma ahan bangi lacag lagu dhigto; waxaan nahay hay'ad microfinance oo kaliya bixisa maalgelin ganacsi iyo horumarin.\n"
+                    . "3. Waxyaabaha aan Maalgelinno: Qalabka & mashiinnada ganacsiga, dhismaha iyo agabka Kiosks-ka/dukaamada suuqa, dhismaha qaybaha dhulka ee sharciyeysan, iyo gaadiidka ganacsiga.\n"
+                    . "4. Nidaamka Oggolaanshaha: Codsi kasta waxaa darsaya Sarkaalka Maaliyadda (Loan Officer), waxaana ansixinaya Maareeyaha Laanta (Branch Manager).\n"
+                    . "5. Xushmadda Jimcaha: Maalinta Jimcaha lacag lama bixiyo; nidaamkayagu si toos ah ayuu bixinta ugu wareejiyaa Sabtida iyadoo wax ganaax ah aysan jirin.\n"
+                    . "6. Sanduuqa Sadaqada: Haddii qofku sabab la'aan u daaho, ganaaxa edbinta ah 100% wuxuu toos u galaa Sanduuqa Sadaqada ($0 ayuu bangigu ka qaataa).\n\n"
+                    . "Xafiiska Sare: KM4, Degmada Hodan, Muqdisho | Tel: +252 61 6256534 / +252 61 5000000 | Email: info@simda.so";
+                $suggestions = ['0% Ribo ma dhabbaa?', 'Sideen u codsadaa?', 'Keyd ma leedihiin?'];
+            }
+        }
+        // 2. Greetings / Salams
+        elseif (
+            preg_match('/^(asc|salaam|salam|salan|hello|hi|hey|subax|galab|nabad|marhaban|مرحبا|أهلا|السلام)/iu', $message) ||
+            preg_match('/(asc|asalaamu|assalamu|salaamu calaykum|salaam)/iu', $message)
+        ) {
+            $topic = 'greeting';
+            if ($lang === 'ar') {
+                $reply = "وعليكم السلام ورحمة الله وبركاته! أهلاً وسهلاً بك في سيمدا للتمويل الإسلامي. كيف يمكنني مساعدتك اليوم بخصوص التمويل 0% ربا، شروط التقديم، أو الاستفسارات العامة؟";
+                $suggestions = ['أخبرني عن هذا المكان', 'هل التمويل خالٍ من الربا؟', 'كيف أتقدم بطلب؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Assalamu Alaykum and welcome to SIMDA! I am glad to assist you. How can I help you today with our 0% Riba Islamic microfinance, loans, or services?";
+                $suggestions = ['Tell me about this place', 'Is it 0% Riba?', 'How can I apply?'];
+            } else {
+                $reply = "Wcs walaal! Ku soo dhowow Kaaliyaha Caqliga Badan ee SIMDA. Waan ku faraxsanahay inaan ku caawiyo. Wax kasta oo ku saabsan nidaamka, maalgelinta xalaasha ah (0% Ribo), ama sida loo codsado ayaad i weydiin kartaa. Maxaan maanta kugu caawin karaa?";
+                $suggestions = ['Xogta meesha wax iga sheeg', '0% Ribo ma dhabbaa?', 'Sideen u codsadaa?'];
+            }
+        }
+
+        // 3. Riba & Interest Check
+        elseif (
             preg_match('/(ribo|ribada|dulsaar|riba|interest|usury|ربا|فوائد|فائدة|ربوية)/iu', $message)
         ) {
             $topic = 'riba';
@@ -397,20 +470,20 @@ final class PortalController
                 $suggestions = ['0% Ribo ma dhabbaa?', 'Murabaha waa maxay?', 'Sideen u codsadaa?'];
             }
         }
-        // 12. Greetings / Salams
+        // 12. Developer & Platform Engineer (Anas Abdiwahid)
         elseif (
-            preg_match('/(asc|salaam|salam|hello|hi|subax|galab|nabad|marhaban|مرحبا|أهلا|السلام)/iu', $message)
+            preg_match('/(developer|anas|abdiwahid|yaa dhisay|yaa sameeyay|who made|who developed|من طور|من بنى|من المطور)/iu', $message)
         ) {
-            $topic = 'greeting';
+            $topic = 'developer';
             if ($lang === 'ar') {
-                $reply = "وعليكم السلام ورحمة الله وبركاته! أهلاً وسهلاً بك في سيمدا للتمويل الإسلامي. يسعدني مساعدتك في أي استفسار حول خدماتنا، خلوها من الربا 0%، أو كيفية التقديم.";
-                $suggestions = ['هل التمويل خالٍ من الربا؟', 'ما هي شروط التقديم؟', 'ما هي المرابحة؟'];
+                $reply = "تم تصميم وهندسة منصة سيمدا (SIMDA) الذكية للتمويل الإسلامي بواسطة المهندس أنس عبد الواحد (Anas Abdiwahid).";
+                $suggestions = ['أخبرني عن هذا المكان', 'هل التمويل 0% ربا؟'];
             } elseif ($lang === 'en') {
-                $reply = "Hello and welcome to SIMDA! I am glad to assist you. How can I help you today with our 0% Riba ethical microfinance or loan application?";
-                $suggestions = ['Is it 0% Riba?', 'How can I apply?', 'What is Murabaha?'];
+                $reply = "The SIMDA Islamic Microfinance digital platform was architected and developed by software engineer Anas Abdiwahid (https://anazabdiwahid.netlify.app/).";
+                $suggestions = ['Tell me about this place', 'Is it 0% Riba?'];
             } else {
-                $reply = "Asc! Ku soo dhowow SIMDA. Waan ku faraxsanahay inaan ku caawiyo. Maxaan maanta kugu caawin karaa oo ku saabsan nidaamka ama maalgelinta xalaasha ah?";
-                $suggestions = ['0% Ribo ma dhabbaa?', 'Sideen u codsadaa?', 'Murabaha waa maxay?'];
+                $reply = "Nidaamka casriga ah iyo bogga SIMDA waxaa dhisay oo farsamadiisa heerka sare ah diyaariyay Software Engineer Anas Abdiwahid (https://anazabdiwahid.netlify.app/).";
+                $suggestions = ['Xogta meesha wax iga sheeg', '0% Ribo ma dhabbaa?'];
             }
         }
         // 13. Gratitude

@@ -506,7 +506,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
         /* Messages stream */
         .faq-chat-stream {
-            height: 260px;
+            height: 285px;
             overflow-y: auto;
             background: #F9FBFA;
             border: 1px solid #E5EBE8;
@@ -545,6 +545,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             font-size: 0.77rem;
             line-height: 1.45;
             word-break: break-word;
+            white-space: pre-line;
         }
         .faq-chat-msg.bot .faq-chat-bubble {
             background: #FFFFFF;
@@ -1223,12 +1224,13 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         msgDiv.appendChild(bubble);
         msgDiv.appendChild(timeSpan);
 
-        // Insert before chips if they exist or at end
+        // Always append in strict chronological order
+        stream.appendChild(msgDiv);
+
+        // Keep quick suggestion chips at the bottom of the active conversation
         var chips = document.getElementById('faqChatChips');
-        if (chips && sender === 'bot') {
-            stream.insertBefore(msgDiv, chips);
-        } else {
-            stream.appendChild(msgDiv);
+        if (chips) {
+            stream.appendChild(chips);
         }
 
         scrollChatToBottom();
@@ -1243,11 +1245,10 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         wrap.className = 'faq-chat-msg bot';
         wrap.innerHTML = '<div class="faq-chat-typing"><span></span><span></span><span></span></div>';
 
+        stream.appendChild(wrap);
         var chips = document.getElementById('faqChatChips');
         if (chips) {
-            stream.insertBefore(wrap, chips);
-        } else {
-            stream.appendChild(wrap);
+            stream.appendChild(chips);
         }
         scrollChatToBottom();
     }
