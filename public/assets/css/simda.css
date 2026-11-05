@@ -3413,17 +3413,18 @@ body.is-offline .offline-banner {
 }
 
 .finnova-brand-symbol {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #5B4EF5 0%, #8377FA 100%);
+    background: linear-gradient(135deg, #123B32 0%, #1E6B5C 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFF;
+    color: #D6B66C;
     font-weight: 800;
     font-size: 1.1rem;
-    box-shadow: 0 4px 12px rgba(91, 78, 245, 0.35);
+    border: 1px solid rgba(214, 182, 108, 0.4);
+    box-shadow: 0 4px 12px rgba(18, 59, 50, 0.35);
 }
 
 .finnova-brand-meta h2 {
@@ -3447,18 +3448,19 @@ body.is-offline .offline-banner {
 }
 
 .finnova-badge-count {
-    background: #EFF1F7;
-    color: #43485E;
+    background: rgba(214, 182, 108, 0.16);
+    color: #8F6E22;
     font-weight: 700;
     font-size: 0.76rem;
     padding: 4px 10px;
     border-radius: 999px;
+    border: 1px solid rgba(214, 182, 108, 0.35);
     letter-spacing: 0.02em;
 }
 
 [data-theme="dark"] .finnova-badge-count {
-    background: #24283D;
-    color: #C5C9DC;
+    background: rgba(214, 182, 108, 0.22);
+    color: #D6B66C;
 }
 
 /* Center Capsule Navigation Menu */
@@ -3490,9 +3492,10 @@ body.is-offline .offline-banner {
 }
 
 .finnova-menu-link.active {
-    background: #5B4EF5;
+    background: #123B32;
     color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(91, 78, 245, 0.4);
+    border: 1px solid rgba(214, 182, 108, 0.45);
+    box-shadow: 0 4px 14px rgba(18, 59, 50, 0.45);
 }
 
 .finnova-menu-link .bullet {
@@ -3503,7 +3506,7 @@ body.is-offline .offline-banner {
 }
 
 .finnova-menu-link.active .bullet {
-    background: #FFFFFF;
+    background: #D6B66C;
 }
 
 /* Utility Right Icons */
@@ -3559,14 +3562,14 @@ body.is-offline .offline-banner {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border: 2px solid #5B4EF5;
+    border: 2px solid #D6B66C;
     overflow: hidden;
     margin-left: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #E8E5FF;
-    color: #5B4EF5;
+    background: rgba(18, 59, 50, 0.12);
+    color: #123B32;
     font-weight: 700;
     font-size: 0.85rem;
 }
@@ -3669,20 +3672,23 @@ body.is-offline .offline-banner {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #5B4EF5;
+    background: linear-gradient(135deg, #123B32 0%, #1A5447 100%);
     color: #FFFFFF;
+    border: 1px solid rgba(214, 182, 108, 0.45);
     border-radius: 999px;
     padding: 11px 22px;
     font-weight: 600;
     font-size: 0.92rem;
     text-decoration: none;
-    box-shadow: 0 8px 22px rgba(91, 78, 245, 0.35);
+    box-shadow: 0 8px 22px rgba(18, 59, 50, 0.35);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .finnova-create-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(91, 78, 245, 0.45);
+    background: linear-gradient(135deg, #16483D 0%, #1F6656 100%);
+    border-color: #D6B66C;
+    box-shadow: 0 12px 28px rgba(18, 59, 50, 0.45);
     color: #FFFFFF;
 }
 
@@ -3748,8 +3754,8 @@ body.is-offline .offline-banner {
 }
 
 .finnova-kpi-icon-pill.purple {
-    background: #EDEAFD;
-    color: #5B4EF5;
+    background: rgba(214, 182, 108, 0.18);
+    color: #9A7826;
 }
 
 .finnova-kpi-icon-pill.teal {
@@ -3785,7 +3791,7 @@ body.is-offline .offline-banner {
 }
 
 .finnova-kpi-trend.red { color: #E5484D; }
-.finnova-kpi-trend.purple { color: #5B4EF5; }
+.finnova-kpi-trend.purple { color: #123B32; font-weight: 700; }
 .finnova-kpi-trend.teal { color: #00A389; }
 
 /* Visual Art in bottom of KPI cards */
@@ -3827,10 +3833,11 @@ body.is-offline .offline-banner {
 }
 
 .finnova-mini-method.active {
-    background: linear-gradient(135deg, #7C70FA 0%, #5B4EF5 100%);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #C59B47 0%, #E2BD6E 100%);
+    color: #10241E;
+    font-weight: 700;
     border-color: transparent;
-    box-shadow: 0 4px 12px rgba(91, 78, 245, 0.35);
+    box-shadow: 0 4px 14px rgba(197, 155, 71, 0.4);
 }
 
 .finnova-mini-method .card-dots {
@@ -3962,8 +3969,8 @@ body.is-offline .offline-banner {
 
 .finnova-search-capsule input:focus {
     width: 260px;
-    border-color: #5B4EF5;
-    box-shadow: 0 0 0 3px rgba(91, 78, 245, 0.15);
+    border-color: #123B32;
+    box-shadow: 0 0 0 3px rgba(18, 59, 50, 0.15);
 }
 
 .finnova-search-capsule .search-icon {
@@ -4029,9 +4036,10 @@ body.is-offline .offline-banner {
 }
 
 .finnova-tab-btn.active {
-    background: #5B4EF5;
+    background: linear-gradient(135deg, #123B32 0%, #1A5447 100%);
     color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(91, 78, 245, 0.45);
+    border: 1px solid rgba(214, 182, 108, 0.45);
+    box-shadow: 0 4px 14px rgba(18, 59, 50, 0.45);
 }
 
 .finnova-dark-actions {
@@ -4093,9 +4101,9 @@ body.is-offline .offline-banner {
 }
 
 .finnova-inv-row.active {
-    background: linear-gradient(135deg, #5B4EF5 0%, #685BF6 100%);
-    border-color: transparent;
-    box-shadow: 0 10px 28px rgba(91, 78, 245, 0.45);
+    background: linear-gradient(135deg, #123B32 0%, #1A5447 100%);
+    border-color: rgba(214, 182, 108, 0.45);
+    box-shadow: 0 10px 28px rgba(18, 59, 50, 0.45);
     transform: translateX(4px);
 }
 
@@ -4158,9 +4166,9 @@ body.is-offline .offline-banner {
 }
 
 .finnova-inv-row.active .finnova-inv-status {
-    background: #FFFFFF;
-    color: #5B4EF5;
-    font-weight: 700;
+    background: #D6B66C;
+    color: #0D2620;
+    font-weight: 800;
 }
 
 .finnova-inv-amount {
@@ -4172,13 +4180,14 @@ body.is-offline .offline-banner {
 
 /* Right Column: Signature Gradient Detail Card */
 .finnova-detail-card {
-    background: linear-gradient(135deg, #4639C8 0%, #5B4EF5 100%);
+    background: linear-gradient(135deg, #0B241E 0%, #123B32 45%, #184F43 100%);
+    border: 1px solid rgba(214, 182, 108, 0.25);
     border-radius: 24px;
     padding: 28px 28px 24px 28px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 14px 34px rgba(91, 78, 245, 0.35);
+    box-shadow: 0 16px 40px rgba(11, 36, 30, 0.4);
     position: relative;
     overflow: hidden;
 }
@@ -4227,10 +4236,11 @@ body.is-offline .offline-banner {
 }
 
 .finnova-detail-status-pill {
-    background: rgba(255, 255, 255, 0.2);
-    color: #FFFFFF;
+    background: rgba(214, 182, 108, 0.22);
+    color: #F3E2BD;
+    border: 1px solid rgba(214, 182, 108, 0.4);
     font-size: 0.74rem;
-    font-weight: 600;
+    font-weight: 700;
     padding: 3px 10px;
     border-radius: 999px;
 }
@@ -4258,7 +4268,7 @@ body.is-offline .offline-banner {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.4);
+    border: 2px solid #D6B66C;
     overflow: hidden;
     background: #FFF;
     display: flex;
@@ -4293,19 +4303,21 @@ body.is-offline .offline-banner {
 }
 
 .finnova-breakdown-box {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(8px);
+    border: 1px solid rgba(214, 182, 108, 0.2);
     border-radius: 16px;
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     min-height: 95px;
-    transition: background 0.15s ease;
+    transition: all 0.15s ease;
 }
 
 .finnova-breakdown-box:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(214, 182, 108, 0.4);
 }
 
 .finnova-breakdown-amount {
@@ -4319,7 +4331,8 @@ body.is-offline .offline-banner {
 
 .finnova-breakdown-amount .arrow-icon {
     font-size: 0.9rem;
-    opacity: 0.75;
+    color: #D6B66C;
+    opacity: 1;
 }
 
 .finnova-breakdown-label {
@@ -4403,22 +4416,23 @@ body.is-offline .offline-banner {
 }
 
 .finnova-payout-white-btn {
-    background: #FFFFFF;
-    color: #16192C;
+    background: linear-gradient(135deg, #D6B66C 0%, #E7C87E 100%);
+    color: #0B241E;
     border-radius: 999px;
     padding: 11px 24px;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 0.92rem;
     text-decoration: none;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: 0 6px 20px rgba(214, 182, 108, 0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
     border: none;
     cursor: pointer;
 }
 
 .finnova-payout-white-btn:hover {
     transform: translateY(-2px);
-    background: #F4F5FB;
+    background: linear-gradient(135deg, #E2C37B 0%, #F0D48D 100%);
+    box-shadow: 0 10px 26px rgba(214, 182, 108, 0.5);
 }
 
 /* Operational Charts Drawer (Seamless fallback for institutional drilldown) */

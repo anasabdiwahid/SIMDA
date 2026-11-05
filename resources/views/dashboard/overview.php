@@ -18,14 +18,10 @@ $isSo = $locale === 'so';
         <!-- Brand & Counter Badge -->
         <div class="finnova-brand-group">
             <a href="?route=dashboard" class="finnova-brand-logo" style="text-decoration:none;">
-                <div class="finnova-brand-symbol">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path>
-                    </svg>
-                </div>
+                <img src="assets/images/simda-icon.png" alt="SIMDA" style="height:36px;width:auto;border-radius:10px;box-shadow:0 3px 10px rgba(18,59,50,0.18);">
                 <div class="finnova-brand-meta">
-                    <h2>FINNOVA</h2>
-                    <p>Smart Finances, Better Business</p>
+                    <h2>SIMDA</h2>
+                    <p><?= $isSo ? 'Maalgelinta Islaamiga ah' : 'Islamic Microfinance Development' ?></p>
                 </div>
             </a>
             <span class="finnova-badge-count">80</span>
@@ -179,8 +175,8 @@ $isSo = $locale === 'so';
                     <rect x="88" y="22" width="64" height="42" rx="3" fill="#20232E"/>
                     <rect x="91" y="25" width="58" height="36" rx="1" fill="#151722"/>
                     <!-- Screen Mockup lines -->
-                    <rect x="96" y="30" width="24" height="2" rx="1" fill="#5B4EF5"/>
-                    <rect x="96" y="34" width="36" height="2" rx="1" fill="#66708A"/>
+                    <rect x="96" y="30" width="24" height="2" rx="1" fill="#123B32"/>
+                    <rect x="96" y="34" width="36" height="2" rx="1" fill="#C59B47"/>
                     <rect x="96" y="38" width="18" height="2" rx="1" fill="#66708A"/>
                     <!-- Laptop Base -->
                     <path d="M80 64 L160 64 L154 66 L86 66 Z" fill="#9DA4B5"/>
@@ -218,16 +214,16 @@ $isSo = $locale === 'so';
             <div class="finnova-card-art">
                 <svg width="100%" height="82" viewBox="0 0 240 82" fill="none" preserveAspectRatio="xMidYEnd">
                     <!-- Jul -->
-                    <rect x="15" y="48" width="16" height="24" rx="4" fill="#CDC9FA"/>
+                    <rect x="15" y="48" width="16" height="24" rx="4" fill="#CDE2DA"/>
                     <text x="23" y="80" text-anchor="middle" font-size="9" fill="#8E94A8" font-family="sans-serif">Jul</text>
                     <!-- Aug -->
-                    <rect x="53" y="38" width="16" height="34" rx="4" fill="#CDC9FA"/>
+                    <rect x="53" y="38" width="16" height="34" rx="4" fill="#CDE2DA"/>
                     <text x="61" y="80" text-anchor="middle" font-size="9" fill="#8E94A8" font-family="sans-serif">Aug</text>
                     <!-- Sep -->
-                    <rect x="91" y="44" width="16" height="28" rx="4" fill="#CDC9FA"/>
+                    <rect x="91" y="44" width="16" height="28" rx="4" fill="#CDE2DA"/>
                     <text x="99" y="80" text-anchor="middle" font-size="9" fill="#8E94A8" font-family="sans-serif">Sep</text>
                     <!-- Oct -->
-                    <rect x="129" y="24" width="16" height="48" rx="4" fill="#CDC9FA"/>
+                    <rect x="129" y="24" width="16" height="48" rx="4" fill="#CDE2DA"/>
                     <text x="137" y="80" text-anchor="middle" font-size="9" fill="#8E94A8" font-family="sans-serif">Oct</text>
                     <!-- Nov (Active Tall) -->
                     <rect x="167" y="8" width="16" height="64" rx="4" fill="url(#barGradNov)"/>
@@ -237,8 +233,8 @@ $isSo = $locale === 'so';
                     <text x="213" y="80" text-anchor="middle" font-size="9" fill="#8E94A8" font-family="sans-serif">Dec</text>
                     <defs>
                         <linearGradient id="barGradNov" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#5B4EF5"/>
-                            <stop offset="100%" stop-color="#7B6FF8"/>
+                            <stop offset="0%" stop-color="#123B32"/>
+                            <stop offset="100%" stop-color="#1E6B5C"/>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -267,23 +263,23 @@ $isSo = $locale === 'so';
                 <svg width="100%" height="82" viewBox="0 0 240 82" fill="none" preserveAspectRatio="xMidYEnd">
                     <defs>
                         <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#5B4EF5" stop-opacity="0.22"/>
-                            <stop offset="100%" stop-color="#5B4EF5" stop-opacity="0.0"/>
+                            <stop offset="0%" stop-color="#123B32" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#123B32" stop-opacity="0.0"/>
                         </linearGradient>
                     </defs>
                     <!-- Gradient Area Fill -->
                     <path d="M 10 68 C 45 64, 75 58, 105 46 C 135 34, 165 42, 195 24 C 210 16, 225 14, 235 12 L 235 80 L 10 80 Z" fill="url(#curveGradient)"/>
                     <!-- Smooth Curved Line -->
-                    <path d="M 10 68 C 45 64, 75 58, 105 46 C 135 34, 165 42, 195 24 C 210 16, 225 14, 235 12" stroke="#5B4EF5" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                    <path d="M 10 68 C 45 64, 75 58, 105 46 C 135 34, 165 42, 195 24 C 210 16, 225 14, 235 12" stroke="#123B32" stroke-width="2.6" stroke-linecap="round" fill="none"/>
                     <!-- Data Nodes -->
-                    <circle cx="10" cy="68" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="45" cy="64" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="75" cy="58" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="105" cy="46" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="140" cy="38" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="175" cy="34" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="205" cy="20" r="4.5" fill="#FFFFFF" stroke="#5B4EF5" stroke-width="2"/>
-                    <circle cx="235" cy="12" r="5" fill="#5B4EF5" stroke="#FFFFFF" stroke-width="2"/>
+                    <circle cx="10" cy="68" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="45" cy="64" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="75" cy="58" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="105" cy="46" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="140" cy="38" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="175" cy="34" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="205" cy="20" r="4.5" fill="#D6B66C" stroke="#123B32" stroke-width="2"/>
+                    <circle cx="235" cy="12" r="5" fill="#123B32" stroke="#D6B66C" stroke-width="2"/>
                 </svg>
             </div>
         </div>
@@ -711,7 +707,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         label: 'Principal ($)',
                         data: monthlyData.length ? monthlyData.map(r => parseFloat(r.principal_collected)) : [45000, 52000, 48000, 72000, 95000, 84000],
-                        backgroundColor: '#5B4EF5',
+                        backgroundColor: '#123B32',
                         borderRadius: 6
                     },
                     {
@@ -738,7 +734,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: byProduct.length ? byProduct.map(p => p.product_type.toUpperCase()) : ['Murabaha', 'Salam', 'Istisna'],
                 datasets: [{
                     data: byProduct.length ? byProduct.map(p => parseFloat(p.total_principal)) : [65, 25, 10],
-                    backgroundColor: ['#5B4EF5', '#C59B47', '#00A389']
+                    backgroundColor: ['#123B32', '#C59B47', '#1E6B5C']
                 }]
             },
             options: {
