@@ -44,13 +44,21 @@ $tAll = [
         'q6' => 'What is the 100% Segregated Charity Fund?',
         'a6' => 'Any involuntary late payments or charity contributions are kept 100% separate from SIMDA operational revenues and allocated entirely to community welfare, relief, and disadvantaged entrepreneur grants.',
 
-        // Right Card: Any Question?
-        'any_q_title' => 'Any Question?',
-        'any_q_desc' => 'You can ask anything you want to know about SIMDA ethical microfinance.',
-        'let_me_know' => 'Let me know.',
-        'input_placeholder' => 'Enter your question or phone number...',
+        // Right Card: AI Chatbot (Multilingual)
+        'any_q_title' => 'SIMDA Smart AI',
+        'any_q_desc' => 'Ask anything about 0% Riba, Murabaha, or loans in English, Somali, or Arabic.',
+        'chat_status_online' => 'Online',
+        'chat_welcome_msg' => 'Assalamu Alaykum! I am SIMDA\'s Smart AI Assistant. Ask me anything about our 0% Riba Sharia-compliant financing, Murabaha system, requirements, or policies in English, Somali, or Arabic!',
+        'chip_1' => '0% Riba ma dhabbaa?',
+        'chip_2' => 'Do you offer savings?',
+        'chip_3' => 'How can I apply?',
+        'chip_4' => 'What is Murabaha?',
+        'chat_placeholder' => 'Ask in English, Somali, or Arabic...',
+        'chat_clear_title' => 'Reset Chat',
+        'let_me_know' => 'Type your question...',
+        'input_placeholder' => 'Ask in English, Somali, or Arabic...',
         'btn_send' => 'Send',
-        'send_alert' => 'Thank you! Your question has been submitted to SIMDA advisors. We will contact you shortly.',
+        'send_alert' => 'Thank you! Your question has been submitted.',
 
         // Footer
         'footer_col_newsletter' => "SIMDA's Newsletter",
@@ -116,13 +124,21 @@ $tAll = [
         'q6' => 'Waa maxay Sanduuqa Sadaqada ee Gaarka ah (Charity Fund)?',
         'a6' => 'Lacag kasta oo tabaruc ama sadaqo ah waxaa lagu maamulaa sanduuq 100% ka madaxbannaan xisaabaadka SIMDA, waxaana gebi ahaanba loogu adeegaa danta guud ee bulshada danyarta ah.',
 
-        // Right Card: Any Question?
-        'any_q_title' => 'Su\'aal ma qabtaa?',
-        'any_q_desc' => 'Waxaad weydiin kartaa wax kasta oo aad rabto inaad ka ogaato maalgelinta xalaasha ah ee SIMDA.',
+        // Right Card: AI Chatbot (Multilingual)
+        'any_q_title' => 'Kaaliyaha SIMDA AI',
+        'any_q_desc' => '0% Ribo • Weydii su\'aal kasta adoo adeegsanaya Af-Soomaali, English, ama Carabi.',
+        'chat_status_online' => 'Khadka ku jira',
+        'chat_welcome_msg' => 'Asc! Waxaan ahay Kaaliyaha Caqliga Badan ee SIMDA (Smart Chatbot). Wax kasta oo ku saabsan nidaamka, maalgelinta xalaasha ah (0% Ribo), shuruudaha, ama sida loo codsado ayaad i weydiin kartaa. Af-Soomaali, English, ama Carabi waan kuugu jawaabayaa!',
+        'chip_1' => '0% Ribo ma dhabbaa?',
+        'chip_2' => 'Keyd ma leedihiin?',
+        'chip_3' => 'Sideen u codsadaa?',
+        'chip_4' => 'Murabaha waa maxay?',
+        'chat_placeholder' => 'Qor su\'aashaada (SO, EN, AR)...',
+        'chat_clear_title' => 'Nadiifi Wadahadalka',
         'let_me_know' => 'Ila soo socodsii.',
-        'input_placeholder' => 'Halkan ku qor su\'aashaada ama lambarkaaga...',
-        'btn_send' => 'Dir Su\'aasha',
-        'send_alert' => 'Waad mahadsan tahay! Su\'aashaada waa la gudbiyay, kooxda SIMDA ayaa kula soo xiriiri doonta.',
+        'input_placeholder' => 'Qor su\'aashaada halkan...',
+        'btn_send' => 'Dir',
+        'send_alert' => 'Waad mahadsan tahay! Su\'aashaada waa la gudbiyay.',
 
         // Footer
         'footer_col_newsletter' => 'Wargelinta SIMDA',
@@ -188,13 +204,21 @@ $tAll = [
         'q6' => 'ما هو صندوق الصدقات الخيري المنفصل بنسبة 100%؟',
         'a6' => 'أي مبالغ تبرعات أو مساهمات خيرية يتم إيداعها في صندوق منفصل تماماً عن ميزانية سيمدا التشغيلية، وتخصص بنسبة 100% للمساعدات المجتمعية والفقراء.',
 
-        // Right Card: Any Question?
-        'any_q_title' => 'لديك أي سؤال؟',
-        'any_q_desc' => 'يمكنك السؤال عن أي شيء ترغب بمعرفته حول خدمات سيمدا للتمويل الإسلامي.',
-        'let_me_know' => 'دعنا نعرف.',
-        'input_placeholder' => 'اكتب سؤالك أو رقم هاتفك هنا...',
+        // Right Card: AI Chatbot (Multilingual)
+        'any_q_title' => 'مساعد سيمدا الذكي',
+        'any_q_desc' => '0% ربا • اسأل عن أي شيء بالعربية، الصومالية، أو الإنجليزية وسيجيبك فوراً.',
+        'chat_status_online' => 'متصل الآن',
+        'chat_welcome_msg' => 'السلام عليكم ورحمة الله وبركاته! أنا مساعد سيمدا الذكي (Chatbot). يسعدني الإجابة عن كافة استفساراتك حول التمويل الإسلامي، خلوه من الربا (0% ربا)، شروط التقديم، أو مواعيد العمل باللغة العربية، الصومالية، أو الإنجليزية.',
+        'chip_1' => 'هل التمويل 0% ربا؟',
+        'chip_2' => 'هل لديكم حسابات توفير؟',
+        'chip_3' => 'كيف أتقدم بطلب تمويل؟',
+        'chip_4' => 'ما هو بيع المرابحة؟',
+        'chat_placeholder' => 'اكتب سؤالك بأي لغة...',
+        'chat_clear_title' => 'إعادة ضبط المحادثة',
+        'let_me_know' => 'اكتب سؤالك هنا...',
+        'input_placeholder' => 'اكتب سؤالك هنا بأي لغة...',
         'btn_send' => 'إرسال',
-        'send_alert' => 'شكراً لك! تم استلام سؤالك وسيقوم مستشارو سيمدا بالتواصل معك قريباً.',
+        'send_alert' => 'شكراً لك! تم استلام سؤالك.',
 
         // Footer
         'footer_col_newsletter' => 'نشرة سيمدا البريدية',
@@ -385,115 +409,278 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             background: #123B32;
         }
 
-        /* Right Column "Any Question?" Card */
+        /* Right Column "Smart AI Chatbot" Card */
         .faq-ask-card {
             background: #FFFFFF;
             border-radius: 14px;
-            padding: 18px 18px;
-            box-shadow: 0 6px 20px rgba(18, 59, 50, 0.05);
-            border: 1px solid rgba(220, 226, 222, 0.75);
-            text-align: center;
+            padding: 14px 14px 12px;
+            box-shadow: 0 6px 20px rgba(18, 59, 50, 0.06);
+            border: 1px solid rgba(220, 226, 222, 0.85);
+            text-align: left;
             position: sticky;
             top: 85px;
-        }
-        .faq-ask-illustration {
-            width: 100%;
-            max-width: 110px;
-            height: auto;
-            border-radius: 10px;
-            margin: 0 auto 8px;
-            display: block;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .faq-ask-card h3 {
-            font-size: 1.05rem;
-            font-weight: 800;
-            color: #123B32;
-            margin: 0 0 4px;
-        }
-        .faq-ask-card p {
-            font-size: 0.76rem;
-            color: #63736D;
-            line-height: 1.45;
-            margin: 0 0 12px;
-        }
-        .faq-ask-form {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            text-align: left;
         }
-        html[dir="rtl"] .faq-ask-form {
+        html[dir="rtl"] .faq-ask-card {
             text-align: right;
         }
-        .faq-input-wrap {
+        .faq-chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px solid #ECEEEA;
+            padding-bottom: 10px;
+        }
+        .faq-chat-avatar-wrap {
             position: relative;
+            flex-shrink: 0;
         }
-        .faq-input-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #8C9993;
-            margin-bottom: 3px;
+        .faq-chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
             display: block;
-            text-transform: capitalize;
+            border: 2px solid #23845B;
+            box-shadow: 0 2px 8px rgba(35, 132, 91, 0.2);
         }
-        .faq-input-field {
-            width: 100%;
-            padding: 8px 30px 8px 11px;
-            border-radius: 7px;
+        .faq-chat-status-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background: #10B981;
+            border: 2px solid #FFFFFF;
+            border-radius: 50%;
+            animation: pulseDot 2s infinite ease-in-out;
+        }
+        @keyframes pulseDot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .faq-chat-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .faq-chat-title {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: #123B32;
+            margin: 0;
+            line-height: 1.25;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .faq-chat-sub {
+            font-size: 0.69rem;
+            color: #63736D;
+            margin: 2px 0 0;
+            line-height: 1.3;
+        }
+        .faq-chat-clear-btn {
+            background: transparent;
+            border: 1px solid #E1E8E4;
+            color: #8C9993;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .faq-chat-clear-btn:hover {
+            color: #E11D48;
+            border-color: #E11D48;
+            background: rgba(225, 29, 72, 0.05);
+        }
+
+        /* Messages stream */
+        .faq-chat-stream {
+            height: 260px;
+            overflow-y: auto;
+            background: #F9FBFA;
+            border: 1px solid #E5EBE8;
+            border-radius: 10px;
+            padding: 10px 9px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            scroll-behavior: smooth;
+        }
+        .faq-chat-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 88%;
+            animation: fadeInMsg 0.2s ease-out;
+        }
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .faq-chat-msg.bot {
+            align-self: flex-start;
+        }
+        .faq-chat-msg.user {
+            align-self: flex-end;
+        }
+        html[dir="rtl"] .faq-chat-msg.bot {
+            align-self: flex-start;
+        }
+        html[dir="rtl"] .faq-chat-msg.user {
+            align-self: flex-end;
+        }
+        .faq-chat-bubble {
+            padding: 8px 11px;
+            border-radius: 12px;
+            font-size: 0.77rem;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+        .faq-chat-msg.bot .faq-chat-bubble {
+            background: #FFFFFF;
+            color: #17332B;
+            border: 1px solid #DFE8E3;
+            border-top-left-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+        html[dir="rtl"] .faq-chat-msg.bot .faq-chat-bubble {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 2px;
+        }
+        .faq-chat-msg.user .faq-chat-bubble {
+            background: #123B32;
+            color: #FFFFFF;
+            border-top-right-radius: 2px;
+            box-shadow: 0 2px 6px rgba(18, 59, 50, 0.18);
+        }
+        html[dir="rtl"] .faq-chat-msg.user .faq-chat-bubble {
+            border-top-right-radius: 12px;
+            border-top-left-radius: 2px;
+        }
+        .faq-chat-time {
+            font-size: 0.62rem;
+            color: #A0ABA6;
+            margin-top: 2px;
+            padding: 0 4px;
+        }
+        .faq-chat-msg.user .faq-chat-time {
+            text-align: right;
+        }
+        html[dir="rtl"] .faq-chat-msg.user .faq-chat-time {
+            text-align: left;
+        }
+
+        /* Suggestion Chips */
+        .faq-chat-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 4px;
+        }
+        .faq-chat-chip {
+            background: #FFFFFF;
+            border: 1px solid rgba(35, 132, 91, 0.3);
+            color: #123B32;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .faq-chat-chip:hover {
+            background: #23845B;
+            color: #FFFFFF;
+            border-color: #23845B;
+            transform: translateY(-1px);
+        }
+
+        /* Typing Dots */
+        .faq-chat-typing {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: #FFFFFF;
+            border: 1px solid #DFE8E3;
+            border-radius: 12px;
+            border-top-left-radius: 2px;
+            width: fit-content;
+        }
+        .faq-chat-typing span {
+            width: 5px;
+            height: 5px;
+            background: #23845B;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounceTyping 1.4s infinite ease-in-out both;
+        }
+        .faq-chat-typing span:nth-child(1) { animation-delay: -0.32s; }
+        .faq-chat-typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounceTyping {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Input form */
+        .faq-chat-form {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .faq-chat-input {
+            flex: 1;
+            padding: 8px 11px;
+            border-radius: 8px;
             border: 1.2px solid #D6DFDB;
             background: #FDFDFB;
-            font-size: 0.78rem;
+            font-size: 0.77rem;
             font-family: inherit;
             color: #1F2D2A;
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
             box-sizing: border-box;
         }
-        html[dir="rtl"] .faq-input-field {
-            padding: 8px 11px 8px 30px;
-        }
-        .faq-input-field:focus {
+        .faq-chat-input:focus {
             outline: none;
             border-color: #23845B;
             box-shadow: 0 0 0 2px rgba(35, 132, 91, 0.14);
         }
-        .faq-input-clear {
-            position: absolute;
-            right: 10px;
-            top: 24px;
-            background: transparent;
-            border: none;
-            color: #A0ABA6;
-            cursor: pointer;
-            font-size: 0.85rem;
-            line-height: 1;
-            padding: 0;
-        }
-        html[dir="rtl"] .faq-input-clear {
-            right: auto;
-            left: 10px;
-        }
-        .faq-submit-btn {
+        .faq-chat-send-btn {
             background: #23845B;
             color: #FFFFFF;
             border: none;
-            padding: 7px 22px;
-            border-radius: 999px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(35, 132, 91, 0.28);
-            transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-            margin: 4px auto 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 95px;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(35, 132, 91, 0.25);
+            transition: background 0.15s ease, transform 0.15s ease;
         }
-        .faq-submit-btn:hover {
-            transform: translateY(-1px);
+        .faq-chat-send-btn:hover {
             background: #123B32;
-            box-shadow: 0 6px 18px rgba(18, 59, 50, 0.3);
+            transform: scale(1.05);
+        }
+        .faq-chat-send-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+        html[dir="rtl"] .faq-chat-send-btn svg {
+            transform: scaleX(-1);
         }
 
         @media (max-width: 900px) {
@@ -688,22 +875,51 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 </div>
             </div>
 
-            <!-- Right Column: "Any Question?" Interactive Box -->
+            <!-- Right Column: Smart AI Multilingual Chatbot -->
             <div>
-                <div class="faq-ask-card" id="anyQuestionCard">
-                    <!-- Clean 3D Vector Illustration of Support Question -->
-                    <img src="assets/images/landing/faq-support-illustration.jpg?v=2" alt="SIMDA Support Guide" class="faq-ask-illustration">
-
-                    <h3><?= Security::e($t['any_q_title']) ?></h3>
-                    <p><?= Security::e($t['any_q_desc']) ?></p>
-
-                    <form class="faq-ask-form" onsubmit="event.preventDefault(); handleAskSubmit(this);">
-                        <div class="faq-input-wrap">
-                            <label class="faq-input-label" for="faqQuestionInput"><?= Security::e($t['let_me_know']) ?></label>
-                            <input type="text" id="faqQuestionInput" class="faq-input-field" placeholder="<?= Security::e($t['input_placeholder']) ?>" required>
-                            <button type="button" class="faq-input-clear" onclick="document.getElementById('faqQuestionInput').value='';" aria-label="Clear input">&times;</button>
+                <div class="faq-ask-card" id="simdaChatCard" role="region" aria-label="SIMDA AI Assistant">
+                    <!-- Chatbot Header -->
+                    <div class="faq-chat-header">
+                        <div class="faq-chat-avatar-wrap">
+                            <img src="assets/images/landing/faq-support-illustration.jpg?v=2" alt="SIMDA AI Assistant" class="faq-chat-avatar">
+                            <span class="faq-chat-status-dot" title="<?= Security::e($t['chat_status_online']) ?>"></span>
                         </div>
-                        <button type="submit" class="faq-submit-btn"><?= Security::e($t['btn_send']) ?></button>
+                        <div class="faq-chat-meta">
+                            <div class="faq-chat-title">
+                                <span><?= Security::e($t['any_q_title']) ?></span>
+                            </div>
+                            <div class="faq-chat-sub"><?= Security::e($t['any_q_desc']) ?></div>
+                        </div>
+                        <button type="button" class="faq-chat-clear-btn" onclick="resetFaqChat()" title="<?= Security::e($t['chat_clear_title']) ?>" aria-label="Reset Chat">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Messages Scroll Stream -->
+                    <div class="faq-chat-stream" id="faqChatStream">
+                        <!-- Welcome Bot Message -->
+                        <div class="faq-chat-msg bot">
+                            <div class="faq-chat-bubble"><?= Security::e($t['chat_welcome_msg']) ?></div>
+                            <span class="faq-chat-time"><?= date('H:i') ?></span>
+                        </div>
+                        <!-- Suggestion Quick Chips -->
+                        <div class="faq-chat-chips" id="faqChatChips">
+                            <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_1']) ?></button>
+                            <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_2']) ?></button>
+                            <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_3']) ?></button>
+                            <button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= Security::e($t['chip_4']) ?></button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Form -->
+                    <form class="faq-chat-form" id="faqChatForm" onsubmit="event.preventDefault(); sendFaqChat();">
+                        <input type="text" id="faqChatInput" class="faq-chat-input" placeholder="<?= Security::e($t['input_placeholder']) ?>" autocomplete="off" required>
+                        <button type="submit" class="faq-chat-send-btn" id="faqChatSendBtn" title="<?= Security::e($t['btn_send']) ?>" aria-label="Send">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -969,12 +1185,186 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         });
     }
 
-    // Handle "Any Question?" Form Submit
-    function handleAskSubmit(form) {
-        var input = form.querySelector('input');
-        if (!input.value.trim()) return;
-        alert('<?= Security::e($t['send_alert']) ?>');
+    // Smart Multilingual AI Chatbot Engine
+    var currentLocale = '<?= Security::e($locale) ?>';
+    var isBotThinking = false;
+
+    function formatTime() {
+        var now = new Date();
+        var h = String(now.getHours()).padStart(2, '0');
+        var m = String(now.getMinutes()).padStart(2, '0');
+        return h + ':' + m;
+    }
+
+    function scrollChatToBottom() {
+        var stream = document.getElementById('faqChatStream');
+        if (stream) {
+            setTimeout(function() {
+                stream.scrollTop = stream.scrollHeight;
+            }, 60);
+        }
+    }
+
+    function appendChatMsg(sender, text) {
+        var stream = document.getElementById('faqChatStream');
+        if (!stream) return;
+
+        var msgDiv = document.createElement('div');
+        msgDiv.className = 'faq-chat-msg ' + (sender === 'user' ? 'user' : 'bot');
+
+        var bubble = document.createElement('div');
+        bubble.className = 'faq-chat-bubble';
+        bubble.textContent = text;
+
+        var timeSpan = document.createElement('span');
+        timeSpan.className = 'faq-chat-time';
+        timeSpan.textContent = formatTime();
+
+        msgDiv.appendChild(bubble);
+        msgDiv.appendChild(timeSpan);
+
+        // Insert before chips if they exist or at end
+        var chips = document.getElementById('faqChatChips');
+        if (chips && sender === 'bot') {
+            stream.insertBefore(msgDiv, chips);
+        } else {
+            stream.appendChild(msgDiv);
+        }
+
+        scrollChatToBottom();
+    }
+
+    function showTypingIndicator() {
+        var stream = document.getElementById('faqChatStream');
+        if (!stream || document.getElementById('faqTypingInd')) return;
+
+        var wrap = document.createElement('div');
+        wrap.id = 'faqTypingInd';
+        wrap.className = 'faq-chat-msg bot';
+        wrap.innerHTML = '<div class="faq-chat-typing"><span></span><span></span><span></span></div>';
+
+        var chips = document.getElementById('faqChatChips');
+        if (chips) {
+            stream.insertBefore(wrap, chips);
+        } else {
+            stream.appendChild(wrap);
+        }
+        scrollChatToBottom();
+    }
+
+    function hideTypingIndicator() {
+        var typing = document.getElementById('faqTypingInd');
+        if (typing) typing.remove();
+    }
+
+    function updateSuggestionChips(suggestions) {
+        var chipsContainer = document.getElementById('faqChatChips');
+        if (!chipsContainer || !Array.isArray(suggestions) || suggestions.length === 0) return;
+
+        chipsContainer.innerHTML = '';
+        suggestions.forEach(function(text) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'faq-chat-chip';
+            btn.textContent = text;
+            btn.onclick = function() { askChip(btn); };
+            chipsContainer.appendChild(btn);
+        });
+        scrollChatToBottom();
+    }
+
+    function askChip(btn) {
+        if (isBotThinking) return;
+        var text = btn.textContent.trim();
+        var input = document.getElementById('faqChatInput');
+        if (input) input.value = text;
+        sendFaqChat();
+    }
+
+    function resetFaqChat() {
+        var stream = document.getElementById('faqChatStream');
+        if (!stream) return;
+
+        stream.innerHTML = 
+            '<div class="faq-chat-msg bot">' +
+                '<div class="faq-chat-bubble"><?= addslashes(Security::e($t['chat_welcome_msg'])) ?></div>' +
+                '<span class="faq-chat-time">' + formatTime() + '</span>' +
+            '</div>' +
+            '<div class="faq-chat-chips" id="faqChatChips">' +
+                '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_1'])) ?></button>' +
+                '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_2'])) ?></button>' +
+                '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_3'])) ?></button>' +
+                '<button type="button" class="faq-chat-chip" onclick="askChip(this)"><?= addslashes(Security::e($t['chip_4'])) ?></button>' +
+            '</div>';
+        
+        var input = document.getElementById('faqChatInput');
+        if (input) input.value = '';
+    }
+
+    function sendFaqChat() {
+        if (isBotThinking) return;
+        var input = document.getElementById('faqChatInput');
+        if (!input) return;
+
+        var message = input.value.trim();
+        if (!message) return;
+
+        // Display user message
+        appendChatMsg('user', message);
         input.value = '';
+        isBotThinking = true;
+
+        var sendBtn = document.getElementById('faqChatSendBtn');
+        if (sendBtn) sendBtn.disabled = true;
+
+        showTypingIndicator();
+
+        // Send to backend endpoint
+        fetch('?route=faq_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            },
+            body: JSON.stringify({
+                message: message,
+                lang: currentLocale
+            })
+        })
+        .then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        })
+        .then(function(data) {
+            hideTypingIndicator();
+            isBotThinking = false;
+            if (sendBtn) sendBtn.disabled = false;
+
+            if (data && data.reply) {
+                appendChatMsg('bot', data.reply);
+                if (data.suggestions) {
+                    updateSuggestionChips(data.suggestions);
+                }
+            } else {
+                appendChatMsg('bot', 'Waad mahadsan tahay! Su\'aashaada waa la diiwaangeliyay.');
+            }
+        })
+        .catch(function(err) {
+            hideTypingIndicator();
+            isBotThinking = false;
+            if (sendBtn) sendBtn.disabled = false;
+
+            // Intelligent Offline / Network Fallback
+            var fallback = '';
+            var lower = message.toLowerCase();
+            if (/[\u0600-\u06FF]/.test(message)) {
+                fallback = "نعم! في سيمدا نعمل بنسبة 0% ربا تماماً، ونقدم تمويل المرابحة الإسلامي للأصول والأعمال الصغيرة. يمكنك أيضاً التواصل معنا هاتفياً: 6256534 61 252+ أو زيارة فرعنا بمقديشو.";
+            } else if (/riba|interest|loan|apply|savings|murabaha|where|office|contact/i.test(lower)) {
+                fallback = "SIMDA operates strictly on 0% Riba through Murabaha financing for productive assets and kiosks (no savings accounts). Visit KM4 Mogadishu or call +252 61 6256534!";
+            } else {
+                fallback = "SIMDA waxay u taagan tahay 100% ribo la'aan (0% Riba) iyo maalgelinta xalaasha ah ee ganacsiyada yaryar. Waxaan ku shaqeynaa nidaamka Murabaha. Xafiiskeennu waa KM4, Muqdisho (Tel: +252 61 6256534).";
+            }
+            appendChatMsg('bot', fallback);
+        });
     }
 
     // Close language dropdown on outside click

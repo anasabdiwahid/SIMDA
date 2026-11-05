@@ -32,6 +32,7 @@ final class PortalController
                 'about' => self::publicAbout($pdo),
                 'contact' => self::publicContact($pdo),
                 'faq' => self::publicFaq($pdo),
+                'faq_chat' => self::faqChat($pdo),
                 'contact_submit' => self::contactSubmit($pdo),
                 'offline' => self::publicOffline(),
                 'login' => self::loginForm(),
@@ -169,6 +170,288 @@ final class PortalController
             $settings[$r['setting_key']] = $r['setting_value'];
         }
         require dirname(__DIR__, 2) . '/resources/views/public/faq.php';
+    }
+
+    private static function faqChat(PDO $pdo): void
+    {
+        header('Content-Type: application/json; charset=UTF-8');
+
+        $rawInput = (string) file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        $message = trim((string) ($json['message'] ?? $_POST['message'] ?? $_GET['message'] ?? ''));
+        $preferredLang = trim((string) ($json['lang'] ?? $_POST['lang'] ?? $_GET['lang'] ?? 'so'));
+
+        if ($message === '') {
+            echo json_encode([
+                'status' => 'error',
+                'reply' => 'Fadlan qor su\'aashaada (Please type your question / يرجى كتابة سؤالك).'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Language detection: Arabic -> Somali -> English
+        $lang = $preferredLang;
+        if (preg_match('/[\x{0600}-\x{06FF}]/u', $message)) {
+            $lang = 'ar';
+        } else {
+            $msgLower = mb_strtolower($message, 'UTF-8');
+            $soMarkers = ['waa', 'maxay', 'sidee', 'ma ', 'leedihiin', 'jiraa', 'jirtaa', 'ribo', 'ribada', 'dulsaar', 'keyd', 'kayd', 'lacag', 'codsi', 'codsadaa', 'mashiin', 'kiosk', 'baqaar', 'dhul', 'dhismaha', 'jimco', 'sabti', 'ganaax', 'sadaqo', 'dammaanad', 'garab', 'wadaag', 'koox', 'xafiis', 'xagee', 'lambarka', 'asc', 'nabad', 'mahadsanid', 'subax', 'galab', 'haye', 'haa', 'maya'];
+            $enMarkers = ['what', 'how', 'why', 'who', 'is ', 'are ', 'can ', 'do ', 'does ', 'interest', 'riba', 'savings', 'deposit', 'account', 'apply', 'application', 'eligible', 'murabaha', 'loan', 'financing', 'friday', 'saturday', 'shift', 'penalty', 'charity', 'guarantor', 'solidarity', 'office', 'where', 'location', 'contact', 'phone', 'email', 'hello', 'hi', 'thanks', 'thank you', 'yes', 'no'];
+
+            $soCount = 0;
+            foreach ($soMarkers as $sm) {
+                if (mb_strpos($msgLower, $sm) !== false) $soCount++;
+            }
+            $enCount = 0;
+            foreach ($enMarkers as $em) {
+                if (mb_strpos($msgLower, $em) !== false) $enCount++;
+            }
+
+            if ($soCount > $enCount && $soCount > 0) {
+                $lang = 'so';
+            } elseif ($enCount > $soCount && $enCount > 0) {
+                $lang = 'en';
+            }
+        }
+
+        $msgLower = mb_strtolower($message, 'UTF-8');
+
+        // Intent detection
+        $reply = '';
+        $topic = 'general';
+        $suggestions = [];
+
+        // 1. Riba & Interest Check
+        if (
+            preg_match('/(ribo|ribada|dulsaar|riba|interest|usury|ربا|فوائد|فائدة|ربوية)/iu', $message)
+        ) {
+            $topic = 'riba';
+            if ($lang === 'ar') {
+                $reply = "نعم بكل تأكيد! تعمل سيمدا بنسبة 0% ربا تماماً وبشكل قاطع. جميع صيغ التمويل لدينا متوافقة 100% مع أحكام الشريعة الإسلامية عبر عقود المرابحة الشرعية (Cost-Plus) الخالية تماماً من أي فوائد مركبة أو غرامات مستحلبة لحساب المؤسسة.";
+                $suggestions = ['ما هي المرابحة؟', 'كيف أتقدم بطلب تمويل؟', 'هل يوجد حساب توفير؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Yes, absolutely! SIMDA operates strictly with 0% Riba (zero interest). All financing is 100% Sharia-compliant through Murabaha cost-plus contracts. There is no compounding interest, no hidden interest fees, and no usury whatsoever.";
+                $suggestions = ['What is Murabaha?', 'How can I apply?', 'Do you have savings accounts?'];
+            } else {
+                $reply = "Haa, 100% waa dhab! SIMDA ma qaadato wax ribo ama dulsaar ah (0% Riba). Dhammaan maalgelinteennu waxay ku saleysan yihiin Shareecada Islaamka gaar ahaan nidaamka Murabaha. Faa'iidada waa mid go'an oo bilowga lagu heshiiyo, weligeedna ma kordho mana jirto dulsaar dulsaar ku fuulaya.";
+                $suggestions = ['Murabaha waa maxay?', 'Sideen u codsadaa?', 'Keyd ma leedihiin?'];
+            }
+        }
+        // 2. Savings & Deposits Check (Strictly NO)
+        elseif (
+            preg_match('/(keyd|kayd|lacag dhigasho|dhigo|deposit|saving|savings|توفير|ودائع|إيداع|حساب توفير)/iu', $message)
+        ) {
+            $topic = 'savings';
+            if ($lang === 'ar') {
+                $reply = "لا، سيمدا لا تقدم حسابات توفير ولا تقبل الودائع النقدية العامة. نحن مؤسسة تمويل أصغر إسلامية تركز حصرياً على تقديم التمويل الإنتاجي للأصول، الأكشاك، والمشاريع الصغيرة دون الاحتفاظ بودائع ادخارية.";
+                $suggestions = ['ما هي مجالات التمويل؟', 'هل التمويل خالٍ من الربا؟', 'كيف أتقدم بطلب؟'];
+            } elseif ($lang === 'en') {
+                $reply = "No, SIMDA does NOT offer savings accounts or take retail deposits. We are an ethical Islamic microfinance institution focused exclusively on asset financing, kiosk setup, and productive micro-enterprise loans.";
+                $suggestions = ['What can I finance?', 'Is it 0% Riba?', 'How to apply?'];
+            } else {
+                $reply = "Maya, SIMDA ma bixiso xisaabaadka keydka (No Savings Accounts) mana qabato lacago la dhigto. SIMDA waa hay'ad microfinance oo loogu talagalay oo kaliya in ay maalgeliyaan ganacsiyada yaryar, qalabka, iyo baqaarrada iyada oo aan keyd shacabka laga qaban.";
+                $suggestions = ['Maxaad maalgeliyaan?', '0% Ribo ma dhabbaa?', 'Sideen u codsadaa?'];
+            }
+        }
+        // 3. Murabaha Definition & Operation
+        elseif (
+            preg_match('/(murabaha|muraabaxa|cost-plus|مرابحة|المرابحة)/iu', $message)
+        ) {
+            $topic = 'murabaha';
+            if ($lang === 'ar') {
+                $reply = "بيع المرابحة هو عقد بيع إسلامي شرعي شفاف: تقوم سيمدا بشراء الأصل، البضاعة، أو المعدات التي تحتاجها من المورد مباشرة، ثم تبيعها لك بسعر التكلفة مضافاً إليه هامش ربح محدد ومتفق عليه مسبقاً. ويتم السداد على أقساط أسبوعية أو شهرية ثابتة دون أي فوائد مركبة.";
+                $suggestions = ['هل توجد فوائد ربوية؟', 'ما هي شروط التقديم؟', 'أين يقع مكتبكم؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Murabaha is an Islamic cost-plus sales contract: SIMDA purchases the exact commercial asset, machine, or inventory you need directly from suppliers, then sells it to you at cost plus a transparent, pre-agreed fixed markup. You repay in fixed weekly or monthly installments with 0% compounding interest.";
+                $suggestions = ['Is there any Riba?', 'What are the requirements?', 'Where is your office?'];
+            } else {
+                $reply = "Murabaha waa heshiis ganacsi oo Islaami ah (Cost-Plus): SIMDA ayaa iibineysa qalabka ama badeecada aad u baahan tahay (mashiin, agab dukaan, ama agab dhisme), kadibna waxay adiga kuugu iibineysaa qiimihii asalka ahaa oo lagu daray faa'iido go'an oo bilowga lagu heshiiyo. Lacagta waxaa lagu bixiyaa qeyb-qeyb (instalments) todobaadle ama bille ah iyadoon wax ribo ah jirin.";
+                $suggestions = ['0% Ribo ma dhabbaa?', 'Shuruudaha maxay yihiin?', 'Xafiiskiina xagee ku yaal?'];
+            }
+        }
+        // 4. Products & What We Finance (Assets, Kiosks, Plots)
+        elseif (
+            preg_match('/(alaab|noocyada|mashiin|kiosk|baqaar|dhul|dhismaha|products|finance|equipment|plot|assets|منتجات|خدمات|أكشاك|بناء|معدات|أصول)/iu', $message)
+        ) {
+            $topic = 'products';
+            if ($lang === 'ar') {
+                $reply = "تمول سيمدا حزمة متميزة من الأصول الإنتاجية: 1) آلات ومعدات المشروعات الصغيرة. 2) تأسيس وتجهيز أكشاك الأسواق والمحلات. 3) تمويل أعمال البناء للأراضي ذات الملكية الثابتة. 4) وسائل النقل والخدمات اللوجستية التجارية. 5) تمويل المجموعات التضامنية (Garab-wadaag).";
+                $suggestions = ['كيف أتقدم بطلب تمويل؟', 'هل لديكم حسابات توفير؟', 'أين يقع مكتبكم؟'];
+            } elseif ($lang === 'en') {
+                $reply = "SIMDA finances productive business assets: 1) Micro-enterprise machinery, tools & commercial equipment. 2) Market kiosks, grocery stalls & vendor shops. 3) Plot construction and development with verified ownership. 4) Commercial transportation. 5) Solidarity group & individual financing.";
+                $suggestions = ['How can I apply?', 'Do you have savings accounts?', 'Where is your office?'];
+            } else {
+                $reply = "SIMDA waxay maalgelisaa: 1) Qalabka & Mashiinnada ganacsiyada yaryar. 2) Dhismaha iyo buuxinta Kiosks-ka iyo dukaamada suuqa. 3) Dhismayaasha qaybaha dhulka ee leh dukumentiyada sharciyeysan. 4) Gaadiidka ganacsiga (sida mootooyinka/bajaajta). 5) Maalgelinta kooxaha garab-wadaagta (Solidarity Groups) iyo shakhsiyaadka.";
+                $suggestions = ['Sideen u codsadaa?', 'Keyd ma leedihiin?', 'Xafiiskiina xagee ku yaal?'];
+            }
+        }
+        // 5. Requirements & How to Apply
+        elseif (
+            preg_match('/(codsi|codsadaa|shuruud|shuruudaha|qaabkee|requirements|eligibility|how to apply|apply|process|شروط|كيف أقدم|طلب تمويل|الأوراق)/iu', $message)
+        ) {
+            $topic = 'apply';
+            if ($lang === 'ar') {
+                $reply = "للتقديم على تمويل سيمدا: 1) ملء استمارة الطلب عبر موقعنا أو زيارة الفرع. 2) إحضار إثبات الهوية (البطاقة أو الجواز) وبيانات المشروع. 3) تقديم كفيل معتمد أو الانضمام لمجموعة تضامنية. 4) يقوم مسؤول التمويل بزيارة النشاط وتقييمه ثم يعتمده مدير الفرع قبل صرف الأصل مباشرة.";
+                $suggestions = ['أين يقع مكتبكم؟', 'هل التمويل 0% ربا؟', 'ما هي أوقات العمل؟'];
+            } elseif ($lang === 'en') {
+                $reply = "To apply for SIMDA financing: 1) Submit an inquiry online or visit our branch. 2) Provide valid identification (National ID/Passport) and your business outline. 3) Provide a reputable guarantor or join a solidarity group. 4) Our Loan Officer evaluates your business, followed by Branch Manager sign-off and direct asset handover.";
+                $suggestions = ['Where is your office?', 'Is it 0% Riba?', 'What are working hours?'];
+            } else {
+                $reply = "Si aad u codsato maalgelin: 1) Booqo xafiiskeena ama buuxi foomka xiriirka boggan. 2) Keen aqoonsi rasmi ah (ID/Passport) iyo qorshaha ganacsigaaga. 3) Keen dammaanad qaade (guarantor) la aamini karo ama ku biir koox garab-wadaag ah. 4) Sarkaalka Maaliyadda ayaa booqanaya goobtaada, kadibna Maareeyaha Laanta ayaa ansixinaya ka hor intaan qalabka lagu wareejin.";
+                $suggestions = ['Xafiiskiina xagee ku yaal?', '0% Ribo ma dhabbaa?', 'Saacadaha shaqadu waa maxay?'];
+            }
+        }
+        // 6. Dual-threshold approval (Officer & Manager)
+        elseif (
+            preg_match('/(sarkaal|maareeye|officer|manager|approval|dual|workflow|موافقة|مدير|مسؤول)/iu', $message)
+        ) {
+            $topic = 'approval';
+            if ($lang === 'ar') {
+                $reply = "نظام الموافقة الثنائي يضمن النزاهة والسرعة: 1) مسؤول التمويل (Loan Officer) يتأكد من هوية العميل والجدوى وزيارة الموقع. 2) مدير الفرع (Branch Manager) يدقق في حدود التمويل ومعايير الالتزام الشرعي قبل توقيع أمر الصرف النهائي.";
+                $suggestions = ['كيف أتقدم بطلب؟', 'هل التمويل 0% ربا؟', 'ما هي المرابحة؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Our dual-threshold workflow ensures thorough fairness: 1) The Loan Officer verifies the business profile, guarantor, and visits the site. 2) The Branch Manager independently reviews audit thresholds and grants final approval before disbursement.";
+                $suggestions = ['How to apply?', 'Is it 0% Riba?', 'What is Murabaha?'];
+            } else {
+                $reply = "Nidaamka oggolaanshaha labada heer ah wuxuu dammaanad qaadayaa hufnaan buuxda: 1) Sarkaalka Maaliyadda (Loan Officer) ayaa darsaya xaaladda ganacsigaaga, dammaanadda, iyo awoodda bixinta. 2) Maareeyaha Laanta (Branch Manager) ayaa hubinaya shuruucda iyo shareecada ka hor inta aan oggolaanshaha kama dambaysta ah la bixin.";
+                $suggestions = ['Sideen u codsadaa?', '0% Ribo ma dhabbaa?', 'Murabaha waa maxay?'];
+            }
+        }
+        // 7. Friday-to-Saturday shift & Repayment Schedules
+        elseif (
+            preg_match('/(jimco|sabti|jadwal|bixinta|shift|friday|saturday|schedule|repayment|جمعة|سبت|سداد|جدول)/iu', $message)
+        ) {
+            $topic = 'schedule';
+            if ($lang === 'ar') {
+                $reply = "احتراماً لعطلة يوم الجمعة المباركة في العالم الإسلامي، يقوم نظام الجدولة الآلي في سيمدا بترحيل أي قسط يستحق يوم الجمعة تلقائياً إلى يوم السبت دون احتساب أي تأخير أو رسوم إضافية.";
+                $suggestions = ['ماذا عن غرامات التأخير؟', 'هل التمويل 0% ربا؟', 'كيف أتقدم بطلب؟'];
+            } elseif ($lang === 'en') {
+                $reply = "SIMDA deeply respects Islamic Friday observance. Our automated schedule engine automatically shifts any installment originally falling on a Friday to Saturday with zero late fees or penalties.";
+                $suggestions = ['What about late penalties?', 'Is it 0% Riba?', 'How to apply?'];
+            } else {
+                $reply = "SIMDA waxay si weyn u xushmeysaa maalinta barakaysan ee Jimcaha. Haddii taariikhda bixinta lacagtu ku beeganto Jimco, nidaamkayagu si toos ah ayuu ugu wareejiyaa maalin Sabti ah iyada oo wax ganaax ama dacwad ah lagaa rabin.";
+                $suggestions = ['Ganaaxa xagee aadaa?', '0% Ribo ma dhabbaa?', 'Sideen u codsadaa?'];
+            }
+        }
+        // 8. Late payment & Segregated Charity Fund
+        elseif (
+            preg_match('/(ganaax|penalty|late|dib u dhac|charity|sadaqo|غرامة|تأخير|صدقة|صندوق الصدقات)/iu', $message)
+        ) {
+            $topic = 'charity';
+            if ($lang === 'ar') {
+                $reply = "أي غرامات تأديبية تُفرض في حال المماطلة غير المبررة تُحول بنسبة 100% إلى صندوق الصدقات الخيري المنفصل تماماً، والذي يُصرف على إغاثة الفقراء وكفالة المحتاجين. ولا يدخل حسابات سيمدا أي مليم منها ($0 للمؤسسة).";
+                $suggestions = ['هل التمويل 0% ربا؟', 'ما هي المرابحة؟', 'أين يقع مكتبكم؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Any disciplinary late payments are directed 100% into a strictly segregated Charity Fund used for community relief, humanitarian aid, and disadvantaged grants. SIMDA earns exactly $0 from penalties, keeping our finances 100% pure from Riba.";
+                $suggestions = ['Is it 0% Riba?', 'What is Murabaha?', 'Where is your office?'];
+            } else {
+                $reply = "Haddiiba qofku si sabab la'aan ah u daaho, lacagta ganaaxa edbinta ah 100% waxay toos ugu dhacdaa 'Sanduuqa Sadaqada' (Charity Fund) oo ah sanduuq gooni ah oo lagu caawiyo masaakiinta iyo danta guud. SIMDA wax dakhli ah kama qaadato ganaaxa ($0 ayey ka heshaa).";
+                $suggestions = ['0% Ribo ma dhabbaa?', 'Murabaha waa maxay?', 'Xafiiskiina xagee ku yaal?'];
+            }
+        }
+        // 9. Guarantor & Solidarity Groups
+        elseif (
+            preg_match('/(dammaanad|garab|wadaag|koox|guarantor|solidarity|group|كفيل|ضمان|تضامني|مجموعات)/iu', $message)
+        ) {
+            $topic = 'guarantor';
+            if ($lang === 'ar') {
+                $reply = "توفر سيمدا خيارين ميسرين للضمان: 1) كفيل شخصي موثوق (تاجر أو موظف معتمد). 2) نظام المجموعات التضامنية (Garab-wadaag) المكونة من 3 إلى 7 رواد أعمال يضمنون بعضهم البعض دون الحاجة لكفيل خارجي.";
+                $suggestions = ['كيف أتقدم بطلب تمويل؟', 'ما هي المنتجات؟', 'أين يقع فرعكم؟'];
+            } elseif ($lang === 'en') {
+                $reply = "SIMDA offers two flexible guarantee models: 1) An individual vetted guarantor (merchant or verified employee). 2) Solidarity lending groups (Garab-wadaag) of 3-7 micro-entrepreneurs who co-guarantee each other without needing external collateral.";
+                $suggestions = ['How can I apply?', 'What are the products?', 'Where is your branch?'];
+            } else {
+                $reply = "SIMDA waxay leedahay laba hab oo dammaanad ah: 1) Dammaanad qaade shakhsi ah (ganacsade ama qof la aaminsan yahay). 2) Kooxaha Garab-wadaagta (Solidarity Groups) oo ah 3 ilaa 7 qof oo ganacsato yaryar ah oo is dammaanad qaadaya iyadoon dammaanad dibadeed loo baahnayn.";
+                $suggestions = ['Sideen u codsadaa?', 'Maxaad maalgeliyaan?', 'Xafiiskiina xagee ku yaal?'];
+            }
+        }
+        // 10. Office location, contact & hours
+        elseif (
+            preg_match('/(xafiis|xagee|address|location|phone|email|contact|saacadaha|hours|ciwaan|أين|موقع|عنوان|هاتف|تواصل|ساعات العمل)/iu', $message)
+        ) {
+            $topic = 'contact';
+            if ($lang === 'ar') {
+                $reply = "يقع المقر الرئيسي لسيمدا في تقاطع KM4، مديرية هودن، مقديشو، الصومال. هاتف: 6256534 61 252+ / 5000000 61 252+. البريد: info@simda.so. ساعات العمل: السبت إلى الخميس، من 8:00 صباحاً حتى 4:30 مساءً (الجمعة عطلة).";
+                $suggestions = ['كيف أتقدم بطلب؟', 'هل التمويل 0% ربا؟', 'ما هي المنتجات؟'];
+            } elseif ($lang === 'en') {
+                $reply = "SIMDA Head Office is located at KM4, Hodan District, Mogadishu, Somalia. Phone: +252 61 6256534 / +252 61 5000000. Email: info@simda.so. Working hours: Saturday to Thursday, 8:00 AM – 4:30 PM (Closed on Friday).";
+                $suggestions = ['How to apply?', 'Is it 0% Riba?', 'What are the products?'];
+            } else {
+                $reply = "Xafiiska Sare ee SIMDA wuxuu ku yaallaa: KM4, Degmada Hodan, Muqdisho, Soomaaliya. Tel: +252 61 6256534 ama +252 61 5000000. Email: info@simda.so. Saacadaha shaqadu waa Sabti ilaa Khamiis 8:00 subaxnimo ilaa 4:30 galabnimo (Jimcaha waa fasax).";
+                $suggestions = ['Sideen u codsadaa?', '0% Ribo ma dhabbaa?', 'Maxaad maalgeliyaan?'];
+            }
+        }
+        // 11. Who are you / Bot Identity
+        elseif (
+            preg_match('/(yaa tahay|who are you|what is simda|maxay tahay simda|من أنت|ما هي سيمدا|ذكاء)/iu', $message)
+        ) {
+            $topic = 'identity';
+            if ($lang === 'ar') {
+                $reply = "أنا المساعد الذكي لمؤسسة سيمدا للتمويل الأصغر الإسلامي (SIMDA). مهمتي مساعدتك والإجابة عن كافة استفساراتك حول التمويل الخالي من الربا بنسبة 0%، منتجات المرابحة، وشروط التقديم باللغات العربية، الصومالية، والإنجليزية.";
+                $suggestions = ['هل التمويل 0% ربا؟', 'ما هي المرابحة؟', 'كيف أتقدم بطلب؟'];
+            } elseif ($lang === 'en') {
+                $reply = "I am SIMDA's Smart AI Assistant! I am here to assist you 24/7 with questions about our 0% Riba Islamic microfinance, Murabaha asset financing, application steps, and policies in English, Somali, and Arabic.";
+                $suggestions = ['Is it 0% Riba?', 'What is Murabaha?', 'How can I apply?'];
+            } else {
+                $reply = "Waxaan ahay Kaaliyaha Caqliga Badan ee SIMDA (SIMDA Smart AI Assistant). Waxaan ku hadlaa Af-Soomaali, English, iyo Carabi, waxaana u taaganahay inaan kugu caawiyo wax walba oo ku saabsan maalgelinta xalaasha ah (0% Ribo), nidaamka Murabaha, iyo sida loo codsado.";
+                $suggestions = ['0% Ribo ma dhabbaa?', 'Murabaha waa maxay?', 'Sideen u codsadaa?'];
+            }
+        }
+        // 12. Greetings / Salams
+        elseif (
+            preg_match('/(asc|salaam|salam|hello|hi|subax|galab|nabad|marhaban|مرحبا|أهلا|السلام)/iu', $message)
+        ) {
+            $topic = 'greeting';
+            if ($lang === 'ar') {
+                $reply = "وعليكم السلام ورحمة الله وبركاته! أهلاً وسهلاً بك في سيمدا للتمويل الإسلامي. يسعدني مساعدتك في أي استفسار حول خدماتنا، خلوها من الربا 0%، أو كيفية التقديم.";
+                $suggestions = ['هل التمويل خالٍ من الربا؟', 'ما هي شروط التقديم؟', 'ما هي المرابحة؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Hello and welcome to SIMDA! I am glad to assist you. How can I help you today with our 0% Riba ethical microfinance or loan application?";
+                $suggestions = ['Is it 0% Riba?', 'How can I apply?', 'What is Murabaha?'];
+            } else {
+                $reply = "Asc! Ku soo dhowow SIMDA. Waan ku faraxsanahay inaan ku caawiyo. Maxaan maanta kugu caawin karaa oo ku saabsan nidaamka ama maalgelinta xalaasha ah?";
+                $suggestions = ['0% Ribo ma dhabbaa?', 'Sideen u codsadaa?', 'Murabaha waa maxay?'];
+            }
+        }
+        // 13. Gratitude
+        elseif (
+            preg_match('/(mahadsanid|shukran|thanks|thank you|شكرا|جزاك)/iu', $message)
+        ) {
+            $topic = 'thanks';
+            if ($lang === 'ar') {
+                $reply = "على الرحب والسعة دائماً! وبارك الله فيك. إذا كان لديك أي سؤال آخر، أنا دائماً في خدمتك.";
+                $suggestions = ['أين يقع مكتبكم؟', 'كيف أتقدم بطلب؟'];
+            } elseif ($lang === 'en') {
+                $reply = "You are most welcome! Always happy to help. Let me know if you need anything else about SIMDA.";
+                $suggestions = ['Where is your office?', 'How to apply?'];
+            } else {
+                $reply = "Adaa mudan! Waan ku faraxsanahay inaan ku caawiyo. Haddii aad qabto su'aal kale, mar walba diyaar ayaan kuu ahay.";
+                $suggestions = ['Xafiiskiina xagee ku yaal?', 'Sideen u codsadaa?'];
+            }
+        }
+        // 14. Smart Fallback for any other question
+        else {
+            $topic = 'fallback';
+            if ($lang === 'ar') {
+                $reply = "سؤال رائع! في سيمدا نحن ملتزمون بتقديم تمويل أصغر إسلامي 100% خالٍ من الربا (0% ربا) لدعم رواد الأعمال، الأكشاك، وتمويل الأصول الإنتاجية بنظام المرابحة. للإجابة الدقيقة على تفاصيل استفسارك، يمكنك زيارة فرعنا بـ KM4 بمقديشو أو التواصل مباشرة عبر الهاتف: 6256534 61 252+ أو البريد info@simda.so.";
+                $suggestions = ['هل التمويل خالٍ من الربا؟', 'ما هي شروط التقديم؟', 'أين يقع مكتبكم؟'];
+            } elseif ($lang === 'en') {
+                $reply = "Thank you for asking! SIMDA is dedicated to 100% Sharia-compliant, 0% Riba microfinance for Somali entrepreneurs, kiosk owners, and asset financing through Murabaha. For tailored assistance on this specific inquiry, our team at KM4 Mogadishu is ready to help at +252 61 6256534 or info@simda.so.";
+                $suggestions = ['Is it 0% Riba?', 'How can I apply?', 'Where is your office?'];
+            } else {
+                $reply = "Waad ku mahadsan tahay su'aashaada! SIMDA waxay u taagan tahay maalgelin xalaal ah oo 100% ribo la'aan ah (0% Ribo) oo lagu taageerayo ganacsatada yaryar, baqaarrada, iyo qalabka ganacsiga iyadoo la adeegsanayo nidaamka Murabaha. Faahfaahin dheeraad ah oo ku saabsan su'aashaada gaarka ah, fadlan nagala soo xiriir xafiiska KM4, Muqdisho ama Tel: +252 61 6256534 / info@simda.so.";
+                $suggestions = ['0% Ribo ma dhabbaa?', 'Sideen u codsadaa?', 'Xafiiskiina xagee ku yaal?'];
+            }
+        }
+
+        echo json_encode([
+            'status' => 'ok',
+            'reply' => $reply,
+            'language' => $lang,
+            'topic' => $topic,
+            'suggestions' => $suggestions
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     private static function contactSubmit(PDO $pdo): void
