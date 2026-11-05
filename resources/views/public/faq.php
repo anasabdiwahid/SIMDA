@@ -740,6 +740,129 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 position: static;
             }
         }
+
+        /* ================================================================== */
+        /* DARK MODE SUPPORT FOR FAQ PAGE                                     */
+        /* ================================================================== */
+        [data-theme="dark"] .faq-page-wrap {
+            background-color: #0F1B17 !important;
+        }
+
+        [data-theme="dark"] .faq-card {
+            background: #142822 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        [data-theme="dark"] .faq-card:hover {
+            border-color: rgba(214, 182, 108, 0.45) !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        [data-theme="dark"] .faq-card-question {
+            color: #F0F5F2 !important;
+        }
+
+        [data-theme="dark"] .faq-card-body {
+            background: #0C1E18 !important;
+            border-top-color: rgba(255, 255, 255, 0.06) !important;
+        }
+
+        [data-theme="dark"] .faq-card-answer {
+            color: #B4C4BC !important;
+        }
+
+        [data-theme="dark"] .faq-card.is-open .faq-toggle-btn {
+            background: #D6B66C !important;
+            color: #0C2D24 !important;
+        }
+
+        [data-theme="dark"] .faq-ask-card {
+            background: #142822 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-title {
+            color: #FFFFFF !important;
+        }
+
+        [data-theme="dark"] .faq-chat-sub {
+            color: #94A8A0 !important;
+        }
+
+        [data-theme="dark"] .faq-chat-clear-btn {
+            border-color: rgba(255, 255, 255, 0.14) !important;
+            color: #B4C4BC !important;
+        }
+
+        [data-theme="dark"] .faq-chat-clear-btn:hover {
+            color: #FB7185 !important;
+            border-color: #FB7185 !important;
+            background: rgba(251, 113, 133, 0.1) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-stream {
+            background: #0B1914 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-msg.bot .faq-chat-bubble {
+            background: #16332A !important;
+            color: #EBF2EE !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-msg.user .faq-chat-bubble {
+            background: #1B684D !important;
+            color: #FFFFFF !important;
+        }
+
+        [data-theme="dark"] .faq-chat-time {
+            color: #7B8F86 !important;
+        }
+
+        [data-theme="dark"] .faq-chat-chip {
+            background: #16332A !important;
+            border-color: rgba(214, 182, 108, 0.35) !important;
+            color: #D6B66C !important;
+        }
+
+        [data-theme="dark"] .faq-chat-chip:hover {
+            background: #D6B66C !important;
+            color: #0C2821 !important;
+            border-color: #D6B66C !important;
+        }
+
+        [data-theme="dark"] .faq-chat-typing {
+            background: #16332A !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-input {
+            background: #0C1E18 !important;
+            border-color: rgba(255, 255, 255, 0.16) !important;
+            color: #F0F5F2 !important;
+        }
+
+        [data-theme="dark"] .faq-chat-input:focus {
+            border-color: #D6B66C !important;
+            box-shadow: 0 0 0 2px rgba(214, 182, 108, 0.25) !important;
+        }
+
+        [data-theme="dark"] .faq-chat-send-btn {
+            background: #23845B !important;
+            color: #FFFFFF !important;
+        }
+
+        [data-theme="dark"] .faq-chat-send-btn:hover {
+            background: #D6B66C !important;
+            color: #0C2821 !important;
+        }
     </style>
 </head>
 <body class="fid-page">
