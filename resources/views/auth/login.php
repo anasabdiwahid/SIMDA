@@ -453,6 +453,91 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             object-fit: contain;
         }
 
+        /* CENTER LOADING MODAL OVERLAY */
+        .simda-center-loader {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 24px;
+            animation: simdaFadeIn 0.2s ease-out;
+        }
+
+        @keyframes simdaFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .simda-loader-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 38px;
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 16px 40px rgba(18, 59, 50, 0.16), 0 2px 10px rgba(0, 0, 0, 0.04);
+            border: 1.5px solid rgba(18, 59, 50, 0.08);
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+            animation: simdaPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes simdaPopIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .simda-loader-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, rgba(18, 59, 50, 0.06), rgba(214, 182, 108, 0.14));
+            border: 2.5px dashed rgba(18, 59, 50, 0.28);
+            animation: simdaRingSpin 2.2s linear infinite;
+        }
+
+        @keyframes simdaRingSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .simda-loader-spin-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            animation: simdaSpin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            transform-origin: center center;
+            filter: drop-shadow(0 4px 10px rgba(18, 59, 50, 0.24));
+        }
+
+        .simda-loader-title {
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: #123B32;
+            margin-bottom: 4px;
+            letter-spacing: 0.02em;
+        }
+
+        .simda-loader-sub {
+            font-size: 0.78rem;
+            color: #5A6B63;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
         .simda-or-divider {
             display: flex;
             align-items: center;
@@ -555,6 +640,17 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
         <!-- Right White Sign-In Form Panel -->
         <div class="simda-login-right">
+            <!-- Center Loading Modal (Visible in the dead center during email verification) -->
+            <div id="loginCenterLoader" class="simda-center-loader" style="display:none;">
+                <div class="simda-loader-card">
+                    <div class="simda-loader-ring">
+                        <img src="assets/images/simda-icon.png" alt="S" class="simda-loader-spin-logo">
+                    </div>
+                    <div class="simda-loader-title"><?= Security::e($lt['btn_verifying']) ?></div>
+                    <div class="simda-loader-sub"><?= ($locale === 'so') ? 'Fadlan sug wax yar, akoonka ayaa la hubinayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري التحقق...' : 'Please wait, verifying account...') ?></div>
+                </div>
+            </div>
+
             <!-- STEP 1: EMAIL ENTRY ONLY (Password is hidden until email is verified) -->
             <div id="loginStep1" style="<?= !empty($preVerifiedEmail) ? 'display:none;' : '' ?>">
                 <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
@@ -704,6 +800,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         var alertErr = document.getElementById('step1AlertError');
         var alertText = document.getElementById('step1AlertText');
         var pill = document.getElementById('identifierPill');
+        var centerLoader = document.getElementById('loginCenterLoader');
 
         var val = (emailInput.value || '').trim();
         if (!val) {
@@ -713,6 +810,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
         btn.disabled = true;
         btn.style.opacity = '0.85';
+        if (centerLoader) centerLoader.style.display = 'flex';
         if (btnSpinner) btnSpinner.style.display = 'inline-flex';
         if (userIcon) userIcon.style.display = 'none';
         if (spinIcon) spinIcon.style.display = 'inline-block';
@@ -729,12 +827,13 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             body: fd
         }).then(function(res) { return res.json(); });
 
-        // Ensure user sees the rotating 'S' icon smoothly (~550ms minimum)
-        var minDelay = new Promise(function(resolve) { setTimeout(resolve, 550); });
+        // Ensure user sees the rotating 'S' icon smoothly in the center (~700ms)
+        var minDelay = new Promise(function(resolve) { setTimeout(resolve, 700); });
 
         Promise.all([fetchPromise, minDelay])
         .then(function(results) {
             var data = results[0];
+            if (centerLoader) centerLoader.style.display = 'none';
             btn.disabled = false;
             btn.style.opacity = '1';
             if (btnSpinner) btnSpinner.style.display = 'none';
@@ -764,6 +863,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             }
         })
         .catch(function(err) {
+            if (centerLoader) centerLoader.style.display = 'none';
             btn.disabled = false;
             btn.style.opacity = '1';
             if (btnSpinner) btnSpinner.style.display = 'none';
