@@ -101,6 +101,8 @@ final class PortalController
                 'managers' => self::adminSection($pdo, 'users', 'manager'),
                 'branch_managers' => self::adminSection($pdo, 'users', 'branch_manager'),
                 'header_office' => self::adminSection($pdo, 'users', 'loan_officer'),
+                'employees' => self::employeesSection($pdo),
+                'employee_create' => self::employeeCreate($pdo),
                 'profile' => self::profile($pdo),
                 'profile_update' => self::profileUpdate($pdo),
                 'profile_email_request' => self::profileEmailRequest($pdo),
@@ -2532,6 +2534,201 @@ final class PortalController
         ]);
     }
 
+    private static function employeesSection(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        $role = $user['role_slug'] ?? '';
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        // Fetch all active branches
+        $branches = $pdo->query('
+            SELECT b.*,
+                   (SELECT COUNT(*) FROM users u WHERE u.branch_id = b.id AND u.role_id = (SELECT id FROM roles WHERE slug = "loan_officer" LIMIT 1)) AS staff_count
+            FROM branches b
+            ORDER BY b.id ASC
+        ')->fetchAll();
+
+        // Fetch employee role (loan_officer)
+        $roleStmt = $pdo->query("SELECT * FROM roles WHERE slug = 'loan_officer' LIMIT 1");
+        $employeeRole = $roleStmt->fetch();
+
+        // Scope by branch for branch managers
+        if ($role === 'branch_manager') {
+            $eStmt = $pdo->prepare('
+                SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en, b.name AS branch_name, b.code AS branch_code
+                FROM users u
+                INNER JOIN roles r ON r.id = u.role_id
+                LEFT JOIN branches b ON b.id = u.branch_id
+                WHERE r.slug = \'loan_officer\' AND u.branch_id = :bid
+                ORDER BY u.id DESC
+            ');
+            $eStmt->execute([':bid' => (int) ($user['branch_id'] ?? 0)]);
+            $employees = $eStmt->fetchAll();
+        } else {
+            $employees = $pdo->query('
+                SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en, b.name AS branch_name, b.code AS branch_code
+                FROM users u
+                INNER JOIN roles r ON r.id = u.role_id
+                LEFT JOIN branches b ON b.id = u.branch_id
+                WHERE r.slug = \'loan_officer\'
+                ORDER BY u.id DESC
+            ')->fetchAll();
+        }
+
+        $pageTitle = $isSo ? 'Shaqaalaha (Employees)' : 'Employees';
+
+        self::renderDashboard('admin/employees.php', [
+            'pageTitle' => $pageTitle,
+            'sectionTitle' => $pageTitle,
+            'branches' => $branches,
+            'employees' => $employees,
+            'employeeRole' => $employeeRole,
+            'curUser' => $user,
+            'csrf' => Security::csrfToken(),
+        ]);
+    }
+
+    private static function employeeCreate(PDO $pdo): void
+    {
+        $actor = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $actorRole = (string) ($actor['role_slug'] ?? '');
+        $actorId = (int) ($actor['id'] ?? 0);
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        $fullName = trim((string) ($_POST['full_name'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+        $rawBranchId = !empty($_POST['branch_id']) ? (int) $_POST['branch_id'] : 0;
+
+        if ($fullName === '' || $email === '') {
+            throw new \RuntimeException($isSo ? 'Fadlan buuxi Magaca Buuxa iyo Email-ka shaqaalaha.' : 'Please provide full name and email address for the employee.');
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException($isSo ? 'Fadlan geli email sax ah.' : 'Please enter a valid email address.');
+        }
+
+        // Branch assignment logic
+        if ($actorRole === 'branch_manager') {
+            $branchId = (int) ($actor['branch_id'] ?? 0);
+        } else {
+            if ($rawBranchId <= 0) {
+                throw new \RuntimeException($isSo ? 'Fadlan dooro laanta loo qoondeeyey shaqaalahan.' : 'Please select a branch assignment for this employee.');
+            }
+            $branchId = $rawBranchId;
+        }
+
+        // Get branch info
+        $bSt = $pdo->prepare("SELECT id, code, name, city FROM branches WHERE id = :bid");
+        $bSt->execute([':bid' => $branchId]);
+        $branchInfo = $bSt->fetch() ?: null;
+        if (!$branchInfo) {
+            throw new \RuntimeException($isSo ? 'Laanta la doortay lama helin.' : 'Selected branch not found.');
+        }
+
+        // Get loan_officer role
+        $rSt = $pdo->query("SELECT id, slug, name_en, name_so FROM roles WHERE slug = 'loan_officer' LIMIT 1");
+        $targetRole = $rSt->fetch();
+        if (!$targetRole) {
+            throw new \RuntimeException('Employee role not found.');
+        }
+        $targetRoleId = (int) $targetRole['id'];
+
+        // Auto-generate unique username from full name if not provided
+        $username = trim((string) ($_POST['username'] ?? ''));
+        if ($username === '') {
+            $words = preg_split('/\s+/', mb_strtolower(trim($fullName)));
+            $uBase = preg_replace('/[^a-z0-9]/', '', $words[0] ?? 'emp');
+            if (!empty($words[1])) {
+                $uBase .= '.' . preg_replace('/[^a-z0-9]/', '', $words[1]);
+            }
+            if ($uBase === '') $uBase = 'emp';
+            $testUname = $uBase;
+            $counter = 1;
+            while (true) {
+                $chk = $pdo->prepare("SELECT id FROM users WHERE username = :u LIMIT 1");
+                $chk->execute([':u' => $testUname]);
+                if (!$chk->fetch()) {
+                    $username = $testUname;
+                    break;
+                }
+                $testUname = $uBase . $counter++;
+            }
+        }
+
+        // Check duplicate email or username
+        $dupSt = $pdo->prepare("SELECT id, email, username FROM users WHERE email = :e OR username = :u LIMIT 1");
+        $dupSt->execute([':e' => $email, ':u' => $username]);
+        $dup = $dupSt->fetch();
+        if ($dup) {
+            if (strcasecmp((string)$dup['email'], $email) === 0) {
+                throw new \RuntimeException($isSo ? 'Email-kaan horey ayaa looga diiwaangeliyay nidaamka. Fadlan isticmaal email kale.' : 'This email address is already registered in the system.');
+            }
+            throw new \RuntimeException($isSo ? 'Username-kaan horey ayaa looga diiwaangeliyay nidaamka.' : 'This username is already taken.');
+        }
+
+        // Auto-generate secure password if not provided
+        $inputPassword = trim((string) ($_POST['password'] ?? ''));
+        if ($inputPassword === '') {
+            $plainPassword = MailService::generateDefaultPassword($fullName);
+        } else {
+            $plainPassword = $inputPassword;
+        }
+
+        // Insert into users
+        $ins = $pdo->prepare('
+            INSERT INTO users (role_id, branch_id, full_name, username, email, phone, password_hash, is_active)
+            VALUES (:rid, :bid, :name, :uname, :email, :phone, :phash, 1)
+        ');
+        $ins->execute([
+            ':rid' => $targetRoleId,
+            ':bid' => $branchId,
+            ':name' => $fullName,
+            ':uname' => $username,
+            ':email' => $email,
+            ':phone' => $phone,
+            ':phash' => Security::hashPassword($plainPassword),
+        ]);
+        $newUserId = (int) $pdo->lastInsertId();
+
+        AuditLogger::log('employee.created', 'users', $newUserId, 'Created employee ' . $username . ' (' . $fullName . ') at branch ' . $branchInfo['name'], [], $actorId);
+
+        // Send email with credentials and password
+        $mailSuccess = MailService::sendWelcomeUserEmail(
+            [
+                'id' => $newUserId,
+                'full_name' => $fullName,
+                'username' => $username,
+                'email' => $email,
+                'phone' => $phone,
+                'role_slug' => 'loan_officer',
+                'role_name_so' => $targetRole['name_so'],
+                'role_name_en' => $targetRole['name_en'],
+                'branch_id' => $branchId,
+                'branch_name' => $branchInfo['name'],
+                'branch_code' => $branchInfo['code'],
+            ],
+            $plainPassword,
+            $locale
+        );
+
+        if ($mailSuccess) {
+            $_SESSION['flash_success'] = $isSo
+                ? "Shaqaalaha cusub ({$fullName}) si guul leh ayaa loo diiwaangeliyay! Furaha sirta ah (Password) waxaa si toos ah loogu diray email-ka: {$email}."
+                : "New employee ({$fullName}) successfully registered! Login credentials and password have been sent to: {$email}.";
+        } else {
+            $_SESSION['flash_success'] = $isSo
+                ? "Shaqaalaha cusub ({$fullName}) waa la diiwaangeliyay. Furaha sirta ah: {$plainPassword} (Email-ka waa la diray laakiin hubi qadka)."
+                : "New employee ({$fullName}) registered. Generated password: {$plainPassword}.";
+        }
+
+        header('Location: ?route=employees');
+        exit;
+    }
+
     private static function branchCreate(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'manager']);
@@ -3086,7 +3283,7 @@ final class PortalController
     private static function userListRoute(): string
     {
         $route = (string) ($_POST['return_route'] ?? 'users');
-        return in_array($route, ['users', 'managers', 'branch_managers', 'header_office'], true) ? $route : 'users';
+        return in_array($route, ['users', 'managers', 'branch_managers', 'header_office', 'employees'], true) ? $route : 'users';
     }
 
     private static function tr(string $so, string $en, string $ar): string

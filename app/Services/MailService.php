@@ -670,19 +670,16 @@ HTML;
             ? "SIMDA: Rasiidka Lacag-Bixinta Rasmi ah — {$receiptNumber} (\${$amountPaid})"
             : "SIMDA Official Payment Receipt — {$receiptNumber} (\${$amountPaid})";
 
-        // Logo embedding (uses white logo for dark brand background)
-        $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo-white.png';
-        if (!is_file($logoPath)) {
-            $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
-        }
+        // Logo embedding
+        $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
         $inlineAttachments = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo-white.png';
+        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
         if (is_file($logoPath)) {
             $inlineAttachments[] = [
                 'cid' => 'simda_logo',
                 'path' => $logoPath,
                 'mime' => 'image/png',
-                'filename' => 'simda-logo-white.png',
+                'filename' => 'simda-logo.png',
             ];
             $logoSrc = 'cid:simda_logo';
         }

@@ -64,51 +64,73 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 
         <nav class="sidebar-nav">
             <?php if ($role === 'admin'): ?>
-                <!-- ADMIN SIDEBAR -->
-                <?php
-                $adminLabel = static fn (string $so, string $en, string $ar): string => $locale === 'so' ? $so : ($locale === 'ar' ? $ar : $en);
-                $adminNav = [
-                    [
-                        'label' => $adminLabel('BORTAALKA MAAMULKA', 'ADMIN PORTAL', 'لوحة المسؤول'),
-                        'links' => [
-                            ['href' => '?route=dashboard', 'icon' => 'dashboard', 'text' => 'Dashboard', 'routes' => ['dashboard']],
-                            ['href' => '?route=users', 'icon' => 'users', 'text' => $adminLabel('All Users', 'All Users', 'جميع المستخدمين'), 'routes' => ['users']],
-                            ['href' => '?route=clients', 'icon' => 'user-check', 'text' => $adminLabel('Clients', 'Clients', 'العملاء'), 'routes' => ['clients', 'client_view', 'client_register', 'client_transfer', 'guarantors']],
-                            ['href' => '?route=managers', 'icon' => 'briefcase', 'text' => $adminLabel('Managers', 'Managers', 'المديرون'), 'routes' => ['managers']],
-                            ['href' => '?route=branch_managers', 'icon' => 'user-check', 'text' => 'Branch Managers', 'routes' => ['branch_managers']],
-                            ['href' => '?route=header_office', 'icon' => 'shield', 'text' => 'Header Office', 'routes' => ['header_office']],
-                            ['href' => '?route=branches', 'icon' => 'building', 'text' => $adminLabel('Branch', 'Branch', 'الفروع'), 'routes' => ['branches']],
-                        ],
-                    ],
-                    [
-                        'label' => $adminLabel('LACAG-BIXINTA & CODSIYADA', 'REPAYMENTS & REQUESTS', 'السداد والطلبات'),
-                        'links' => [
-                            ['href' => '?route=murabaha&filter=unpaid', 'icon' => 'shopping-bag', 'text' => $adminLabel('Murabaxo Socota', 'Active Murabaha', 'المرابحة الجارية'), 'routes' => ['murabaha', 'murabaha_new']],
-                            ['href' => '?route=loans&filter=active', 'icon' => 'credit-card', 'text' => $adminLabel('Dayn Cadaan Socota', 'Active Cash Loans', 'القروض النقدية الجارية'), 'routes' => ['loans']],
-                            ['href' => '?route=approval_queue', 'icon' => 'check-square', 'text' => $adminLabel('Codsiyo Sugaya', 'Pending Applications', 'طلبات قيد الانتظار'), 'routes' => ['approval_queue']],
-                        ],
-                    ],
-                    [
-                        'label' => $adminLabel('AKOONKA', 'ACCOUNT', 'الحساب'),
-                        'links' => [
-                            ['href' => '?route=profile', 'icon' => 'user', 'text' => 'Profile', 'routes' => ['profile']],
-                        ],
-                    ],
-                ];
-                ?>
-                <?php foreach ($adminNav as $navGroup): ?>
-                    <div class="sidebar-group-label"><?= Security::e($navGroup['label']) ?></div>
-                    <?php foreach ($navGroup['links'] as $navLink): ?>
-                        <a href="<?= Security::e($navLink['href']) ?>" class="sidebar-link <?= in_array($currentRoute, $navLink['routes'], true) ? 'active' : '' ?>">
-                            <?= Icons::svg($navLink['icon'], 18) ?>
-                            <span class="sidebar-text"><?= Security::e($navLink['text']) ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                <?php endforeach; ?>
+                <!-- ADMIN EXCLUSIVE CLEAN & STREAMLINED SIDEBAR -->
+                <div class="sidebar-group-label"><?= $locale === 'so' ? 'BORTAALKA MAAMULKA' : ($locale === 'ar' ? 'لوحة المسؤول' : 'ADMIN PORTAL') ?></div>
 
+                <!-- 1. Dashboard -->
+                <a href="?route=dashboard" class="sidebar-link <?= $currentRoute === 'dashboard' ? 'active' : '' ?>">
+                    <?= Icons::svg('dashboard', 18) ?>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+
+                <!-- 2. All Users -->
+                <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
+                    <?= Icons::svg('users', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'All Users' : ($locale === 'ar' ? 'جميع المستخدمين' : 'All Users') ?></span>
+                </a>
+
+                <!-- 3. Employe (Shaqaalaha) -->
+                <a href="?route=employees" class="sidebar-link <?= in_array($currentRoute, ['employees', 'employee_register'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('user-check', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Employe' : ($locale === 'ar' ? 'الموظفون' : 'Employe') ?></span>
+                </a>
+
+                <!-- 4. Clients -->
+                <a href="?route=clients" class="sidebar-link <?= in_array($currentRoute, ['clients', 'client_view', 'client_register', 'client_transfer', 'guarantors'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('users', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Clients' : ($locale === 'ar' ? 'العملاء' : 'Clients') ?></span>
+                </a>
+
+                <!-- 5. Loans Taken (Daynta La Qaatay) -->
+                <a href="?route=loans" class="sidebar-link <?= in_array($currentRoute, ['loans', 'financings', 'financing_view', 'schedules', 'repayments', 'repayment_record'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('credit-card', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Loans Taken' : ($locale === 'ar' ? 'التمويلات والقروض' : 'Loans Taken') ?></span>
+                </a>
+
+                <!-- 6. Murabaha Taken (Murabaxada La Qaatay) -->
+                <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('shopping-bag', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Murabaha Taken' : ($locale === 'ar' ? 'عقود المرابحة' : 'Murabaha Taken') ?></span>
+                </a>
+
+                <!-- 7. Branch Manage -->
+                <a href="?route=branches" class="sidebar-link <?= $currentRoute === 'branches' ? 'active' : '' ?>">
+                    <?= Icons::svg('building', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Branch Manage' : ($locale === 'ar' ? 'إدارة الفروع' : 'Branch Manage') ?></span>
+                </a>
+
+                <!-- 8. Reports -->
+                <a href="?route=reports" class="sidebar-link <?= in_array($currentRoute, ['reports', 'statements', 'audit_logs', 'credit_scores', 'par30', 'charity_charges'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('bar-chart', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Reports' : ($locale === 'ar' ? 'التقارير' : 'Reports') ?></span>
+                </a>
+
+                <!-- 9. Settings -->
+                <a href="?route=settings" class="sidebar-link <?= in_array($currentRoute, ['settings', 'permissions'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('settings', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Settings' : ($locale === 'ar' ? 'الإعدادات' : 'Settings') ?></span>
+                </a>
+
+                <!-- 10. Messages -->
+                <a href="?route=sms_outbox" class="sidebar-link <?= $currentRoute === 'sms_outbox' ? 'active' : '' ?>">
+                    <?= Icons::svg('message-square', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Messages' : ($locale === 'ar' ? 'الرسائل' : 'Messages') ?></span>
+                </a>
+
+                <!-- 11. Logout -->
                 <a href="?route=logout" class="sidebar-link" style="color:#FF7676;">
                     <?= Icons::svg('log-out', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Logout (Ka Bax)' : ($locale === 'ar' ? 'تسجيل الخروج' : 'Logout') ?></span>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Logout' : ($locale === 'ar' ? 'تسجيل الخروج' : 'Logout') ?></span>
                 </a>
 
             <?php else: ?>
@@ -302,6 +324,10 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     </a>
                     <?php endif; ?>
                     <?php if (AuthMiddleware::hasPermission('users.manage')): ?>
+                    <a href="?route=employees" class="sidebar-link <?= in_array($currentRoute, ['employees'], true) ? 'active' : '' ?>">
+                        <?= Icons::svg('user-check', 18) ?>
+                        <span class="sidebar-text"><?= $locale === 'so' ? 'Employe' : 'Employees' ?></span>
+                    </a>
                     <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
                         <?= Icons::svg('users', 18) ?>
                         <span class="sidebar-text"><?= Security::e(Lang::get('menu_users')) ?></span>
