@@ -35,6 +35,7 @@ final class FinancingDomainService
         $idType = trim((string) ($clientData['id_type'] ?? 'national_id'));
         $idNumber = trim((string) ($clientData['id_number'] ?? ''));
         $phone = trim((string) ($clientData['phone'] ?? ''));
+        $email = trim((string) ($clientData['email'] ?? ''));
         $city = trim((string) ($clientData['city'] ?? ''));
         $district = trim((string) ($clientData['district'] ?? ''));
         $address = trim((string) ($clientData['address'] ?? ''));
@@ -106,11 +107,11 @@ final class FinancingDomainService
             $insClient = $db->prepare('
                 INSERT INTO clients (
                     client_code, user_id, branch_id, registered_by, full_name,
-                    id_type, id_number, phone, city, district, address,
+                    id_type, id_number, phone, email, city, district, address,
                     business_type, monthly_income, photo_path, credit_balance, status, is_synthetic_demo
                 ) VALUES (
                     :code, :uid, :bid, :reg_by, :name,
-                    :id_type, :id_num, :phone, :city, :district, :address,
+                    :id_type, :id_num, :phone, :email, :city, :district, :address,
                     :biz, :income, :photo, 0.00, \'active\', :demo
                 )
             ');
@@ -123,6 +124,7 @@ final class FinancingDomainService
                 ':id_type' => $idType,
                 ':id_num' => $idNumber,
                 ':phone' => $phone,
+                ':email' => $email !== '' ? $email : null,
                 ':city' => $city,
                 ':district' => $district,
                 ':address' => $address,
@@ -237,6 +239,107 @@ final class FinancingDomainService
     }
 
     /**
+     * Who decides an application: Header Office up to the officer limit, Branch Manager up to the
+     * branch limit, General Manager above it. Group financing starts at Branch Manager level.
+     */
+    public static function requiredApproverRole(float $amount, bool $isGroup): string
+    {
+        if ($amount > (float) Env::get('APPROVAL_BRANCH_LIMIT', 50000.00)) {
+            return 'manager';
+        }
+        if ($isGroup || $amount > (float) Env::get('APPROVAL_OFFICER_LIMIT', 5000.00)) {
+            return 'branch_manager';
+        }
+        return 'loan_officer';
+    }
+
+    public static function canDecideLevel(string $reviewerRole, string $requiredRole): bool
+    {
+        if ($reviewerRole === 'admin') {
+            return true;
+        }
+        $rank = ['loan_officer' => 1, 'branch_manager' => 2, 'manager' => 3];
+        return isset($rank[$reviewerRole], $rank[$requiredRole]) && $rank[$reviewerRole] >= $rank[$requiredRole];
+    }
+
+    public static function approverLabel(string $role): string
+    {
+        return match ($role) {
+            'manager' => 'General Manager',
+            'branch_manager' => 'Branch Manager',
+            default => 'Header Office',
+        };
+    }
+
+    /**
+     * Emails the people an application was forwarded to: the branch's managers, or the general managers.
+     * Applications that stay at Header Office level send nothing. Mail problems are reported, never thrown,
+     * so they cannot undo a submission that is already saved.
+     *
+     * @return array{required_role: string, recipients: int, failed: int}
+     */
+    public static function notifyForwardedApplication(int $applicationId, string $locale, ?PDO $pdo = null): array
+    {
+        $db = $pdo ?? Database::connection();
+        $stmt = $db->prepare('
+            SELECT fa.*, c.full_name AS client_name, c.client_code, c.phone AS client_phone, c.id_number AS client_id_number,
+                   c.city AS client_city, c.district AS client_district, c.business_type, c.monthly_income,
+                   b.name AS branch_name, p.product_type, u.full_name AS creator_name
+            FROM financing_applications fa
+            INNER JOIN clients c ON c.id = fa.client_id
+            INNER JOIN branches b ON b.id = fa.branch_id
+            INNER JOIN products p ON p.id = fa.product_id
+            INNER JOIN users u ON u.id = fa.created_by
+            WHERE fa.id = :id
+        ');
+        $stmt->execute([':id' => $applicationId]);
+        $app = $stmt->fetch();
+        if (!$app) {
+            throw new RuntimeException('Application not found.');
+        }
+
+        $requiredRole = (string) $app['required_approver_role'];
+        if ($requiredRole === 'loan_officer' || $app['status'] !== 'submitted') {
+            return ['required_role' => $requiredRole, 'recipients' => 0, 'failed' => 0];
+        }
+
+        $sql = '
+            SELECT u.full_name, u.email
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            WHERE r.slug = :role AND u.is_active = 1 AND u.deleted_at IS NULL AND u.id != :creator
+        ';
+        $params = [':role' => $requiredRole, ':creator' => (int) $app['created_by']];
+        if ($requiredRole === 'branch_manager') {
+            $sql .= ' AND u.branch_id = :branch';
+            $params[':branch'] = (int) $app['branch_id'];
+        }
+        $recipients = $db->prepare($sql);
+        $recipients->execute($params);
+        $people = $recipients->fetchAll();
+
+        $failed = 0;
+        foreach ($people as $person) {
+            $mail = MailService::sendApplicationForwardedEmail((string) $person['email'], (string) $person['full_name'], $app, $locale);
+            if (!$mail['success']) {
+                $failed++;
+            }
+        }
+
+        AuditLogger::log(
+            'application.forwarded',
+            'financing_applications',
+            $applicationId,
+            "Application {$app['application_number']} forwarded to " . self::approverLabel($requiredRole) . '.',
+            ['required_role' => $requiredRole, 'recipients' => count($people), 'mail_failed' => $failed],
+            (int) $app['created_by'],
+            (int) $app['branch_id']
+        );
+
+        return ['required_role' => $requiredRole, 'recipients' => count($people), 'failed' => $failed];
+    }
+
+    /**
      * Module 3: Create or submit a Financing Application.
      *
      * Enforces:
@@ -246,7 +349,7 @@ final class FinancingDomainService
      * - Term must be within product [min_term, max_term].
      * - Client > 30 days late on active financing cannot apply.
      * - If part of a Group (`group_id`), if ANY member of the group is > 30 days late, no member can receive new financing.
-     * - Approval threshold assignment: <= $5,000 -> `loan_officer`, > $5,000 -> `branch_manager`.
+     * - Approval level: see requiredApproverRole().
      */
     public static function createApplication(
         array $data,
@@ -350,8 +453,7 @@ final class FinancingDomainService
             $refDate
         );
 
-        $officerLimit = (float) Env::get('APPROVAL_OFFICER_LIMIT', 5000.00);
-        $requiredRole = ($amount > $officerLimit || $groupId !== null) ? 'branch_manager' : 'loan_officer';
+        $requiredRole = self::requiredApproverRole($amount, $groupId !== null);
         $status = $submitImmediately ? 'submitted' : 'draft';
         $submittedAt = $submitImmediately ? date('Y-m-d H:i:s') : null;
 
@@ -419,8 +521,8 @@ final class FinancingDomainService
      *
      * Rules:
      * - Application creators CANNOT approve their own applications.
-     * - Loan Officer can approve up to and including $5,000 (unless it is a group financing).
-     * - Branch Manager (or Admin) is required for amounts above $5,000 or group financing.
+     * - The amount sets the approval level (see requiredApproverRole()); higher levels and Admin may also decide lower ones.
+     * - Header Office and Branch Managers decide only for their own branch.
      * - Every decision is logged in `audit_logs`.
      */
     public static function reviewApplication(
@@ -455,18 +557,13 @@ final class FinancingDomainService
             throw new RuntimeException('Conflict of interest protection: Application creators cannot approve their own applications.');
         }
 
-        // Rule: Approval threshold enforcement ($5,000 limit for Loan Officers; Branch Manager required above $5,000 or group financing)
-        $officerLimit = (float) Env::get('APPROVAL_OFFICER_LIMIT', 5000.00);
-        $amount = (float) $app['requested_amount'];
-
-        if ($amount > $officerLimit || !empty($app['group_id']) || $app['required_approver_role'] === 'branch_manager') {
-            if (!in_array($reviewerRole, ['branch_manager', 'admin'], true)) {
-                throw new RuntimeException('Financing applications above $5,000 or group financings require Branch Manager approval.');
-            }
-        } else {
-            if (!in_array($reviewerRole, ['loan_officer', 'branch_manager', 'admin'], true)) {
-                throw new RuntimeException('Unauthorized role for approving financing applications.');
-            }
+        $requiredRole = self::requiredApproverRole((float) $app['requested_amount'], !empty($app['group_id']));
+        if (!self::canDecideLevel($reviewerRole, $requiredRole)) {
+            throw new RuntimeException('This application requires ' . self::approverLabel($requiredRole) . ' approval.');
+        }
+        if (in_array($reviewerRole, ['loan_officer', 'branch_manager'], true)
+            && (int) ($reviewerUser['branch_id'] ?? 0) !== (int) $app['branch_id']) {
+            throw new RuntimeException('This application belongs to another branch.');
         }
 
         $expiresAt = ($decision === 'approved')
@@ -558,8 +655,7 @@ final class FinancingDomainService
             date('Y-m-d')
         );
 
-        $officerLimit = (float) Env::get('APPROVAL_OFFICER_LIMIT', 5000.00);
-        $requiredRole = ($newAmount > $officerLimit || !empty($app['group_id'])) ? 'branch_manager' : 'loan_officer';
+        $requiredRole = self::requiredApproverRole($newAmount, !empty($app['group_id']));
 
         $upd = $db->prepare("
             UPDATE financing_applications

@@ -335,7 +335,7 @@ $t = $i18n[$locale] ?? $i18n['en'];
         .simda-fp-right {
             position: relative;
             z-index: 3;
-            padding: 84px 48px 42px;
+            padding: 104px 48px 42px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -453,12 +453,16 @@ $t = $i18n[$locale] ?? $i18n['en'];
         /* Top Action Bar (Theme Toggle, Lang, Close) */
         .simda-fp-top-bar {
             position: absolute;
-            top: 24px;
-            right: 28px;
+            top: 18px;
+            right: 24px;
             display: flex;
             align-items: center;
             gap: 10px;
             z-index: 10;
+        }
+
+        #fpScreen1, #fpScreen2, #fpScreen3, #fpScreen4 {
+            margin-top: 8px;
         }
 
         .simda-top-icon-btn {
@@ -811,11 +815,11 @@ $t = $i18n[$locale] ?? $i18n['en'];
                 display: none;
             }
             .simda-fp-top-bar {
-                top: 16px;
+                top: 14px;
                 right: 18px;
             }
             .simda-fp-right {
-                padding: 76px 26px 36px;
+                padding: 92px 24px 34px;
             }
         }
     </style>

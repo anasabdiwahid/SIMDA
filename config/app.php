@@ -17,6 +17,7 @@ return [
     'login_max_attempts' => (int) Env::get('LOGIN_MAX_ATTEMPTS', 5),
     'login_lockout_minutes' => (int) Env::get('LOGIN_LOCKOUT_MINUTES', 15),
     'approval_officer_limit' => (string) Env::get('APPROVAL_OFFICER_LIMIT', '5000.00'),
+    'approval_branch_limit' => (string) Env::get('APPROVAL_BRANCH_LIMIT', '50000.00'),
     'late_charge_grace_days' => (int) Env::get('LATE_CHARGE_GRACE_DAYS', 7),
     'default_charity_late_fee' => (string) Env::get('DEFAULT_CHARITY_LATE_FEE', '15.00'),
     'credit_score_initial' => (int) Env::get('CREDIT_SCORE_INITIAL', 600),

@@ -85,12 +85,17 @@ $role = $user['role_slug'] ?? '';
                     <th>Principal Alloc.</th>
                     <th>Overpayment Credit</th>
                     <th>Date</th>
+                    <th style="text-align:right;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($repayments as $r): ?>
                     <tr>
-                        <td class="num-tabular"><strong><?= Security::e($r['receipt_number']) ?></strong></td>
+                        <td class="num-tabular">
+                            <a href="?route=repayment_receipt&id=<?= (int) $r['id'] ?>" style="font-weight:800;color:var(--simda-green);text-decoration:underline;">
+                                <?= Security::e($r['receipt_number']) ?>
+                            </a>
+                        </td>
                         <td class="num-tabular"><a href="?route=financing_view&id=<?= (int) $r['financing_id'] ?>" style="font-weight:700;color:var(--simda-green);"><?= Security::e($r['financing_number']) ?></a></td>
                         <td><?= Security::e($r['client_name']) ?></td>
                         <td>
@@ -103,6 +108,11 @@ $role = $user['role_slug'] ?? '';
                         <td class="num-tabular"><?= Security::formatMoney($r['allocated_to_principal']) ?></td>
                         <td class="num-tabular"><?= Security::formatMoney($r['overpayment_credited']) ?></td>
                         <td class="num-tabular"><?= Security::e($r['payment_date']) ?></td>
+                        <td style="text-align:right;white-space:nowrap;">
+                            <a href="?route=repayment_receipt&id=<?= (int) $r['id'] ?>" class="btn btn-xs btn-outline-primary" style="font-weight:700;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;">
+                                <?= Icons::svg('printer', 12) ?> Rasiid
+                            </a>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

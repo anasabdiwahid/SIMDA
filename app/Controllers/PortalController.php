@@ -23,6 +23,11 @@ use PDO;
 
 final class PortalController
 {
+    private const PROFILE_OTP_TTL = 600;
+    private const PROFILE_OTP_MAX_ATTEMPTS = 5;
+    private const PROFILE_OTP_COOLDOWN = 60;
+    private const PROFILE_OTP_MAX_RESENDS = 3;
+
     public static function dispatch(string $route): void
     {
         $pdo = Database::connection();
@@ -83,6 +88,7 @@ final class PortalController
 
                 'repayments', 'repayment_record' => self::repaymentsList($pdo),
                 'repayment_submit' => self::repaymentSubmit($pdo),
+                'repayment_receipt' => self::repaymentReceipt($pdo),
 
                 'charity_charges' => self::charityChargesList($pdo),
                 'charity_waive' => self::charityWaive($pdo),
@@ -92,6 +98,16 @@ final class PortalController
                 'sms_run_dispatcher' => self::smsRunDispatcher($pdo),
 
                 'branches', 'users', 'permissions', 'audit_logs', 'settings' => self::adminSection($pdo, $route),
+                'managers' => self::adminSection($pdo, 'users', 'manager'),
+                'branch_managers' => self::adminSection($pdo, 'users', 'branch_manager'),
+                'header_office' => self::adminSection($pdo, 'users', 'loan_officer'),
+                'profile' => self::profile($pdo),
+                'profile_update' => self::profileUpdate($pdo),
+                'profile_email_request' => self::profileEmailRequest($pdo),
+                'profile_password_request' => self::profilePasswordRequest($pdo),
+                'profile_otp_verify' => self::profileOtpVerify($pdo),
+                'profile_otp_resend' => self::profileOtpResend($pdo),
+                'profile_otp_cancel' => self::profileOtpCancel(),
                 'branch_create' => self::branchCreate($pdo),
                 'branch_toggle' => self::branchToggle($pdo),
                 'user_create' => self::userCreate($pdo),
@@ -140,7 +156,8 @@ final class PortalController
     private static function scopeSql(array $user, string $tableAlias = 'f'): array
     {
         $role = $user['role_slug'] ?? '';
-        if ($role === 'admin') {
+        // The General Manager oversees the whole company, like the admin.
+        if (in_array($role, ['admin', 'manager'], true)) {
             return ['', []];
         }
         if ($role === 'client') {
@@ -1358,18 +1375,20 @@ final class PortalController
 
     private static function clientsList(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
-        $branchSql = ($user['role_slug'] === 'admin') ? '' : ' AND c.branch_id = :bid ';
-        $params = ($user['role_slug'] === 'admin') ? [] : [':bid' => (int) $user['branch_id']];
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
+        $allBranches = in_array($user['role_slug'], ['admin', 'manager'], true);
+        $branchSql = $allBranches ? '' : ' AND c.branch_id = :bid ';
+        $params = $allBranches ? [] : [':bid' => (int) $user['branch_id']];
 
         $q = trim((string) ($_GET['q'] ?? ''));
         if ($q !== '') {
-            $branchSql .= ' AND (c.full_name LIKE :q1 OR c.client_code LIKE :q2 OR c.phone LIKE :q3 OR c.id_number LIKE :q4) ';
+            $branchSql .= ' AND (c.full_name LIKE :q1 OR c.client_code LIKE :q2 OR c.phone LIKE :q3 OR c.email LIKE :q4 OR c.id_number LIKE :q5) ';
             $like = '%' . $q . '%';
             $params[':q1'] = $like;
             $params[':q2'] = $like;
             $params[':q3'] = $like;
             $params[':q4'] = $like;
+            $params[':q5'] = $like;
         }
 
         $stmt = $pdo->prepare("
@@ -1377,7 +1396,8 @@ final class PortalController
                    b.name AS branch_name,
                    cs.current_score,
                    cs.score_category,
-                   (SELECT COUNT(*) FROM guarantors g WHERE g.client_id = c.id) AS guarantors_count
+                   (SELECT COUNT(*) FROM guarantors g WHERE g.client_id = c.id) AS guarantors_count,
+                   (SELECT COUNT(*) FROM financings f WHERE f.client_id = c.id AND f.status IN ('active', 'overdue')) AS active_financings
             FROM clients c
             INNER JOIN branches b ON b.id = c.branch_id
             LEFT JOIN credit_scores cs ON cs.client_id = c.id
@@ -1388,10 +1408,22 @@ final class PortalController
         $clients = $stmt->fetchAll();
         $branches = $pdo->query('SELECT * FROM branches WHERE is_active = 1 ORDER BY id ASC')->fetchAll();
 
+        // Active financings map for quick repayment modal
+        $fScope = $allBranches ? '' : ' AND f.branch_id = ' . (int) $user['branch_id'];
+        $activeFinancings = $pdo->query("
+            SELECT f.id, f.financing_number, f.client_id, f.product_type, f.outstanding_balance, f.status,
+                   c.full_name AS client_name, c.client_code, c.credit_balance
+            FROM financings f
+            INNER JOIN clients c ON c.id = f.client_id
+            WHERE f.status IN ('active', 'overdue') {$fScope}
+            ORDER BY f.id DESC
+        ")->fetchAll();
+
         self::renderDashboard('clients/index.php', [
             'pageTitle' => Lang::get('menu_all_clients'),
             'clients' => $clients,
             'branches' => $branches,
+            'activeFinancings' => $activeFinancings,
         ]);
     }
 
@@ -1431,6 +1463,7 @@ final class PortalController
             'id_type' => $_POST['id_type'] ?? 'national_id',
             'id_number' => $_POST['id_number'] ?? '',
             'phone' => $_POST['phone'] ?? '',
+            'email' => $_POST['email'] ?? '',
             'city' => $_POST['city'] ?? '',
             'district' => $_POST['district'] ?? '',
             'address' => $_POST['address'] ?? '',
@@ -1665,7 +1698,7 @@ final class PortalController
 
     private static function applicationsList(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         [$scopeSql, $params] = self::scopeSql($user, 'fa');
 
         $stmt = $pdo->prepare("
@@ -1682,8 +1715,9 @@ final class PortalController
         $stmt->execute($params);
         $applications = $stmt->fetchAll();
 
-        $cWhere = ($user['role_slug'] === 'admin') ? '' : ' WHERE c.branch_id = :bid ';
-        $cParams = ($user['role_slug'] === 'admin') ? [] : [':bid' => (int) $user['branch_id']];
+        $allBranches = in_array($user['role_slug'], ['admin', 'manager'], true);
+        $cWhere = $allBranches ? '' : ' WHERE c.branch_id = :bid ';
+        $cParams = $allBranches ? [] : [':bid' => (int) $user['branch_id']];
         $cStmt = $pdo->prepare("
             SELECT c.id, c.full_name, c.client_code, cs.current_score
             FROM clients c
@@ -1723,7 +1757,10 @@ final class PortalController
             'murabaha_goods_description' => $_POST['murabaha_goods_description'] ?? '',
         ], (int) $user['id'], $submitImmediately, date('Y-m-d'), $pdo);
 
-        $_SESSION['flash_success'] = "Application {$res['application_number']} saved as '{$res['status']}' (Required approver: {$res['required_approver_role']}).";
+        $_SESSION['flash_success'] = "Application {$res['application_number']} saved as '{$res['status']}' (Approval level: " . FinancingDomainService::approverLabel($res['required_approver_role']) . ').';
+        if ($res['status'] === 'submitted') {
+            self::notifyApprovers($pdo, (int) $res['application_id']);
+        }
         header('Location: ?route=applications');
         exit;
     }
@@ -1733,10 +1770,13 @@ final class PortalController
         $user = AuthMiddleware::requireRoles(['admin', 'loan_officer']);
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
-        $pdo->prepare("UPDATE financing_applications SET status = 'submitted', submitted_at = NOW() WHERE id = :id AND status = 'draft'")
-            ->execute([':id' => $appId]);
+        $draft = $pdo->prepare("UPDATE financing_applications SET status = 'submitted', submitted_at = NOW() WHERE id = :id AND status = 'draft'");
+        $draft->execute([':id' => $appId]);
         AuditLogger::log('application.submitted', 'financing_applications', $appId, "Submitted draft application #{$appId}.", [], (int) $user['id']);
         $_SESSION['flash_success'] = 'Draft application submitted to the approval queue.';
+        if ($draft->rowCount() > 0) {
+            self::notifyApprovers($pdo, $appId);
+        }
         header('Location: ?route=applications');
         exit;
     }
@@ -1748,19 +1788,51 @@ final class PortalController
         $appId = (int) ($_POST['application_id'] ?? 0);
         FinancingDomainService::resubmitRejectedApplication($appId, $_POST, (int) $user['id'], $pdo);
         $_SESSION['flash_success'] = 'Rejected application edited and resubmitted to the approval queue.';
+        self::notifyApprovers($pdo, $appId);
         header('Location: ?route=applications');
         exit;
     }
 
+    /** Emails the approvers of a forwarded application and warns the submitter if nobody could be told. */
+    private static function notifyApprovers(PDO $pdo, int $applicationId): void
+    {
+        try {
+            $result = FinancingDomainService::notifyForwardedApplication($applicationId, Lang::locale(), $pdo);
+        } catch (\Throwable $e) {
+            error_log('Approval notification failed: ' . $e->getMessage());
+            $result = ['required_role' => 'manager', 'recipients' => 1, 'failed' => 1];
+        }
+        if ($result['required_role'] === 'loan_officer') {
+            return;
+        }
+
+        $label = FinancingDomainService::approverLabel($result['required_role']);
+        if ($result['recipients'] === 0) {
+            $_SESSION['flash_warning'] = self::tr(
+                "Codsiga waxaa loo gudbiyay {$label}, laakiin ma jiro {$label} firfircoon oo email loo diro. Fadlan u sheeg maamulka.",
+                "The application was forwarded to {$label}, but there is no active {$label} to email. Please tell the administrators.",
+                "تم تحويل الطلب إلى {$label}، لكن لا يوجد {$label} نشط لإرسال البريد إليه. يرجى إبلاغ الإدارة."
+            );
+        } elseif ($result['failed'] > 0) {
+            $_SESSION['flash_warning'] = self::tr(
+                "Codsiga waxaa loo gudbiyay {$label}, laakiin email-ka qaar lama diri karin. Fadlan si kale ugu sheeg.",
+                "The application was forwarded to {$label}, but some emails could not be sent. Please tell them another way.",
+                "تم تحويل الطلب إلى {$label}، لكن تعذر إرسال بعض الرسائل. يرجى إبلاغهم بطريقة أخرى."
+            );
+        }
+    }
+
     private static function approvalQueue(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         [$scopeSql, $params] = self::scopeSql($user, 'fa');
 
         $stmt = $pdo->prepare("
             SELECT fa.*,
                    c.full_name AS client_name,
                    c.client_code,
+                   c.phone AS client_phone,
+                   c.business_type,
                    b.name AS branch_name,
                    p.product_type,
                    u.full_name AS creator_name,
@@ -1776,17 +1848,24 @@ final class PortalController
             ORDER BY fa.id ASC
         ");
         $stmt->execute($params);
-        $queue = $stmt->fetchAll();
+        // Each person sees only what falls within their approval level.
+        $queue = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $row['approval_level'] = FinancingDomainService::requiredApproverRole((float) $row['requested_amount'], !empty($row['group_id']));
+            if (FinancingDomainService::canDecideLevel((string) $user['role_slug'], $row['approval_level'])) {
+                $queue[] = $row;
+            }
+        }
 
         self::renderDashboard('applications/approval_queue.php', [
-            'pageTitle' => Lang::get('menu_approval_queue'),
+            'pageTitle' => self::tr('Codsiyada Sugaya', 'Pending Applications', 'طلبات قيد الانتظار'),
             'queue' => $queue,
         ]);
     }
 
     private static function applicationReview(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
         $decision = (string) ($_POST['decision'] ?? '');
@@ -1889,7 +1968,7 @@ final class PortalController
         $loans = $stmt->fetchAll();
 
         self::renderDashboard('financings/loans.php', [
-            'pageTitle' => 'Daymaha (Cash Loans / Qard Hassan)',
+            'pageTitle' => self::tr('Dayn Cadaan', 'Cash Loans', 'القروض النقدية'),
             'filter' => $filter,
             'summary' => $summary,
             'loans' => $loans,
@@ -1936,7 +2015,7 @@ final class PortalController
         $contracts = $stmt->fetchAll();
 
         self::renderDashboard('financings/murabaha.php', [
-            'pageTitle' => 'Maalgelinta Hantida (Murabaxa / Murabaha)',
+            'pageTitle' => self::tr('Murabaxo', 'Murabaha', 'المرابحة'),
             'filter' => $filter,
             'summary' => $summary,
             'contracts' => $contracts,
@@ -2059,25 +2138,128 @@ final class PortalController
 
     private static function repaymentSubmit(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'loan_officer', 'manager', 'branch_manager']);
         AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        $financingId = (int) ($_POST['financing_id'] ?? 0);
+        $amount = (string) ($_POST['amount'] ?? '0.00');
+        $paymentMethod = (string) ($_POST['payment_method'] ?? 'EVC Plus');
+        $txRef = (string) ($_POST['transaction_reference'] ?? '');
+        $paymentDate = (string) ($_POST['payment_date'] ?? date('Y-m-d'));
+        $notes = (string) ($_POST['notes'] ?? '');
+        $useClientCredit = !empty($_POST['use_client_credit']);
+        $ibraDiscount = (string) ($_POST['ibra_discount'] ?? '0.00');
 
         $res = RepaymentEngine::recordRepayment(
-            (int) ($_POST['financing_id'] ?? 0),
+            $financingId,
             (int) $user['id'],
-            (string) ($_POST['amount'] ?? '0.00'),
-            (string) ($_POST['payment_method'] ?? 'EVC Plus'),
-            (string) ($_POST['transaction_reference'] ?? ''),
-            (string) ($_POST['payment_date'] ?? date('Y-m-d')),
-            (string) ($_POST['notes'] ?? ''),
-            !empty($_POST['use_client_credit']),
-            (string) ($_POST['ibra_discount'] ?? '0.00'),
+            $amount,
+            $paymentMethod,
+            $txRef,
+            $paymentDate,
+            $notes,
+            $useClientCredit,
+            $ibraDiscount,
             $pdo
         );
 
-        $_SESSION['flash_success'] = "Repayment {$res['receipt_number']} recorded (\${$res['cash_amount']}). Remaining contract balance: \${$res['outstanding_balance_after']}. Client Credit Score: {$res['credit_score']['current_score']}.";
-        header('Location: ?route=repayments');
+        // Fetch client and financing details for sending receipt email
+        $st = $pdo->prepare('
+            SELECT f.financing_number, f.product_type,
+                   c.full_name AS client_name, c.client_code, c.email AS client_email, c.phone AS client_phone,
+                   b.name AS branch_name
+            FROM financings f
+            INNER JOIN clients c ON c.id = f.client_id
+            LEFT JOIN branches b ON b.id = f.branch_id
+            WHERE f.id = :fid
+        ');
+        $st->execute([':fid' => $financingId]);
+        $info = $st->fetch();
+
+        $clientEmail = !empty($info['client_email']) ? trim((string) $info['client_email']) : '';
+
+        // If client email exists, send official receipt email immediately
+        $mailSent = false;
+        if ($clientEmail !== '') {
+            $mailStatus = MailService::sendRepaymentReceiptEmail([
+                'client_name' => $info['client_name'] ?? 'Client',
+                'client_email' => $clientEmail,
+                'client_code' => $info['client_code'] ?? '',
+                'receipt_number' => $res['receipt_number'],
+                'financing_number' => $info['financing_number'],
+                'product_type' => $info['product_type'],
+                'amount_paid' => $res['cash_amount'],
+                'payment_method' => $paymentMethod,
+                'transaction_reference' => $txRef,
+                'payment_date' => $paymentDate . ' ' . date('H:i'),
+                'outstanding_balance_after' => $res['outstanding_balance_after'],
+                'branch_name' => $info['branch_name'] ?? 'Head Office',
+                'recorded_by' => $user['full_name'] ?? 'Staff',
+                'credit_score' => $res['credit_score']['current_score'] ?? 600,
+            ], $locale);
+
+            if ($mailStatus['success']) {
+                $mailSent = true;
+                AuditLogger::log('mail.receipt_sent', 'repayments', $res['repayment_id'], 'Payment receipt emailed to ' . $clientEmail, [], (int) $user['id']);
+            } else {
+                AuditLogger::log('mail.receipt_failed', 'repayments', $res['repayment_id'], 'Receipt email delivery failed: ' . ($mailStatus['error'] ?? 'Unknown'), [], (int) $user['id']);
+            }
+        }
+
+        if ($mailSent) {
+            $_SESSION['flash_success'] = $isSo
+                ? "Lacag-bixinta {$res['receipt_number']} (\${$res['cash_amount']}) si guul leh ayaa loo diiwaangeliyay! Rasiidka rasmi ah waxaa loo diray email-ka macmiilka ({$clientEmail}). Baaqiga harsan: \${$res['outstanding_balance_after']}."
+                : "Repayment {$res['receipt_number']} (\${$res['cash_amount']}) recorded! Official receipt sent to client email ({$clientEmail}). Remaining balance: \${$res['outstanding_balance_after']}.";
+        } else {
+            $_SESSION['flash_success'] = $isSo
+                ? "Lacag-bixinta {$res['receipt_number']} (\${$res['cash_amount']}) si guul leh ayaa loo diiwaangeliyay nidaamka. Baaqiga harsan: \${$res['outstanding_balance_after']}."
+                : "Repayment {$res['receipt_number']} (\${$res['cash_amount']}) recorded in system. Remaining balance: \${$res['outstanding_balance_after']}.";
+        }
+
+        header('Location: ?route=repayment_receipt&id=' . (int) $res['repayment_id']);
         exit;
+    }
+
+    private static function repaymentReceipt(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireAuth();
+        $repId = (int) ($_GET['id'] ?? 0);
+        $receiptNo = trim((string) ($_GET['receipt'] ?? ''));
+
+        if ($repId <= 0 && $receiptNo === '') {
+            throw new \RuntimeException(Lang::locale() === 'so' ? 'Rasiidka lama helin.' : 'Receipt not found.');
+        }
+
+        $where = $repId > 0 ? 'r.id = :val' : 'r.receipt_number = :val';
+        $param = $repId > 0 ? $repId : $receiptNo;
+
+        $stmt = $pdo->prepare("
+            SELECT r.*,
+                   f.financing_number, f.product_type, f.total_due, f.outstanding_balance, f.status AS financing_status,
+                   c.full_name AS client_name, c.client_code, c.phone AS client_phone, c.email AS client_email,
+                   b.name AS branch_name, b.code AS branch_code, b.city AS branch_city, b.phone AS branch_phone,
+                   u.full_name AS recorded_by_name
+            FROM repayments r
+            INNER JOIN financings f ON f.id = r.financing_id
+            INNER JOIN clients c ON c.id = r.client_id
+            LEFT JOIN branches b ON b.id = r.branch_id
+            LEFT JOIN users u ON u.id = r.recorded_by
+            WHERE {$where}
+            LIMIT 1
+        ");
+        $stmt->execute([':val' => $param]);
+        $repayment = $stmt->fetch();
+
+        if (!$repayment) {
+            throw new \RuntimeException(Lang::locale() === 'so' ? 'Rasiidka lama helin.' : 'Receipt not found.');
+        }
+
+        self::renderDashboard('repayments/receipt.php', [
+            'pageTitle' => (Lang::locale() === 'so' ? 'Rasiidka Lacag-Bixinta: ' : 'Payment Receipt: ') . $repayment['receipt_number'],
+            'repayment' => $repayment,
+        ]);
     }
 
     private static function charityChargesList(PDO $pdo): void
@@ -2202,10 +2384,15 @@ final class PortalController
         exit;
     }
 
-    private static function adminSection(PDO $pdo, string $mode): void
+    private static function adminSection(PDO $pdo, string $mode, ?string $roleFocus = null): void
     {
         $user = AuthMiddleware::requireAuth();
         $role = $user['role_slug'] ?? '';
+
+        // The Managers, Branch Managers and Header Office pages are admin-only views of the user list.
+        if ($roleFocus !== null && $role !== 'admin') {
+            throw new \RuntimeException(Lang::get('unauthorized_access'));
+        }
 
         if (!in_array($role, ['admin', 'manager', 'branch_manager'], true)) {
             throw new \RuntimeException(Lang::get('unauthorized_access'));
@@ -2260,6 +2447,11 @@ final class PortalController
             ')->fetchAll();
         }
 
+        if ($roleFocus !== null) {
+            $users = array_values(array_filter($users, fn ($u) => $u['role_slug'] === $roleFocus));
+            $assignableRoles = array_values(array_filter($assignableRoles, fn ($r) => $r['slug'] === $roleFocus));
+        }
+
         $permissionsList = [];
         $selectedUser = null;
         $userPermMap = [];
@@ -2309,10 +2501,24 @@ final class PortalController
             'audit_logs' => Lang::get('menu_audit_logs'),
         ];
 
+        $pageName = match ($roleFocus) {
+            'manager' => 'Managers',
+            'branch_manager' => 'Branch Managers',
+            'loan_officer' => 'Header Office',
+            default => $titleMap[$mode] ?? 'Administration',
+        };
+
         self::renderDashboard('admin/manage.php', [
-            'pageTitle' => $titleMap[$mode] ?? 'Administration',
-            'sectionTitle' => $titleMap[$mode] ?? 'Administration',
+            'pageTitle' => $pageName,
+            'sectionTitle' => $pageName,
             'mode' => $mode,
+            'roleFocus' => $roleFocus,
+            'returnRoute' => match ($roleFocus) {
+                'manager' => 'managers',
+                'branch_manager' => 'branch_managers',
+                'loan_officer' => 'header_office',
+                default => 'users',
+            },
             'branches' => $branches,
             'roles' => $assignableRoles,
             'allRoles' => $allRoles,
@@ -2467,7 +2673,7 @@ final class PortalController
         // Strict Hierarchy Rule Enforcement:
         // Admin -> [manager, branch_manager, loan_officer, client] (cannot create admin)
         // Manager -> [branch_manager, loan_officer, client] (cannot create admin or manager)
-        // Header Branch -> [loan_officer, client] (cannot create admin, manager, or branch_manager)
+        // Branch Manager -> [loan_officer, client] (cannot create admin, manager, or branch_manager)
         $allowedRoleSlugs = match ($creatorRole) {
             'admin' => ['manager', 'branch_manager', 'loan_officer', 'client'],
             'manager' => ['branch_manager', 'loan_officer', 'client'],
@@ -2526,7 +2732,7 @@ final class PortalController
             if (in_array($targetRoleSlug, ['branch_manager', 'loan_officer'], true) && $rawBranchId <= 0) {
                 throw new \RuntimeException(
                     $locale === 'so'
-                        ? 'Fadlan dooro laanta loo qoondeeyey isticmaalahan. Maamulaha Laanta (Header Branch) iyo Shaqaalaha waa inay laan gaar ah leeyihiin.'
+                        ? 'Fadlan dooro laanta loo qoondeeyey isticmaalahan. Maamulaha Laanta (Branch Manager) iyo Header Office waa inay laan gaar ah leeyihiin.'
                         : 'Please select a specific branch for this user. Branch Managers and Staff must be assigned to a specific branch.'
                 );
             }
@@ -2590,7 +2796,7 @@ final class PortalController
                 : "User account created (Password: {$plainPassword}), but email notification failed: " . ($mailStatus['error'] ?? '');
         }
 
-        header('Location: ?route=users');
+        header('Location: ?route=' . self::userListRoute());
         exit;
     }
 
@@ -2643,6 +2849,16 @@ final class PortalController
 
         if ($fullName === '' || $username === '' || $email === '') {
             throw new \RuntimeException($locale === 'so' ? 'Fadlan buuxi magaca buuxa, username-ka, iyo email-ka.' : 'Please provide full name, username, and email.');
+        }
+
+        // The admin's own email and password change only through Profile, which requires an OTP.
+        if ($actorRole === 'admin' && $targetUserId === $actorId
+            && (strcasecmp($email, (string) $targetUser['email']) !== 0 || trim((string) ($_POST['password'] ?? '')) !== '')) {
+            throw new \RuntimeException(self::tr(
+                'Email-kaaga iyo password-kaaga waxaad ka beddeli kartaa Profile-ka oo keliya, adigoo OTP isticmaalaya.',
+                'Your own email and password can only be changed from Profile, using an OTP.',
+                'لا يمكن تغيير بريدك الإلكتروني وكلمة مرورك إلا من الملف الشخصي باستخدام رمز التحقق.'
+            ));
         }
 
         // Check duplicates for username/email excluding this user
@@ -2761,7 +2977,7 @@ final class PortalController
             ? 'Macluumaadka isticmaalaha (' . $fullName . ') si guul leh ayaa loo cusbooneysiiyay!'
             : 'User (' . $fullName . ') details successfully updated!';
 
-        header('Location: ?route=users');
+        header('Location: ?route=' . self::userListRoute());
         exit;
     }
 
@@ -2844,7 +3060,7 @@ final class PortalController
                 : 'Account for (' . $targetUser['full_name'] . ') has been successfully activated!';
         }
 
-        header('Location: ?route=users');
+        header('Location: ?route=' . self::userListRoute());
         exit;
     }
 
@@ -2862,8 +3078,264 @@ final class PortalController
                 : 'Security restriction cleared and user account successfully restored!';
         }
 
-        header('Location: ?route=users');
+        header('Location: ?route=' . self::userListRoute());
         exit;
+    }
+
+    /** Page the user list actions return to, limited to the known list pages. */
+    private static function userListRoute(): string
+    {
+        $route = (string) ($_POST['return_route'] ?? 'users');
+        return in_array($route, ['users', 'managers', 'branch_managers', 'header_office'], true) ? $route : 'users';
+    }
+
+    private static function tr(string $so, string $en, string $ar): string
+    {
+        return match (Lang::locale()) {
+            'so' => $so,
+            'ar' => $ar,
+            default => $en,
+        };
+    }
+
+    private static function redirectToProfile(): never
+    {
+        header('Location: ?route=profile');
+        exit;
+    }
+
+    private static function ownAccount(PDO $pdo, int $userId): array
+    {
+        $st = $pdo->prepare('
+            SELECT u.*, r.name_so AS role_name_so, r.name_en AS role_name_en, b.name AS branch_name
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            LEFT JOIN branches b ON b.id = u.branch_id
+            WHERE u.id = :id AND u.deleted_at IS NULL
+        ');
+        $st->execute([':id' => $userId]);
+        $account = $st->fetch();
+        if (!$account) {
+            throw new \RuntimeException(Lang::get('unauthorized_access'));
+        }
+        return $account;
+    }
+
+    /** The pending email or password change of this user, or null if there is none or it expired. */
+    private static function pendingProfileOtp(int $userId): ?array
+    {
+        $otp = $_SESSION['profile_otp'] ?? null;
+        if (!is_array($otp) || (int) $otp['user_id'] !== $userId || (int) $otp['expires_at'] < time()) {
+            unset($_SESSION['profile_otp']);
+            return null;
+        }
+        return $otp;
+    }
+
+    /** Emails a new code and stores the pending change. Nothing changes in the database until it is verified. */
+    private static function sendProfileOtp(array $account, string $purpose, string $target, array $payload, int $resends = 0): void
+    {
+        unset($_SESSION['profile_otp']);
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $mail = MailService::sendProfileOtpEmail($target, (string) $account['full_name'], $code, $purpose, Lang::locale());
+        if (!$mail['success']) {
+            AuditLogger::log('profile.otp_mail_failed', 'users', (int) $account['id'], 'Could not send profile OTP: ' . ($mail['error'] ?? 'unknown'), [], (int) $account['id']);
+            throw new \RuntimeException(self::tr(
+                'Email-ka OTP-ga lama diri karin, wax isbeddel ahna lama samayn. Fadlan mar kale isku day.',
+                'The OTP email could not be sent, so nothing was changed. Please try again.',
+                'تعذر إرسال رمز التحقق، ولم يتم تغيير أي شيء. يرجى المحاولة مرة أخرى.'
+            ));
+        }
+
+        $_SESSION['profile_otp'] = [
+            'user_id' => (int) $account['id'],
+            'purpose' => $purpose,
+            'target' => $target,
+            'payload' => $payload,
+            'code_hash' => hash('sha256', $code),
+            'expires_at' => time() + self::PROFILE_OTP_TTL,
+            'sent_at' => time(),
+            'attempts' => 0,
+            'resends' => $resends,
+        ];
+    }
+
+    private static function requireCurrentPassword(array $account): void
+    {
+        if (!Security::verifyPassword((string) ($_POST['current_password'] ?? ''), (string) $account['password_hash'])) {
+            AuditLogger::log('profile.wrong_password', 'users', (int) $account['id'], 'Wrong current password on a profile change request.', [], (int) $account['id']);
+            throw new \RuntimeException(self::tr('Password-ka hadda aad isticmaasho waa khalad.', 'Your current password is incorrect.', 'كلمة المرور الحالية غير صحيحة.'));
+        }
+    }
+
+    private static function profile(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        self::renderDashboard('admin/profile.php', [
+            'pageTitle' => 'Profile',
+            'account' => self::ownAccount($pdo, (int) $user['id']),
+            'otp' => self::pendingProfileOtp((int) $user['id']),
+            'otpCooldown' => self::PROFILE_OTP_COOLDOWN,
+            'otpMaxResends' => self::PROFILE_OTP_MAX_RESENDS,
+        ]);
+    }
+
+    /** Full name and phone are saved directly, with no OTP. */
+    private static function profileUpdate(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $fullName = trim((string) ($_POST['full_name'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+
+        if ($fullName === '' || mb_strlen($fullName) > 120 || $phone === '' || mb_strlen($phone) > 30) {
+            throw new \RuntimeException(self::tr('Fadlan geli magac iyo telefoon sax ah.', 'Please enter a valid name and phone number.', 'يرجى إدخال اسم ورقم هاتف صحيحين.'));
+        }
+
+        $pdo->prepare('UPDATE users SET full_name = :name, phone = :phone WHERE id = :id')
+            ->execute([':name' => $fullName, ':phone' => $phone, ':id' => (int) $user['id']]);
+        $_SESSION['user']['full_name'] = $fullName;
+        $_SESSION['user']['phone'] = $phone;
+        AuditLogger::log('profile.updated', 'users', (int) $user['id'], 'Admin updated own name or phone.', [], (int) $user['id']);
+
+        $_SESSION['flash_success'] = self::tr('Macluumaadkaaga waa la keydiyay.', 'Your details were saved.', 'تم حفظ بياناتك.');
+        self::redirectToProfile();
+    }
+
+    /** The code goes to the new address, which proves the admin controls it before 2FA codes are sent there. */
+    private static function profileEmailRequest(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $account = self::ownAccount($pdo, (int) $user['id']);
+        $newEmail = trim((string) ($_POST['new_email'] ?? ''));
+
+        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException(self::tr('Fadlan geli email sax ah.', 'Please enter a valid email address.', 'يرجى إدخال بريد إلكتروني صحيح.'));
+        }
+        if (strcasecmp($newEmail, (string) $account['email']) === 0) {
+            throw new \RuntimeException(self::tr('Email-kani waa kan aad hadda isticmaasho.', 'This is already your email address.', 'هذا هو بريدك الإلكتروني الحالي.'));
+        }
+        self::requireCurrentPassword($account);
+        self::assertEmailAvailable($pdo, $newEmail, (int) $account['id']);
+
+        self::sendProfileOtp($account, 'email', $newEmail, ['new_email' => $newEmail]);
+        $_SESSION['flash_success'] = self::tr('OTP waxaa loo diray ' . $newEmail . '.', 'An OTP was sent to ' . $newEmail . '.', 'تم إرسال رمز التحقق إلى ' . $newEmail . '.');
+        self::redirectToProfile();
+    }
+
+    private static function assertEmailAvailable(PDO $pdo, string $email, int $userId): void
+    {
+        $st = $pdo->prepare('SELECT id FROM users WHERE email = :email AND id != :id LIMIT 1');
+        $st->execute([':email' => $email, ':id' => $userId]);
+        if ($st->fetch()) {
+            throw new \RuntimeException(self::tr('Email-kan qof kale ayaa isticmaala.', 'This email address is already in use.', 'هذا البريد الإلكتروني مستخدم بالفعل.'));
+        }
+    }
+
+    private static function profilePasswordRequest(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $account = self::ownAccount($pdo, (int) $user['id']);
+        $newPassword = (string) ($_POST['new_password'] ?? '');
+
+        self::requireCurrentPassword($account);
+        if (strlen($newPassword) < 8) {
+            throw new \RuntimeException(self::tr('Password-ka cusub waa inuu ahaadaa ugu yaraan 8 xaraf.', 'The new password must be at least 8 characters.', 'يجب ألا تقل كلمة المرور الجديدة عن 8 أحرف.'));
+        }
+        if ($newPassword !== (string) ($_POST['confirm_password'] ?? '')) {
+            throw new \RuntimeException(self::tr('Labada password ee cusub isma waafaqsana.', 'The two new passwords do not match.', 'كلمتا المرور الجديدتان غير متطابقتين.'));
+        }
+        if (Security::verifyPassword($newPassword, (string) $account['password_hash'])) {
+            throw new \RuntimeException(self::tr('Password-ka cusub waa inuu ka duwanaadaa kan hadda.', 'The new password must differ from the current one.', 'يجب أن تختلف كلمة المرور الجديدة عن الحالية.'));
+        }
+
+        $target = (string) $account['email'];
+        self::sendProfileOtp($account, 'password', $target, ['new_password_hash' => Security::hashPassword($newPassword)]);
+        $_SESSION['flash_success'] = self::tr('OTP waxaa loo diray ' . $target . '.', 'An OTP was sent to ' . $target . '.', 'تم إرسال رمز التحقق إلى ' . $target . '.');
+        self::redirectToProfile();
+    }
+
+    private static function profileOtpVerify(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $userId = (int) $user['id'];
+        $otp = self::pendingProfileOtp($userId);
+        if ($otp === null) {
+            throw new \RuntimeException(self::tr('OTP-gu waa dhacay. Fadlan mar kale codso.', 'The OTP has expired. Please request a new one.', 'انتهت صلاحية الرمز. يرجى طلب رمز جديد.'));
+        }
+
+        $code = trim((string) ($_POST['otp_code'] ?? ''));
+        if (!hash_equals((string) $otp['code_hash'], hash('sha256', $code))) {
+            $attempts = (int) $otp['attempts'] + 1;
+            if ($attempts >= self::PROFILE_OTP_MAX_ATTEMPTS) {
+                unset($_SESSION['profile_otp']);
+                AuditLogger::log('profile.otp_locked', 'users', $userId, 'Profile OTP cancelled after too many wrong codes.', ['purpose' => $otp['purpose']], $userId);
+                $_SESSION['flash_error'] = self::tr('Koodh khaldan ayaa marar badan la geliyay, codsigiina waa la joojiyay. Wax isbeddel ah lama samayn.', 'Too many wrong codes, so the request was cancelled. Nothing was changed.', 'تم إلغاء الطلب بسبب كثرة الرموز الخاطئة. لم يتم تغيير أي شيء.');
+                self::redirectToProfile();
+            }
+            $_SESSION['profile_otp']['attempts'] = $attempts;
+            $left = self::PROFILE_OTP_MAX_ATTEMPTS - $attempts;
+            $_SESSION['flash_error'] = self::tr("Koodhku waa khalad. Waxaa kuu hadhay {$left} isku day.", "Wrong code. {$left} attempts left.", "رمز خاطئ. المحاولات المتبقية: {$left}.");
+            self::redirectToProfile();
+        }
+
+        if ($otp['purpose'] === 'email') {
+            $account = self::ownAccount($pdo, $userId);
+            $oldEmail = (string) $account['email'];
+            $newEmail = (string) $otp['payload']['new_email'];
+            self::assertEmailAvailable($pdo, $newEmail, $userId);
+            $pdo->prepare('UPDATE users SET email = :email WHERE id = :id')->execute([':email' => $newEmail, ':id' => $userId]);
+            unset($_SESSION['profile_otp']);
+            $_SESSION['user']['email'] = $newEmail;
+            AuditLogger::log('profile.email_changed', 'users', $userId, 'Admin changed own email after OTP verification.', ['from' => $oldEmail, 'to' => $newEmail], $userId);
+
+            // Warn the old address, so an unexpected change is noticed. A failure here must not undo the change.
+            MailService::sendEmailChangedNotice($oldEmail, (string) $account['full_name'], $newEmail, Lang::locale());
+
+            $_SESSION['flash_success'] = self::tr('Email-kaaga waa la beddelay.', 'Your email address was changed.', 'تم تغيير بريدك الإلكتروني.');
+        } else {
+            $pdo->prepare('UPDATE users SET password_hash = :hash WHERE id = :id')
+                ->execute([':hash' => (string) $otp['payload']['new_password_hash'], ':id' => $userId]);
+            unset($_SESSION['profile_otp']);
+            session_regenerate_id(true);
+            AuditLogger::log('profile.password_changed', 'users', $userId, 'Admin changed own password after OTP verification.', [], $userId);
+            $_SESSION['flash_success'] = self::tr('Password-kaaga waa la beddelay.', 'Your password was changed.', 'تم تغيير كلمة المرور.');
+        }
+
+        self::redirectToProfile();
+    }
+
+    private static function profileOtpResend(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $otp = self::pendingProfileOtp((int) $user['id']);
+        if ($otp === null) {
+            throw new \RuntimeException(self::tr('OTP-gu waa dhacay. Fadlan mar kale codso.', 'The OTP has expired. Please request a new one.', 'انتهت صلاحية الرمز. يرجى طلب رمز جديد.'));
+        }
+        if ((int) $otp['resends'] >= self::PROFILE_OTP_MAX_RESENDS) {
+            throw new \RuntimeException(self::tr('Marar badan ayaad koodh codsatay. Ka noqo oo dib u bilow.', 'Too many resends. Cancel and start again.', 'طلبات إعادة الإرسال كثيرة. ألغِ الطلب وابدأ من جديد.'));
+        }
+        if (time() - (int) $otp['sent_at'] < self::PROFILE_OTP_COOLDOWN) {
+            throw new \RuntimeException(self::tr('Fadlan yara sug ka hor intaadan koodh kale codsan.', 'Please wait a moment before requesting another code.', 'يرجى الانتظار قليلاً قبل طلب رمز آخر.'));
+        }
+
+        $account = self::ownAccount($pdo, (int) $user['id']);
+        self::sendProfileOtp($account, (string) $otp['purpose'], (string) $otp['target'], (array) $otp['payload'], (int) $otp['resends'] + 1);
+        $_SESSION['flash_success'] = self::tr('Koodh cusub ayaa la diray.', 'A new code was sent.', 'تم إرسال رمز جديد.');
+        self::redirectToProfile();
+    }
+
+    private static function profileOtpCancel(): void
+    {
+        AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        unset($_SESSION['profile_otp']);
+        self::redirectToProfile();
     }
 
     private static function settingsSave(PDO $pdo): void

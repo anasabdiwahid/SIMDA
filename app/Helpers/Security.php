@@ -61,6 +61,13 @@ final class Security
         return hash_equals($_SESSION['csrf_token'], $token);
     }
 
+    /** Up to two capital letters for a person's avatar. */
+    public static function initials(string $fullName): string
+    {
+        $words = preg_split('/\s+/', trim($fullName)) ?: [];
+        return mb_strtoupper(mb_substr($words[0] ?? '', 0, 1) . mb_substr($words[1] ?? '', 0, 1));
+    }
+
     public static function e(mixed $value): string
     {
         return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

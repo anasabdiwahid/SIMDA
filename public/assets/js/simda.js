@@ -731,3 +731,60 @@
     });
 })();
 
+
+// Live filter for admin lists: [data-filter-list] holds the [data-filter-item]s; [data-filter-for="<list id>"] controls filter them.
+(function () {
+    document.querySelectorAll('[data-filter-list]').forEach(function (list) {
+        var controls = document.querySelectorAll('[data-filter-for="' + list.id + '"]');
+        var items = list.querySelectorAll('[data-filter-item]');
+        var empty = document.querySelector('[data-filter-empty="' + list.id + '"]');
+        function apply() {
+            var shown = 0;
+            items.forEach(function (item) {
+                var match = true;
+                controls.forEach(function (control) {
+                    var value = control.value.trim().toLowerCase();
+                    if (!value) { return; }
+                    if (control.dataset.filterAttr) {
+                        match = match && (item.getAttribute('data-' + control.dataset.filterAttr) || '').toLowerCase() === value;
+                    } else {
+                        match = match && (item.dataset.search || item.textContent).toLowerCase().indexOf(value) !== -1;
+                    }
+                });
+                item.hidden = !match;
+                if (match) { shown++; }
+            });
+            if (empty) { empty.hidden = shown > 0; }
+        }
+        controls.forEach(function (control) { control.addEventListener('input', apply); });
+    });
+
+    // Keep the current page's link visible on short screens, where the sidebar scrolls.
+    var activeLink = document.querySelector('.sidebar-nav .sidebar-link.active');
+    if (activeLink) { activeLink.scrollIntoView({ block: 'nearest' }); }
+})();
+
+// Branded loading screen for forms that wait on slow work such as sending email: <form data-loading="<overlay id>">.
+(function () {
+    document.addEventListener('submit', function (e) {
+        var overlayId = e.target.dataset ? e.target.dataset.loading : '';
+        var overlay = overlayId ? document.getElementById(overlayId) : null;
+        if (overlay && !e.defaultPrevented) {
+            overlay.hidden = false;
+        }
+    });
+
+    // Coming back with the browser's Back button restores the page as it was left, so reset it.
+    window.addEventListener('pageshow', function (e) {
+        if (!e.persisted) { return; }
+        document.querySelectorAll('form[data-loading]').forEach(function (form) {
+            var overlay = document.getElementById(form.dataset.loading);
+            var btn = form.querySelector('button[type="submit"]');
+            if (overlay) { overlay.hidden = true; }
+            if (btn) {
+                delete btn.dataset.submitting;
+                btn.style.opacity = '';
+            }
+        });
+    });
+})();

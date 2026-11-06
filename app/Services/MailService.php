@@ -237,8 +237,8 @@ final class MailService
         // Role title formatting
         $roleLabel = match ($roleSlug) {
             'manager' => 'Maamulaha Guud ee Shirkadda (General Operations Manager)',
-            'branch_manager' => 'Maamulaha Laanta (Head of Branch)',
-            'loan_officer' => 'Sarkaalka Maalgelinta / Shaqaale (Financing Officer)',
+            'branch_manager' => 'Maamulaha Laanta (Branch Manager)',
+            'loan_officer' => 'Header Office (Sarkaalka Maalgelinta)',
             'client' => 'Macmiilka SIMDA (Registered Client)',
             default => $roleNameSo . ' (' . $roleNameEn . ')',
         };
@@ -582,5 +582,320 @@ HTML;
 
         return self::send($email, $subject, $html, $plain, $inlineAttachments);
     }
-}
 
+    /**
+     * OTP that confirms an admin's own email or password change.
+     */
+    public static function sendProfileOtpEmail(
+        string $email,
+        string $fullName,
+        string $otpCode,
+        string $purpose,
+        string $locale = 'so'
+    ): array {
+        $isSo = $locale === 'so';
+        $isEmail = $purpose === 'email';
+        $subject = $isSo
+            ? ($isEmail ? 'SIMDA: Koodhka beddelka email-ka' : 'SIMDA: Koodhka beddelka password-ka')
+            : ($isEmail ? 'SIMDA: Email change verification code' : 'SIMDA: Password change verification code');
+        $intro = $isSo
+            ? ($isEmail ? 'Isticmaal koodhkan si aad u xaqiijiso email-kaaga cusub ee SIMDA.' : 'Isticmaal koodhkan si aad u xaqiijiso beddelka password-kaaga SIMDA.')
+            : ($isEmail ? 'Use this code to confirm your new SIMDA email address.' : 'Use this code to confirm your SIMDA password change.');
+        $note = $isSo
+            ? 'Koodhku wuxuu dhacayaa 10 daqiiqo kadib. Cidna ha la wadaagin. Haddii aadan adigu codsan, password-kaaga beddel.'
+            : 'This code expires in 10 minutes. Never share it. If you did not request this, change your password.';
+        $greeting = ($isSo ? 'Salaamu Calaykum, ' : 'Hello, ') . $fullName;
+
+        $block = '<div style="background:#F7F9F7;border:2px dashed #123B32;border-radius:14px;padding:18px;text-align:center;margin:20px 0;">'
+            . '<span style="font-size:32px;font-weight:800;letter-spacing:8px;color:#123B32;font-family:monospace;">' . htmlspecialchars($otpCode) . '</span></div>';
+
+        return self::send(
+            $email,
+            $subject,
+            self::noticeHtml($subject, $greeting, $intro, $block, $note, $locale),
+            "{$greeting}\n\n{$intro}\n\n{$otpCode}\n\n{$note}\n\nSIMDA"
+        );
+    }
+
+    /**
+     * Tells the previous address that the account email was changed.
+     */
+    public static function sendEmailChangedNotice(string $oldEmail, string $fullName, string $newEmail, string $locale = 'so'): array
+    {
+        $isSo = $locale === 'so';
+        $subject = $isSo ? 'SIMDA: Email-ka akoonkaaga waa la beddelay' : 'SIMDA: Your account email was changed';
+        $intro = $isSo
+            ? "Email-ka akoonkaaga SIMDA waxaa loo beddelay {$newEmail}."
+            : "Your SIMDA account email was changed to {$newEmail}.";
+        $note = $isSo
+            ? 'Haddii aadan adigu samayn, isla markiiba la xiriir maamulka nidaamka.'
+            : 'If you did not do this, contact the system administrators immediately.';
+        $greeting = ($isSo ? 'Salaamu Calaykum, ' : 'Hello, ') . $fullName;
+
+        return self::send(
+            $oldEmail,
+            $subject,
+            self::noticeHtml($subject, $greeting, $intro, '', $note, $locale),
+            "{$greeting}\n\n{$intro}\n\n{$note}\n\nSIMDA"
+        );
+    }
+
+    /**
+     * Sends an official Payment Receipt email to the client upon repayment.
+     */
+    public static function sendRepaymentReceiptEmail(array $receiptData, string $locale = 'so'): array
+    {
+        $isSo = $locale === 'so';
+        $clientName = (string) ($receiptData['client_name'] ?? 'Macmiil Sharafle');
+        $clientEmail = (string) ($receiptData['client_email'] ?? '');
+        $clientCode = (string) ($receiptData['client_code'] ?? '');
+        $receiptNumber = (string) ($receiptData['receipt_number'] ?? 'RCP-0000');
+        $financingNumber = (string) ($receiptData['financing_number'] ?? '');
+        $productType = (string) ($receiptData['product_type'] ?? 'murabaha');
+        $amountPaid = number_format((float) ($receiptData['amount_paid'] ?? 0), 2);
+        $remainingBalance = number_format((float) ($receiptData['outstanding_balance_after'] ?? 0), 2);
+        $paymentMethod = (string) ($receiptData['payment_method'] ?? 'EVC Plus');
+        $txRef = (string) ($receiptData['transaction_reference'] ?? '');
+        $paymentDate = (string) ($receiptData['payment_date'] ?? date('Y-m-d H:i'));
+        $branchName = (string) ($receiptData['branch_name'] ?? 'SIMDA Head Office');
+        $recordedBy = (string) ($receiptData['recorded_by'] ?? 'Staff');
+
+        $prodName = match ($productType) {
+            'murabaha' => ($isSo ? 'Murabaxo (Asset Financing)' : 'Murabaha Financing'),
+            'qard_hassan' => ($isSo ? 'Dayn Qard Hassan (Cash Loan)' : 'Qard Hassan Cash Loan'),
+            default => strtoupper($productType),
+        };
+
+        $subject = $isSo
+            ? "SIMDA: Rasiidka Lacag-Bixinta Rasmi ah — {$receiptNumber} (\${$amountPaid})"
+            : "SIMDA Official Payment Receipt — {$receiptNumber} (\${$amountPaid})";
+
+        // Logo embedding (uses white logo for dark brand background)
+        $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo-white.png';
+        if (!is_file($logoPath)) {
+            $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
+        }
+        $inlineAttachments = [];
+        $logoSrc = 'https://simda.so/assets/images/simda-logo-white.png';
+        if (is_file($logoPath)) {
+            $inlineAttachments[] = [
+                'cid' => 'simda_logo',
+                'path' => $logoPath,
+                'mime' => 'image/png',
+                'filename' => 'simda-logo-white.png',
+            ];
+            $logoSrc = 'cid:simda_logo';
+        }
+
+        $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="{$locale}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{$e($subject)}</title>
+</head>
+<body style="margin:0;padding:24px 12px;background:#0d2620;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1B2E28;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,0.3);">
+    <!-- BRAND HEADER -->
+    <tr>
+      <td style="background:#123B32;padding:28px 30px;text-align:center;border-bottom:3px solid #D6B66C;">
+        <img src="{$logoSrc}" alt="SIMDA" style="height:48px;max-width:180px;object-fit:contain;margin-bottom:8px;" />
+        <div style="color:#D6B66C;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;">
+          SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION
+        </div>
+        <div style="color:#A7C2B8;font-size:12px;margin-top:4px;">
+          100% Zero-Riba Sharia-Compliant Financial Platform
+        </div>
+      </td>
+    </tr>
+
+    <!-- RECEIPT STATUS BANNER -->
+    <tr>
+      <td style="background:#F4F8F6;padding:20px 30px;text-align:center;border-bottom:1px solid #E2EBE6;">
+        <div style="display:inline-block;background:#EAF6F0;color:#23845B;padding:6px 16px;border-radius:20px;font-weight:800;font-size:13px;border:1px solid rgba(35,132,91,0.25);">
+          ✓ {$e($isSo ? 'Lacag-Bixinta waa la Xaqiijiyay (Payment Verified)' : 'Payment Received & Verified')}
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:#788780;text-transform:uppercase;letter-spacing:1px;font-weight:700;">
+          {$e($isSo ? 'Tirada Rasiidka' : 'Receipt Number')}
+        </div>
+        <div style="font-family:monospace;font-size:20px;font-weight:800;color:#123B32;letter-spacing:1.5px;margin-top:2px;">
+          {$e($receiptNumber)}
+        </div>
+      </td>
+    </tr>
+
+    <!-- MAIN AMOUNT BOX -->
+    <tr>
+      <td style="padding:28px 30px;text-align:center;">
+        <div style="font-size:13px;color:#52635B;margin-bottom:6px;font-weight:600;">
+          {$e($isSo ? 'Cadadka Lacagta La Soo Celiyay' : 'Total Amount Paid')}
+        </div>
+        <div style="font-size:36px;font-weight:900;color:#23845B;letter-spacing:-0.5px;line-height:1;">
+          \${$amountPaid} <span style="font-size:16px;font-weight:700;color:#788780;">USD</span>
+        </div>
+        <div style="font-size:12px;color:#788780;margin-top:8px;">
+          {$e($isSo ? 'Baaqiga Harsan Heshiiska:' : 'Remaining Contract Balance:')} <strong style="color:#123B32;font-size:14px;">\${$remainingBalance} USD</strong>
+        </div>
+      </td>
+    </tr>
+
+    <!-- RECEIPT DETAILS TABLE -->
+    <tr>
+      <td style="padding:0 30px 24px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;background:#FAFCFB;border-radius:12px;border:1px solid #E8EFEA;overflow:hidden;">
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;width:40%;">{$e($isSo ? 'Macmiilka' : 'Client Name')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;font-weight:700;color:#1B2E28;">{$e($clientName)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;">{$e($isSo ? 'Koodhka Macmiilka' : 'Client Code')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;font-weight:700;font-family:monospace;color:#123B32;">{$e($clientCode)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;">{$e($isSo ? 'Heshiiska / Number' : 'Contract Number')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;font-weight:700;font-family:monospace;color:#123B32;">{$e($financingNumber)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;">{$e($isSo ? 'Nooca Maalgelinta' : 'Product Type')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;font-weight:600;color:#1B2E28;">{$e($prodName)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;">{$e($isSo ? 'Qaabka Bixinta' : 'Payment Method')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;font-weight:700;color:#1B2E28;">{$e($paymentMethod)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;">{$e($isSo ? 'Transaction Ref' : 'Transaction Reference')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;font-family:monospace;font-weight:700;color:#52635B;">{$e($txRef !== '' ? $txRef : 'N/A')}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#788780;">{$e($isSo ? 'Taariikhda & Waqtiga' : 'Date & Time')}:</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #E8EFEA;color:#1B2E28;font-weight:600;">{$e($paymentDate)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;color:#788780;">{$e($isSo ? 'Laanta & Shaqaalaha' : 'Branch & Staff')}:</td>
+            <td style="padding:10px 14px;color:#1B2E28;font-weight:600;">{$e($branchName)} &bull; {$e($recordedBy)}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- SHARIA & TRUST NOTICE -->
+    <tr>
+      <td style="padding:0 30px 24px;">
+        <div style="background:#FFF9EB;border-left:4px solid #D6B66C;padding:12px 16px;border-radius:8px;font-size:12px;color:#856404;line-height:1.5;">
+          <strong>{$e($isSo ? 'Fiiro Gaar ah:' : 'Notice:')}</strong>
+          {$e($isSo ? 'Rasiidhani waa caddeyn rasmi ah oo muujinaysa lacag-celintaada. Wax ribo ah laguma darin si waafaqsan Shareecada Islaamka. Mahadsanid sida aad waqtiga ugu ilaaliso heshiiskaaga.' : 'This receipt is official confirmation of your repayment. Sharia-compliant and zero interest. Thank you for your prompt repayment.')}
+        </div>
+      </td>
+    </tr>
+
+    <!-- FOOTER -->
+    <tr>
+      <td style="background:#123B32;padding:20px 30px;text-align:center;color:#A7C2B8;font-size:11px;line-height:1.6;">
+        <div style="color:#FFFFFF;font-weight:700;font-size:13px;margin-bottom:4px;">
+          SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION (SIMDA)
+        </div>
+        Mogadishu Head Office, Somalia &bull; info@simda.so &bull; +252 61 500 0000<br>
+        &copy; {$e(date('Y'))} SIMDA Microfinance Portal. All rights reserved.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+HTML;
+
+        $plain = "SIMDA OFFICIAL PAYMENT RECEIPT\n"
+            . "Receipt Number: {$receiptNumber}\n"
+            . "Client: {$clientName} ({$clientCode})\n"
+            . "Contract: {$financingNumber}\n"
+            . "Amount Paid: \${$amountPaid} USD\n"
+            . "Remaining Balance: \${$remainingBalance} USD\n"
+            . "Payment Method: {$paymentMethod}\n"
+            . "Reference: {$txRef}\n"
+            . "Date: {$paymentDate}\n"
+            . "Branch: {$branchName}\n"
+            . "Recorded By: {$recordedBy}\n\n"
+            . "Thank you for banking ethically with SIMDA Microfinance.";
+
+        return self::send($clientEmail, $subject, $html, $plain, $inlineAttachments);
+    }
+
+    /**
+     * Tells a Branch Manager or General Manager that an application was forwarded for their decision.
+     */
+    public static function sendApplicationForwardedEmail(string $email, string $fullName, array $app, string $locale = 'so'): array
+    {
+        $isSo = $locale === 'so';
+        $amount = '$' . number_format((float) $app['requested_amount'], 2);
+        $isMurabaha = ($app['product_type'] ?? '') === 'murabaha';
+        $productType = $isSo ? ($isMurabaha ? 'Murabaxo' : 'Dayn Cadaan') : ($isMurabaha ? 'Murabaha' : 'Cash Loan');
+        $submittedAt = date('d/m/Y H:i', strtotime((string) ($app['submitted_at'] ?? 'now')));
+        $queueUrl = rtrim((string) Env::get('APP_URL', 'http://localhost/SIMDA'), '/') . '/index.php?route=approval_queue';
+
+        $subject = $isSo ? "SIMDA: Codsi {$productType} oo {$amount} ah ayaa laguu soo gudbiyay" : "SIMDA: {$productType} application of {$amount} forwarded to you";
+        $intro = $isSo
+            ? "Waxaa laguu soo gudbiyay codsi {$productType} ah oo lacagtiisu tahay {$amount}, maadaama uu ku jiro heerka aad adigu go'aaminayso."
+            : "A {$productType} application of {$amount} was forwarded to you because it falls within your approval level.";
+        $action = $isSo ? 'Fadlan gal system-ka oo natiijada codsiga ka soo saar.' : 'Please log in to the system and give the result of this application.';
+        $greeting = ($isSo ? 'Salaamu Calaykum, ' : 'Hello, ') . $fullName;
+
+        $location = trim((string) ($app['client_district'] ?? '') . ', ' . (string) ($app['client_city'] ?? ''), ', ');
+        $rows = [
+            [$isSo ? 'Lacagta la codsaday' : 'Amount requested', $amount],
+            [$isSo ? 'Nooca' : 'Type', $productType],
+            [$isSo ? 'Lambarka codsiga' : 'Application no.', (string) $app['application_number']],
+            [$isSo ? 'Macmiilka' : 'Client', $app['client_name'] . ' (' . $app['client_code'] . ')'],
+            [$isSo ? 'Telefoonka' : 'Phone', (string) $app['client_phone']],
+            [$isSo ? 'Aqoonsiga' : 'ID number', (string) $app['client_id_number']],
+            [$isSo ? 'Goobta' : 'Location', $location],
+            [$isSo ? 'Ganacsiga' : 'Business', (string) $app['business_type']],
+            [$isSo ? 'Dakhliga bishii' : 'Monthly income', '$' . number_format((float) $app['monthly_income'], 2)],
+            [$isSo ? 'Laanta' : 'Branch', (string) $app['branch_name']],
+            [$isSo ? 'Muddada' : 'Term', $app['term_installments'] . ' ' . ($isSo ? 'qaybood' : 'installments')],
+            [$isSo ? 'Ujeeddada' : 'Purpose', (string) ($app['purpose'] ?? '')],
+            [$isSo ? 'Waxaa gudbiyay' : 'Submitted by', (string) $app['creator_name']],
+            [$isSo ? 'Waqtiga' : 'Time', $submittedAt],
+        ];
+
+        $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        $table = '<table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-collapse:collapse;font-size:14px;">';
+        $plainRows = '';
+        foreach ($rows as [$label, $value]) {
+            if ($value === '') {
+                continue;
+            }
+            $table .= '<tr><td style="padding:8px 12px 8px 0;border-bottom:1px solid #E6EAE7;color:#788780;vertical-align:top;">' . $e($label) . '</td>'
+                . '<td style="padding:8px 0;border-bottom:1px solid #E6EAE7;color:#1B2E28;font-weight:600;">' . $e($value) . '</td></tr>';
+            $plainRows .= "{$label}: {$value}\n";
+        }
+        $table .= '</table><p style="color:#1B2E28;font-size:14px;font-weight:700;margin:0 0 16px;">' . $e($action) . '</p>'
+            . '<a href="' . $e($queueUrl) . '" style="display:inline-block;background:#123B32;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:8px;">'
+            . $e($isSo ? 'Gal System-ka' : 'Open the System') . '</a>';
+
+        return self::send(
+            $email,
+            $subject,
+            self::noticeHtml($subject, $greeting, $intro, $table, '', $locale),
+            "{$greeting}\n\n{$intro}\n\n{$plainRows}\n{$action}\n{$queueUrl}\n\nSIMDA"
+        );
+    }
+
+    private static function noticeHtml(string $title, string $greeting, string $intro, string $blockHtml, string $note, string $locale): string
+    {
+        $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+
+        return '<!DOCTYPE html><html lang="' . $e($locale) . '"><head><meta charset="utf-8"><title>' . $e($title) . '</title></head>'
+            . '<body style="margin:0;padding:24px;background:#F4F6F4;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;color:#1B2E28;">'
+            . '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;background:#FFFFFF;border-radius:14px;overflow:hidden;">'
+            . '<tr><td style="background:#123B32;padding:20px 28px;color:#FFFFFF;font-size:18px;font-weight:800;letter-spacing:1px;">SIMDA</td></tr>'
+            . '<tr><td style="padding:28px;">'
+            . '<h2 style="color:#123B32;font-size:20px;margin:0 0 10px;">' . $e($greeting) . '</h2>'
+            . '<p style="color:#52635B;font-size:14px;line-height:1.6;margin:0;">' . $e($intro) . '</p>'
+            . $blockHtml
+            . '<p style="color:#788780;font-size:13px;line-height:1.5;margin:16px 0 0;">' . $e($note) . '</p>'
+            . '</td></tr></table></body></html>';
+    }
+}

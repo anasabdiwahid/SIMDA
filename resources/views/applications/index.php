@@ -13,7 +13,7 @@ $role = $user['role_slug'] ?? '';
     <span class="badge badge-gold"><?= Icons::svg('file-text', 13) ?> Module 3 — Financing Application Builder & Schedule Preview</span>
     <h2 style="font-size:1.2rem;margin:6px 0;"><?= Security::e(Lang::get('menu_applications')) ?></h2>
     <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:16px;">
-        Rules enforced: Client must have a Guarantor, amount and term must be within product limits, and clients &gt;30 days overdue on active financing are blocked. Applications &le; $5,000 route to Loan Officer approval; &gt; $5,000 or Group Financings route to Branch Manager approval.
+        Rules enforced: Client must have a Guarantor, amount and term must be within product limits, and clients &gt;30 days overdue on active financing are blocked. Applications up to $5,000 go to Header Office; above $5,000 up to $50,000, and group financing, go to the Branch Manager; above $50,000 go to the General Manager.
     </p>
 
     <?php if (in_array($role, ['admin', 'loan_officer'], true) && !empty($clients) && !empty($products)): ?>
@@ -115,7 +115,7 @@ $role = $user['role_slug'] ?? '';
                         <td class="num-tabular"><strong><?= Security::formatMoney($a['requested_amount']) ?></strong></td>
                         <td class="num-tabular"><?= Security::formatMoney($a['projected_total_due']) ?></td>
                         <td class="num-tabular"><?= (int) $a['term_installments'] ?> (<?= Security::e($a['repayment_frequency']) ?>)</td>
-                        <td><span class="badge badge-gold"><?= Security::e($a['required_approver_role']) ?></span></td>
+                        <td><span class="badge badge-gold"><?= Security::e(\App\Services\FinancingDomainService::approverLabel((string) $a['required_approver_role'])) ?></span></td>
                         <td>
                             <span class="badge badge-<?= $a['status'] === 'approved' || $a['status'] === 'disbursed' ? 'success' : ($a['status'] === 'rejected' ? 'danger' : 'info') ?>">
                                 <?= Security::e($a['status']) ?>

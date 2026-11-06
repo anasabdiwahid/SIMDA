@@ -278,7 +278,7 @@ final class AuthMiddleware
         if (!$u) {
             return false;
         }
-        if ($u['role_slug'] === 'admin') {
+        if (in_array($u['role_slug'], ['admin', 'manager'], true)) {
             return true;
         }
         if ($recordBranchId === null) {
@@ -293,7 +293,7 @@ final class AuthMiddleware
         if (!$u) {
             return false;
         }
-        if ($u['role_slug'] === 'admin') {
+        if (in_array($u['role_slug'], ['admin', 'manager'], true)) {
             return true;
         }
         if ($u['role_slug'] === 'client') {

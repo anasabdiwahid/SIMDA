@@ -36,8 +36,8 @@ final class DatabaseSeeder
         $roles = [
             ['slug' => 'admin', 'name_so' => 'Maamulaha Guud', 'name_en' => 'System Administrator', 'desc' => 'Full institution management and governance'],
             ['slug' => 'manager', 'name_so' => 'Maamulaha Guud (Manager)', 'name_en' => 'General Operations Manager', 'desc' => 'Operations management, cross-branch oversight, staff administration'],
-            ['slug' => 'branch_manager', 'name_so' => 'Maamulaha Laanta (Header Branch)', 'name_en' => 'Branch Manager', 'desc' => 'Branch portfolio oversight, >$5,000 & group approvals, charity waivers'],
-            ['slug' => 'loan_officer', 'name_so' => 'Sarkaalka Maalgelinta (Employee)', 'name_en' => 'Loan Officer', 'desc' => 'Client registration, financing applications, <=$5,000 approvals, disbursements & repayments'],
+            ['slug' => 'branch_manager', 'name_so' => 'Maamulaha Laanta (Branch Manager)', 'name_en' => 'Branch Manager', 'desc' => 'Branch portfolio oversight, $5,000 to $50,000 & group approvals, charity waivers'],
+            ['slug' => 'loan_officer', 'name_so' => 'Shaqaale (Employee / Loan Officer)', 'name_en' => 'Employee (Loan Officer)', 'desc' => 'Client registration, financing applications, <=$5,000 approvals, disbursements & repayments'],
             ['slug' => 'client', 'name_so' => 'Macmiil', 'name_en' => 'Client', 'desc' => 'Self-service access to own financing, schedule, repayments and PDF statements'],
         ];
 
@@ -82,7 +82,8 @@ final class DatabaseSeeder
         // 3. System Settings
         $settings = [
             ['charity_late_fee_amount', '15.00', 'Fixed late charge ($ USD) assessed >7 days after missed due date, directed to Charity Account'],
-            ['approval_officer_threshold', '5000.00', 'Maximum financing amount ($ USD) a Loan Officer can approve'],
+            ['approval_officer_threshold', '5000.00', 'Maximum financing amount ($ USD) Header Office can approve'],
+            ['approval_branch_threshold', '50000.00', 'Maximum financing amount ($ USD) a Branch Manager can approve; above it goes to the General Manager'],
             ['late_charge_grace_days', '7', 'Grace period in days after due date before charity charge applies'],
             ['disbursement_expiry_days', '30', 'Number of days before an approved undisbursed application expires'],
             ['institution_phone', '+252 61 6256534', 'Official institution contact phone (configurable)'],

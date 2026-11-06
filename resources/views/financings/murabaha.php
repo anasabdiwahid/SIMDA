@@ -8,184 +8,154 @@ use App\Helpers\Security;
 $isSo = Lang::locale() === 'so';
 $filter = $filter ?? 'all';
 $s = $summary ?? [];
+
+$heads = [
+    'unpaid' => [$isSo ? 'Murabaxo Socota' : 'Active Murabaha', $isSo ? 'Dadka murabaxada qaatay oo lacag-bixintoodu weli socoto.' : 'People who took Murabaha and are still paying.'],
+    'settled' => [$isSo ? 'Murabaxada La Bixiyay' : 'Settled Murabaha', $isSo ? 'Heshiisyada si buuxda loo bixiyay.' : 'Contracts that are fully paid.'],
+    'all' => [$isSo ? 'Dhammaan Murabaxada' : 'All Murabaha', $isSo ? 'Dhammaan heshiisyada murabaxada ee la bixiyay.' : 'Every Murabaha contract issued.'],
+];
+[$headTitle, $headText] = $heads[$filter] ?? $heads['all'];
+
+$kpis = [
+    ['label' => $isSo ? 'Qiimaha Hantida' : 'Asset Cost', 'value' => $s['sum_cost'] ?? 0, 'sub' => (int) ($s['count_all'] ?? 0) . ($isSo ? ' heshiis' : ' contracts'), 'icon' => 'shopping-bag', 'tone' => 'info'],
+    ['label' => $isSo ? "Faa'iidada" : 'Profit', 'value' => $s['sum_markup'] ?? 0, 'sub' => $isSo ? "Faa'iido go'an" : 'Agreed markup', 'icon' => 'layers', 'tone' => 'gold'],
+    ['label' => $isSo ? 'La Soo Celiyay' : 'Repaid', 'value' => $s['sum_paid'] ?? 0, 'sub' => (int) ($s['count_settled'] ?? 0) . ($isSo ? ' la wada bixiyay' : ' fully settled'), 'icon' => 'check-circle', 'tone' => 'green'],
+    ['label' => $isSo ? 'Weli Dhiman' : 'Outstanding', 'value' => $s['sum_outstanding'] ?? 0, 'sub' => (int) ($s['count_unpaid'] ?? 0) . ($isSo ? ' socda' : ' in progress'), 'icon' => 'clock', 'tone' => 'danger'],
+];
+
+$tabs = [
+    ['key' => 'unpaid', 'label' => $isSo ? 'Socota' : 'Active', 'count' => $s['count_unpaid'] ?? 0],
+    ['key' => 'settled', 'label' => $isSo ? 'La Bixiyay' : 'Settled', 'count' => $s['count_settled'] ?? 0],
+    ['key' => 'all', 'label' => $isSo ? 'Dhammaan' : 'All', 'count' => $s['count_all'] ?? 0],
+];
+
+$labels = [
+    'client' => $isSo ? 'Macmiilka' : 'Client',
+    'contract' => $isSo ? 'Heshiiska' : 'Contract',
+    'total' => $isSo ? 'Wadarta' : 'Total Due',
+    'paid' => $isSo ? 'La Bixiyay' : 'Repaid',
+    'left' => $isSo ? 'Dhiman' : 'Outstanding',
+    'status' => $isSo ? 'Xaaladda' : 'Status',
+];
 ?>
-
-<div class="card animate-in" style="margin-bottom:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+<div class="adm">
+    <header class="adm-head adm-page-head">
         <div>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <span class="badge badge-gold" style="font-weight:700;">Heshiiska Murabaxada • Asset Financing</span>
-                <span class="badge badge-info" style="font-weight:700;"><?= (int) ($s['count_all'] ?? 0) ?> <?= $isSo ? 'Heshiis' : 'Contracts' ?></span>
-            </div>
-            <h2 style="font-size:1.3rem;font-weight:800;margin:6px 0 2px 0;color:var(--text-main);">
-                <?= $isSo ? 'Maalgelinta Hantida (Murabaxo / Murabaha)' : 'Murabaha Asset & Trade Financing' ?>
-            </h2>
-            <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">
-                <?= $isSo ? 'Heshiisyada iibka hantida ee ku salaysan faa\'iidada cad (Cost-plus-profit): Baabuurta, Mootooyinka Bajaj, Qalabka, iyo Ganacsiyada.' : 'Ethical asset and commodity financing with transparent cost-plus markup structure.' ?>
-            </p>
+            <h1><?= Security::e($headTitle) ?></h1>
+            <p><?= Security::e($headText) ?></p>
         </div>
+        <div class="adm-head-actions">
+            <a href="?route=repayment_record" class="btn btn-sm btn-outline"><?= Icons::svg('clock', 14) ?> <span><?= $isSo ? 'Qabo Bixin' : 'Record Repayment' ?></span></a>
+            <a href="?route=murabaha_new" class="btn btn-sm btn-gold"><?= Icons::svg('plus', 14) ?> <span><?= $isSo ? 'Murabaxo Cusub' : 'New Murabaha' ?></span></a>
+        </div>
+    </header>
 
-        <div style="display:flex;align-items:center;gap:10px;">
-            <a href="?route=murabaha_new" class="btn btn-sm btn-gold" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-                <?= Icons::svg('plus', 14) ?>
-                <span><?= $isSo ? 'Diwaangeli Murabaxo Cusub' : 'New Murabaha Application' ?></span>
+    <section class="dash-kpis" aria-label="<?= $isSo ? 'Tirooyinka muhiimka ah' : 'Key figures' ?>">
+        <?php foreach ($kpis as $kpi): ?>
+            <div class="kpi-card dash-kpi dash-tone-<?= Security::e($kpi['tone']) ?>">
+                <div class="kpi-header">
+                    <span class="kpi-label"><?= Security::e($kpi['label']) ?></span>
+                    <span class="kpi-icon"><?= Icons::svg($kpi['icon'], 17) ?></span>
+                </div>
+                <div class="kpi-value num-tabular"><?= Security::formatMoney($kpi['value']) ?></div>
+                <div class="kpi-sub"><?= Security::e($kpi['sub']) ?></div>
+            </div>
+        <?php endforeach; ?>
+    </section>
+
+    <nav class="adm-tabs" aria-label="<?= $labels['status'] ?>">
+        <?php foreach ($tabs as $tab): ?>
+            <a href="?route=murabaha&filter=<?= Security::e($tab['key']) ?>" class="adm-tab <?= $filter === $tab['key'] ? 'is-active' : '' ?>" <?= $filter === $tab['key'] ? 'aria-current="page"' : '' ?>>
+                <span><?= Security::e($tab['label']) ?></span>
+                <span class="adm-tab-count num-tabular"><?= (int) $tab['count'] ?></span>
             </a>
-            <a href="?route=repayment_record" class="btn btn-sm btn-outline" style="font-weight:600;display:inline-flex;align-items:center;gap:6px;">
-                <?= Icons::svg('clock', 14) ?>
-                <span><?= $isSo ? 'Qabo Bixin' : 'Record Repayment' ?></span>
-            </a>
-        </div>
-    </div>
+        <?php endforeach; ?>
+    </nav>
 
-    <!-- 4 CORE MURABAHA METRICS CARDS -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:20px;">
-        <!-- 1. INTA QAADATAY (TOTAL DISBURSED COST) -->
-        <div style="background:var(--bg-elevated);padding:14px 16px;border-radius:10px;border-left:3px solid var(--simda-green);">
-            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;"><?= $isSo ? 'Inta Qaadatay (Wadarta Qiimaha)' : 'Total Murabaha Cost' ?></div>
-            <div class="num-tabular" style="font-size:1.25rem;font-weight:800;color:var(--text-main);margin-top:2px;">
-                <?= Security::formatMoney($s['sum_cost'] ?? '0.00') ?>
-            </div>
-            <div style="font-size:0.72rem;color:var(--text-muted);"><?= (int) ($s['count_all'] ?? 0) ?> <?= $isSo ? 'heshiis guud' : 'total contracts' ?></div>
-        </div>
-
-        <!-- 2. FAA'IIDADA MURABAXADA (MARKUP) -->
-        <div style="background:var(--bg-elevated);padding:14px 16px;border-radius:10px;border-left:3px solid var(--simda-gold);">
-            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;"><?= $isSo ? 'Faa\'iidada Murabaxada (Markup)' : 'Agreed Murabaha Markup' ?></div>
-            <div class="num-tabular" style="font-size:1.25rem;font-weight:800;color:var(--simda-gold);margin-top:2px;">
-                <?= Security::formatMoney($s['sum_markup'] ?? '0.00') ?>
-            </div>
-            <div style="font-size:0.72rem;color:var(--text-muted);"><?= $isSo ? 'Faa\'iido go\'an oo xalaal ah' : 'Sharia-compliant profit' ?></div>
-        </div>
-
-        <!-- 3. INTA SOO CELISAY (REPAID) -->
-        <div style="background:var(--bg-elevated);padding:14px 16px;border-radius:10px;border-left:3px solid #1FAF62;">
-            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;"><?= $isSo ? 'Inta Soo Celisay (La Bixiyay)' : 'Repaid (Settled)' ?></div>
-            <div class="num-tabular" style="font-size:1.25rem;font-weight:800;color:#1FAF62;margin-top:2px;">
-                <?= Security::formatMoney($s['sum_paid'] ?? '0.00') ?>
-            </div>
-            <div style="font-size:0.72rem;color:var(--text-muted);"><?= (int) ($s['count_settled'] ?? 0) ?> <?= $isSo ? 'gabi ahaanba xalliyay' : 'contracts settled' ?></div>
-        </div>
-
-        <!-- 4. INTA WELI SOO CELININ (OUTSTANDING) -->
-        <div style="background:var(--bg-elevated);padding:14px 16px;border-radius:10px;border-left:3px solid #C94B4B;">
-            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;"><?= $isSo ? 'Inta Weli Soo Celin Lacagta' : 'Outstanding (Unpaid)' ?></div>
-            <div class="num-tabular" style="font-size:1.25rem;font-weight:800;color:#C94B4B;margin-top:2px;">
-                <?= Security::formatMoney($s['sum_outstanding'] ?? '0.00') ?>
-            </div>
-            <div style="font-size:0.72rem;color:var(--text-muted);"><?= (int) ($s['count_unpaid'] ?? 0) ?> <?= $isSo ? 'heshiis socda/dhiman' : 'contracts unpaid' ?></div>
-        </div>
-    </div>
-
-    <!-- FILTER TABS (Requested Breakdown) -->
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border-color);padding-bottom:12px;margin-bottom:18px;">
-        <a href="?route=murabaha&filter=all" class="btn btn-sm <?= $filter === 'all' ? 'btn-gold' : 'btn-outline' ?>" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-            <?= Icons::svg('layers', 14) ?>
-            <span><?= $isSo ? 'Dhammaan Dadka Murabaxada Qaatay' : 'All Murabaha Clients' ?></span>
-            <span class="badge <?= $filter === 'all' ? 'badge-dark' : 'badge-gold' ?>" style="font-size:0.7rem;padding:2px 6px;">
-                <?= (int) ($s['count_all'] ?? 0) ?>
-            </span>
-        </a>
-
-        <a href="?route=murabaha&filter=settled" class="btn btn-sm <?= $filter === 'settled' ? 'btn-success' : 'btn-outline' ?>" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-            <?= Icons::svg('check-circle', 14) ?>
-            <span><?= $isSo ? 'Inta Soo Celisay (Wada Bixisay)' : 'Fully Repaid / Settled' ?></span>
-            <span class="badge <?= $filter === 'settled' ? 'badge-dark' : 'badge-success' ?>" style="font-size:0.7rem;padding:2px 6px;">
-                <?= (int) ($s['count_settled'] ?? 0) ?>
-            </span>
-        </a>
-
-        <a href="?route=murabaha&filter=unpaid" class="btn btn-sm <?= $filter === 'unpaid' ? 'btn-danger' : 'btn-outline' ?>" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-            <?= Icons::svg('alert-triangle', 14) ?>
-            <span><?= $isSo ? 'Inta Weli Soo Celin Lacagta' : 'Unpaid / In Progress' ?></span>
-            <span class="badge <?= $filter === 'unpaid' ? 'badge-dark' : 'badge-danger' ?>" style="font-size:0.7rem;padding:2px 6px;">
-                <?= (int) ($s['count_unpaid'] ?? 0) ?>
-            </span>
-        </a>
-    </div>
-
-    <!-- TABLE OF MURABAHA CONTRACTS -->
     <?php if (empty($contracts)): ?>
-        <div style="padding:40px 20px;text-align:center;color:var(--text-muted);">
-            <div style="width:52px;height:52px;border-radius:50%;background:rgba(214,182,108,0.12);color:var(--simda-gold);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
-                <?= Icons::svg('shopping-bag', 24) ?>
+        <div class="adm-table-card">
+            <div class="dash-empty">
+                <span class="dash-empty-icon"><?= Icons::svg('shopping-bag', 20) ?></span>
+                <strong><?= $isSo ? 'Heshiis qaybtan kuma jiro' : 'No contracts in this view' ?></strong>
+                <p><?= $isSo ? 'Marka murabaxo la bixiyo halkan ayay ka muuqan doontaa.' : 'Contracts appear here once a Murabaha is disbursed.' ?></p>
             </div>
-            <div style="font-weight:700;font-size:1rem;color:var(--text-main);margin-bottom:4px;">
-                <?= $isSo ? 'Weli ma jiraan heshiisyo Murabaxo ah qaybtan' : 'No Murabaha contracts in this view' ?>
-            </div>
-            <div style="font-size:0.82rem;max-width:380px;margin:0 auto 16px auto;">
-                <?= $isSo ? 'Guji badhanka hoose si aad macmiil ugu bilowdo codsi cusub oo Murabaxo ah (Cost-Plus Markup).' : 'Click below to register a new Murabaha asset financing contract.' ?>
-            </div>
-            <a href="?route=murabaha_new" class="btn btn-sm btn-gold">
-                <?= Icons::svg('plus', 14) ?> <span><?= $isSo ? 'Diwaangeli Murabaxo Cusub' : 'New Murabaha Application' ?></span>
-            </a>
         </div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="simda-table">
-                <thead>
-                    <tr>
-                        <th><?= $isSo ? 'Heshiiska #' : 'Contract #' ?></th>
-                        <th><?= $isSo ? 'Macmiilka' : 'Client' ?></th>
-                        <th><?= $isSo ? 'Laanta' : 'Branch' ?></th>
-                        <th><?= $isSo ? 'Qiimaha Hantida (Cost)' : 'Asset Cost' ?></th>
-                        <th><?= $isSo ? 'Faa\'iidada (Markup)' : 'Profit / Markup' ?></th>
-                        <th><?= $isSo ? 'Wadarta Heshiiska' : 'Total Due' ?></th>
-                        <th><?= $isSo ? 'La Soo Celiyay' : 'Total Repaid' ?></th>
-                        <th><?= $isSo ? 'Maqan (Dhiman)' : 'Outstanding' ?></th>
-                        <th><?= $isSo ? 'Xaaladda' : 'Status' ?></th>
-                        <th><?= $isSo ? 'Muddada' : 'Maturity' ?></th>
-                        <th><?= $isSo ? 'Hawlaha' : 'Actions' ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($contracts as $c): ?>
+        <div class="adm-toolbar">
+            <div class="adm-search">
+                <?= Icons::svg('search', 15) ?>
+                <input type="search" class="form-control" data-filter-for="murabahaRows" placeholder="<?= $isSo ? 'Raadi macmiil, telefoon, heshiis...' : 'Search client, phone, contract...' ?>" aria-label="<?= $isSo ? 'Raadi' : 'Search' ?>" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="adm-table-card">
+            <div class="table-responsive adm-scroll">
+                <table class="simda-table fin-table">
+                    <thead>
                         <tr>
-                            <td class="num-tabular">
-                                <a href="?route=financing_view&id=<?= (int) $c['id'] ?>" style="font-weight:700;color:var(--simda-green);text-decoration:underline;">
-                                    <?= Security::e($c['financing_number']) ?>
-                                </a>
-                            </td>
-                            <td>
-                                <strong><?= Security::e($c['client_name']) ?></strong>
-                                <?php if (!empty($c['client_phone'])): ?>
-                                    <div style="font-size:0.74rem;color:var(--text-muted);" class="num-tabular"><?= Security::e($c['client_phone']) ?></div>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= Security::e($c['branch_name']) ?></td>
-                            <td class="num-tabular"><?= Security::formatMoney($c['approved_amount']) ?></td>
-                            <td class="num-tabular" style="color:var(--simda-gold);font-weight:700;">+<?= Security::formatMoney($c['total_profit']) ?></td>
-                            <td class="num-tabular"><strong><?= Security::formatMoney($c['total_due']) ?></strong></td>
-                            <td class="num-tabular" style="color:#1FAF62;font-weight:700;"><?= Security::formatMoney($c['total_paid']) ?></td>
-                            <td class="num-tabular">
-                                <?php if ((float) $c['outstanding_balance'] <= 0): ?>
-                                    <span class="badge badge-success" style="font-size:0.7rem;">$0.00 (WADA BIXIYAY)</span>
-                                <?php else: ?>
-                                    <strong style="color:#C94B4B;"><?= Security::formatMoney($c['outstanding_balance']) ?></strong>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <span class="badge badge-<?= $c['status'] === 'completed' ? 'success' : ($c['status'] === 'overdue' ? 'danger' : 'info') ?>" style="font-weight:700;">
-                                    <?= $c['status'] === 'completed' ? ($isSo ? 'La Wada Bixiyay' : 'Completed') : Security::e(Lang::get('status_' . $c['status'])) ?>
-                                </span>
-                            </td>
-                            <td class="num-tabular" style="font-size:0.78rem;">
-                                <?= Security::e($c['maturity_date']) ?>
-                            </td>
-                            <td>
-                                <div style="display:flex;gap:6px;">
-                                    <a href="?route=financing_view&id=<?= (int) $c['id'] ?>" class="btn btn-sm btn-outline" title="<?= $isSo ? 'Fiiri Faahfaahinta' : 'View Details' ?>">
-                                        <?= Icons::svg('eye', 13) ?>
-                                    </a>
-                                    <a href="?route=statement_pdf&id=<?= (int) $c['id'] ?>" class="btn btn-sm btn-gold" title="PDF Statement">
-                                        <?= Icons::svg('download', 13) ?> PDF
-                                    </a>
-                                </div>
-                            </td>
+                            <th><?= Security::e($labels['client']) ?></th>
+                            <th><?= Security::e($labels['contract']) ?></th>
+                            <th><?= Security::e($labels['total']) ?></th>
+                            <th><?= Security::e($labels['paid']) ?></th>
+                            <th><?= Security::e($labels['left']) ?></th>
+                            <th><?= Security::e($labels['status']) ?></th>
+                            <th class="fin-end"><span class="dash-sr"><?= $isSo ? 'Hawlaha' : 'Actions' ?></span></th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="murabahaRows" data-filter-list>
+                        <?php foreach ($contracts as $c): ?>
+                            <?php
+                            $paidPct = (float) $c['total_due'] > 0 ? min(100, ((float) $c['total_paid'] / (float) $c['total_due']) * 100) : 0;
+                            $statusClass = match ($c['status']) {
+                                'completed' => 'is-on',
+                                'overdue' => 'is-danger',
+                                default => 'is-info',
+                            };
+                            ?>
+                            <tr data-filter-item>
+                                <td data-label="<?= Security::e($labels['client']) ?>">
+                                    <div class="adm-person">
+                                        <span class="adm-avatar dash-tone-gold"><?= Security::e(Security::initials((string) $c['client_name'])) ?></span>
+                                        <div class="adm-person-text">
+                                            <span class="adm-primary"><?= Security::e($c['client_name']) ?></span>
+                                            <span class="adm-secondary num-tabular" dir="ltr"><?= Security::e($c['client_phone'] ?? '') ?></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="<?= Security::e($labels['contract']) ?>">
+                                    <a href="?route=financing_view&id=<?= (int) $c['id'] ?>" class="fin-link num-tabular"><?= Security::e($c['financing_number']) ?></a>
+                                    <span class="fin-sub"><?= Security::e($c['branch_name']) ?></span>
+                                </td>
+                                <td class="num-tabular" data-label="<?= Security::e($labels['total']) ?>">
+                                    <strong><?= Security::formatMoney($c['total_due']) ?></strong>
+                                    <span class="fin-sub"><?= Security::formatMoney($c['approved_amount']) ?> + <?= Security::formatMoney($c['total_profit']) ?></span>
+                                </td>
+                                <td class="num-tabular" data-label="<?= Security::e($labels['paid']) ?>">
+                                    <?= Security::formatMoney($c['total_paid']) ?>
+                                    <span class="dash-progress fin-progress dash-tone-green"><span style="width:<?= number_format($paidPct, 1, '.', '') ?>%"></span></span>
+                                </td>
+                                <td class="num-tabular" data-label="<?= Security::e($labels['left']) ?>">
+                                    <strong><?= Security::formatMoney($c['outstanding_balance']) ?></strong>
+                                </td>
+                                <td data-label="<?= Security::e($labels['status']) ?>">
+                                    <span class="adm-status <?= $statusClass ?>"><?= $c['status'] === 'completed' ? ($isSo ? 'La Wada Bixiyay' : 'Completed') : Security::e(Lang::get('status_' . $c['status'])) ?></span>
+                                    <span class="fin-sub num-tabular"><?= Security::e($c['maturity_date']) ?></span>
+                                </td>
+                                <td class="fin-end">
+                                    <div class="adm-actions">
+                                        <a href="?route=financing_view&id=<?= (int) $c['id'] ?>" class="adm-icon-btn" title="<?= $isSo ? 'Fiiri Faahfaahinta' : 'View Details' ?>" aria-label="<?= $isSo ? 'Fiiri Faahfaahinta' : 'View Details' ?>"><?= Icons::svg('eye', 15) ?></a>
+                                        <a href="?route=statement_pdf&id=<?= (int) $c['id'] ?>" class="adm-icon-btn" title="PDF Statement" aria-label="PDF Statement"><?= Icons::svg('download', 15) ?></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="dash-empty" data-filter-empty="murabahaRows" hidden>
+                <span class="dash-empty-icon"><?= Icons::svg('search', 20) ?></span>
+                <strong><?= $isSo ? 'Wax lama helin' : 'No matches' ?></strong>
+            </div>
         </div>
     <?php endif; ?>
 </div>
-

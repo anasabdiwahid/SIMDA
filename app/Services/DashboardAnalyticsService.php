@@ -176,6 +176,7 @@ final class DashboardAnalyticsService
                 COUNT(CASE WHEN f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 THEN 1 END) AS active_count,
                 COUNT(CASE WHEN f.status = 'completed' THEN 1 END) AS settled_count,
                 COALESCE(SUM(f.net_disbursed_amount), 0.00) AS disbursed_sum,
+                COALESCE(SUM(f.total_profit), 0.00) AS profit_sum,
                 COALESCE(SUM(f.total_paid), 0.00) AS paid_sum,
                 COALESCE(SUM(CASE WHEN f.status IN ('active', 'overdue') THEN f.outstanding_balance ELSE 0 END), 0.00) AS outstanding_sum
             FROM financings f
@@ -262,6 +263,7 @@ final class DashboardAnalyticsService
                 'active_count' => (int) ($loansRow['active_count'] ?? 0),
                 'settled_count' => (int) ($loansRow['settled_count'] ?? 0),
                 'disbursed' => number_format((float) ($loansRow['disbursed_sum'] ?? 0), 2, '.', ''),
+                'profit' => number_format((float) ($loansRow['profit_sum'] ?? 0), 2, '.', ''),
                 'collected' => number_format((float) ($loansRow['paid_sum'] ?? 0), 2, '.', ''),
                 'outstanding' => number_format((float) ($loansRow['outstanding_sum'] ?? 0), 2, '.', ''),
             ],
@@ -290,10 +292,11 @@ final class DashboardAnalyticsService
             FROM repayments r
             WHERE 1=1 {$whereRep}
             GROUP BY DATE_FORMAT(r.payment_date, '%Y-%m')
-            ORDER BY ym ASC
+            ORDER BY ym DESC
             LIMIT 12
         ");
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        // Latest 12 months, displayed oldest to newest.
+        return array_reverse($stmt->fetchAll());
     }
 }

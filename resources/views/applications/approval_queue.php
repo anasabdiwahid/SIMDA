@@ -4,87 +4,129 @@ declare(strict_types=1);
 use App\Helpers\Icons;
 use App\Helpers\Lang;
 use App\Helpers\Security;
+use App\Services\FinancingDomainService;
 
 $csrf = Security::csrfToken();
 $currentUserId = (int) ($user['id'] ?? 0);
-$role = $user['role_slug'] ?? '';
-?>
+$isSo = Lang::locale() === 'so';
 
-<div class="card animate-in">
-    <span class="badge badge-gold"><?= Icons::svg('check-square', 13) ?> Module 4 — Dual-Threshold Approval Workflow</span>
-    <h2 style="font-size:1.2rem;margin:6px 0;"><?= Security::e(Lang::get('menu_approval_queue')) ?></h2>
-    <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:18px;">
-        Thresholds: Loan Officer (&le; $5,000); Branch Manager (&gt; $5,000 or Group Financing). Conflict-of-interest rule: Application creators cannot approve their own applications.
-    </p>
+$totalAmount = 0.0;
+$levelCounts = ['loan_officer' => 0, 'branch_manager' => 0, 'manager' => 0];
+foreach ($queue as $q) {
+    $totalAmount += (float) $q['requested_amount'];
+    $levelCounts[$q['approval_level']]++;
+}
+$kpis = [
+    ['label' => $isSo ? 'Lacagta La Codsaday' : 'Amount Requested', 'value' => Security::formatMoney($totalAmount), 'sub' => count($queue) . ($isSo ? ' codsi sugaya' : ' waiting'), 'icon' => 'clock', 'tone' => 'gold'],
+    ['label' => 'Header Office', 'value' => (string) $levelCounts['loan_officer'], 'sub' => $isSo ? '$5,000 iyo ka yar' : '$5,000 or less', 'icon' => 'shield', 'tone' => 'green'],
+    ['label' => 'Branch Manager', 'value' => (string) $levelCounts['branch_manager'], 'sub' => '$5,000 – $50,000', 'icon' => 'user-check', 'tone' => 'info'],
+    ['label' => 'General Manager', 'value' => (string) $levelCounts['manager'], 'sub' => $isSo ? 'Ka badan $50,000' : 'Above $50,000', 'icon' => 'briefcase', 'tone' => 'muted'],
+];
+?>
+<div class="adm">
+    <header class="adm-head">
+        <h1><?= $isSo ? 'Codsiyada Sugaya' : 'Pending Applications' ?></h1>
+        <p><?= $isSo ? 'Dadka codsi soo gudbiyay oo aan weli la aqbalin. Qofkii codsiga sameeyay ma ogolaan karo codsigiisa.' : 'People who submitted an application that is not yet approved. Whoever created an application cannot approve it.' ?></p>
+    </header>
+
+    <section class="dash-kpis" aria-label="<?= $isSo ? 'Tirooyinka muhiimka ah' : 'Key figures' ?>">
+        <?php foreach ($kpis as $kpi): ?>
+            <div class="kpi-card dash-kpi dash-tone-<?= Security::e($kpi['tone']) ?>">
+                <div class="kpi-header">
+                    <span class="kpi-label"><?= Security::e($kpi['label']) ?></span>
+                    <span class="kpi-icon"><?= Icons::svg($kpi['icon'], 17) ?></span>
+                </div>
+                <div class="kpi-value num-tabular"><?= Security::e($kpi['value']) ?></div>
+                <div class="kpi-sub"><?= Security::e($kpi['sub']) ?></div>
+            </div>
+        <?php endforeach; ?>
+    </section>
 
     <?php if (empty($queue)): ?>
-        <div style="padding:32px;text-align:center;color:var(--text-muted);">
-            <strong>No Pending Applications in Queue</strong>
-            <div>All submitted financing applications have been reviewed.</div>
+        <div class="adm-table-card">
+            <div class="dash-empty">
+                <span class="dash-empty-icon"><?= Icons::svg('check-circle', 20) ?></span>
+                <strong><?= $isSo ? 'Ma jiro codsi sugaya' : 'No pending applications' ?></strong>
+                <p><?= $isSo ? 'Dhammaan codsiyadii la soo gudbiyay waa la eegay.' : 'All submitted applications have been reviewed.' ?></p>
+            </div>
         </div>
     <?php else: ?>
-        <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="adm-toolbar">
+            <select class="form-control adm-select" data-filter-for="queueList" data-filter-attr="level" aria-label="<?= $isSo ? 'Heerka' : 'Level' ?>">
+                <option value=""><?= $isSo ? 'Dhammaan Heerarka' : 'All Levels' ?></option>
+                <?php foreach (array_keys($levelCounts) as $level): ?>
+                    <?php if ($levelCounts[$level] > 0): ?>
+                        <option value="<?= Security::e($level) ?>"><?= Security::e(FinancingDomainService::approverLabel($level)) ?></option>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </select>
+            <div class="adm-search">
+                <?= Icons::svg('search', 15) ?>
+                <input type="search" class="form-control" data-filter-for="queueList" placeholder="<?= $isSo ? 'Raadi macmiil, codsi, laan...' : 'Search client, application, branch...' ?>" aria-label="<?= $isSo ? 'Raadi' : 'Search' ?>" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="apq-list" id="queueList" data-filter-list>
             <?php foreach ($queue as $q): ?>
                 <?php
-                $isCreator = ((int) $q['created_by'] === $currentUserId);
-                $needsBM = ((float) $q['requested_amount'] > 5000.00 || !empty($q['group_id']));
-                $canApproveRole = $needsBM ? in_array($role, ['branch_manager', 'admin'], true) : in_array($role, ['loan_officer', 'branch_manager', 'admin'], true);
+                $isCreator = (int) $q['created_by'] === $currentUserId;
+                $isMurabaha = $q['product_type'] === 'murabaha';
+                $termText = $isSo
+                    ? (int) $q['term_installments'] . ' qaybood oo ' . ($q['repayment_frequency'] === 'weekly' ? 'toddobaadle' : 'bille') . ' ah'
+                    : (int) $q['term_installments'] . ' ' . $q['repayment_frequency'] . ' installments';
                 ?>
-                <div class="card" style="border-left:4px solid var(--simda-gold);background:var(--bg-elevated);">
-                    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;">
-                        <div>
-                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-                                <strong class="num-tabular" style="font-size:1rem;"><?= Security::e($q['application_number']) ?></strong>
-                                <span class="badge badge-gold"><?= Security::e(strtoupper($q['product_type'])) ?></span>
-                                <span class="badge badge-info">Credit Score: <?= (int) ($q['current_score'] ?? 600) ?> (<?= Security::e($q['score_category'] ?? 'fair') ?>)</span>
-                            </div>
-                            <div style="font-size:0.88rem;">
-                                <strong>Client:</strong> <?= Security::e($q['client_name']) ?> (<?= Security::e($q['client_code']) ?>) •
-                                <strong>Branch:</strong> <?= Security::e($q['branch_name']) ?> •
-                                <strong>Created By:</strong> <?= Security::e($q['creator_name']) ?>
-                            </div>
-                            <div style="font-size:0.84rem;color:var(--text-secondary);margin-top:4px;">
-                                <strong>Purpose:</strong> <?= Security::e($q['purpose']) ?>
-                                <?php if (!empty($q['murabaha_goods_description'])): ?>
-                                    | <strong>Murabaha Goods:</strong> <?= Security::e($q['murabaha_goods_description']) ?>
-                                <?php endif; ?>
+                <article class="apq-card" data-filter-item data-level="<?= Security::e($q['approval_level']) ?>">
+                    <div class="apq-top">
+                        <div class="adm-person">
+                            <span class="adm-avatar dash-tone-gold"><?= Security::e(Security::initials((string) $q['client_name'])) ?></span>
+                            <div class="adm-person-text">
+                                <span class="adm-primary"><?= Security::e($q['client_name']) ?></span>
+                                <span class="adm-secondary num-tabular"><?= Security::e($q['client_code']) ?> · <span dir="ltr"><?= Security::e($q['client_phone']) ?></span></span>
                             </div>
                         </div>
-
-                        <div style="text-align:right;">
-                            <div style="font-size:0.74rem;color:var(--text-muted);">Requested Principal / Projected Total Due</div>
-                            <div class="num-tabular" style="font-size:1.2rem;font-weight:800;">
-                                <?= Security::formatMoney($q['requested_amount']) ?> → <?= Security::formatMoney($q['projected_total_due']) ?>
-                            </div>
-                            <div style="font-size:0.76rem;color:var(--text-secondary);">
-                                <?= (int) $q['term_installments'] ?> <?= Security::e($q['repayment_frequency']) ?> installments @ <?= Security::e($q['agreed_rate']) ?>%
-                            </div>
+                        <div class="apq-amount">
+                            <strong class="num-tabular"><?= Security::formatMoney($q['requested_amount']) ?></strong>
+                            <span class="adm-secondary num-tabular"><?= $isSo ? 'Wadarta' : 'Total' ?> <?= Security::formatMoney($q['projected_total_due']) ?></span>
                         </div>
                     </div>
 
-                    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
-                        <div style="font-size:0.8rem;">
-                            <?php if ($isCreator): ?>
-                                <span class="badge badge-danger"><?= Icons::svg('alert-triangle', 12) ?> Conflict of Interest Guard: Created by You (Requires peer/manager approval)</span>
-                            <?php elseif (!$canApproveRole): ?>
-                                <span class="badge badge-warning">Requires Branch Manager Approval (&gt;$5,000 or Group)</span>
-                            <?php else: ?>
-                                <span class="badge badge-success"><?= Icons::svg('check-circle', 12) ?> Authorized to review this application</span>
-                            <?php endif; ?>
-                        </div>
+                    <div class="apq-chips">
+                        <span class="adm-role dash-tone-<?= $isMurabaha ? 'gold' : 'green' ?>"><?= $isMurabaha ? ($isSo ? 'Murabaxo' : 'Murabaha') : ($isSo ? 'Dayn Cadaan' : 'Cash Loan') ?></span>
+                        <span class="adm-role dash-tone-info"><?= $isSo ? 'Heerka' : 'Level' ?>: <?= Security::e(FinancingDomainService::approverLabel($q['approval_level'])) ?></span>
+                        <span class="adm-role dash-tone-muted num-tabular"><?= $isSo ? 'Dhibcaha' : 'Score' ?> <?= (int) ($q['current_score'] ?? 600) ?></span>
+                    </div>
 
-                        <?php if (!$isCreator && $canApproveRole): ?>
-                            <form method="POST" action="?route=application_review" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;" data-confirm="Record this approval/rejection decision in the SIMDA audit log?">
+                    <dl class="apq-facts">
+                        <div><dt><?= $isSo ? 'Codsiga' : 'Application' ?></dt><dd class="num-tabular"><?= Security::e($q['application_number']) ?></dd></div>
+                        <div><dt><?= $isSo ? 'Laanta' : 'Branch' ?></dt><dd><?= Security::e($q['branch_name']) ?></dd></div>
+                        <div><dt><?= $isSo ? 'Muddada' : 'Term' ?></dt><dd><?= Security::e($termText) ?></dd></div>
+                        <div><dt><?= $isSo ? 'Waxaa sameeyay' : 'Created by' ?></dt><dd><?= Security::e($q['creator_name']) ?></dd></div>
+                        <div><dt><?= $isSo ? 'Waqtiga' : 'Submitted' ?></dt><dd class="num-tabular"><?= !empty($q['submitted_at']) ? Security::e(date('d/m/Y H:i', strtotime((string) $q['submitted_at']))) : '—' ?></dd></div>
+                        <div><dt><?= $isSo ? 'Ganacsiga' : 'Business' ?></dt><dd><?= Security::e($q['business_type']) ?></dd></div>
+                        <div class="apq-wide"><dt><?= $isSo ? 'Ujeeddada' : 'Purpose' ?></dt><dd><?= Security::e($q['purpose']) ?><?= !empty($q['murabaha_goods_description']) ? ' · ' . Security::e($q['murabaha_goods_description']) : '' ?></dd></div>
+                    </dl>
+
+                    <div class="apq-foot">
+                        <?php if ($isCreator): ?>
+                            <span class="adm-status is-warn"><?= $isSo ? 'Adigaa sameeyay: qof kale ayaa ogolaanaya' : 'Created by you: someone else must approve it' ?></span>
+                        <?php else: ?>
+                            <form method="POST" action="?route=application_review" class="apq-decide" data-confirm="<?= $isSo ? "Ma hubtaa go'aankan?" : 'Confirm this decision?' ?>">
                                 <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                                 <input type="hidden" name="application_id" value="<?= (int) $q['id'] ?>">
-                                <input type="text" name="comments" class="form-control" placeholder="Review comments / conditions..." required style="width:230px;padding:6px 10px;font-size:0.8rem;">
-                                <button type="submit" name="decision" value="approved" class="btn btn-sm btn-primary"><?= Icons::svg('check-circle', 14) ?> <span>Approve</span></button>
-                                <button type="submit" name="decision" value="rejected" class="btn btn-sm btn-danger"><?= Icons::svg('x-circle', 14) ?> <span>Reject</span></button>
+                                <input type="text" name="comments" class="form-control" required placeholder="<?= $isSo ? 'Faallo ama shuruudo...' : 'Comments or conditions...' ?>" aria-label="<?= $isSo ? 'Faallo' : 'Comments' ?>">
+                                <button type="submit" name="decision" value="approved" class="btn btn-sm btn-primary"><?= Icons::svg('check-circle', 14) ?> <span><?= $isSo ? 'Aqbal' : 'Approve' ?></span></button>
+                                <button type="submit" name="decision" value="rejected" class="btn btn-sm btn-outline-danger"><?= Icons::svg('x-circle', 14) ?> <span><?= $isSo ? 'Diid' : 'Reject' ?></span></button>
                             </form>
                         <?php endif; ?>
                     </div>
-                </div>
+                </article>
             <?php endforeach; ?>
+        </div>
+        <div class="adm-table-card" data-filter-empty="queueList" hidden>
+            <div class="dash-empty">
+                <span class="dash-empty-icon"><?= Icons::svg('search', 20) ?></span>
+                <strong><?= $isSo ? 'Codsi lama helin' : 'No matching applications' ?></strong>
+            </div>
         </div>
     <?php endif; ?>
 </div>

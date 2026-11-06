@@ -279,12 +279,16 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
         .simda-login-top-bar {
             position: absolute;
-            top: 24px;
-            right: 28px;
+            top: 18px;
+            right: 24px;
             display: flex;
             align-items: center;
             gap: 10px;
             z-index: 10;
+        }
+
+        #loginStep1, #loginStep2, #loginStep3 {
+            margin-top: 8px;
         }
 
         .simda-top-icon-btn {
@@ -599,7 +603,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         .simda-login-right {
             position: relative;
             z-index: 3;
-            padding: 84px 52px 42px;
+            padding: 104px 52px 42px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -933,11 +937,11 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                 margin-bottom: 0;
             }
             .simda-login-top-bar {
-                top: 16px;
+                top: 14px;
                 right: 18px;
             }
             .simda-login-right {
-                padding: 76px 28px 36px;
+                padding: 92px 24px 34px;
             }
         }
     </style>
