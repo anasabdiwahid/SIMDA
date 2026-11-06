@@ -117,6 +117,8 @@ final class PortalController
                 'user_toggle_status' => self::userToggleStatus($pdo),
                 'user_security_reset' => self::userSecurityReset($pdo),
                 'user_permissions_save' => self::userPermissionsSave($pdo),
+                'user_resend_credentials' => self::userResendCredentials($pdo),
+                'mail_test_send' => self::mailTestSend($pdo),
                 'settings_save' => self::settingsSave($pdo),
 
                 '404' => self::error404(),
@@ -3029,9 +3031,55 @@ final class PortalController
             'password_changed' => ($newPassword !== ''),
         ], $actorId);
 
-        $_SESSION['flash_success'] = $locale === 'so'
-            ? 'Macluumaadka isticmaalaha (' . $fullName . ') si guul leh ayaa loo cusbooneysiiyay!'
-            : 'User (' . $fullName . ') details successfully updated!';
+        $sendCreds = !empty($_POST['send_credentials_email']) || ($newPassword !== '');
+        if ($sendCreds && $email !== '') {
+            $plainCredPassword = ($newPassword !== '') ? $newPassword : MailService::generateDefaultPassword($fullName);
+            if ($newPassword === '') {
+                $pdo->prepare('UPDATE users SET password_hash = :phash, current_session_token = NULL WHERE id = :id')
+                    ->execute([':phash' => Security::hashPassword($plainCredPassword), ':id' => $targetUserId]);
+            }
+
+            $branchInfo = null;
+            if ($newBranchId !== null) {
+                $bSt = $pdo->prepare('SELECT id, name, code, city FROM branches WHERE id = :id');
+                $bSt->execute([':id' => $newBranchId]);
+                $branchInfo = $bSt->fetch() ?: null;
+            }
+
+            $rSt = $pdo->prepare('SELECT id, slug, name_so, name_en FROM roles WHERE id = :id');
+            $rSt->execute([':id' => $newRoleId]);
+            $roleInfo = $rSt->fetch() ?: ['slug' => $targetRoleSlug, 'name_so' => $targetRoleSlug, 'name_en' => $targetRoleSlug];
+
+            $mailStatus = MailService::sendWelcomeUserEmail(
+                [
+                    'id' => $targetUserId,
+                    'full_name' => $fullName,
+                    'username' => $username,
+                    'email' => $email,
+                    'phone' => $phone,
+                ],
+                $plainCredPassword,
+                $branchInfo,
+                $roleInfo,
+                $locale
+            );
+
+            if ($mailStatus['success']) {
+                AuditLogger::log('mail.welcome_sent', 'users', $targetUserId, 'Updated credentials email sent to ' . $email, [], $actorId);
+                $_SESSION['flash_success'] = $locale === 'so'
+                    ? "Macluumaadka ({$fullName}) waa la cusbooneysiiyay! Furaha sirta ah ({$plainCredPassword}) waxaana loogu diray email-ka: {$email}."
+                    : "User ({$fullName}) details updated! Password ({$plainCredPassword}) and credentials were sent to: {$email}.";
+            } else {
+                AuditLogger::log('mail.welcome_failed', 'users', $targetUserId, 'Failed sending email to ' . $email . ': ' . ($mailStatus['error'] ?? ''), [], $actorId);
+                $_SESSION['flash_warning'] = $locale === 'so'
+                    ? "Macluumaadka waa la cusbooneysiiyay, laakiin email-ka lama diri karin: " . ($mailStatus['error'] ?? '')
+                    : "User updated, but credentials email failed: " . ($mailStatus['error'] ?? '');
+            }
+        } else {
+            $_SESSION['flash_success'] = $locale === 'so'
+                ? 'Macluumaadka isticmaalaha (' . $fullName . ') si guul leh ayaa loo cusbooneysiiyay!'
+                : 'User (' . $fullName . ') details successfully updated!';
+        }
 
         header('Location: ?route=' . self::userListRoute());
         exit;
@@ -3135,6 +3183,146 @@ final class PortalController
         }
 
         header('Location: ?route=' . self::userListRoute());
+        exit;
+    }
+
+    private static function userResendCredentials(PDO $pdo): void
+    {
+        $actor = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $targetUserId = (int) ($_POST['user_id'] ?? 0);
+        $locale = Lang::locale();
+        $isSo = ($locale === 'so');
+        $actorId = (int) ($actor['id'] ?? 0);
+        $actorRole = (string) ($actor['role_slug'] ?? '');
+
+        if ($targetUserId <= 0) {
+            throw new \RuntimeException($isSo ? 'Isticmaalaha lama helin.' : 'Invalid user ID.');
+        }
+
+        $st = $pdo->prepare('
+            SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en,
+                   b.name AS branch_name, b.code AS branch_code, b.city AS branch_city
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            LEFT JOIN branches b ON b.id = u.branch_id
+            WHERE u.id = :id
+        ');
+        $st->execute([':id' => $targetUserId]);
+        $targetUser = $st->fetch();
+        if (!$targetUser) {
+            throw new \RuntimeException($isSo ? 'Isticmaalaha lama helin.' : 'User not found.');
+        }
+
+        $targetRoleSlug = (string) ($targetUser['role_slug'] ?? '');
+
+        // Hierarchy access check
+        if ($actorRole === 'manager' && in_array($targetRoleSlug, ['admin', 'manager'], true) && $targetUserId !== $actorId) {
+            throw new \RuntimeException($isSo ? 'Awood uma lihid inaad email u dirto maamulaha kale.' : 'Unauthorized.');
+        } elseif ($actorRole === 'branch_manager') {
+            if (!in_array($targetRoleSlug, ['loan_officer', 'client'], true) && $targetUserId !== $actorId) {
+                throw new \RuntimeException($isSo ? 'Waxaad email u diri kartaa kaliya shaqaalaha laantaada.' : 'Unauthorized.');
+            }
+        }
+
+        $targetEmail = trim((string) ($targetUser['email'] ?? ''));
+        if ($targetEmail === '') {
+            throw new \RuntimeException($isSo ? 'Isticmaalahani ma laha email diiwaangashan.' : 'This user does not have a registered email address.');
+        }
+
+        // Use custom password if provided, or generate a fresh one
+        $customPassword = trim((string) ($_POST['custom_password'] ?? ''));
+        $plainPassword = ($customPassword !== '') ? $customPassword : MailService::generateDefaultPassword($targetUser['full_name']);
+
+        // Update password hash in DB and reset lockout
+        $passHash = Security::hashPassword($plainPassword);
+        $upd = $pdo->prepare('UPDATE users SET password_hash = :phash, current_session_token = NULL, failed_login_attempts = 0, locked_until = NULL WHERE id = :id');
+        $upd->execute([':phash' => $passHash, ':id' => $targetUserId]);
+
+        $branchInfo = !empty($targetUser['branch_name']) ? [
+            'id' => $targetUser['branch_id'],
+            'name' => $targetUser['branch_name'],
+            'code' => $targetUser['branch_code'],
+            'city' => $targetUser['branch_city'],
+        ] : null;
+
+        $roleInfo = [
+            'slug' => $targetUser['role_slug'],
+            'name_so' => $targetUser['role_name_so'],
+            'name_en' => $targetUser['role_name_en'],
+        ];
+
+        $mailStatus = MailService::sendWelcomeUserEmail(
+            $targetUser,
+            $plainPassword,
+            $branchInfo,
+            $roleInfo,
+            $locale
+        );
+
+        if ($mailStatus['success']) {
+            AuditLogger::log('mail.welcome_sent', 'users', $targetUserId, 'Credentials email re-sent to ' . $targetEmail, [], $actorId);
+            $_SESSION['flash_success'] = $isSo
+                ? "Email-ka macluumaadka gelitaanka si toos ah ayaa loogu diray: {$targetEmail}! Furaha cusub ee loo dhalay waa: ({$plainPassword})."
+                : "Credentials email sent successfully to {$targetEmail}! New password is: ({$plainPassword}).";
+        } else {
+            AuditLogger::log('mail.welcome_failed', 'users', $targetUserId, 'Failed re-sending credentials to ' . $targetEmail . ': ' . ($mailStatus['error'] ?? ''), [], $actorId);
+            $_SESSION['flash_error'] = $isSo
+                ? "Dirista email-ka way fashilantay: " . ($mailStatus['error'] ?? 'Khalad aan la garanayn')
+                : "Email delivery failed: " . ($mailStatus['error'] ?? 'Unknown error');
+        }
+
+        header('Location: ?route=' . self::userListRoute());
+        exit;
+    }
+
+    private static function mailTestSend(PDO $pdo): void
+    {
+        $actor = AuthMiddleware::requireRoles(['admin', 'manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+        $isSo = ($locale === 'so');
+        $testEmail = trim((string) ($_POST['test_email'] ?? ''));
+
+        if ($testEmail === '' || !filter_var($testEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException($isSo ? 'Fadlan geli email sax ah oo la tijaabiyo.' : 'Please enter a valid email address to test.');
+        }
+
+        $subject = $isSo ? 'SIMDA: Tijaabada Email-ka Nidaamka (Delivery Test)' : 'SIMDA: System Email Delivery Test';
+        $timeStr = date('d/m/Y H:i:s');
+        $html = <<<HTML
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F0F4F2;padding:25px;color:#1D2D27;">
+    <div style="max-width:540px;margin:0 auto;background:#fff;border-radius:14px;padding:30px;border:1px solid #D1DDD7;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
+        <h2 style="color:#0C2D24;margin-top:0;">✅ SIMDA Email Delivery Test</h2>
+        <p>Email-kani wuxuu xaqiijinayaa in adeegga dirista fariimaha ee nidaamka SIMDA uu 100% u shaqaynayo, fariintuna ay si toos ah u soo gashay <strong>Inbox-kaaga</strong> (sanduuqa hore).</p>
+        <div style="background:#EBF5F0;padding:14px 18px;border-radius:8px;font-size:14px;color:#0F5132;margin:20px 0;border:1px solid #C3E6CB;">
+            <strong>Waqtiga La Diray:</strong> {$timeStr}<br>
+            <strong>Xaaladda:</strong> Guul leh (Delivered via TLS/SSL directly to Inbox)
+        </div>
+        <p style="font-size:12px;color:#788E84;margin-bottom:0;">SIMDA - Somali Islamic Microfinance Development Association</p>
+    </div>
+</body>
+</html>
+HTML;
+        $plain = "SIMDA Email Delivery Test\n\nAdeegga SMTP ee nidaamka SIMDA wuxuu u shaqaynayaa 100%!\nWaqtiga: {$timeStr}\nFariintu waxay toos u soo gashay Inbox-kaaga.";
+
+        $res = MailService::send($testEmail, $subject, $html, $plain);
+        if ($res['success']) {
+            AuditLogger::log('mail.test_sent', 'settings', 0, 'Test email delivered to ' . $testEmail, [], (int) $actor['id']);
+            $_SESSION['flash_success'] = $isSo
+                ? "Email-ka tijaabada ah si guul leh ayaa loogu diray: {$testEmail}! Fadlan fiiri sanduuqaaga (Inbox)."
+                : "Test email successfully sent to {$testEmail}! Please check your Inbox.";
+        } else {
+            $_SESSION['flash_error'] = $isSo
+                ? "Dirista email-ka way fashilantay: " . ($res['error'] ?? '')
+                : "Test email delivery failed: " . ($res['error'] ?? '');
+        }
+
+        $referer = $_SERVER['HTTP_REFERER'] ?? '?route=settings';
+        header('Location: ' . $referer);
         exit;
     }
 

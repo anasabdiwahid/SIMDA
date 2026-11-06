@@ -689,6 +689,22 @@ $adminTabs = [
                                         </button>
                                     <?php endif; ?>
 
+                                    <?php if ($canEditThisUser && !empty($u['email'])): ?>
+                                        <button type="button"
+                                            class="adm-icon-btn"
+                                            onclick="openResendCredsModal(<?= htmlspecialchars(json_encode([
+                                                'id' => $uId,
+                                                'full_name' => $u['full_name'],
+                                                'username' => $u['username'],
+                                                'email' => $u['email'],
+                                            ]), ENT_QUOTES, 'UTF-8') ?>)"
+                                            title="<?= $isSo ? 'U dir macluumaadka gelitaanka email-kiisa (Inbox)' : 'Send login credentials email (Inbox)' ?>"
+                                            aria-label="<?= $isSo ? 'U dir email' : 'Send email' ?> <?= Security::e($u['full_name']) ?>"
+                                            style="color:var(--brand-primary,#1B7A53);">
+                                            <?= Icons::svg('mail', 15) ?>
+                                        </button>
+                                    <?php endif; ?>
+
                                     <?php if ($curRole === 'admin' && $roleSlug !== 'admin'): ?>
                                         <a href="?route=permissions&user_id=<?= $uId ?>" class="adm-icon-btn" title="<?= $isSo ? 'Awoodaha' : 'Permissions' ?>" aria-label="<?= $isSo ? 'Awoodaha' : 'Permissions' ?> <?= Security::e($u['full_name']) ?>">
                                             <?= Icons::svg('shield', 15) ?>
@@ -863,6 +879,19 @@ $adminTabs = [
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Send Credentials Email Checkbox -->
+                        <div class="form-group" style="grid-column:1 / -1;background:rgba(27,122,83,0.06);padding:12px 14px;border-radius:10px;border:1px solid rgba(27,122,83,0.25);">
+                            <label style="display:flex;align-items:center;gap:10px;margin:0;cursor:pointer;">
+                                <input type="checkbox" name="send_credentials_email" id="modalSendCredsCheck" value="1" checked style="width:17px;height:17px;accent-color:#1B7A53;cursor:pointer;">
+                                <span style="font-size:0.85rem;font-weight:700;color:var(--text-main);">
+                                    <?= Icons::svg('mail', 14) ?> <?= $isSo ? 'U dir furaha cusub iyo macluumaadka gelitaanka email-ka qofkan' : 'Email new password and login credentials to this user' ?>
+                                </span>
+                            </label>
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;margin-left:27px;">
+                                <?= $isSo ? 'Fariintu waxay toos u galaysaa Inbox-ka email-ka kor ku qoran.' : 'Delivers credentials directly to the email specified above.' ?>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Modal Actions Footer -->
@@ -872,6 +901,63 @@ $adminTabs = [
                         </button>
                         <button type="submit" class="btn btn-primary btn-sm" style="font-weight:800;padding:8px 22px;display:inline-flex;align-items:center;gap:6px;">
                             <?= Icons::svg('check-circle', 14) ?> <?= $isSo ? 'Keydi Isbeddelka' : 'Save Changes' ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RESEND CREDENTIALS MODAL DIALOG -->
+        <div id="resendCredsModalOverlay" class="simda-modal-overlay" onclick="handleResendModalBackdrop(event)">
+            <div class="simda-modal-box" role="dialog" aria-modal="true" aria-labelledby="resendModalTitle" style="max-width:480px;">
+                <div class="adm-modal-head" style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-color);padding-bottom:12px;margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="background:rgba(27,122,83,0.12);color:#1B7A53;padding:8px;border-radius:10px;display:inline-flex;">
+                            <?= Icons::svg('mail', 18) ?>
+                        </span>
+                        <div>
+                            <h3 id="resendModalTitle" style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);">
+                                <?= $isSo ? 'U Dir Macluumaadka Gelitaanka' : 'Send Login Credentials' ?>
+                            </h3>
+                            <div style="font-size:0.78rem;color:var(--text-muted);">
+                                <?= $isSo ? 'Toos ugu dir sanduuqa Inbox-ka shaqaalaha' : 'Delivers directly to the recipient\'s Inbox' ?>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="adm-icon-btn" onclick="closeResendCredsModal()" aria-label="<?= $isSo ? 'Xir' : 'Close' ?>"><?= Icons::svg('x', 16) ?></button>
+                </div>
+
+                <form method="POST" action="?route=user_resend_credentials" class="adm-modal-form">
+                    <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                    <input type="hidden" name="user_id" id="resendUserId" value="">
+                    <?= $returnField ?>
+
+                    <div style="background:var(--bg-surface);padding:14px;border-radius:10px;border:1px solid var(--border-color);margin-bottom:14px;">
+                        <div style="font-size:0.88rem;font-weight:700;color:var(--text-main);" id="resendFullName"></div>
+                        <div style="font-size:0.82rem;color:var(--brand-primary,#1B7A53);font-weight:600;margin-top:2px;" id="resendEmail"></div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:14px;">
+                        <label style="font-weight:700;font-size:0.84rem;margin-bottom:6px;display:block;color:var(--text-main);">
+                            <?= $isSo ? 'Furaha Sirta ah ee Loo Dirayo (Password) *' : 'Password to Deliver *' ?>
+                        </label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" name="custom_password" id="resendPasswordInput" class="form-control" required style="font-family:monospace;font-weight:800;letter-spacing:1px;font-size:0.92rem;">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="generateResendPassword()" style="white-space:nowrap;font-weight:700;">
+                                <?= Icons::svg('refresh', 13) ?> <?= $isSo ? 'Fure Cusub' : 'Generate' ?>
+                            </button>
+                        </div>
+                        <div style="font-size:0.76rem;color:var(--text-muted);margin-top:5px;">
+                            <?= $isSo ? 'Furahan waxaa lagu keydin doonaa nidaamka, waxaana si toos ah loogu diri doonaa email-kiisa.' : 'This password will be updated and delivered via secure email.' ?>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:flex-end;gap:10px;align-items:center;padding-top:14px;border-top:1px solid var(--border-color);">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="closeResendCredsModal()" style="font-weight:700;padding:8px 18px;">
+                            <?= $isSo ? 'Ka noqo' : 'Cancel' ?>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm" style="font-weight:800;padding:8px 22px;display:inline-flex;align-items:center;gap:6px;background:#1B7A53;border-color:#1B7A53;">
+                            <?= Icons::svg('send', 14) ?> <?= $isSo ? 'Dir Hadda (Send to Inbox)' : 'Send Now' ?>
                         </button>
                     </div>
                 </form>
@@ -966,9 +1052,47 @@ $adminTabs = [
             }
         }
 
+        var resendCurrentUserName = '';
+        function openResendCredsModal(u) {
+            resendCurrentUserName = u.full_name || '';
+            document.getElementById('resendUserId').value = u.id;
+            document.getElementById('resendFullName').textContent = u.full_name + ' (@' + (u.username || '') + ')';
+            document.getElementById('resendEmail').textContent = '📧 ' + u.email;
+            generateResendPassword(resendCurrentUserName);
+            var overlay = document.getElementById('resendCredsModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeResendCredsModal() {
+            var overlay = document.getElementById('resendCredsModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        function handleResendModalBackdrop(event) {
+            if (event.target === document.getElementById('resendCredsModalOverlay')) {
+                closeResendCredsModal();
+            }
+        }
+
+        function generateResendPassword(name) {
+            var src = name || resendCurrentUserName || 'simda';
+            var clean = src.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (clean.length < 2) clean = 'simda';
+            var digits = Math.floor(1000 + Math.random() * 9000);
+            var input = document.getElementById('resendPasswordInput');
+            if (input) input.value = clean + digits + '@!';
+        }
+
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeEditUserModal();
+                closeResendCredsModal();
             }
         });
 
@@ -1666,6 +1790,21 @@ $adminTabs = [
                 <button type="submit" class="btn btn-primary btn-sm"><?= Icons::svg('check-circle', 14) ?> <span><?= $isSo ? 'Keydi Settings-ka' : 'Save Settings' ?></span></button>
             </div>
         </form>
+
+        <!-- EMAIL CONFIGURATION & INBOX DELIVERY TEST CARD -->
+        <section class="adm-table-card adm-settings-group" style="margin-top:24px;">
+            <h2><?= Icons::svg('mail', 16) ?> <?= $isSo ? 'Tijaabada & Hubinta Email-ka (Direct-to-Inbox Test)' : 'Email Inbox Delivery Test' ?></h2>
+            <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:16px;">
+                <?= $isSo ? 'Adeegga SMTP waxaa loo habeeyay inuu fariimaha si toos ah u geeyo Inbox-ka (oo uusan marnaba gelin Spam). Halkan ku tijaabi adigoo email kasta u diraya tijaabo degdeg ah.' : 'The SMTP service is optimized to deliver directly to Inbox without spam flags. Test any email address below.' ?>
+            </p>
+            <form method="POST" action="?route=mail_test_send" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                <input type="email" name="test_email" class="form-control" placeholder="Tusaale: magacaa@gmail.com" required style="max-width:320px;font-weight:600;">
+                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;background:#1B7A53;border-color:#1B7A53;">
+                    <?= Icons::svg('send', 14) ?> <span><?= $isSo ? 'Dir Test Email' : 'Send Test Email' ?></span>
+                </button>
+            </form>
+        </section>
 
     <!-- ========================================================================= -->
     <!-- 4. AUDIT LOGS VIEW                                                        -->

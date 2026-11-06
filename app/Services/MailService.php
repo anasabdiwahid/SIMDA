@@ -86,7 +86,8 @@ final class MailService
             return ['success' => false, 'error' => "Unexpected SMTP banner: {$banner}"];
         }
 
-        $sendCommand("EHLO localhost");
+        $msgDomain = (strpos($fromEmail, '@') !== false) ? substr(strrchr($fromEmail, '@'), 1) : 'gmail.com';
+        $sendCommand("EHLO {$msgDomain}");
         $auth = $sendCommand("AUTH LOGIN");
         if (substr($auth, 0, 3) !== '334') {
             fclose($socket);
@@ -125,20 +126,32 @@ final class MailService
 
         $textPlain = $plainBody !== '' ? $plainBody : strip_tags($htmlBody);
 
-        // Standard high-deliverability email headers (prevents spam classifier flags)
-        $msgDomain = (strpos($fromEmail, '@') !== false) ? substr(strrchr($fromEmail, '@'), 1) : 'gmail.com';
-        $messageId = '<simda.' . bin2hex(random_bytes(12)) . '.' . time() . '@' . $msgDomain . '>';
+        // High-deliverability headers (Inbox priority, zero spam penalty flags)
+        $messageId = '<simda.' . bin2hex(random_bytes(10)) . '.' . time() . '@' . $msgDomain . '>';
+
+        $encodeHeader = static function (string $text): string {
+            if (preg_match('/^[\x20-\x7E]+$/', $text)) {
+                return '"' . addcslashes($text, '"\\') . '"';
+            }
+            return '=?UTF-8?B?' . base64_encode($text) . '?=';
+        };
+
+        $formattedFrom = $encodeHeader($fromName) . ' <' . $fromEmail . '>';
+        $formattedSubject = preg_match('/^[\x20-\x7E]+$/', $subject) ? $subject : ('=?UTF-8?B?' . base64_encode($subject) . '?=');
 
         $baseHeaders = [
             'MIME-Version: 1.0',
-            'Message-ID: ' . $messageId,
             'Date: ' . date('r'),
-            'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
-            'Reply-To: <' . $fromEmail . '>',
+            'Message-ID: ' . $messageId,
+            'From: ' . $formattedFrom,
+            'Sender: <' . $fromEmail . '>',
+            'Reply-To: ' . $formattedFrom,
             'To: <' . $to . '>',
-            'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
-            'Auto-Submitted: auto-generated',
-            'X-Auto-Response-Suppress: All',
+            'Subject: ' . $formattedSubject,
+            'X-Priority: 1 (Highest)',
+            'X-MSMail-Priority: High',
+            'Importance: High',
+            'X-Mailer: SIMDA Banking System v2.0',
         ];
 
         if (!empty($inlineAttachments)) {
