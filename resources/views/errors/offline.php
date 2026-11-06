@@ -696,3 +696,4 @@ $isLoggedIn = AuthMiddleware::check();
     </script>
 </body>
 </html>
+

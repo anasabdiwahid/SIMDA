@@ -104,6 +104,21 @@ CREATE TABLE IF NOT EXISTS password_resets (
     CONSTRAINT fk_pw_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 6.6 ADMIN 2FA CHALLENGES
+CREATE TABLE IF NOT EXISTS admin_2fa_codes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    code_hash VARCHAR(255) NOT NULL,
+    attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    is_used TINYINT(1) NOT NULL DEFAULT 0,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_a2fa_user (user_id),
+    INDEX idx_a2fa_expires (expires_at),
+    CONSTRAINT fk_a2fa_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- 7. CLIENTS (Module 1)
 CREATE TABLE IF NOT EXISTS clients (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

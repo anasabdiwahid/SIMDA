@@ -346,6 +346,54 @@ final class AuthService
         return $sessionUser;
     }
 
+    public static function completeLoginForUser(array $user, ?PDO $pdo = null): array
+    {
+        $db = $pdo ?? Database::connection();
+        $ip = Security::clientIp();
+
+        self::recordAttempt((string) ($user['email'] ?? $user['username']), $ip, true, $db);
+        self::resetSecurityCounters((int) $user['id'], $db);
+        $db->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')->execute([':id' => $user['id']]);
+
+        $sessionUser = [
+            'id' => (int) $user['id'],
+            'role_id' => (int) $user['role_id'],
+            'role_slug' => (string) $user['role_slug'],
+            'role_name_so' => (string) ($user['role_name_so'] ?? 'Maamule'),
+            'role_name_en' => (string) ($user['role_name_en'] ?? 'Administrator'),
+            'branch_id' => $user['branch_id'] !== null ? (int) $user['branch_id'] : null,
+            'branch_name' => $user['branch_name'] ?? 'Head Office',
+            'branch_code' => $user['branch_code'] ?? 'HQ',
+            'client_id' => $user['client_id'] !== null ? (int) $user['client_id'] : null,
+            'client_code' => $user['client_code'] ?? null,
+            'full_name' => (string) $user['full_name'],
+            'username' => (string) $user['username'],
+            'email' => (string) $user['email'],
+            'phone' => (string) $user['phone'],
+            'preferred_locale' => (string) ($user['preferred_locale'] ?? 'en'),
+            'preferred_theme' => (string) ($user['preferred_theme'] ?? 'light'),
+            'is_synthetic_demo' => !empty($user['is_synthetic_demo']),
+        ];
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            Security::regenerateSession();
+            $_SESSION['user'] = $sessionUser;
+            $_SESSION['locale'] = $sessionUser['preferred_locale'];
+        }
+
+        AuditLogger::log(
+            'auth.login_2fa_success',
+            'users',
+            (int) $user['id'],
+            "Admin {$user['username']} ({$user['role_slug']}) completed 8-digit 2FA verification and logged in.",
+            ['ip' => $ip],
+            (int) $user['id'],
+            $sessionUser['branch_id']
+        );
+
+        return $sessionUser;
+    }
+
     public static function isRateLimited(string $identifier, string $ip, ?PDO $pdo = null): bool
     {
         $db = $pdo ?? Database::connection();

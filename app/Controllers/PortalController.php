@@ -39,6 +39,8 @@ final class PortalController
                 'login' => self::loginForm(),
                 'login_check_email' => self::loginCheckEmail($pdo),
                 'login_submit' => self::loginSubmit($pdo),
+                'admin_2fa_verify' => self::admin2faVerify($pdo),
+                'admin_2fa_resend' => self::admin2faResend($pdo),
                 'forgot_password' => self::forgotPasswordForm(),
                 'forgot_password_send_otp' => self::forgotPasswordSendOtp($pdo),
                 'forgot_password_verify_otp' => self::forgotPasswordVerifyOtp($pdo),
@@ -658,6 +660,23 @@ final class PortalController
             header('Location: ?route=dashboard');
             exit;
         }
+
+        if (!empty($_GET['cancel_2fa'])) {
+            unset(
+                $_SESSION['admin_2fa_pending'],
+                $_SESSION['admin_2fa_user_id'],
+                $_SESSION['admin_2fa_challenge_id'],
+                $_SESSION['admin_2fa_email'],
+                $_SESSION['admin_2fa_name'],
+                $_SESSION['admin_2fa_code'],
+                $_SESSION['admin_2fa_expires_at'],
+                $_SESSION['admin_2fa_attempts'],
+                $_SESSION['login_verified_identifier']
+            );
+            header('Location: ?route=login');
+            exit;
+        }
+
         require dirname(__DIR__, 2) . '/resources/views/auth/login.php';
     }
 
@@ -726,12 +745,17 @@ final class PortalController
         $isSo = $locale === 'so';
         $isAr = $locale === 'ar';
 
-        // Security Step 1: Check Email existence
+        // Security Step 1: Check Email existence and fetch user with role
         $st = $pdo->prepare('
-            SELECT id, email, username, is_active, password_hash, lockout_tier, locked_until, failed_login_attempts, security_block_reason
-            FROM users
-            WHERE (email = :id1 OR username = :id2)
-              AND deleted_at IS NULL
+            SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en,
+                   b.name AS branch_name, b.code AS branch_code,
+                   c.id AS client_id, c.client_code
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            LEFT JOIN branches b ON b.id = u.branch_id
+            LEFT JOIN clients c ON c.user_id = u.id
+            WHERE (u.email = :id1 OR u.username = :id2)
+              AND u.deleted_at IS NULL
             LIMIT 1
         ');
         $st->execute([':id1' => $identifier, ':id2' => $identifier]);
@@ -775,8 +799,57 @@ final class PortalController
         }
 
         // Password verified successfully!
+        // Admin High-Security 2FA Verification:
+        $isRoleAdmin = ($user['role_slug'] === 'admin');
+
+        if ($isRoleAdmin) {
+            // Generate 8-character uppercase alphanumeric code (e.g. A01B99L2)
+            $twoFaChars = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+            $twoFaCode = '';
+            $charsLen = strlen($twoFaChars);
+            for ($i = 0; $i < 8; $i++) {
+                $twoFaCode .= $twoFaChars[random_int(0, $charsLen - 1)];
+            }
+
+            // Dispatch 2FA email to Admin's registered email
+            MailService::sendAdmin2FACodeEmail($user['email'], $user['full_name'], $twoFaCode, $locale);
+
+            // Record challenge in database
+            $stmt2fa = $pdo->prepare('
+                INSERT INTO admin_2fa_codes (user_id, email, code_hash, attempts, is_used, expires_at)
+                VALUES (:uid, :email, :chash, 0, 0, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
+            ');
+            $stmt2fa->execute([
+                ':uid' => (int) $user['id'],
+                ':email' => $user['email'],
+                ':chash' => password_hash($twoFaCode, PASSWORD_BCRYPT)
+            ]);
+            $challengeId = (int) $pdo->lastInsertId();
+
+            // Set session state
+            $_SESSION['admin_2fa_pending'] = true;
+            $_SESSION['admin_2fa_user_id'] = (int) $user['id'];
+            $_SESSION['admin_2fa_challenge_id'] = $challengeId;
+            $_SESSION['admin_2fa_email'] = $user['email'];
+            $_SESSION['admin_2fa_name'] = $user['full_name'];
+            $_SESSION['admin_2fa_code'] = $twoFaCode;
+            $_SESSION['admin_2fa_expires_at'] = time() + 600;
+            $_SESSION['admin_2fa_attempts'] = 0;
+            $_SESSION['admin_2fa_remember'] = !empty($_POST['remember']);
+
+            AuditLogger::log('auth.admin_2fa_dispatched', 'users', (int) $user['id'], "8-character 2FA code dispatched to Admin {$user['email']}.");
+
+            $_SESSION['flash_success'] = $isSo
+                ? 'Furahaagu wuu saxan yahay! Amniga sare ee maamulaha dartiis, koodh 8 xaraf/lambar ah ayaa laguugu diray email-kaaga ' . Security::e($user['email'])
+                : 'Password verified! As an Administrator, an 8-character security code has been sent to ' . Security::e($user['email']);
+
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // Non-admin login completes immediately
         try {
-            AuthService::attemptLogin($identifier, $password, $pdo);
+            AuthService::completeLoginForUser($user, $pdo);
             unset($_SESSION['login_verified_identifier']);
             header('Location: ?route=dashboard');
             exit;
@@ -785,6 +858,147 @@ final class PortalController
             header('Location: ?route=login');
             exit;
         }
+    }
+
+    private static function admin2faVerify(PDO $pdo): void
+    {
+        AuthMiddleware::verifyCsrfOrAbort();
+        $code = strtoupper(trim((string) ($_POST['code'] ?? '')));
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+        $isAr = $locale === 'ar';
+
+        if (empty($_SESSION['admin_2fa_pending']) || empty($_SESSION['admin_2fa_user_id'])) {
+            $_SESSION['flash_error'] = $isSo ? 'Kalfadhiga xaqiijintu wuu dhacay. Fadlan mar kale gal.' : ($isAr ? 'انتهت جلسة التحقق. يرجى تسجيل الدخول مرة أخرى.' : 'Verification session expired. Please sign in again.');
+            header('Location: ?route=login');
+            exit;
+        }
+
+        if (time() > (int) ($_SESSION['admin_2fa_expires_at'] ?? 0)) {
+            $_SESSION['flash_error'] = $isSo ? 'Koodhkii amnigu wuu dhacay (10 daqiiqo). Fadlan koodh cusub dalbo.' : ($isAr ? 'انتهت صلاحية رمز الأمان (10 دقائق). يرجى طلب رمز جديد.' : 'Security code expired (10 minutes). Please request a new code.');
+            header('Location: ?route=login');
+            exit;
+        }
+
+        $userId = (int) $_SESSION['admin_2fa_user_id'];
+        $storedCode = (string) ($_SESSION['admin_2fa_code'] ?? '');
+
+        // Fetch user record
+        $st = $pdo->prepare('
+            SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en,
+                   b.name AS branch_name, b.code AS branch_code,
+                   c.id AS client_id, c.client_code
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            LEFT JOIN branches b ON b.id = u.branch_id
+            LEFT JOIN clients c ON c.user_id = u.id
+            WHERE u.id = :id AND u.deleted_at IS NULL
+            LIMIT 1
+        ');
+        $st->execute([':id' => $userId]);
+        $user = $st->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            unset($_SESSION['admin_2fa_pending']);
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // Compare 8-digit codes (case-insensitive)
+        if ($code === '' || $code !== strtoupper($storedCode)) {
+            $_SESSION['admin_2fa_attempts'] = ((int) ($_SESSION['admin_2fa_attempts'] ?? 0)) + 1;
+            if ($_SESSION['admin_2fa_attempts'] >= 5) {
+                // Lockout account
+                unset($_SESSION['admin_2fa_pending']);
+                $failResult = AuthService::handleFailedPassword($user, $pdo, $locale);
+                $_SESSION['flash_error'] = $failResult['message'];
+                header('Location: ?route=login');
+                exit;
+            }
+            $_SESSION['flash_error'] = $isSo
+                ? 'Koodhka 8-da xaraf/lambar ee aad galisay ma saxna! Fadlan ka eeg email-kaaga ' . Security::e($user['email']) . ' oo mar kale isku day.'
+                : ($isAr ? 'رمز الأمان المدخل غير صحيح! يرجى مراجعة بريدك الإلكتروني والمحاولة مرة أخرى.' : 'Invalid 8-character security code! Please check your email and try again.');
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // Code is correct!
+        if (!empty($_SESSION['admin_2fa_challenge_id'])) {
+            $pdo->prepare('UPDATE admin_2fa_codes SET is_used = 1 WHERE id = :id')->execute([':id' => $_SESSION['admin_2fa_challenge_id']]);
+        }
+
+        unset(
+            $_SESSION['admin_2fa_pending'],
+            $_SESSION['admin_2fa_user_id'],
+            $_SESSION['admin_2fa_challenge_id'],
+            $_SESSION['admin_2fa_email'],
+            $_SESSION['admin_2fa_name'],
+            $_SESSION['admin_2fa_code'],
+            $_SESSION['admin_2fa_expires_at'],
+            $_SESSION['admin_2fa_attempts'],
+            $_SESSION['login_verified_identifier']
+        );
+
+        // Complete full admin login
+        AuthService::completeLoginForUser($user, $pdo);
+        header('Location: ?route=dashboard');
+        exit;
+    }
+
+    private static function admin2faResend(PDO $pdo): void
+    {
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+        $isAr = $locale === 'ar';
+
+        if (empty($_SESSION['admin_2fa_pending']) || empty($_SESSION['admin_2fa_user_id'])) {
+            $_SESSION['flash_error'] = $isSo ? 'Kalfadhigu wuu dhacay. Fadlan mar kale gal.' : 'Session expired. Please sign in again.';
+            header('Location: ?route=login');
+            exit;
+        }
+
+        $userId = (int) $_SESSION['admin_2fa_user_id'];
+        $st = $pdo->prepare('SELECT id, full_name, email FROM users WHERE id = :id AND deleted_at IS NULL LIMIT 1');
+        $st->execute([':id' => $userId]);
+        $user = $st->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            unset($_SESSION['admin_2fa_pending']);
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // Generate fresh 8-char code (e.g. A01B99L2)
+        $twoFaChars = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        $twoFaCode = '';
+        $charsLen = strlen($twoFaChars);
+        for ($i = 0; $i < 8; $i++) {
+            $twoFaCode .= $twoFaChars[random_int(0, $charsLen - 1)];
+        }
+
+        MailService::sendAdmin2FACodeEmail($user['email'], $user['full_name'], $twoFaCode, $locale);
+
+        $stmt2fa = $pdo->prepare('
+            INSERT INTO admin_2fa_codes (user_id, email, code_hash, attempts, is_used, expires_at)
+            VALUES (:uid, :email, :chash, 0, 0, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
+        ');
+        $stmt2fa->execute([
+            ':uid' => (int) $user['id'],
+            ':email' => $user['email'],
+            ':chash' => password_hash($twoFaCode, PASSWORD_BCRYPT)
+        ]);
+        $challengeId = (int) $pdo->lastInsertId();
+
+        $_SESSION['admin_2fa_challenge_id'] = $challengeId;
+        $_SESSION['admin_2fa_code'] = $twoFaCode;
+        $_SESSION['admin_2fa_expires_at'] = time() + 600;
+
+        $_SESSION['flash_success'] = $isSo
+            ? 'Koodh cusub oo 8 xaraf/lambar ah ayaa laguugu soo diray email-kaaga ' . Security::e($user['email'])
+            : ($isAr ? 'تم إرسال رمز أمان جديد مكون من 8 خانات إلى بريدك الإلكتروني.' : 'A fresh 8-character security code has been sent to ' . Security::e($user['email']));
+
+        header('Location: ?route=login');
+        exit;
     }
 
     private static function forgotPasswordForm(): void

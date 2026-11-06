@@ -12,6 +12,13 @@ $preVerifiedEmail = (string) ($_SESSION['login_verified_identifier'] ?? '');
 unset($_SESSION['login_verified_identifier']);
 $flashError = (string) ($_SESSION['flash_error'] ?? '');
 unset($_SESSION['flash_error']);
+$flashSuccess = (string) ($_SESSION['flash_success'] ?? '');
+unset($_SESSION['flash_success']);
+
+$admin2faPending = !empty($_SESSION['admin_2fa_pending']);
+$admin2faEmail = (string) ($_SESSION['admin_2fa_email'] ?? '');
+$admin2faExpiresAt = (int) ($_SESSION['admin_2fa_expires_at'] ?? 0);
+$admin2faRemainingSeconds = max(0, $admin2faExpiresAt - time());
 
 $loginI18n = [
     'en' => [
@@ -38,6 +45,14 @@ $loginI18n = [
         'need_help' => 'Need assistance?',
         'contact_office' => 'Contact SIMDA Head Office',
         'forgot_password' => 'Forgot Password?',
+        'step3_badge' => 'ADMIN 2-FACTOR AUTHENTICATION',
+        'step3_title' => 'Admin Security Verification',
+        'step3_sub' => 'High Security: Please enter the 8-character verification code sent to your email address.',
+        'step3_placeholder' => 'Enter 8-digit code (e.g. A01B99L2)',
+        'step3_verify_btn' => 'Verify Code & Sign In →',
+        'step3_resend' => 'Resend Code',
+        'step3_cancel' => 'Cancel & Switch Account',
+        'step3_expires_in' => 'Code expires in',
     ],
     'so' => [
         'welcome' => 'SOO DHAWOOW',
@@ -63,6 +78,14 @@ $loginI18n = [
         'need_help' => 'Ma u baahan tahay caawimaad?',
         'contact_office' => 'La xiriir Xafiiska Guud ee SIMDA',
         'forgot_password' => 'Ma illowday Furaha?',
+        'step3_badge' => 'AQOONSI SIREE DHEERAAD AH (ADMIN 2FA)',
+        'step3_title' => 'Hubinta Amniga Sare ee Maamulka',
+        'step3_sub' => 'Amni Sare: Fadlan geli koodhka 8-da xaraf/lambar ah ee lagugu soo diray email-kaaga.',
+        'step3_placeholder' => 'Geli koodhka 8-da ah (Tusaale: A01B99L2)',
+        'step3_verify_btn' => 'Xaqiiji Koodhka oo Gal →',
+        'step3_resend' => 'Dib u dir Koodhka',
+        'step3_cancel' => 'Ka noqo oo akoon kale gal',
+        'step3_expires_in' => 'Koodhku wuxuu dhacayaa',
     ],
     'ar' => [
         'welcome' => 'مرحباً بكم',
@@ -88,6 +111,14 @@ $loginI18n = [
         'need_help' => 'هل تحتاج إلى مساعدة؟',
         'contact_office' => 'اتصل بالمقر الرئيسي لسيمدا',
         'forgot_password' => 'هل نسيت كلمة المرور؟',
+        'step3_badge' => 'التحقق الأمني الثنائي للمسؤول',
+        'step3_title' => 'التحقق الأمني العالي للمسؤول',
+        'step3_sub' => 'أمان مشدد: يرجى إدخال الرمز المكون من 8 خانات المرسل إلى بريدك الإلكتروني.',
+        'step3_placeholder' => 'أدخل الرمز المكون من 8 خانات (مثال: A01B99L2)',
+        'step3_verify_btn' => 'تأكيد الرمز والدخول ←',
+        'step3_resend' => 'إعادة إرسال الرمز',
+        'step3_cancel' => 'إلغاء والتبديل لحساب آخر',
+        'step3_expires_in' => 'ينتهي الرمز خلال',
     ],
 ];
 $lt = $loginI18n[$locale] ?? $loginI18n['en'];
@@ -1027,13 +1058,13 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             </div>
 
             <!-- STEP 1: EMAIL ENTRY ONLY (Password is hidden until email is verified) -->
-            <div id="loginStep1" style="<?= !empty($preVerifiedEmail) ? 'display:none;' : '' ?>">
+            <div id="loginStep1" style="<?= ($admin2faPending || !empty($preVerifiedEmail)) ? 'display:none;' : '' ?>">
                 <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
                 <p class="simda-signin-sub"><?= Security::e($lt['step1_sub']) ?></p>
 
-                <div id="step1AlertError" class="alert alert-danger" style="display:<?= (!empty($flashError) && empty($preVerifiedEmail)) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
+                <div id="step1AlertError" class="alert alert-danger" style="display:<?= (!empty($flashError) && empty($preVerifiedEmail) && !$admin2faPending) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
                     <?= Icons::svg('alert-triangle', 16) ?>
-                    <span id="step1AlertText"><?= Security::e(empty($preVerifiedEmail) ? $flashError : '') ?></span>
+                    <span id="step1AlertText"><?= Security::e((empty($preVerifiedEmail) && !$admin2faPending) ? $flashError : '') ?></span>
                 </div>
 
                 <form id="formCheckEmail" onsubmit="handleCheckEmail(event)">
@@ -1061,7 +1092,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             </div>
 
             <!-- STEP 2: PASSWORD ENTRY (Only revealed when email is verified in database) -->
-            <div id="loginStep2" style="<?= empty($preVerifiedEmail) ? 'display:none;' : '' ?>">
+            <div id="loginStep2" style="<?= (empty($preVerifiedEmail) || $admin2faPending) ? 'display:none;' : '' ?>">
                 <h2 class="simda-signin-title"><?= Security::e($lt['step2_title']) ?></h2>
                 <p class="simda-signin-sub"><?= Security::e($lt['step2_sub']) ?></p>
 
@@ -1074,16 +1105,16 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     <button type="button" class="simda-chip-change-btn" onclick="handleChangeEmail()"><?= Security::e($lt['btn_change_email']) ?></button>
                 </div>
 
-                <div id="step2AlertError" class="alert alert-danger" style="display:<?= (!empty($flashError) && !empty($preVerifiedEmail)) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
+                <div id="step2AlertError" class="alert alert-danger" style="display:<?= (!empty($flashError) && !empty($preVerifiedEmail) && !$admin2faPending) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
                     <?= Icons::svg('alert-triangle', 16) ?>
-                    <span id="step2AlertText"><?= Security::e(!empty($preVerifiedEmail) ? $flashError : '') ?></span>
+                    <span id="step2AlertText"><?= Security::e((!empty($preVerifiedEmail) && !$admin2faPending) ? $flashError : '') ?></span>
                 </div>
 
                 <form method="POST" action="?route=login_submit" id="formLoginSubmit">
                     <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                     <input type="hidden" name="identifier" id="finalIdentifier" value="<?= Security::e($preVerifiedEmail) ?>">
 
-                    <div class="simda-input-pill" id="passwordPill" style="<?= (!empty($flashError) && !empty($preVerifiedEmail)) ? 'border-color:#C94B4B;' : '' ?>">
+                    <div class="simda-input-pill" id="passwordPill" style="<?= (!empty($flashError) && !empty($preVerifiedEmail) && !$admin2faPending) ? 'border-color:#C94B4B;' : '' ?>">
                         <span class="simda-input-icon"><?= Icons::svg('lock', 18) ?></span>
                         <input type="password" id="password" name="password" required autofocus placeholder="<?= Security::e($lt['password']) ?>" autocomplete="current-password">
                         <button type="button" class="simda-pw-toggle" id="togglePwBtn"><?= Security::e($lt['show']) ?></button>
@@ -1100,6 +1131,77 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     </div>
 
                     <button type="submit" class="simda-btn-signin-main"><?= Security::e($lt['btn_signin']) ?></button>
+                </form>
+            </div>
+
+            <!-- STEP 3: ADMIN 2FA SECURITY CODE (8-character alphanumeric e.g. A01B99L2) -->
+            <div id="loginStep3" style="<?= $admin2faPending ? '' : 'display:none;' ?>">
+                <div style="display:inline-flex;align-items:center;gap:7px;padding:4px 12px;background:rgba(214,182,108,0.14);border:1px solid rgba(214,182,108,0.4);border-radius:20px;color:#92722A;font-size:0.72rem;font-weight:800;margin-bottom:12px;letter-spacing:0.04em;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span><?= Security::e($lt['step3_badge']) ?></span>
+                </div>
+
+                <h2 class="simda-signin-title"><?= Security::e($lt['step3_title']) ?></h2>
+                <p class="simda-signin-sub"><?= Security::e($lt['step3_sub']) ?></p>
+
+                <!-- Admin Account Chip -->
+                <div class="simda-account-chip">
+                    <div class="simda-account-chip-info">
+                        <span class="simda-chip-avatar" style="background:rgba(18,59,50,0.12);color:#123B32;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </span>
+                        <span class="simda-chip-email" style="font-weight:700;letter-spacing:0.01em;"><?= Security::e($admin2faEmail) ?></span>
+                    </div>
+                    <a href="?route=login&cancel_2fa=1" class="simda-chip-change-btn" style="text-decoration:none;"><?= Security::e($lt['step3_cancel']) ?></a>
+                </div>
+
+                <?php if (!empty($flashSuccess) && $admin2faPending): ?>
+                    <div class="alert alert-success" style="display:flex;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;background:rgba(18,59,50,0.08);border:1px solid rgba(18,59,50,0.22);border-radius:10px;color:#123B32;">
+                        <?= Icons::svg('check-circle', 16) ?>
+                        <span><?= Security::e($flashSuccess) ?></span>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($flashError) && $admin2faPending): ?>
+                    <div class="alert alert-danger" style="display:flex;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
+                        <?= Icons::svg('alert-triangle', 16) ?>
+                        <span><?= Security::e($flashError) ?></span>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="?route=admin_2fa_verify" id="formAdmin2fa">
+                    <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+
+                    <div class="simda-input-pill" id="admin2faPill" style="margin-bottom:6px;">
+                        <span class="simda-input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </span>
+                        <input type="text" id="admin2faCodeInput" name="code" required maxlength="8" autofocus
+                               placeholder="<?= Security::e($lt['step3_placeholder']) ?>"
+                               autocomplete="one-time-code"
+                               style="text-transform:uppercase;font-family:'Courier New', monospace;font-size:1.08rem;letter-spacing:0.18em;font-weight:800;"
+                               oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');">
+                    </div>
+
+                    <div class="simda-login-meta-row" style="margin-top:8px;margin-bottom:14px;justify-content:space-between;align-items:center;">
+                        <span style="font-size:0.77rem;color:#7A8782;" id="admin2faTimerLabel">
+                            <?= Security::e($lt['step3_expires_in']) ?>: <strong id="admin2faTimerVal" style="color:#123B32;font-variant-numeric:tabular-nums;">10:00</strong>
+                        </span>
+                        <a href="?route=admin_2fa_resend" class="simda-forgot-link" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.77rem;">
+                            <?= Security::e($lt['step3_resend']) ?>
+                        </a>
+                    </div>
+
+                    <button type="submit" class="simda-btn-signin-main" id="btnAdmin2faVerify" style="background:#123B32;color:#FFFFFF;border:none;">
+                        <span><?= Security::e($lt['step3_verify_btn']) ?></span>
+                    </button>
                 </form>
             </div>
 
@@ -1239,6 +1341,35 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('simda_theme_pref', next);
     }
+
+    // Admin 2FA Countdown Timer & Auto-Focus
+    (function () {
+        var remaining = <?= (int) $admin2faRemainingSeconds ?>;
+        var timerEl = document.getElementById('admin2faTimerVal');
+        var codeInput = document.getElementById('admin2faCodeInput');
+
+        if (codeInput && <?= $admin2faPending ? 'true' : 'false' ?>) {
+            setTimeout(function() {
+                codeInput.focus();
+            }, 150);
+        }
+
+        if (!timerEl || remaining <= 0) return;
+
+        function updateTimer() {
+            var mins = Math.floor(remaining / 60);
+            var secs = remaining % 60;
+            timerEl.textContent = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+            if (remaining > 0) {
+                remaining--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerEl.textContent = '00:00 (Dhacay)';
+                timerEl.style.color = '#C94B4B';
+            }
+        }
+        updateTimer();
+    })();
 </script>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>

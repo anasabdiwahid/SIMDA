@@ -501,5 +501,86 @@ HTML;
 
         return self::send($email, $subject, $html, $plain, $inlineAttachments);
     }
+
+    /**
+     * Send 8-character 2FA Security Code to Admin Email
+     */
+    public static function sendAdmin2FACodeEmail(
+        string $email,
+        string $fullName,
+        string $securityCode,
+        string $locale = 'so'
+    ): array {
+        $subject = ($locale === 'so')
+            ? "SIMDA: Koodhka Amniga Sare ee Maamulaha (2FA: {$securityCode})"
+            : "SIMDA: Admin Security Verification Code (2FA: {$securityCode})";
+
+        $whiteLogoPath = BASE_PATH . '/public/assets/images/simda-logo-white.png';
+        if (!file_exists($whiteLogoPath)) {
+            $whiteLogoPath = BASE_PATH . '/public/assets/images/simda-logo.png';
+        }
+        $inlineAttachments = [];
+        $logoSrc = 'https://simda.so/assets/images/simda-logo-white.png';
+        if (file_exists($whiteLogoPath)) {
+            $inlineAttachments[] = [
+                'cid' => 'simda_white_logo',
+                'path' => $whiteLogoPath,
+                'mime' => 'image/png',
+                'filename' => 'simda-logo-white.png',
+            ];
+            $logoSrc = 'cid:simda_white_logo';
+        }
+
+        $greeting = ($locale === 'so') ? "Salaamu Calaykum, Mudane/Marwo {$fullName}!" : "Hello, {$fullName}!";
+        $subHeading = ($locale === 'so')
+            ? "Waxaa nidaamka maamulka SIMDA laga sameeyay isku-day gelitaan (Admin Login). Si loo adkeeyo amniga sare ee maamulaha, fadlan isticmaal koodhkan gaarka ah ee 8-da xaraf/lambar ah si aad u dhammaystirto gelitaankaaga."
+            : "An administrative sign-in attempt was detected on your SIMDA portal account. To protect administrative access, please verify your identity using the 8-character security code below.";
+        $expiryNote = ($locale === 'so')
+            ? "Koodhkani wuxuu dhacayaa 10 daqiiqo kadib. Ha la wadaagin cid kale. Haddiiba aadan adigu ahayn qofka isku dayay inuu galo akoonkaaga maamulka, fadlan si degdeg ah u beddel furahaaga sirta ah."
+            : "This verification code is valid for 10 minutes. Never share this code with anyone. If you did not attempt to sign in, someone may have your credentials — please change your password immediately.";
+
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="{$locale}">
+<head>
+    <meta charset="utf-8">
+    <title>{$subject}</title>
+</head>
+<body style="margin:0;padding:24px;background:#F4F6F4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1B2E28;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;margin:0 auto;background:#FFFFFF;border-radius:18px;overflow:hidden;box-shadow:0 12px 35px rgba(0,0,0,0.08);">
+        <tr>
+            <td style="background:#123B32;padding:34px 28px;text-align:center;">
+                <img src="{$logoSrc}" alt="SIMDA" width="190" style="width:190px;max-width:100%;height:auto;display:inline-block;border:0;outline:none;">
+                <div style="color:#D6B66C;font-size:11px;font-weight:700;letter-spacing:1.2px;margin-top:10px;text-transform:uppercase;">SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:36px 32px;text-align:center;">
+                <div style="display:inline-flex;align-items:center;background:rgba(214,182,108,0.18);border:1px solid #D6B66C;color:#856417;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:999px;margin-bottom:16px;">
+                    🛡️ ADMIN TWO-FACTOR VERIFICATION
+                </div>
+                <h2 style="color:#123B32;font-size:22px;font-weight:800;margin:0 0 10px;">{$greeting}</h2>
+                <p style="color:#52635B;font-size:14px;line-height:1.6;margin:0 0 24px;">{$subHeading}</p>
+                <div style="background:#F7FAF8;border:2px dashed #123B32;border-radius:14px;padding:22px;display:inline-block;margin:0 auto 24px;">
+                    <div style="font-size:11px;font-weight:700;color:#52635B;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">8-Character Admin Security Code</div>
+                    <span style="font-size:34px;font-weight:900;letter-spacing:8px;color:#123B32;font-family:monospace;">{$securityCode}</span>
+                </div>
+                <p style="color:#8A9891;font-size:12px;line-height:1.55;margin:0;max-width:440px;margin:0 auto;">{$expiryNote}</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background:#F2F4F2;padding:16px 24px;text-align:center;font-size:12px;color:#788780;">
+                © 2026 SIMDA — Somali Islamic Microfinance Development Association. All rights reserved.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+
+        $plain = "{$greeting}\n\n{$subHeading}\n\nKoodhkaaga Amniga Sare ee Maamulaha: {$securityCode}\n\n{$expiryNote}\n\nSIMDA Security Team";
+
+        return self::send($email, $subject, $html, $plain, $inlineAttachments);
+    }
 }
 
