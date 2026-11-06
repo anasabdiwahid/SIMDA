@@ -438,12 +438,20 @@ TEXT;
             ? "SIMDA: Koodhka Xaqiijinta ee Furaha Sirta ah (OTP: {$otpCode})"
             : "SIMDA: Password Reset Verification Code (OTP: {$otpCode})";
 
-        $logoPath = BASE_PATH . '/public/assets/images/simda-logo.png';
+        $whiteLogoPath = BASE_PATH . '/public/assets/images/simda-logo-white.png';
+        if (!file_exists($whiteLogoPath)) {
+            $whiteLogoPath = BASE_PATH . '/public/assets/images/simda-logo.png';
+        }
         $inlineAttachments = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
-        if (file_exists($logoPath)) {
-            $inlineAttachments['simda_logo_otp'] = $logoPath;
-            $logoSrc = 'cid:simda_logo_otp';
+        $logoSrc = 'https://simda.so/assets/images/simda-logo-white.png';
+        if (file_exists($whiteLogoPath)) {
+            $inlineAttachments[] = [
+                'cid' => 'simda_white_logo',
+                'path' => $whiteLogoPath,
+                'mime' => 'image/png',
+                'filename' => 'simda-logo-white.png',
+            ];
+            $logoSrc = 'cid:simda_white_logo';
         }
 
         $greeting = ($locale === 'so') ? "Salaamu Calaykum, {$fullName}!" : "Hello, {$fullName}!";
@@ -464,9 +472,9 @@ TEXT;
 <body style="margin:0;padding:24px;background:#F4F6F4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1B2E28;">
     <table width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;margin:0 auto;background:#FFFFFF;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.06);">
         <tr>
-            <td style="background:#123B32;padding:32px 30px;text-align:center;">
-                <img src="{$logoSrc}" alt="SIMDA" style="height:44px;width:auto;display:inline-block;filter:brightness(0) invert(1);">
-                <div style="color:#D6B66C;font-size:12px;font-weight:700;letter-spacing:1px;margin-top:8px;">SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</div>
+            <td style="background:#123B32;padding:34px 28px;text-align:center;">
+                <img src="{$logoSrc}" alt="SIMDA" width="190" style="width:190px;max-width:100%;height:auto;display:inline-block;border:0;outline:none;">
+                <div style="color:#D6B66C;font-size:11px;font-weight:700;letter-spacing:1.2px;margin-top:10px;text-transform:uppercase;">SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</div>
             </td>
         </tr>
         <tr>

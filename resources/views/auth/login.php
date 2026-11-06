@@ -568,10 +568,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         .simda-login-right {
             position: relative;
             z-index: 3;
-            padding: 48px 52px;
+            padding: 84px 52px 42px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             background: transparent;
         }
 
@@ -901,8 +901,12 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             .simda-login-welcome-content {
                 margin-bottom: 0;
             }
+            .simda-login-top-bar {
+                top: 16px;
+                right: 18px;
+            }
             .simda-login-right {
-                padding: 34px 30px 40px;
+                padding: 76px 28px 36px;
             }
         }
     </style>

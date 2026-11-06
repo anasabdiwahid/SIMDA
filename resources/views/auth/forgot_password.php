@@ -335,10 +335,10 @@ $t = $i18n[$locale] ?? $i18n['en'];
         .simda-fp-right {
             position: relative;
             z-index: 3;
-            padding: 44px 48px;
+            padding: 84px 48px 42px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             background: transparent;
         }
 
@@ -810,8 +810,12 @@ $t = $i18n[$locale] ?? $i18n['en'];
             .simda-fp-sphere-bl {
                 display: none;
             }
+            .simda-fp-top-bar {
+                top: 16px;
+                right: 18px;
+            }
             .simda-fp-right {
-                padding: 34px 28px 40px;
+                padding: 76px 26px 36px;
             }
         }
     </style>
