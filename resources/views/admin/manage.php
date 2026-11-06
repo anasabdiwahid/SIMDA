@@ -32,6 +32,11 @@ $curRole = $curUser['role_slug'] ?? 'admin';
             <a href="?route=users" class="btn btn-sm <?= ($mode ?? '') === 'users' ? 'btn-gold' : 'btn-outline' ?>" style="font-weight:700;">
                 <?= Icons::svg('users', 14) ?> <?= $isSo ? 'Shaqaalaha & Users' : 'Users & Staff' ?> (<?= count($users ?? []) ?>)
             </a>
+            <?php if ($curRole === 'admin'): ?>
+                <a href="?route=permissions" class="btn btn-sm <?= ($mode ?? '') === 'permissions' ? 'btn-gold' : 'btn-outline' ?>" style="font-weight:700;">
+                    <?= Icons::svg('shield', 14) ?> <?= $isSo ? 'Awoodaha & Ogolaanshaha' : 'Permissions & Access' ?>
+                </a>
+            <?php endif; ?>
             <?php if (in_array($curRole, ['admin', 'manager'], true)): ?>
                 <a href="?route=audit_logs" class="btn btn-sm <?= ($mode ?? '') === 'audit_logs' ? 'btn-gold' : 'btn-outline' ?>" style="font-weight:700;">
                     <?= Icons::svg('shield', 14) ?> <?= $isSo ? 'Diiwaanka Audit' : 'Audit Logs' ?>
@@ -48,16 +53,26 @@ $curRole = $curUser['role_slug'] ?? 'admin';
     <!-- ========================================================================= -->
     <?php if (($mode ?? '') === 'branches'): ?>
         <?php if (in_array($curRole, ['admin', 'manager'], true)): ?>
-            <form method="POST" action="?route=branch_create" style="background:var(--bg-elevated);padding:18px;border-radius:12px;margin:16px 0 22px;border:1px solid var(--border-color);">
+            <form method="POST" action="?route=branch_create" style="background:var(--bg-elevated);padding:18px;border-radius:12px;margin:16px 0 22px;border:1px solid var(--border-color);box-shadow:0 4px 14px rgba(0,0,0,0.03);">
                 <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                    <span class="fid-contact-dot" style="background:var(--simda-green);color:#FFFFFF;width:24px;height:24px;"><?= Icons::svg('plus', 14) ?></span>
-                    <h4 style="font-size:1rem;font-weight:800;margin:0;color:var(--text-main);"><?= $isSo ? 'Abuur Laan Cusub (Create New Branch)' : 'Create New Institution Branch' ?></h4>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="fid-contact-dot" style="background:var(--simda-green);color:#FFFFFF;width:26px;height:26px;"><?= Icons::svg('plus', 14) ?></span>
+                        <h4 style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);"><?= $isSo ? 'Abuur Laan Cusub (Create New Branch)' : 'Create New Institution Branch' ?></h4>
+                    </div>
+                    <span class="badge badge-gold" style="font-weight:700;">
+                        <?= $isSo ? 'Maamulaha Guud & Admin ayaa awood u leh' : 'Admin & GM Authorized' ?>
+                    </span>
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label><?= $isSo ? 'Koodhka Laanta *' : 'Branch Code *' ?></label>
-                        <input type="text" name="code" class="form-control" required placeholder="BR-HOD-02">
+                        <div style="display:flex;gap:6px;">
+                            <input type="text" name="code" id="branchCodeInput" class="form-control" required placeholder="BR-HOD-02" style="font-weight:700;text-transform:uppercase;">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="suggestBranchCode()" style="white-space:nowrap;font-weight:700;" title="Auto-suggest code">
+                                <?= Icons::svg('refresh-cw', 12) ?> Auto
+                            </button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Magaca Laanta *' : 'Branch Name *' ?></label>
@@ -73,7 +88,7 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Cinwaanka / Goobta *' : 'Physical Address *' ?></label>
-                        <input type="text" name="address" class="form-control" required placeholder="Taleex Boulevard">
+                        <input type="text" name="address" class="form-control" required placeholder="Taleex Boulevard, Wadada 21-ka">
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Telefoonka Laanta *' : 'Branch Phone *' ?></label>
@@ -84,10 +99,21 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                         <input type="text" name="manager_name" class="form-control" placeholder="Cabdiraxmaan Cali">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;margin-top:4px;">
+                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;margin-top:6px;padding:8px 22px;">
                     <?= Icons::svg('plus', 14) ?> <?= $isSo ? 'Keydi Laanta Cusub' : 'Save Branch' ?>
                 </button>
             </form>
+
+            <script>
+            function suggestBranchCode() {
+                var nextNum = <?= count($branches ?? []) + 1 ?>;
+                var pad = nextNum < 10 ? '0' + nextNum : nextNum;
+                var inp = document.getElementById('branchCodeInput');
+                if (inp) {
+                    inp.value = 'BR-' + pad;
+                }
+            }
+            </script>
         <?php else: ?>
             <div style="background:var(--bg-elevated);padding:12px 16px;border-radius:10px;margin:14px 0;font-size:0.82rem;color:var(--text-muted);">
                 <?= $isSo ? 'Adigu waxaad tahay Maamule Laan (Header Branch). Waxaad arkaysaa macluumaadka laamaha, laakiin abuurista laamaha cusub waxaa awood u leh Maamulaha Guud iyo Admin-ka.' : 'As a Branch Manager, you can view the branch directory. Creation of new branches is reserved for General Manager and Admin.' ?>
@@ -102,10 +128,13 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                         <th><?= $isSo ? 'Magaca Laanta' : 'Branch Name' ?></th>
                         <th><?= $isSo ? 'Magaalada / Degmada' : 'City / District' ?></th>
                         <th><?= $isSo ? 'Telefoonka' : 'Phone' ?></th>
-                        <th><?= $isSo ? 'Madaxa Laanta (Header Branch)' : 'Header Branch / Manager' ?></th>
+                        <th><?= $isSo ? 'Madaxa Laanta' : 'Header Branch' ?></th>
                         <th><?= $isSo ? 'Shaqaalaha' : 'Staff' ?></th>
                         <th><?= $isSo ? 'Macaamiisha' : 'Clients' ?></th>
                         <th><?= $isSo ? 'Xaaladda' : 'Status' ?></th>
+                        <?php if ($curRole === 'admin'): ?>
+                            <th><?= $isSo ? 'Hawlgalka' : 'Action' ?></th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -128,7 +157,26 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                             <td class="num-tabular">
                                 <span class="badge badge-success"><?= (int) ($b['clients_count'] ?? 0) ?> <?= $isSo ? 'macmiil' : 'clients' ?></span>
                             </td>
-                            <td><span class="badge badge-success"><?= $isSo ? 'Firfircoon' : 'Active' ?></span></td>
+                            <td>
+                                <span class="badge <?= $b['is_active'] ? 'badge-success' : 'badge-danger' ?>">
+                                    <?= $b['is_active'] ? ($isSo ? 'Firfircoon' : 'Active') : ($isSo ? 'Xiran' : 'Inactive') ?>
+                                </span>
+                            </td>
+                            <?php if ($curRole === 'admin'): ?>
+                                <td>
+                                    <?php if ((int)$b['id'] !== 1): ?>
+                                        <form method="POST" action="?route=branch_toggle" style="display:inline;" onsubmit="return confirm('<?= $isSo ? 'Ma hubtaa inaad beddesho xaaladda laanta ' . Security::e($b['name']) . '?' : 'Are you sure you want to toggle status for ' . Security::e($b['name']) . '?' ?>');">
+                                            <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                                            <input type="hidden" name="branch_id" value="<?= (int) $b['id'] ?>">
+                                            <button type="submit" class="btn btn-xs <?= $b['is_active'] ? 'btn-outline-danger' : 'btn-outline-success' ?>" style="padding:3px 8px;font-size:0.75rem;font-weight:700;">
+                                                <?= $b['is_active'] ? ($isSo ? 'Deactivate' : 'Deactivate') : ($isSo ? 'Activate' : 'Activate') ?>
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span class="badge badge-secondary" style="font-size:0.72rem;"><?= $isSo ? 'Xarun Joogto (HQ)' : 'Protected HQ' ?></span>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -339,6 +387,9 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                         <th><?= $isSo ? 'Laanta (Branch Assignment)' : 'Branch Assignment' ?></th>
                         <th><?= $isSo ? 'Email / Telefoon' : 'Contact' ?></th>
                         <th><?= $isSo ? 'Galitaankii Ugu Dambeeyay' : 'Last Login' ?></th>
+                        <?php if ($curRole === 'admin'): ?>
+                            <th><?= $isSo ? 'Awoodaha' : 'Permissions' ?></th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -364,11 +415,177 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                             </td>
                             <td><?= Security::e($u['email']) ?> • <span class="num-tabular"><?= Security::e($u['phone']) ?></span></td>
                             <td class="num-tabular" style="font-size:0.78rem;"><?= Security::e($u['last_login_at'] ?? ($isSo ? 'Weli ma gelin' : 'Never')) ?></td>
+                            <?php if ($curRole === 'admin'): ?>
+                                <td>
+                                    <?php if ($u['role_slug'] !== 'admin'): ?>
+                                        <a href="?route=permissions&user_id=<?= (int) $u['id'] ?>" class="btn btn-xs btn-outline-primary" style="padding:4px 10px;font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                                            <?= Icons::svg('shield', 12) ?> <?= $isSo ? 'Beddel Awoodaha' : 'Edit Access' ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge badge-gold" style="font-size:0.72rem;font-weight:700;">Full Master</span>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
+
+    <!-- ========================================================================= -->
+    <!-- 2.5 PERMISSIONS & ACCESS CONTROL MANAGEMENT VIEW                           -->
+    <!-- ========================================================================= -->
+    <?php elseif (($mode ?? '') === 'permissions'): ?>
+        <div style="background:rgba(214,182,108,0.1);border-left:4px solid var(--simda-gold);padding:14px 18px;border-radius:10px;margin:14px 0 20px;">
+            <div style="font-weight:800;font-size:0.94rem;color:var(--text-main);margin-bottom:4px;display:flex;align-items:center;gap:8px;">
+                <?= Icons::svg('shield', 16) ?>
+                <?= $isSo ? 'Maamulka Awoodaha & Ogolaanshaha Isticmaalayaasha' : 'Granular Permissions & Access Control' ?>
+            </div>
+            <div style="font-size:0.8rem;color:var(--text-main);line-height:1.55;">
+                <?= $isSo
+                    ? 'Adigoo ah <strong>Maamulaha Guud (Admin)</strong>, waxaad halkan ku xadidi kartaa ama ku ogolaan kartaa waxyaabaha gaarka ah ee uu <strong>Manager-ka</strong> ama <strong>Shaqaalaha kale</strong> ka qaban karaan nidaamka. Qaybaha aad ka saarto calaamadda (uncheck) lagama tusi doono Dashboard-kooda, waana laga horjoogsanayaa gelitaankooda.'
+                    : 'As the <strong>System Administrator</strong>, you can grant or restrict specific feature permissions for each Manager, Branch Manager, or Loan Officer. Unchecked permissions will be hidden from their sidebar and access will be blocked.' ?>
+            </div>
+        </div>
+
+        <!-- SELECT USER DROPDOWN / TABS -->
+        <div style="background:var(--bg-elevated);padding:16px 20px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <label style="font-weight:700;font-size:0.88rem;color:var(--text-main);margin:0;"><?= $isSo ? 'Dooro Qofka aad rabto inaad awoodaha u habayso:' : 'Select Staff Member to Configure:' ?></label>
+                    <select class="form-control" style="font-weight:700;min-width:300px;" onchange="window.location.href='?route=permissions&user_id=' + this.value;">
+                        <?php foreach ($users as $u): ?>
+                            <?php if ($u['role_slug'] === 'admin') continue; ?>
+                            <option value="<?= (int) $u['id'] ?>" <?= ((int) ($selectedUser['id'] ?? 0) === (int) $u['id']) ? 'selected' : '' ?>>
+                                <?= Security::e($u['full_name']) ?> — <?= Security::e($u['role_name_so'] ?? $u['role_slug']) ?> (<?= Security::e($u['username']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <?php if ($selectedUser): ?>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <span class="badge <?= $selectedUser['role_slug'] === 'manager' ? 'badge-gold' : 'badge-info' ?>" style="font-weight:700;padding:6px 12px;">
+                            <?= Security::e($selectedUser['role_name_so'] ?? $selectedUser['role_slug']) ?>
+                        </span>
+                        <span style="font-size:0.82rem;color:var(--text-muted);">
+                            Laanta: <strong><?= Security::e($selectedUser['branch_name'] ?? ($selectedUser['role_slug'] === 'manager' ? ($isSo ? 'Dhammaan Shirkadda' : 'Company-Wide') : 'HQ')) ?></strong>
+                        </span>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if ($selectedUser): ?>
+            <form method="POST" action="?route=user_permissions_save" id="permissionsForm">
+                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                <input type="hidden" name="user_id" value="<?= (int) $selectedUser['id'] ?>">
+
+                <!-- QUICK ACTIONS BAR -->
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;background:var(--bg-elevated);padding:12px 18px;border-radius:10px;border:1px solid var(--border-color);">
+                    <div style="font-size:0.86rem;font-weight:800;color:var(--text-main);">
+                        <?= $isSo ? 'Liiska Awoodaha loo ogol yahay:' : 'Permissions Configuration for:' ?> <u><?= Security::e($selectedUser['full_name']) ?></u>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" class="btn btn-xs btn-outline" onclick="toggleAllPerms(true)" style="font-weight:700;">
+                            <?= Icons::svg('check-square', 12) ?> <?= $isSo ? 'Dooro Dhammaan (Grant All)' : 'Grant All' ?>
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline" onclick="toggleAllPerms(false)" style="font-weight:700;">
+                            <?= Icons::svg('square', 12) ?> <?= $isSo ? 'Ka saar Dhammaan (Revoke All)' : 'Revoke All' ?>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PERMISSION MODULES GRID -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;">
+                    <?php
+                    $modules = [
+                        'administration' => ['title_so' => 'Maamulka & Nidaamka', 'title_en' => 'Administration & Governance', 'icon' => 'settings'],
+                        'clients' => ['title_so' => 'Macaamiisha (Clients)', 'title_en' => 'Clients & Guarantors', 'icon' => 'users'],
+                        'financing' => ['title_so' => 'Maalgelinta & Daymaha (Financing)', 'title_en' => 'Financing, Loans & Murabaha', 'icon' => 'layers'],
+                        'payments' => ['title_so' => 'Lacag-Qabashada & Deeqaha', 'title_en' => 'Repayments & Charity', 'icon' => 'activity'],
+                        'risk' => ['title_so' => 'Khatarta & Dhibcaha (Risk)', 'title_en' => 'Risk & Credit Scores', 'icon' => 'alert-triangle'],
+                        'reports' => ['title_so' => 'Warbixinnada & Statements', 'title_en' => 'Reports & Statements', 'icon' => 'file-text'],
+                        'communication' => ['title_so' => 'Isgaarsiinta (SMS)', 'title_en' => 'Communication & SMS', 'icon' => 'message-square'],
+                    ];
+                    $groupedPerms = [];
+                    foreach ($permissionsList as $p) {
+                        $groupedPerms[$p['module']][] = $p;
+                    }
+                    ?>
+
+                    <?php foreach ($modules as $modKey => $modMeta): ?>
+                        <?php if (empty($groupedPerms[$modKey])) continue; ?>
+                        <div style="background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-color);">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span class="fid-contact-dot" style="background:rgba(35,132,91,0.12);color:var(--simda-green);width:26px;height:26px;">
+                                        <?= Icons::svg($modMeta['icon'], 14) ?>
+                                    </span>
+                                    <strong style="font-size:0.92rem;color:var(--text-main);">
+                                        <?= Security::e($isSo ? $modMeta['title_so'] : $modMeta['title_en']) ?>
+                                    </strong>
+                                </div>
+                                <span class="badge badge-secondary" style="font-size:0.7rem;font-weight:700;">
+                                    <?= count($groupedPerms[$modKey]) ?> <?= $isSo ? 'qodob' : 'perms' ?>
+                                </span>
+                            </div>
+
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                <?php foreach ($groupedPerms[$modKey] as $perm): ?>
+                                    <?php $isGranted = !empty($userPermMap[$perm['slug']]); ?>
+                                    <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg-surface);cursor:pointer;border:1px solid <?= $isGranted ? 'rgba(35,132,91,0.35)' : 'var(--border-color)' ?>;transition:all 0.15s ease;">
+                                        <input type="checkbox" name="perms[]" value="<?= Security::e($perm['slug']) ?>" class="perm-checkbox" <?= $isGranted ? 'checked' : '' ?> style="margin-top:3px;accent-color:var(--simda-green);width:16px;height:16px;">
+                                        <div style="flex:1;">
+                                            <div style="font-weight:700;font-size:0.83rem;color:var(--text-main);">
+                                                <?= Security::e($perm['description']) ?>
+                                            </div>
+                                            <code style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:2px;">
+                                                <?= Security::e($perm['slug']) ?>
+                                            </code>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div style="margin-top:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg-elevated);padding:16px 20px;border-radius:12px;border:1px solid var(--border-color);">
+                    <button type="submit" class="btn btn-primary" style="font-weight:800;padding:10px 24px;display:inline-flex;align-items:center;gap:8px;">
+                        <?= Icons::svg('check-circle', 16) ?>
+                        <?= $isSo ? 'Keydi Awoodaha Isticmaalaha' : 'Save User Permissions' ?>
+                    </button>
+                    <a href="?route=users" class="btn btn-outline" style="font-weight:700;">
+                        <?= $isSo ? 'Ku noqo Liiska Shaqaalaha' : 'Back to Users List' ?>
+                    </a>
+                </div>
+            </form>
+
+            <script>
+            function toggleAllPerms(check) {
+                document.querySelectorAll('.perm-checkbox').forEach(function (cb) {
+                    cb.checked = check;
+                    var label = cb.closest('label');
+                    if (label) {
+                        label.style.borderColor = check ? 'rgba(35,132,91,0.35)' : 'var(--border-color)';
+                    }
+                });
+            }
+            document.querySelectorAll('.perm-checkbox').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    var label = cb.closest('label');
+                    if (label) {
+                        label.style.borderColor = cb.checked ? 'rgba(35,132,91,0.35)' : 'var(--border-color)';
+                    }
+                });
+            });
+            </script>
+        <?php else: ?>
+            <div style="background:var(--bg-elevated);padding:20px;border-radius:12px;border:1px solid var(--border-color);text-align:center;color:var(--text-muted);">
+                <?= $isSo ? 'Weli ma jiraan shaqaale la diiwaangeliyay oo aan Admin ahayn.' : 'No non-admin staff users found to configure.' ?>
+            </div>
+        <?php endif; ?>
 
     <!-- ========================================================================= -->
     <!-- 3. SYSTEM SETTINGS VIEW                                                   -->

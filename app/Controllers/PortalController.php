@@ -83,9 +83,11 @@ final class PortalController
                 'sms_outbox' => self::smsOutboxList($pdo),
                 'sms_run_dispatcher' => self::smsRunDispatcher($pdo),
 
-                'branches', 'users', 'audit_logs', 'settings' => self::adminSection($pdo, $route),
+                'branches', 'users', 'permissions', 'audit_logs', 'settings' => self::adminSection($pdo, $route),
                 'branch_create' => self::branchCreate($pdo),
+                'branch_toggle' => self::branchToggle($pdo),
                 'user_create' => self::userCreate($pdo),
+                'user_permissions_save' => self::userPermissionsSave($pdo),
                 'settings_save' => self::settingsSave($pdo),
 
                 default => self::publicHome($pdo),
@@ -1589,8 +1591,8 @@ final class PortalController
             throw new \RuntimeException(Lang::get('unauthorized_access'));
         }
 
-        // Branch managers cannot access settings or audit_logs
-        if (in_array($mode, ['settings', 'audit_logs'], true) && !in_array($role, ['admin', 'manager'], true)) {
+        // Branch managers cannot access settings, audit_logs, or permissions
+        if (in_array($mode, ['settings', 'audit_logs', 'permissions'], true) && $role !== 'admin') {
             throw new \RuntimeException(Lang::get('unauthorized_access'));
         }
 
@@ -1638,6 +1640,33 @@ final class PortalController
             ')->fetchAll();
         }
 
+        $permissionsList = [];
+        $selectedUser = null;
+        $userPermMap = [];
+
+        if ($mode === 'permissions') {
+            $permissionsList = $pdo->query('SELECT * FROM permissions ORDER BY module ASC, id ASC')->fetchAll();
+
+            $nonAdminUsers = array_values(array_filter($users, fn($u) => $u['role_slug'] !== 'admin'));
+            $targetUid = (int) ($_GET['user_id'] ?? ($nonAdminUsers[0]['id'] ?? 0));
+
+            foreach ($nonAdminUsers as $nu) {
+                if ((int) $nu['id'] === $targetUid) {
+                    $selectedUser = $nu;
+                    break;
+                }
+            }
+            if (!$selectedUser && !empty($nonAdminUsers)) {
+                $selectedUser = $nonAdminUsers[0];
+            }
+
+            if ($selectedUser) {
+                foreach ($permissionsList as $p) {
+                    $userPermMap[$p['slug']] = AuthMiddleware::hasPermission($p['slug'], $selectedUser);
+                }
+            }
+        }
+
         $settingsList = in_array($role, ['admin', 'manager'], true)
             ? $pdo->query('SELECT * FROM system_settings ORDER BY setting_key ASC')->fetchAll()
             : [];
@@ -1655,6 +1684,7 @@ final class PortalController
         $titleMap = [
             'branches' => Lang::get('menu_branches'),
             'users' => Lang::get('menu_users'),
+            'permissions' => Lang::locale() === 'so' ? 'Awoodaha & Ogolaanshaha' : 'Permissions & Access',
             'settings' => Lang::get('menu_settings'),
             'audit_logs' => Lang::get('menu_audit_logs'),
         ];
@@ -1667,6 +1697,9 @@ final class PortalController
             'roles' => $assignableRoles,
             'allRoles' => $allRoles,
             'users' => $users,
+            'permissionsList' => $permissionsList,
+            'selectedUser' => $selectedUser,
+            'userPermMap' => $userPermMap,
             'settingsList' => $settingsList,
             'auditLogs' => $auditLogs,
             'currentUser' => $user,
@@ -1679,7 +1712,7 @@ final class PortalController
         AuthMiddleware::verifyCsrfOrAbort();
         $locale = Lang::locale();
 
-        $code = trim((string) ($_POST['code'] ?? ''));
+        $code = strtoupper(trim((string) ($_POST['code'] ?? '')));
         $name = trim((string) ($_POST['name'] ?? ''));
         $city = trim((string) ($_POST['city'] ?? ''));
         $dist = trim((string) ($_POST['district'] ?? ''));
@@ -1689,6 +1722,13 @@ final class PortalController
 
         if ($code === '' || $name === '' || $city === '') {
             throw new \RuntimeException($locale === 'so' ? 'Fadlan geli koodhka, magaca, iyo magaalada laanta.' : 'Please provide branch code, name, and city.');
+        }
+
+        // Check if code exists
+        $chk = $pdo->prepare('SELECT id FROM branches WHERE code = :code LIMIT 1');
+        $chk->execute([':code' => $code]);
+        if ($chk->fetch()) {
+            throw new \RuntimeException($locale === 'so' ? "Koodhka laanta ({$code}) horay ayuu u jiray. Fadlan koodh kale geli." : "Branch code {$code} already exists.");
         }
 
         $stmt = $pdo->prepare('
@@ -1704,9 +1744,84 @@ final class PortalController
             ':phone' => $phone,
             ':mgr' => $mgr !== '' ? $mgr : null,
         ]);
-        AuditLogger::log('branch.created', 'branches', (int) $pdo->lastInsertId(), 'Created branch ' . $code, [], (int) $user['id']);
-        $_SESSION['flash_success'] = $locale === 'so' ? 'Laanta cusub si guul leh ayaa loo abuuray.' : 'New branch created successfully.';
+        $newBranchId = (int) $pdo->lastInsertId();
+
+        AuditLogger::log('branch.created', 'branches', $newBranchId, 'Created branch ' . $code . ' (' . $name . ')', [], (int) $user['id']);
+        $_SESSION['flash_success'] = $locale === 'so' ? "Laanta cusub ({$name} - {$code}) si guul leh ayaa loo abuuray." : "New branch {$name} ({$code}) created successfully.";
         header('Location: ?route=branches');
+        exit;
+    }
+
+    private static function branchToggle(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $branchId = (int) ($_POST['branch_id'] ?? 0);
+        $st = $pdo->prepare('SELECT id, name, is_active FROM branches WHERE id = :id');
+        $st->execute([':id' => $branchId]);
+        $b = $st->fetch();
+        if ($b) {
+            $newStatus = $b['is_active'] ? 0 : 1;
+            $pdo->prepare('UPDATE branches SET is_active = :act WHERE id = :id')->execute([':act' => $newStatus, ':id' => $branchId]);
+            AuditLogger::log('branch.toggle', 'branches', $branchId, 'Toggled branch status to ' . ($newStatus ? 'Active' : 'Inactive'), [], (int) $user['id']);
+            $_SESSION['flash_success'] = Lang::locale() === 'so'
+                ? 'Xaaladda laanta (' . $b['name'] . ') waa la beddelay.'
+                : 'Branch (' . $b['name'] . ') status updated.';
+        }
+        header('Location: ?route=branches');
+        exit;
+    }
+
+    private static function userPermissionsSave(PDO $pdo): void
+    {
+        $admin = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+
+        $targetUserId = (int) ($_POST['user_id'] ?? 0);
+        $st = $pdo->prepare('SELECT u.*, r.slug AS role_slug FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = :id');
+        $st->execute([':id' => $targetUserId]);
+        $targetUser = $st->fetch();
+
+        if (!$targetUser) {
+            throw new \RuntimeException($locale === 'so' ? 'Isticmaalaha lama helin.' : 'User not found.');
+        }
+
+        if ($targetUser['role_slug'] === 'admin') {
+            throw new \RuntimeException($locale === 'so' ? 'Awoodaha Admin-ka lama xaddidi karo.' : 'Admin permissions cannot be restricted.');
+        }
+
+        $allPerms = $pdo->query('SELECT slug FROM permissions')->fetchAll(PDO::FETCH_COLUMN);
+        $selectedPerms = (array) ($_POST['perms'] ?? []);
+
+        // Delete existing user overrides
+        $pdo->prepare('DELETE FROM user_permissions WHERE user_id = :uid')->execute([':uid' => $targetUserId]);
+
+        // Insert new overrides
+        $ins = $pdo->prepare('INSERT INTO user_permissions (user_id, permission_slug, is_granted) VALUES (:uid, :slug, :granted)');
+        foreach ($allPerms as $slug) {
+            $isGranted = in_array($slug, $selectedPerms, true) ? 1 : 0;
+            $ins->execute([
+                ':uid' => $targetUserId,
+                ':slug' => $slug,
+                ':granted' => $isGranted,
+            ]);
+        }
+
+        AuditLogger::log(
+            'permissions.updated',
+            'users',
+            $targetUserId,
+            "Admin updated custom permissions for {$targetUser['full_name']} ({$targetUser['username']})",
+            ['granted_count' => count($selectedPerms)],
+            (int) $admin['id']
+        );
+
+        $_SESSION['flash_success'] = $locale === 'so'
+            ? "Awoodaha isticmaalaha ({$targetUser['full_name']}) si guul leh ayaa loo xaddiday oo loo keydiyay!"
+            : "Permissions for {$targetUser['full_name']} updated successfully!";
+
+        header('Location: ?route=permissions&user_id=' . $targetUserId);
         exit;
     }
 

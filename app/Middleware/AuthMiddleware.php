@@ -57,6 +57,129 @@ final class AuthMiddleware
         return $user;
     }
 
+    /**
+     * Check if user has specific granular permission
+     * Admin always has full access (returns true)
+     */
+    public static function hasPermission(string $permissionSlug, ?array $user = null): bool
+    {
+        $u = $user ?? self::user();
+        if (!$u) {
+            return false;
+        }
+        $role = (string) ($u['role_slug'] ?? '');
+        if ($role === 'admin') {
+            return true;
+        }
+
+        $userId = (int) ($u['id'] ?? 0);
+        if ($userId <= 0) {
+            return false;
+        }
+
+        static $cache = [];
+        $cacheKey = $userId . ':' . $permissionSlug;
+        if (isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+
+        try {
+            $pdo = \App\Helpers\Database::connection();
+
+            // 1. User-specific custom override
+            $st = $pdo->prepare('SELECT is_granted FROM user_permissions WHERE user_id = :uid AND permission_slug = :slug LIMIT 1');
+            $st->execute([':uid' => $userId, ':slug' => $permissionSlug]);
+            $row = $st->fetch(\PDO::FETCH_ASSOC);
+            if ($row !== false) {
+                $allowed = (bool) $row['is_granted'];
+                $cache[$cacheKey] = $allowed;
+                return $allowed;
+            }
+
+            // 2. Role-level permissions table
+            $roleId = (int) ($u['role_id'] ?? 0);
+            $rst = $pdo->prepare('
+                SELECT 1 FROM role_permissions rp
+                JOIN permissions p ON p.id = rp.permission_id
+                WHERE rp.role_id = :rid AND p.slug = :slug
+                LIMIT 1
+            ');
+            $rst->execute([':rid' => $roleId, ':slug' => $permissionSlug]);
+            if ($rst->fetchColumn()) {
+                $cache[$cacheKey] = true;
+                return true;
+            }
+        } catch (\Throwable $e) {
+            // fallback gracefully if table query fails
+        }
+
+        // 3. Fallback to default role matrix
+        $allowed = self::defaultRolePermission($role, $permissionSlug);
+        $cache[$cacheKey] = $allowed;
+        return $allowed;
+    }
+
+    /**
+     * Enforce granular permission or abort with redirect
+     */
+    public static function requirePermission(string $permissionSlug): array
+    {
+        $user = self::requireAuth();
+        if (!self::hasPermission($permissionSlug, $user)) {
+            http_response_code(403);
+            $locale = Lang::locale();
+            $_SESSION['flash_error'] = $locale === 'so'
+                ? "Ma laguu ogola awooddan ({$permissionSlug}). Maamulaha Guud (Admin) ayaa go'aamiya waxyaabaha aad geli karto."
+                : "You are not granted permission for ({$permissionSlug}). Contact the System Administrator for access.";
+            $referer = $_SERVER['HTTP_REFERER'] ?? '?route=dashboard';
+            header('Location: ' . $referer);
+            exit;
+        }
+        return $user;
+    }
+
+    /**
+     * Default role baseline permissions when not explicitly overridden
+     */
+    public static function defaultRolePermission(string $role, string $slug): bool
+    {
+        if ($role === 'admin') {
+            return true;
+        }
+
+        $managerPerms = [
+            'branches.manage', 'users.manage', 'clients.view', 'clients.register',
+            'clients.transfer', 'guarantors.manage', 'loans.view', 'murabaha.view',
+            'murabaha.create', 'products.manage', 'applications.view', 'applications.create',
+            'applications.approve_small', 'applications.approve_large', 'financings.disburse',
+            'repayments.view', 'repayments.record', 'charity.view', 'charity.waive',
+            'risk.view', 'reports.view', 'statements.generate', 'communication.sms', 'audit.view'
+        ];
+
+        $branchManagerPerms = [
+            'branches.manage', 'users.manage', 'clients.view', 'clients.register',
+            'guarantors.manage', 'loans.view', 'murabaha.view', 'murabaha.create',
+            'products.manage', 'applications.view', 'applications.create',
+            'applications.approve_small', 'applications.approve_large', 'financings.disburse',
+            'repayments.view', 'repayments.record', 'charity.view', 'charity.waive',
+            'risk.view', 'reports.view', 'statements.generate', 'communication.sms'
+        ];
+
+        $loanOfficerPerms = [
+            'clients.view', 'clients.register', 'guarantors.manage', 'loans.view',
+            'murabaha.view', 'murabaha.create', 'applications.view', 'applications.create',
+            'applications.approve_small', 'financings.disburse', 'repayments.view',
+            'repayments.record', 'statements.generate'
+        ];
+
+        return match ($role) {
+            'manager' => in_array($slug, $managerPerms, true),
+            'branch_manager' => in_array($slug, $branchManagerPerms, true),
+            'loan_officer' => in_array($slug, $loanOfficerPerms, true),
+            default => false,
+        };
+    }
+
     public static function canAccessBranch(?int $recordBranchId, ?array $user = null): bool
     {
         $u = $user ?? self::user();
