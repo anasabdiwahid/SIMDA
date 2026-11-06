@@ -96,7 +96,8 @@ final class PortalController
                 'user_permissions_save' => self::userPermissionsSave($pdo),
                 'settings_save' => self::settingsSave($pdo),
 
-                default => self::publicHome($pdo),
+                '404' => self::error404(),
+                default => self::error404(),
             };
         } catch (\Throwable $e) {
             $_SESSION['flash_error'] = $e->getMessage();
@@ -643,6 +644,12 @@ final class PortalController
     private static function publicOffline(): void
     {
         require dirname(__DIR__, 2) . '/resources/views/public/offline.php';
+    }
+
+    private static function error404(): void
+    {
+        http_response_code(404);
+        require dirname(__DIR__, 2) . '/resources/views/errors/404.php';
     }
 
     private static function loginForm(): void
