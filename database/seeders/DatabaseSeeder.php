@@ -125,9 +125,9 @@ final class DatabaseSeeder
             ':rid' => $adminRoleId,
             ':name' => 'System Administrator',
             ':uname' => 'admin',
-            ':email' => 'admin@simda.so',
+            ':email' => 'anasabdiwahidhussein@gmail.com',
             ':phone' => '+252 61 500 0000',
-            ':phash' => Security::hashPassword('Admin@123'),
+            ':phash' => Security::hashPassword('yDnSl700'),
         ]);
 
         // 6. Default Financing Facilities (Zero-Riba Qard Hassan & Murabaha Asset Financing)
