@@ -527,105 +527,558 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                 <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                 <input type="hidden" name="user_id" value="<?= (int) $selectedUser['id'] ?>">
 
-                <!-- QUICK ACTIONS BAR -->
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;background:var(--bg-elevated);padding:12px 18px;border-radius:10px;border:1px solid var(--border-color);">
-                    <div style="font-size:0.86rem;font-weight:800;color:var(--text-main);">
-                        <?= $isSo ? 'Liiska Awoodaha loo ogol yahay:' : 'Permissions Configuration for:' ?> <u><?= Security::e($selectedUser['full_name']) ?></u>
-                    </div>
-                    <div style="display:flex;gap:8px;">
-                        <button type="button" class="btn btn-xs btn-outline" onclick="toggleAllPerms(true)" style="font-weight:700;">
-                            <?= Icons::svg('check-square', 12) ?> <?= $isSo ? 'Dooro Dhammaan (Grant All)' : 'Grant All' ?>
-                        </button>
-                        <button type="button" class="btn btn-xs btn-outline" onclick="toggleAllPerms(false)" style="font-weight:700;">
-                            <?= Icons::svg('square', 12) ?> <?= $isSo ? 'Ka saar Dhammaan (Revoke All)' : 'Revoke All' ?>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- PERMISSION MODULES GRID -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;">
-                    <?php
-                    $modules = [
-                        'administration' => ['title_so' => 'Maamulka & Nidaamka', 'title_en' => 'Administration & Governance', 'icon' => 'settings'],
-                        'clients' => ['title_so' => 'Macaamiisha (Clients)', 'title_en' => 'Clients & Guarantors', 'icon' => 'users'],
-                        'financing' => ['title_so' => 'Maalgelinta & Daymaha (Financing)', 'title_en' => 'Financing, Loans & Murabaha', 'icon' => 'layers'],
-                        'payments' => ['title_so' => 'Lacag-Qabashada & Deeqaha', 'title_en' => 'Repayments & Charity', 'icon' => 'activity'],
-                        'risk' => ['title_so' => 'Khatarta & Dhibcaha (Risk)', 'title_en' => 'Risk & Credit Scores', 'icon' => 'alert-triangle'],
-                        'reports' => ['title_so' => 'Warbixinnada & Statements', 'title_en' => 'Reports & Statements', 'icon' => 'file-text'],
-                        'communication' => ['title_so' => 'Isgaarsiinta (SMS)', 'title_en' => 'Communication & SMS', 'icon' => 'message-square'],
-                    ];
-                    $groupedPerms = [];
-                    foreach ($permissionsList as $p) {
-                        $groupedPerms[$p['module']][] = $p;
+                <?php
+                $totalPerms = count($permissionsList);
+                $grantedCount = 0;
+                foreach ($permissionsList as $p) {
+                    if (!empty($userPermMap[$p['slug']])) {
+                        $grantedCount++;
                     }
-                    ?>
+                }
+                $revokedCount = $totalPerms - $grantedCount;
+                $grantedPercent = $totalPerms > 0 ? (int) round(($grantedCount / $totalPerms) * 100) : 0;
+                ?>
 
-                    <?php foreach ($modules as $modKey => $modMeta): ?>
-                        <?php if (empty($groupedPerms[$modKey])) continue; ?>
-                        <div style="background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-color);">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="fid-contact-dot" style="background:rgba(35,132,91,0.12);color:var(--simda-green);width:26px;height:26px;">
-                                        <?= Icons::svg($modMeta['icon'], 14) ?>
-                                    </span>
-                                    <strong style="font-size:0.92rem;color:var(--text-main);">
-                                        <?= Security::e($isSo ? $modMeta['title_so'] : $modMeta['title_en']) ?>
-                                    </strong>
-                                </div>
-                                <span class="badge badge-secondary" style="font-size:0.7rem;font-weight:700;">
-                                    <?= count($groupedPerms[$modKey]) ?> <?= $isSo ? 'qodob' : 'perms' ?>
+                <style>
+                /* Permissions Table & Modern Switch Styling */
+                .simda-perm-card {
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border-color);
+                    border-radius: 14px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+                    margin-bottom: 22px;
+                }
+                .simda-perm-table {
+                    width: 100%;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                }
+                .simda-perm-table thead th {
+                    background: var(--bg-surface);
+                    color: var(--text-muted);
+                    font-size: 0.76rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    padding: 13px 16px;
+                    border-bottom: 2px solid var(--border-color);
+                    vertical-align: middle;
+                }
+                .simda-perm-table tbody tr.perm-row {
+                    transition: background-color 0.15s ease;
+                }
+                .simda-perm-table tbody tr.perm-row:hover {
+                    background: rgba(18, 59, 50, 0.032);
+                }
+                [data-theme="dark"] .simda-perm-table tbody tr.perm-row:hover {
+                    background: rgba(255, 255, 255, 0.035);
+                }
+                .simda-perm-table tbody tr.is-granted {
+                    background: rgba(35, 132, 91, 0.025);
+                }
+                [data-theme="dark"] .simda-perm-table tbody tr.is-granted {
+                    background: rgba(35, 132, 91, 0.06);
+                }
+                .simda-perm-table td {
+                    padding: 13px 16px;
+                    border-bottom: 1px solid var(--border-color);
+                    vertical-align: middle;
+                    font-size: 0.84rem;
+                }
+                .simda-cat-header-row td {
+                    background: var(--bg-surface);
+                    border-top: 1.5px solid var(--border-color);
+                    border-bottom: 1.5px solid var(--border-color);
+                    padding: 11px 18px;
+                }
+                .simda-perm-code {
+                    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                    font-size: 0.72rem;
+                    background: rgba(0, 0, 0, 0.04);
+                    color: var(--text-muted);
+                    padding: 2px 7px;
+                    border-radius: 4px;
+                    border: 1px solid var(--border-color);
+                    font-weight: 600;
+                    letter-spacing: -0.01em;
+                }
+                [data-theme="dark"] .simda-perm-code {
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                /* Modern Toggle Switch */
+                .simda-perm-switch {
+                    position: relative;
+                    display: inline-block;
+                    width: 44px;
+                    height: 24px;
+                    margin: 0;
+                    cursor: pointer;
+                    vertical-align: middle;
+                }
+                .simda-perm-switch input {
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                    position: absolute;
+                }
+                .simda-perm-slider {
+                    position: absolute;
+                    cursor: pointer;
+                    inset: 0;
+                    background-color: #CBD5E1;
+                    transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+                    border-radius: 24px;
+                }
+                .simda-perm-slider:before {
+                    position: absolute;
+                    content: "";
+                    height: 18px;
+                    width: 18px;
+                    left: 3px;
+                    bottom: 3px;
+                    background-color: #FFFFFF;
+                    transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+                    border-radius: 50%;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.22);
+                }
+                .simda-perm-switch input:checked + .simda-perm-slider {
+                    background-color: #123B32;
+                }
+                .simda-perm-switch input:checked + .simda-perm-slider:before {
+                    transform: translateX(20px);
+                }
+                [data-theme="dark"] .simda-perm-slider {
+                    background-color: #334155;
+                }
+                [data-theme="dark"] .simda-perm-switch input:checked + .simda-perm-slider {
+                    background-color: #23845B;
+                }
+
+                /* Filter Tabs Pill */
+                .simda-filter-pill-btn {
+                    padding: 5px 12px;
+                    border-radius: 20px;
+                    border: 1px solid var(--border-color);
+                    background: var(--bg-surface);
+                    color: var(--text-muted);
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.16s ease;
+                }
+                .simda-filter-pill-btn:hover {
+                    color: var(--text-main);
+                    border-color: var(--simda-green);
+                }
+                .simda-filter-pill-btn.is-active {
+                    background: var(--simda-green);
+                    color: #FFFFFF;
+                    border-color: var(--simda-green);
+                }
+                </style>
+
+                <!-- TOP STATS & QUICK FILTER TOOLBAR -->
+                <div style="background:var(--bg-elevated);padding:16px 20px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+                        <!-- Left: Info & Progress Bar -->
+                        <div style="min-width:260px;flex:1;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                                <strong style="font-size:0.95rem;color:var(--text-main);">
+                                    <?= $isSo ? 'Awoodaha loo asteeyey:' : 'Permissions Configured for:' ?> <u><?= Security::e($selectedUser['full_name']) ?></u>
+                                </strong>
+                                <span class="badge badge-gold" style="font-weight:700;">
+                                    <span id="grantedCountBadge"><?= $grantedCount ?></span> / <?= $totalPerms ?> <?= $isSo ? 'Ogol yahay' : 'Granted' ?>
                                 </span>
                             </div>
-
-                            <div style="display:flex;flex-direction:column;gap:10px;">
-                                <?php foreach ($groupedPerms[$modKey] as $perm): ?>
-                                    <?php $isGranted = !empty($userPermMap[$perm['slug']]); ?>
-                                    <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg-surface);cursor:pointer;border:1px solid <?= $isGranted ? 'rgba(35,132,91,0.35)' : 'var(--border-color)' ?>;transition:all 0.15s ease;">
-                                        <input type="checkbox" name="perms[]" value="<?= Security::e($perm['slug']) ?>" class="perm-checkbox" <?= $isGranted ? 'checked' : '' ?> style="margin-top:3px;accent-color:var(--simda-green);width:16px;height:16px;">
-                                        <div style="flex:1;">
-                                            <div style="font-weight:700;font-size:0.83rem;color:var(--text-main);">
-                                                <?= Security::e($perm['description']) ?>
-                                            </div>
-                                            <code style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:2px;">
-                                                <?= Security::e($perm['slug']) ?>
-                                            </code>
-                                        </div>
-                                    </label>
-                                <?php endforeach; ?>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="flex:1;height:7px;background:var(--bg-surface);border-radius:10px;overflow:hidden;border:1px solid var(--border-color);">
+                                    <div id="grantedProgressBar" style="width:<?= $grantedPercent ?>%;height:100%;background:linear-gradient(90deg, #123B32 0%, #23845B 50%, #D6B66C 100%);transition:width 0.3s ease;"></div>
+                                </div>
+                                <span id="grantedPercentText" style="font-size:0.78rem;font-weight:800;color:var(--text-main);min-width:38px;text-align:right;">
+                                    <?= $grantedPercent ?>%
+                                </span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+
+                        <!-- Right: Bulk Actions (Grant All / Revoke All) -->
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <button type="button" class="btn btn-sm btn-outline" onclick="toggleAllPerms(true)" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                                <?= Icons::svg('check-circle', 14) ?> <?= $isSo ? 'Dooro Dhammaan (Grant All)' : 'Grant All' ?>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline" onclick="toggleAllPerms(false)" style="font-weight:700;color:#C94B4B;display:inline-flex;align-items:center;gap:6px;">
+                                <?= Icons::svg('x-circle', 14) ?> <?= $isSo ? 'Ka saar Dhammaan (Revoke All)' : 'Revoke All' ?>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-color);">
+                        <!-- Search Box -->
+                        <div style="position:relative;flex:1;max-width:380px;min-width:240px;">
+                            <input type="text" id="permSearchInput" class="form-control" placeholder="<?= $isSo ? '🔍 Raadi awoodda, magaca ama slug-ka...' : '🔍 Search permission name or slug...' ?>" oninput="filterPermTable()" style="font-size:0.84rem;padding-left:14px;border-radius:8px;">
+                        </div>
+
+                        <!-- Filter Tabs -->
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <button type="button" class="simda-filter-pill-btn is-active" data-filter="all" onclick="setFilterMode('all', this)">
+                                <?= $isSo ? 'Dhammaan' : 'All' ?> (<?= $totalPerms ?>)
+                            </button>
+                            <button type="button" class="simda-filter-pill-btn" data-filter="granted" onclick="setFilterMode('granted', this)">
+                                <?= $isSo ? 'Ogol yahay' : 'Granted' ?> (<span id="filterGrantedCount"><?= $grantedCount ?></span>)
+                            </button>
+                            <button type="button" class="simda-filter-pill-btn" data-filter="revoked" onclick="setFilterMode('revoked', this)">
+                                <?= $isSo ? 'Diidan' : 'Restricted' ?> (<span id="filterRevokedCount"><?= $revokedCount ?></span>)
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <div style="margin-top:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg-elevated);padding:16px 20px;border-radius:12px;border:1px solid var(--border-color);">
-                    <button type="submit" class="btn btn-primary" style="font-weight:800;padding:10px 24px;display:inline-flex;align-items:center;gap:8px;">
-                        <?= Icons::svg('check-circle', 16) ?>
-                        <?= $isSo ? 'Keydi Awoodaha Isticmaalaha' : 'Save User Permissions' ?>
-                    </button>
-                    <a href="?route=users" class="btn btn-outline" style="font-weight:700;">
-                        <?= $isSo ? 'Ku noqo Liiska Shaqaalaha' : 'Back to Users List' ?>
-                    </a>
+                <!-- BEAUTIFIED PERMISSIONS TABLE -->
+                <div class="simda-perm-card">
+                    <div class="table-responsive">
+                        <table class="simda-perm-table" id="permissionsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:52px;text-align:center;">#</th>
+                                    <th><?= $isSo ? 'Awoodda & Faahfaahinta' : 'Permission & Description' ?></th>
+                                    <th style="width:220px;"><?= $isSo ? 'Qaybta (Module)' : 'Module / Category' ?></th>
+                                    <th style="width:140px;text-align:center;"><?= $isSo ? 'Xaaladda' : 'Status' ?></th>
+                                    <th style="width:110px;text-align:center;"><?= $isSo ? 'Ogolaanshaha' : 'Access' ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $modules = [
+                                    'administration' => ['title_so' => 'Maamulka & Nidaamka', 'title_en' => 'Administration & Governance', 'icon' => 'settings'],
+                                    'clients' => ['title_so' => 'Macaamiisha (Clients)', 'title_en' => 'Clients & Guarantors', 'icon' => 'users'],
+                                    'financing' => ['title_so' => 'Maalgelinta & Daymaha (Financing)', 'title_en' => 'Financing, Loans & Murabaha', 'icon' => 'layers'],
+                                    'payments' => ['title_so' => 'Lacag-Qabashada & Deeqaha', 'title_en' => 'Repayments & Charity', 'icon' => 'activity'],
+                                    'risk' => ['title_so' => 'Khatarta & Dhibcaha (Risk)', 'title_en' => 'Risk & Credit Scores', 'icon' => 'alert-triangle'],
+                                    'reports' => ['title_so' => 'Warbixinnada & Statements', 'title_en' => 'Reports & Statements', 'icon' => 'file-text'],
+                                    'communication' => ['title_so' => 'Isgaarsiinta (SMS)', 'title_en' => 'Communication & SMS', 'icon' => 'message-square'],
+                                ];
+                                $groupedPerms = [];
+                                foreach ($permissionsList as $p) {
+                                    $groupedPerms[$p['module']][] = $p;
+                                }
+
+                                $rowIdx = 0;
+                                foreach ($modules as $modKey => $modMeta):
+                                    if (empty($groupedPerms[$modKey])) continue;
+                                    $catPerms = $groupedPerms[$modKey];
+                                    $catTotal = count($catPerms);
+                                ?>
+                                    <!-- Category Header Row -->
+                                    <tr class="simda-cat-header-row" data-cat="<?= Security::e($modKey) ?>">
+                                        <td colspan="5">
+                                            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                                                <div style="display:flex;align-items:center;gap:10px;">
+                                                    <span style="background:rgba(35,132,91,0.12);color:var(--simda-green);width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;">
+                                                        <?= Icons::svg($modMeta['icon'], 13) ?>
+                                                    </span>
+                                                    <span style="font-size:0.88rem;font-weight:800;color:var(--text-main);">
+                                                        <?= Security::e($isSo ? $modMeta['title_so'] : $modMeta['title_en']) ?>
+                                                    </span>
+                                                    <span class="badge badge-secondary" style="font-size:0.7rem;font-weight:700;">
+                                                        <?= $catTotal ?> <?= $isSo ? 'Awoodood' : 'Perms' ?>
+                                                    </span>
+                                                </div>
+                                                <div style="display:flex;align-items:center;gap:6px;">
+                                                    <button type="button" class="btn btn-xs btn-outline" onclick="toggleModulePerms('<?= Security::e($modKey) ?>', true)" style="font-size:0.72rem;font-weight:700;padding:2px 8px;">
+                                                        <?= Icons::svg('check-circle', 11) ?> <?= $isSo ? 'Dooro Qaybtan' : 'Grant Category' ?>
+                                                    </button>
+                                                    <button type="button" class="btn btn-xs btn-outline" onclick="toggleModulePerms('<?= Security::e($modKey) ?>', false)" style="font-size:0.72rem;font-weight:700;padding:2px 8px;color:#C94B4B;">
+                                                        <?= Icons::svg('x-circle', 11) ?> <?= $isSo ? 'Ka saar Qaybtan' : 'Revoke Category' ?>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Permission Rows -->
+                                    <?php foreach ($catPerms as $perm):
+                                        $rowIdx++;
+                                        $isGranted = !empty($userPermMap[$perm['slug']]);
+                                        $slugKey = str_replace('.', '_', $perm['slug']);
+                                    ?>
+                                        <tr class="perm-row <?= $isGranted ? 'is-granted' : 'is-revoked' ?>"
+                                            data-slug="<?= Security::e($perm['slug']) ?>"
+                                            data-desc="<?= Security::e(mb_strtolower($perm['description'])) ?>"
+                                            data-cat="<?= Security::e($modKey) ?>"
+                                            data-granted="<?= $isGranted ? '1' : '0' ?>"
+                                            id="row_<?= Security::e($slugKey) ?>">
+
+                                            <td style="text-align:center;color:var(--text-muted);font-weight:700;font-size:0.78rem;">
+                                                <?= $rowIdx ?>
+                                            </td>
+
+                                            <td>
+                                                <div style="font-weight:700;font-size:0.86rem;color:var(--text-main);margin-bottom:3px;">
+                                                    <?= Security::e($perm['description']) ?>
+                                                </div>
+                                                <div>
+                                                    <span class="simda-perm-code"><?= Security::e($perm['slug']) ?></span>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <span class="badge" style="background:rgba(18,59,50,0.08);color:var(--simda-green);border:1px solid rgba(18,59,50,0.18);font-weight:700;font-size:0.74rem;display:inline-flex;align-items:center;gap:5px;">
+                                                    <?= Icons::svg($modMeta['icon'], 12) ?>
+                                                    <span><?= Security::e($isSo ? $modMeta['title_so'] : $modMeta['title_en']) ?></span>
+                                                </span>
+                                            </td>
+
+                                            <td style="text-align:center;">
+                                                <span class="perm-status-badge badge <?= $isGranted ? 'badge-success' : 'badge-secondary' ?>"
+                                                      id="status_<?= Security::e($slugKey) ?>"
+                                                      style="font-size:0.74rem;font-weight:700;padding:4px 9px;display:inline-flex;align-items:center;gap:4px;">
+                                                    <?= $isGranted ? '✓ ' . ($isSo ? 'Ogol yahay' : 'Granted') : '✕ ' . ($isSo ? 'Diidan' : 'Restricted') ?>
+                                                </span>
+                                            </td>
+
+                                            <td style="text-align:center;">
+                                                <label class="simda-perm-switch" title="<?= $isSo ? 'Guji si aad u furto ama u xirto awooddan' : 'Click to toggle access' ?>">
+                                                    <input type="checkbox"
+                                                           name="perms[]"
+                                                           value="<?= Security::e($perm['slug']) ?>"
+                                                           class="perm-checkbox"
+                                                           data-cat="<?= Security::e($modKey) ?>"
+                                                           data-slug-key="<?= Security::e($slugKey) ?>"
+                                                           <?= $isGranted ? 'checked' : '' ?>
+                                                           onchange="handlePermToggle(this, '<?= Security::e($slugKey) ?>')">
+                                                    <span class="simda-perm-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+
+                                <!-- Empty Search State -->
+                                <tr id="noPermsRow" style="display:none;">
+                                    <td colspan="5" style="text-align:center;padding:36px 16px;color:var(--text-muted);">
+                                        <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">
+                                            <?= $isSo ? 'Wax awood ah lama helin' : 'No permissions found' ?>
+                                        </div>
+                                        <div style="font-size:0.8rem;">
+                                            <?= $isSo ? 'Isku day inaad beddesho qoraalka raadinta ama filter-ka' : 'Try adjusting your search query or active filter' ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- STICKY BOTTOM ACTIONS BAR -->
+                <div style="position:sticky;bottom:16px;z-index:90;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:var(--bg-elevated);padding:14px 22px;border-radius:14px;border:1.5px solid var(--border-color);box-shadow:0 12px 30px rgba(0,0,0,0.12);">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-weight:700;font-size:0.86rem;color:var(--text-main);">
+                            <?= $isSo ? 'Isticmaalaha:' : 'Staff Member:' ?> <strong><?= Security::e($selectedUser['full_name']) ?></strong>
+                        </span>
+                        <span class="badge badge-gold" id="stickyCountBadge" style="font-weight:700;">
+                            <span id="stickyGrantedNum"><?= $grantedCount ?></span> / <?= $totalPerms ?> <?= $isSo ? 'Awoodood' : 'Perms' ?>
+                        </span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <a href="?route=users" class="btn btn-outline" style="font-weight:700;">
+                            ← <?= $isSo ? 'Ku noqo Liiska Shaqaalaha' : 'Back to Users List' ?>
+                        </a>
+                        <button type="submit" class="btn btn-primary" style="font-weight:800;padding:10px 26px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(18,59,50,0.22);">
+                            <?= Icons::svg('check-circle', 16) ?>
+                            <span><?= $isSo ? 'Keydi Awoodaha Isticmaalaha' : 'Save User Permissions' ?></span>
+                        </button>
+                    </div>
                 </div>
             </form>
 
             <script>
+            var activeFilterMode = 'all';
+
+            function handlePermToggle(cb, slugKey) {
+                var isChecked = cb.checked;
+                var row = document.getElementById('row_' + slugKey);
+                var statusBadge = document.getElementById('status_' + slugKey);
+
+                if (row) {
+                    row.setAttribute('data-granted', isChecked ? '1' : '0');
+                    if (isChecked) {
+                        row.classList.add('is-granted');
+                        row.classList.remove('is-revoked');
+                    } else {
+                        row.classList.remove('is-granted');
+                        row.classList.add('is-revoked');
+                    }
+                }
+
+                if (statusBadge) {
+                    if (isChecked) {
+                        statusBadge.className = 'perm-status-badge badge badge-success';
+                        statusBadge.textContent = '✓ <?= $isSo ? 'Ogol yahay' : 'Granted' ?>';
+                    } else {
+                        statusBadge.className = 'perm-status-badge badge badge-secondary';
+                        statusBadge.textContent = '✕ <?= $isSo ? 'Diidan' : 'Restricted' ?>';
+                    }
+                }
+
+                recalculatePermStats();
+                filterPermTable();
+            }
+
+            function recalculatePermStats() {
+                var allBoxes = document.querySelectorAll('.perm-checkbox');
+                var total = allBoxes.length;
+                var granted = 0;
+
+                allBoxes.forEach(function (cb) {
+                    if (cb.checked) granted++;
+                });
+
+                var revoked = total - granted;
+                var percent = total > 0 ? Math.round((granted / total) * 100) : 0;
+
+                var gBadge = document.getElementById('grantedCountBadge');
+                if (gBadge) gBadge.textContent = granted;
+
+                var sNum = document.getElementById('stickyGrantedNum');
+                if (sNum) sNum.textContent = granted;
+
+                var fGranted = document.getElementById('filterGrantedCount');
+                if (fGranted) fGranted.textContent = granted;
+
+                var fRevoked = document.getElementById('filterRevokedCount');
+                if (fRevoked) fRevoked.textContent = revoked;
+
+                var pBar = document.getElementById('grantedProgressBar');
+                if (pBar) pBar.style.width = percent + '%';
+
+                var pText = document.getElementById('grantedPercentText');
+                if (pText) pText.textContent = percent + '%';
+            }
+
             function toggleAllPerms(check) {
                 document.querySelectorAll('.perm-checkbox').forEach(function (cb) {
                     cb.checked = check;
-                    var label = cb.closest('label');
-                    if (label) {
-                        label.style.borderColor = check ? 'rgba(35,132,91,0.35)' : 'var(--border-color)';
+                    var slugKey = cb.getAttribute('data-slug-key');
+                    if (slugKey) {
+                        var row = document.getElementById('row_' + slugKey);
+                        var statusBadge = document.getElementById('status_' + slugKey);
+                        if (row) {
+                            row.setAttribute('data-granted', check ? '1' : '0');
+                            if (check) {
+                                row.classList.add('is-granted');
+                                row.classList.remove('is-revoked');
+                            } else {
+                                row.classList.remove('is-granted');
+                                row.classList.add('is-revoked');
+                            }
+                        }
+                        if (statusBadge) {
+                            if (check) {
+                                statusBadge.className = 'perm-status-badge badge badge-success';
+                                statusBadge.textContent = '✓ <?= $isSo ? 'Ogol yahay' : 'Granted' ?>';
+                            } else {
+                                statusBadge.className = 'perm-status-badge badge badge-secondary';
+                                statusBadge.textContent = '✕ <?= $isSo ? 'Diidan' : 'Restricted' ?>';
+                            }
+                        }
                     }
                 });
+                recalculatePermStats();
+                filterPermTable();
             }
-            document.querySelectorAll('.perm-checkbox').forEach(function (cb) {
-                cb.addEventListener('change', function () {
-                    var label = cb.closest('label');
-                    if (label) {
-                        label.style.borderColor = cb.checked ? 'rgba(35,132,91,0.35)' : 'var(--border-color)';
+
+            function toggleModulePerms(modKey, check) {
+                document.querySelectorAll('.perm-checkbox[data-cat="' + modKey + '"]').forEach(function (cb) {
+                    cb.checked = check;
+                    var slugKey = cb.getAttribute('data-slug-key');
+                    if (slugKey) {
+                        var row = document.getElementById('row_' + slugKey);
+                        var statusBadge = document.getElementById('status_' + slugKey);
+                        if (row) {
+                            row.setAttribute('data-granted', check ? '1' : '0');
+                            if (check) {
+                                row.classList.add('is-granted');
+                                row.classList.remove('is-revoked');
+                            } else {
+                                row.classList.remove('is-granted');
+                                row.classList.add('is-revoked');
+                            }
+                        }
+                        if (statusBadge) {
+                            if (check) {
+                                statusBadge.className = 'perm-status-badge badge badge-success';
+                                statusBadge.textContent = '✓ <?= $isSo ? 'Ogol yahay' : 'Granted' ?>';
+                            } else {
+                                statusBadge.className = 'perm-status-badge badge badge-secondary';
+                                statusBadge.textContent = '✕ <?= $isSo ? 'Diidan' : 'Restricted' ?>';
+                            }
+                        }
                     }
                 });
-            });
+                recalculatePermStats();
+                filterPermTable();
+            }
+
+            function setFilterMode(mode, btn) {
+                activeFilterMode = mode;
+                document.querySelectorAll('.simda-filter-pill-btn').forEach(function (b) {
+                    b.classList.remove('is-active');
+                });
+                if (btn) btn.classList.add('is-active');
+                filterPermTable();
+            }
+
+            function filterPermTable() {
+                var searchInput = document.getElementById('permSearchInput');
+                var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+                var rows = document.querySelectorAll('tr.perm-row');
+                var visibleCount = 0;
+
+                // Track visible rows per category to conditionally hide empty category headers
+                var catVisibility = {};
+
+                rows.forEach(function (row) {
+                    var slug = (row.getAttribute('data-slug') || '').toLowerCase();
+                    var desc = (row.getAttribute('data-desc') || '').toLowerCase();
+                    var cat = row.getAttribute('data-cat') || '';
+                    var isGranted = row.getAttribute('data-granted') === '1';
+
+                    var matchesSearch = (!query || slug.indexOf(query) !== -1 || desc.indexOf(query) !== -1);
+                    var matchesFilter = true;
+
+                    if (activeFilterMode === 'granted') {
+                        matchesFilter = isGranted;
+                    } else if (activeFilterMode === 'revoked') {
+                        matchesFilter = !isGranted;
+                    }
+
+                    if (matchesSearch && matchesFilter) {
+                        row.style.display = '';
+                        visibleCount++;
+                        catVisibility[cat] = (catVisibility[cat] || 0) + 1;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show/hide category headers
+                document.querySelectorAll('tr.simda-cat-header-row').forEach(function (catRow) {
+                    var cat = catRow.getAttribute('data-cat') || '';
+                    if (catVisibility[cat] && catVisibility[cat] > 0) {
+                        catRow.style.display = '';
+                    } else {
+                        catRow.style.display = 'none';
+                    }
+                });
+
+                var noPermsRow = document.getElementById('noPermsRow');
+                if (noPermsRow) {
+                    noPermsRow.style.display = (visibleCount === 0) ? '' : 'none';
+                }
+            }
             </script>
         <?php else: ?>
             <div style="background:var(--bg-elevated);padding:20px;border-radius:12px;border:1px solid var(--border-color);text-align:center;color:var(--text-muted);">
