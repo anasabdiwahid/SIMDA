@@ -37,6 +37,7 @@ $loginI18n = [
         'back_home' => 'Back to Public Website',
         'need_help' => 'Need assistance?',
         'contact_office' => 'Contact SIMDA Head Office',
+        'forgot_password' => 'Forgot Password?',
     ],
     'so' => [
         'welcome' => 'SOO DHAWOOW',
@@ -61,6 +62,7 @@ $loginI18n = [
         'back_home' => 'Ku laabo Bogga Guud',
         'need_help' => 'Ma u baahan tahay caawimaad?',
         'contact_office' => 'La xiriir Xafiiska Guud ee SIMDA',
+        'forgot_password' => 'Ma illowday Furaha?',
     ],
     'ar' => [
         'welcome' => 'مرحباً بكم',
@@ -85,6 +87,7 @@ $loginI18n = [
         'back_home' => 'العودة للموقع العام',
         'need_help' => 'هل تحتاج إلى مساعدة؟',
         'contact_office' => 'اتصل بالمقر الرئيسي لسيمدا',
+        'forgot_password' => 'هل نسيت كلمة المرور؟',
     ],
 ];
 $lt = $loginI18n[$locale] ?? $loginI18n['en'];
@@ -671,7 +674,9 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     </div>
 
                     <div class="simda-login-meta-row">
-                        <span></span>
+                        <a href="?route=forgot_password" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
+                            <?= Security::e($lt['forgot_password']) ?>
+                        </a>
                         <?php
                         $loginLanguagesList = [
                             'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
@@ -747,8 +752,8 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                             <input type="checkbox" name="remember" style="accent-color:#123B32;">
                             <span><?= Security::e($lt['remember']) ?></span>
                         </label>
-                        <a href="javascript:void(0)" onclick="handleChangeEmail()" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
-                            <?= Security::e($lt['btn_change_email']) ?>
+                        <a href="?route=forgot_password" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
+                            <?= Security::e($lt['forgot_password']) ?>
                         </a>
                     </div>
 

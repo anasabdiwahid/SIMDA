@@ -424,5 +424,74 @@ TEXT;
 
         return self::send($email, $subject, $html, $plain, $inlineAttachments);
     }
+
+    /**
+     * Send OTP Verification Email for Password Reset
+     */
+    public static function sendPasswordResetOtpEmail(
+        string $email,
+        string $fullName,
+        string $otpCode,
+        string $locale = 'so'
+    ): array {
+        $subject = ($locale === 'so')
+            ? "SIMDA: Koodhka Xaqiijinta ee Furaha Sirta ah (OTP: {$otpCode})"
+            : "SIMDA: Password Reset Verification Code (OTP: {$otpCode})";
+
+        $logoPath = BASE_PATH . '/public/assets/images/simda-logo.png';
+        $inlineAttachments = [];
+        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
+        if (file_exists($logoPath)) {
+            $inlineAttachments['simda_logo_otp'] = $logoPath;
+            $logoSrc = 'cid:simda_logo_otp';
+        }
+
+        $greeting = ($locale === 'so') ? "Salaamu Calaykum, {$fullName}!" : "Hello, {$fullName}!";
+        $subHeading = ($locale === 'so')
+            ? "Waxaa lagugu soo diray koodhka xaqiijinta (OTP) si aad u beddesho furahaaga sirta ah ee nidaamka SIMDA."
+            : "You have requested a verification code (OTP) to reset your SIMDA portal password.";
+        $otpNote = ($locale === 'so')
+            ? "Koodhkani wuxuu dhacayaa 10 daqiiqo kadib. Fadlan cidna ha la wadaagin."
+            : "This code is valid for 10 minutes. Please never share this code with anyone.";
+
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="{$locale}">
+<head>
+    <meta charset="utf-8">
+    <title>{$subject}</title>
+</head>
+<body style="margin:0;padding:24px;background:#F4F6F4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1B2E28;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;margin:0 auto;background:#FFFFFF;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+        <tr>
+            <td style="background:#123B32;padding:32px 30px;text-align:center;">
+                <img src="{$logoSrc}" alt="SIMDA" style="height:44px;width:auto;display:inline-block;filter:brightness(0) invert(1);">
+                <div style="color:#D6B66C;font-size:12px;font-weight:700;letter-spacing:1px;margin-top:8px;">SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:36px 32px;text-align:center;">
+                <h2 style="color:#123B32;font-size:22px;font-weight:800;margin:0 0 10px;">{$greeting}</h2>
+                <p style="color:#52635B;font-size:14px;line-height:1.6;margin:0 0 24px;">{$subHeading}</p>
+                <div style="background:#F7F9F7;border:2px dashed #123B32;border-radius:14px;padding:20px;display:inline-block;margin:0 auto 24px;">
+                    <span style="font-size:36px;font-weight:900;letter-spacing:10px;color:#123B32;font-family:monospace;">{$otpCode}</span>
+                </div>
+                <p style="color:#8A9891;font-size:13px;line-height:1.5;margin:0;">{$otpNote}</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background:#F2F4F2;padding:16px 24px;text-align:center;font-size:12px;color:#788780;">
+                © 2026 SIMDA — Somali Islamic Microfinance Development Association. All rights reserved.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+
+        $plain = "{$greeting}\n\n{$subHeading}\n\nKoodhkaaga OTP: {$otpCode}\n\n{$otpNote}\n\nSIMDA Team";
+
+        return self::send($email, $subject, $html, $plain, $inlineAttachments);
+    }
 }
 

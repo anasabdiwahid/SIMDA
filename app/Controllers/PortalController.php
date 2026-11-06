@@ -39,6 +39,10 @@ final class PortalController
                 'login' => self::loginForm(),
                 'login_check_email' => self::loginCheckEmail($pdo),
                 'login_submit' => self::loginSubmit($pdo),
+                'forgot_password' => self::forgotPasswordForm(),
+                'forgot_password_send_otp' => self::forgotPasswordSendOtp($pdo),
+                'forgot_password_verify_otp' => self::forgotPasswordVerifyOtp($pdo),
+                'forgot_password_reset' => self::forgotPasswordReset($pdo),
                 'logout' => self::logout(),
                 'api_schedule_preview' => self::apiSchedulePreview(),
 
@@ -774,6 +778,255 @@ final class PortalController
             header('Location: ?route=login');
             exit;
         }
+    }
+
+    private static function forgotPasswordForm(): void
+    {
+        if (AuthMiddleware::check()) {
+            header('Location: ?route=dashboard');
+            exit;
+        }
+        require dirname(__DIR__, 2) . '/resources/views/auth/forgot_password.php';
+    }
+
+    private static function forgotPasswordSendOtp(PDO $pdo): void
+    {
+        AuthMiddleware::verifyCsrfOrAbort();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $type = (string) ($_POST['type'] ?? 'email');
+        $target = trim((string) ($_POST['target'] ?? ''));
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        if ($target === '') {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo ? 'Fadlan geli taleefankaaga ama email-kaaga.' : 'Please enter your phone or email.'
+            ]);
+            exit;
+        }
+
+        if ($type === 'phone') {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $target);
+            $st = $pdo->prepare('
+                SELECT id, full_name, email, phone, is_active
+                FROM users
+                WHERE (REPLACE(REPLACE(REPLACE(phone, " ", ""), "-", ""), "+", "") LIKE :p1
+                   OR REPLACE(REPLACE(REPLACE(phone, " ", ""), "-", ""), "+", "") LIKE :p2)
+                  AND deleted_at IS NULL
+                LIMIT 1
+            ');
+            $st->execute([
+                ':p1' => '%' . substr($cleanPhone, -8),
+                ':p2' => '%' . $cleanPhone . '%'
+            ]);
+            $user = $st->fetch(PDO::FETCH_ASSOC);
+        } else {
+            $st = $pdo->prepare('
+                SELECT id, full_name, email, phone, is_active
+                FROM users
+                WHERE (email = :e OR username = :u)
+                  AND deleted_at IS NULL
+                LIMIT 1
+            ');
+            $st->execute([':e' => $target, ':u' => $target]);
+            $user = $st->fetch(PDO::FETCH_ASSOC);
+        }
+
+        if (!$user) {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo
+                    ? 'Lama helin akoon ku diiwaangashan xogtan. Fadlan hubi oo isku day mar kale.'
+                    : 'No account found with this information. Please check and try again.'
+            ]);
+            exit;
+        }
+
+        $otp = (string) mt_rand(100000, 999999);
+        $token = bin2hex(random_bytes(24));
+        $targetVal = ($type === 'phone') ? $user['phone'] : $user['email'];
+        $expiresAt = date('Y-m-d H:i:s', time() + 10 * 60);
+
+        // Delete old unused resets for this user
+        $pdo->prepare('DELETE FROM password_resets WHERE user_id = :uid AND is_used = 0')
+            ->execute([':uid' => (int) $user['id']]);
+
+        // Insert new reset record
+        $ins = $pdo->prepare('
+            INSERT INTO password_resets (user_id, target_type, target_value, otp_code, token, expires_at)
+            VALUES (:uid, :type, :val, :otp, :tok, :exp)
+        ');
+        $ins->execute([
+            ':uid' => (int) $user['id'],
+            ':type' => $type,
+            ':val' => $targetVal,
+            ':otp' => $otp,
+            ':tok' => $token,
+            ':exp' => $expiresAt
+        ]);
+
+        // Mask target for display
+        if ($type === 'phone') {
+            $len = strlen($targetVal);
+            $masked = ($len > 6) ? substr($targetVal, 0, 4) . '****' . substr($targetVal, -3) : $targetVal;
+            // Record SMS in sms_outbox
+            $pdo->prepare('
+                INSERT INTO sms_outbox (recipient_phone, message_text_so, message_text_en, status, scheduled_for)
+                VALUES (:p, :mso, :men, "sent", NOW())
+            ')->execute([
+                ':p' => $targetVal,
+                ':mso' => "Koodhkaaga SIMDA OTP waa: {$otp}. Ha la wadaagin cidna.",
+                ':men' => "Your SIMDA verification code is: {$otp}. Never share this code with anyone."
+            ]);
+        } else {
+            $parts = explode('@', $targetVal);
+            $namePart = $parts[0] ?? '';
+            $domainPart = $parts[1] ?? '';
+            $masked = substr($namePart, 0, 2) . '****@' . $domainPart;
+            // Send email
+            MailService::sendPasswordResetOtpEmail($targetVal, $user['full_name'], $otp, $locale);
+        }
+
+        AuditLogger::log('auth.otp_requested', 'users', (int) $user['id'], "Password reset OTP requested via {$type}.");
+
+        echo json_encode([
+            'success' => true,
+            'token' => $token,
+            'masked_target' => $masked,
+            'demo_otp' => $otp,
+            'message' => $isSo ? 'Koodhka xaqiijinta si guul leh ayaa laguu soo diray!' : 'Verification code sent successfully!'
+        ]);
+        exit;
+    }
+
+    private static function forgotPasswordVerifyOtp(PDO $pdo): void
+    {
+        AuthMiddleware::verifyCsrfOrAbort();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $token = trim((string) ($_POST['token'] ?? ''));
+        $otp = trim((string) ($_POST['otp'] ?? ''));
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        if ($token === '' || $otp === '') {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo ? 'Fadlan geli koodhka xaqiijinta.' : 'Please enter the verification code.'
+            ]);
+            exit;
+        }
+
+        $st = $pdo->prepare('
+            SELECT * FROM password_resets
+            WHERE token = :tok
+              AND is_used = 0
+              AND expires_at > NOW()
+            LIMIT 1
+        ');
+        $st->execute([':tok' => $token]);
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo
+                    ? 'Koodhkii xaqiijinta wuu dhacay ama lama helin. Fadlan dib u codso.'
+                    : 'The verification code has expired or is invalid. Please request a new one.'
+            ]);
+            exit;
+        }
+
+        if (trim((string) $row['otp_code']) !== $otp) {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo ? 'Koodhka aad gelisay waa qalad. Fadlan hubi.' : 'Incorrect verification code. Please check and try again.'
+            ]);
+            exit;
+        }
+
+        // Mark OTP as used
+        $pdo->prepare('UPDATE password_resets SET is_used = 1 WHERE id = :id')->execute([':id' => $row['id']]);
+
+        // Authorize password reset session
+        $_SESSION['pw_reset_user_id'] = (int) $row['user_id'];
+        $_SESSION['pw_reset_token'] = $token;
+
+        AuditLogger::log('auth.otp_verified', 'users', (int) $row['user_id'], 'Password reset OTP verified successfully.');
+
+        echo json_encode([
+            'success' => true,
+            'message' => $isSo ? 'Koodhka si guul leh ayaa loo xaqiijiyay! Hadda sameyso fure cusub.' : 'Code verified successfully! You can now set a new password.'
+        ]);
+        exit;
+    }
+
+    private static function forgotPasswordReset(PDO $pdo): void
+    {
+        AuthMiddleware::verifyCsrfOrAbort();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $userId = (int) ($_SESSION['pw_reset_user_id'] ?? 0);
+        $newPassword = (string) ($_POST['password'] ?? '');
+        $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        if ($userId <= 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo ? 'Fadhigu wuu dhacay. Fadlan mar kale bilaab nidaamka.' : 'Session expired. Please restart the process.'
+            ]);
+            exit;
+        }
+
+        if (strlen($newPassword) < 6) {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo ? 'Furaha cusub waa inuu ka koobnaadaa ugu yaraan 6 xaraf.' : 'Password must be at least 6 characters.'
+            ]);
+            exit;
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            echo json_encode([
+                'success' => false,
+                'message' => $isSo ? 'Labada fure isma leha. Fadlan hubi inay isku mid yihiin.' : 'Passwords do not match.'
+            ]);
+            exit;
+        }
+
+        // Update password and reset all lockout counters
+        $hash = Security::hashPassword($newPassword);
+        $pdo->prepare('
+            UPDATE users
+            SET password_hash = :h,
+                failed_login_attempts = 0,
+                lockout_tier = 0,
+                locked_until = NULL,
+                security_block_reason = NULL,
+                is_active = 1
+            WHERE id = :id
+        ')->execute([
+            ':h' => $hash,
+            ':id' => $userId
+        ]);
+
+        unset($_SESSION['pw_reset_user_id'], $_SESSION['pw_reset_token']);
+        $_SESSION['flash_success'] = $isSo
+            ? 'Furahaaga sirta ah si guul leh ayaa loo beddelay! Hadda waad geli kartaa nidaamka.'
+            : 'Your password has been successfully reset! You can now sign in.';
+
+        AuditLogger::log('auth.password_reset_success', 'users', $userId, 'User completed password reset via OTP.');
+
+        echo json_encode([
+            'success' => true,
+            'redirect' => '?route=login',
+            'message' => $isSo ? 'Furahaaga sirta ah si guul leh ayaa loo beddelay!' : 'Password reset successful!'
+        ]);
+        exit;
     }
 
     private static function logout(): void
