@@ -11,33 +11,39 @@ $curUser = $currentUser ?? ($user ?? []);
 $curRole = $curUser['role_slug'] ?? 'admin';
 $roleFocus = $roleFocus ?? null;
 $returnRoute = $returnRoute ?? 'users';
+$isEmployeesRoute = ($returnRoute === 'employees') || (($_GET['route'] ?? '') === 'employees') || ($roleFocus === 'loan_officer');
 $focusLabel = match ($roleFocus) {
     'manager' => 'Manager',
     'branch_manager' => 'Branch Manager',
-    'loan_officer' => 'Header Office',
+    'loan_officer' => $isSo ? 'Shaqaale' : 'Employee',
     default => null,
 };
-$newUserLabel = $focusLabel !== null
-    ? ($isSo ? $focusLabel . ' Cusub' : 'New ' . $focusLabel)
-    : ($isSo ? 'Isticmaale Cusub' : 'New User');
+$newUserLabel = $isEmployeesRoute
+    ? ($isSo ? 'Diiwaangeli Shaqaale Cusub' : 'Register New Employee')
+    : ($focusLabel !== null
+        ? ($isSo ? $focusLabel . ' Cusub' : 'New ' . $focusLabel)
+        : ($isSo ? 'Isticmaale Cusub' : 'New User'));
 $returnField = '<input type="hidden" name="return_route" value="' . Security::e($returnRoute) . '">';
 ?>
 
 <?php
 $adminDescriptions = [
     'branches' => $isSo ? 'Maamul laamaha SIMDA, xiriirkooda iyo xaaladdooda.' : 'Manage SIMDA branches, their contacts and status.',
-    'users' => match ($roleFocus) {
-        'manager' => $isSo ? 'Maamulayaasha guud ee shirkadda oo dhan. Waxay go\'aamiyaan codsiyada ka badan $50,000.' : 'General managers of the whole company. They decide applications above $50,000.',
-        'branch_manager' => $isSo ? 'Madaxda laamaha. Waxay go\'aamiyaan codsiyada laantooda ee $5,000 ilaa $50,000.' : 'Branch heads. They decide their branch\'s applications from $5,000 to $50,000.',
-        'loan_officer' => $isSo ? 'Waxay go\'aamiyaan codsiyada laantooda ee $5,000 iyo wixii ka yar.' : 'They decide their branch\'s applications of $5,000 or less.',
-        default => $isSo ? 'Maamul shaqaalaha iyo isticmaalayaasha, doorkooda iyo gelitaankooda.' : 'Manage staff and users, their roles and access.',
-    },
+    'users' => $isEmployeesRoute
+        ? ($isSo ? 'Diiwaangelinta shaqaalaha cusub iyo maamulka akoonnadooda laamaha.' : 'Register new employees, assign branches, and manage staff accounts.')
+        : match ($roleFocus) {
+            'manager' => $isSo ? 'Maamulayaasha guud ee shirkadda oo dhan. Waxay go\'aamiyaan codsiyada ka badan $50,000.' : 'General managers of the whole company. They decide applications above $50,000.',
+            'branch_manager' => $isSo ? 'Madaxda laamaha. Waxay go\'aamiyaan codsiyada laantooda ee $5,000 ilaa $50,000.' : 'Branch heads. They decide their branch\'s applications from $5,000 to $50,000.',
+            'loan_officer' => $isSo ? 'Shaqaalaha (Employees) laamaha SIMDA.' : 'Employees and loan officers of SIMDA branches.',
+            default => $isSo ? 'Maamul shaqaalaha iyo isticmaalayaasha, doorkooda iyo gelitaankooda.' : 'Manage staff and users, their roles and access.',
+        },
     'permissions' => $isSo ? 'Dooro waxa uu qof kasta ka arki karo menu-ka nidaamka.' : 'Choose what each person sees in the system menu.',
     'settings' => $isSo ? 'Xeerarka maalgelinta iyo macluumaadka xiriirka ee hay\'adda.' : 'Financing rules and institution contact details.',
     'audit_logs' => $isSo ? '100-kii dhacdo ee ugu dambeeyay ee nidaamka.' : 'The latest 100 system events.',
 ];
 $adminTabs = [
-    ['route' => 'users', 'icon' => 'users', 'label' => $isSo ? 'Isticmaalayaasha' : 'Users', 'count' => count($users ?? []), 'show' => true],
+    ['route' => 'users', 'icon' => 'users', 'label' => $isSo ? 'All Users' : 'All Users', 'count' => null, 'show' => true],
+    ['route' => 'employees', 'icon' => 'user-check', 'label' => $isSo ? 'Shaqaalaha (Employees)' : 'Employees', 'count' => null, 'show' => true],
     ['route' => 'branches', 'icon' => 'building', 'label' => $isSo ? 'Laamaha' : 'Branches', 'count' => count($branches ?? []), 'show' => true],
     ['route' => 'permissions', 'icon' => 'shield', 'label' => $isSo ? 'Awoodaha' : 'Permissions', 'count' => null, 'show' => $curRole === 'admin'],
     ['route' => 'audit_logs', 'icon' => 'activity', 'label' => $isSo ? 'Diiwaanka Audit' : 'Audit Logs', 'count' => null, 'show' => in_array($curRole, ['admin', 'manager'], true)],
@@ -47,10 +53,10 @@ $adminTabs = [
 <div class="adm">
     <header class="adm-head adm-page-head">
         <div>
-            <h1><?= Security::e($sectionTitle ?? ($isSo ? 'Maamulka Nidaamka' : 'System Administration')) ?></h1>
+            <h1><?= Security::e($isEmployeesRoute ? ($isSo ? 'Shaqaalaha (Employees)' : 'Employees') : ($sectionTitle ?? ($isSo ? 'Maamulka Nidaamka' : 'System Administration'))) ?></h1>
             <p><?= Security::e($adminDescriptions[$mode ?? ''] ?? '') ?></p>
         </div>
-        <?php if ($roleFocus !== null && !empty($roles)): ?>
+        <?php if ($roleFocus !== null && !$isEmployeesRoute && !empty($roles)): ?>
             <div class="adm-head-actions">
                 <button type="button" class="btn btn-sm btn-gold" id="btnToggleCreateUser" onclick="toggleCreateUserForm()">
                     <span id="createUserToggleIcon"><?= Icons::svg('plus', 14) ?></span>
@@ -66,11 +72,21 @@ $adminTabs = [
         <?php endif; ?>
     </header>
 
-    <?php if ($roleFocus === null && ($mode ?? '') !== 'branches'): ?>
     <nav class="adm-tabs" aria-label="<?= $isSo ? 'Qaybaha maamulka' : 'Administration sections' ?>">
         <?php foreach ($adminTabs as $tab): ?>
             <?php if (!$tab['show']) continue; ?>
-            <a href="?route=<?= Security::e($tab['route']) ?>" class="adm-tab <?= ($mode ?? '') === $tab['route'] ? 'is-active' : '' ?>" <?= ($mode ?? '') === $tab['route'] ? 'aria-current="page"' : '' ?>>
+            <?php
+            $tabRoute = $tab['route'];
+            $isActiveTab = false;
+            if ($isEmployeesRoute && $tabRoute === 'employees') {
+                $isActiveTab = true;
+            } elseif (!$isEmployeesRoute && ($mode ?? '') === 'users' && $roleFocus === null && $tabRoute === 'users') {
+                $isActiveTab = true;
+            } elseif (($mode ?? '') === $tabRoute && $roleFocus === null) {
+                $isActiveTab = true;
+            }
+            ?>
+            <a href="?route=<?= Security::e($tab['route']) ?>" class="adm-tab <?= $isActiveTab ? 'is-active' : '' ?>" <?= $isActiveTab ? 'aria-current="page"' : '' ?>>
                 <?= Icons::svg($tab['icon'], 15) ?>
                 <span><?= Security::e($tab['label']) ?></span>
                 <?php if ($tab['count'] !== null): ?>
@@ -79,7 +95,6 @@ $adminTabs = [
             </a>
         <?php endforeach; ?>
     </nav>
-    <?php endif; ?>
 
     <!-- ========================================================================= -->
     <!-- 1. BRANCHES MANAGEMENT VIEW                                               -->
@@ -281,7 +296,7 @@ $adminTabs = [
             }
             $inactiveStaff = $totalStaff - $activeStaff;
             ?>
-            <?php if ($roleFocus !== null): ?>
+            <?php if ($roleFocus !== null && !$isEmployeesRoute): ?>
                 <?php
                 $focusLimit = match ($roleFocus) {
                     'manager' => ['> $50,000', $isSo ? 'Codsiyada ka badan' : 'Applications above'],
@@ -310,7 +325,7 @@ $adminTabs = [
             <?php else: ?>
             <div class="adm-bar">
                 <div class="adm-bar-title">
-                    <h2><?= $isSo ? 'Isticmaalayaasha' : 'Staff & Users' ?></h2>
+                    <h2><?= Security::e($isEmployeesRoute ? ($isSo ? 'Shaqaalaha (Employees)' : 'Employees') : ($isSo ? 'Isticmaalayaasha' : 'Staff & Users')) ?></h2>
                     <div class="adm-counts">
                         <span><strong class="num-tabular"><?= $totalStaff ?></strong> <?= $isSo ? 'guud' : 'total' ?></span>
                         <span><i class="adm-dot is-on"></i><strong class="num-tabular"><?= $activeStaff ?></strong> <?= $isSo ? 'firfircoon' : 'active' ?></span>
