@@ -1764,9 +1764,12 @@ final class PortalController
             $newStatus = $b['is_active'] ? 0 : 1;
             $pdo->prepare('UPDATE branches SET is_active = :act WHERE id = :id')->execute([':act' => $newStatus, ':id' => $branchId]);
             AuditLogger::log('branch.toggle', 'branches', $branchId, 'Toggled branch status to ' . ($newStatus ? 'Active' : 'Inactive'), [], (int) $user['id']);
+            $statusText = $newStatus
+                ? (Lang::locale() === 'so' ? 'waa la hawlgeliyay (Firfircoon)' : 'is now Active')
+                : (Lang::locale() === 'so' ? 'waa la hakiyay (Xiran)' : 'is now Inactive');
             $_SESSION['flash_success'] = Lang::locale() === 'so'
-                ? 'Xaaladda laanta (' . $b['name'] . ') waa la beddelay.'
-                : 'Branch (' . $b['name'] . ') status updated.';
+                ? 'Xaaladda laanta (' . $b['name'] . ') si guul leh ayaa loo beddelay: ' . $statusText . '.'
+                : 'Branch (' . $b['name'] . ') status updated: ' . $statusText . '.';
         }
         header('Location: ?route=branches');
         exit;

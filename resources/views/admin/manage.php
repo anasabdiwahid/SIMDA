@@ -165,7 +165,7 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                             <?php if ($curRole === 'admin'): ?>
                                 <td>
                                     <?php if ((int)$b['id'] !== 1): ?>
-                                        <form method="POST" action="?route=branch_toggle" style="display:inline;" onsubmit="return confirm('<?= $isSo ? 'Ma hubtaa inaad beddesho xaaladda laanta ' . Security::e($b['name']) . '?' : 'Are you sure you want to toggle status for ' . Security::e($b['name']) . '?' ?>');">
+                                        <form method="POST" action="?route=branch_toggle" style="display:inline;">
                                             <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                                             <input type="hidden" name="branch_id" value="<?= (int) $b['id'] ?>">
                                             <button type="submit" class="btn btn-xs <?= $b['is_active'] ? 'btn-outline-danger' : 'btn-outline-success' ?>" style="padding:3px 8px;font-size:0.75rem;font-weight:700;">

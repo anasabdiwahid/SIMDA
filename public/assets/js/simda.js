@@ -33,6 +33,38 @@
     const savedPref = localStorage.getItem(THEME_KEY) || 'light';
     applyTheme(savedPref);
 
+    // Global Safe Message Toast (replaces native browser alert/confirm popups)
+    function showSimdaToast(message, type) {
+        if (!message) return;
+        let container = document.getElementById('simda-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'simda-toast-container';
+            container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'simda-toast animate-in';
+        toast.style.cssText = 'background:var(--card-bg, #1e293b);color:var(--text, #f8fafc);padding:12px 18px;border-radius:10px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);border-left:4px solid var(--primary, #047857);font-size:0.9rem;font-weight:600;display:flex;align-items:center;gap:10px;pointer-events:auto;min-width:260px;max-width:420px;transition:opacity 0.3s ease, transform 0.3s ease;';
+        toast.innerHTML = '<span>' + (message + '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+        container.appendChild(toast);
+        setTimeout(function () {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(function () {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 300);
+        }, 3500);
+    }
+
+    // Completely disable disruptive browser alerts/confirm popups across the entire system
+    window.alert = function (msg) {
+        showSimdaToast(msg, 'info');
+    };
+    window.confirm = function () {
+        return true;
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         const themeSelect = document.getElementById('simdaThemeSelect');
         if (themeSelect) {
