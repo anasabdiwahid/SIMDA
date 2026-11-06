@@ -12,16 +12,25 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 $loginI18n = [
     'en' => [
         'welcome' => 'WELCOME',
-        'portal' => 'SIMDA MICROFINANCE PORTAL',
-        'portal_desc' => 'Centralized, ethical, and 100% Zero-Riba Sharia-compliant financial management platform.',
+        'portal' => 'SIMDA MANAGEMENT PORTAL',
+        'portal_desc' => 'Centralized, ethical, and 100% Zero-Riba Sharia-compliant financial management system.',
+        'badge_sharia' => '100% Sharia Compliant • Zero Riba',
+        'trust_p1_title' => 'Zero-Riba Guaranteed',
+        'trust_p1_sub' => 'Audited Murabaha financing and transparent ethical terms.',
+        'trust_p2_title' => 'Instant Mobile Disbursements',
+        'trust_p2_sub' => 'Seamless automated processing with EVC Plus & Zaad.',
+        'trust_p3_title' => 'Bank-Grade Security',
+        'trust_p3_sub' => '256-bit encryption and complete immutable audit trails.',
+        'stat_clients' => 'Active Clients',
+        'stat_sharia' => 'Islamic Audit',
         'signin' => 'Sign in',
-        'signin_sub' => 'Enter your SIMDA staff or client credentials to access the portal',
+        'signin_sub' => 'Enter your staff or management credentials to access the portal',
         'identifier' => 'User Name or Email',
         'password' => 'Password',
         'remember' => 'Remember me',
         'show' => 'SHOW',
         'hide' => 'HIDE',
-        'btn_signin' => 'Sign in',
+        'btn_signin' => 'Sign In to Portal →',
         'or' => 'Or',
         'back_home' => 'Back to Public Website',
         'need_help' => 'Need assistance?',
@@ -29,16 +38,25 @@ $loginI18n = [
     ],
     'so' => [
         'welcome' => 'SOO DHAWOOW',
-        'portal' => 'BORTAALKA SIMDA MICROFINANCE',
+        'portal' => 'BORTAALKA MAAMULKA SIMDA',
         'portal_desc' => 'Nidaam dhexe, xalaal ah, oo 100% waafaqsan Shareecada Islaamka iyo 0% Ribo.',
+        'badge_sharia' => '100% Xalaal & Shareeco • 0% Ribo',
+        'trust_p1_title' => '0% Ribo oo La Hubiyay',
+        'trust_p1_sub' => 'Maalgelin Muraabaxo oo hufan oo caddaalad ku dhisan.',
+        'trust_p2_title' => 'Lacag Bixin Degdeg ah',
+        'trust_p2_sub' => 'Isku-xirka tooska ah ee Hormuud EVC Plus iyo Telesom Zaad.',
+        'trust_p3_title' => 'Amni & Hanti-Dhowr Sare',
+        'trust_p3_sub' => 'Xog dhowran, xafidan, oo diiwaan buuxa leh mar kasta.',
+        'stat_clients' => 'Macaamiil',
+        'stat_sharia' => 'Audit Xalaal ah',
         'signin' => 'Gal Nidaamka',
-        'signin_sub' => 'Gali magacaaga ama email-kaaga si aad u gasho maamulka',
+        'signin_sub' => 'Geli magacaaga ama email-kaaga si aad u gasho bortaalka',
         'identifier' => 'Magaca ama Email-ka',
         'password' => 'Furaha Sirta ah',
         'remember' => 'I xasuuso',
         'show' => 'MUUG',
         'hide' => 'QARI',
-        'btn_signin' => 'Gal Nidaamka',
+        'btn_signin' => 'Gal Bortaalka →',
         'or' => 'Ama',
         'back_home' => 'Ku laabo Bogga Guud',
         'need_help' => 'Ma u baahan tahay caawimaad?',
@@ -46,16 +64,25 @@ $loginI18n = [
     ],
     'ar' => [
         'welcome' => 'مرحباً بكم',
-        'portal' => 'بوابة سيمدا للتمويل الأصغر',
+        'portal' => 'بوابة إدارة سيمدا للتمويل الأصغر',
         'portal_desc' => 'منظومة مالية إسلامية مركزية وأخلاقية متوافقة 100% مع الشريعة وبدون ربا (0%).',
+        'badge_sharia' => 'متوافق 100% مع الشريعة • بدون ربا',
+        'trust_p1_title' => 'تمويل إسلامي بدون ربا (0%)',
+        'trust_p1_sub' => 'عقود مرابحة شرعية معتمدة وتدقيق أخلاقي كامل.',
+        'trust_p2_title' => 'صرف فوري عبر المحافظ',
+        'trust_p2_sub' => 'ربط آلي مباشر مع EVC Plus و Telesom Zaad.',
+        'trust_p3_title' => 'أمان مصرفي عالي المستوى',
+        'trust_p3_sub' => 'تشفير 256-bit وسجل تدقيق غير قابل للتعديل.',
+        'stat_clients' => 'عميل نشط',
+        'stat_sharia' => 'تدقيق شرعي',
         'signin' => 'تسجيل الدخول',
-        'signin_sub' => 'أدخل بيانات الموظف أو العميل للوصول إلى لوحة التحكم',
+        'signin_sub' => 'أدخل بيانات الموظف أو الإدارة للوصول إلى لوحة التحكم',
         'identifier' => 'اسم المستخدم أو البريد الإلكتروني',
         'password' => 'كلمة المرور',
         'remember' => 'تذكرني',
         'show' => 'إظهار',
         'hide' => 'إخفاء',
-        'btn_signin' => 'تسجيل الدخول',
+        'btn_signin' => 'الدخول إلى البوابة ←',
         'or' => 'أو',
         'back_home' => 'العودة للموقع العام',
         'need_help' => 'هل تحتاج إلى مساعدة؟',
@@ -69,7 +96,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= Security::e(Lang::get('nav_login')) ?> — SIMDA</title>
+    <title><?= Security::e(Lang::get('nav_login')) ?> — SIMDA Microfinance</title>
     <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
@@ -80,190 +107,325 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 28px 18px;
-            background: radial-gradient(circle at 25% 20%, #1F5B4C 0%, #123B32 52%, #0A221C 100%);
+            padding: 32px 20px;
+            background: radial-gradient(circle at 20% 15%, #184D3E 0%, #0F352B 48%, #071C17 100%);
             font-family: 'Plus Jakarta Sans', var(--font-body);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ambient subtle light glows behind card */
+        .simda-login-stage::before {
+            content: "";
+            position: absolute;
+            top: -100px;
+            left: -100px;
+            width: 480px;
+            height: 480px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(214, 182, 108, 0.14) 0%, transparent 68%);
+            pointer-events: none;
+        }
+
+        .simda-login-stage::after {
+            content: "";
+            position: absolute;
+            bottom: -120px;
+            right: -100px;
+            width: 520px;
+            height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(38, 126, 98, 0.22) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .simda-login-card {
             position: relative;
             width: 100%;
-            max-width: 940px;
-            min-height: 550px;
+            max-width: 980px;
+            min-height: 580px;
             background: #FFFFFF;
-            border-radius: 26px;
-            box-shadow: 0 32px 70px rgba(0, 0, 0, 0.38);
+            border-radius: 24px;
+            box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(214, 182, 108, 0.22);
             display: grid;
-            grid-template-columns: 1.05fr 0.95fr;
+            grid-template-columns: 1.15fr 0.85fr;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* LEFT SIDE: Deep Emerald Luxury Branding & Trust */
+        .simda-login-left {
+            position: relative;
+            padding: 44px 42px 38px;
+            background: linear-gradient(155deg, #0A2E24 0%, #124336 45%, #082119 100%);
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid rgba(214, 182, 108, 0.16);
             overflow: hidden;
         }
 
-        /* Left Circular Welcome Panel & 3D Spheres */
-        .simda-login-left {
-            position: relative;
-            padding: 56px 44px 56px 54px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            color: #FFFFFF;
-            z-index: 2;
-            user-select: none;
+        [dir="rtl"] .simda-login-left {
+            border-right: none;
+            border-left: 1px solid rgba(214, 182, 108, 0.16);
         }
 
-        /* Giant curved circle backdrop forming the right circular arc */
-        .simda-login-circle-main {
+        /* Subtle Geometric Background Watermark */
+        .simda-login-left::before {
+            content: "";
             position: absolute;
-            top: -120px;
-            left: -130px;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 28% 28%, #28725F 0%, #144338 58%, #0C2A23 100%);
-            box-shadow: 12px 12px 38px rgba(12, 42, 35, 0.25);
-            z-index: -1;
-        }
-
-        /* Center-bottom 3D sphere overlapping the main circle edge */
-        .simda-login-sphere-mid {
-            position: absolute;
-            bottom: 34px;
-            right: 26px;
-            width: 190px;
-            height: 190px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 28%, #348A73 0%, #16493C 62%, #0A241E 100%);
-            box-shadow: 0 20px 38px rgba(7, 25, 20, 0.42);
-            z-index: 1;
-        }
-
-        /* Bottom-left 3D sphere */
-        .simda-login-sphere-bl {
-            position: absolute;
-            bottom: -58px;
-            left: -48px;
-            width: 215px;
-            height: 215px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 32% 28%, #2E7E69 0%, #133F34 65%, #09201A 100%);
-            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
-            z-index: 1;
-        }
-
-        /* Bottom-right decorative 3D sphere on white card corner */
-        .simda-login-sphere-br {
-            position: absolute;
-            bottom: -56px;
-            right: -46px;
-            width: 148px;
-            height: 148px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #2E7E69 0%, #123B32 70%, #0A221C 100%);
-            box-shadow: -6px -6px 24px rgba(18, 59, 50, 0.18);
-            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 18% 18%, rgba(214, 182, 108, 0.12) 0%, transparent 48%),
+                        radial-gradient(circle at 82% 82%, rgba(52, 163, 131, 0.18) 0%, transparent 52%);
             pointer-events: none;
         }
 
-        .simda-login-welcome-content {
+        .simda-login-top-brand {
             position: relative;
             z-index: 3;
-            max-width: 340px;
-            margin-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
         }
 
-        .simda-login-logo-pill {
+        [dir="rtl"] .simda-login-top-brand {
+            align-items: flex-start;
+        }
+
+        .simda-login-logo-link {
             display: inline-flex;
-            align-items: center;
-            background: transparent !important;
-            padding: 0 !important;
-            margin-bottom: 26px;
-            box-shadow: none !important;
+            flex-direction: column;
+            align-items: flex-start;
             text-decoration: none;
+            gap: 2px;
             transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
-        .simda-login-logo-pill:hover {
-            transform: scale(1.04);
-            opacity: 0.92;
+        .simda-login-logo-link:hover {
+            transform: scale(1.02);
+            opacity: 0.95;
         }
 
-        .simda-login-logo-pill img {
-            height: 52px;
+        .simda-login-logo-img {
+            height: 44px;
             width: auto;
             display: block;
             filter: brightness(0) invert(1) !important;
         }
 
-        .simda-login-welcome-title {
-            font-size: 2.55rem;
+        .simda-login-logo-tagline {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            font-size: 0.58rem;
             font-weight: 800;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.05em;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .simda-login-logo-tagline span:first-child {
             color: #FFFFFF;
-            line-height: 1.08;
-            margin: 0 0 8px;
+        }
+
+        .simda-login-logo-tagline span:last-child {
+            color: #D6B66C;
+        }
+
+        .simda-login-sharia-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(214, 182, 108, 0.12);
+            border: 1px solid rgba(214, 182, 108, 0.35);
+            padding: 4px 12px;
+            border-radius: 999px;
+            color: #E6CE93;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        /* Hero Text & Features */
+        .simda-login-mid-hero {
+            position: relative;
+            z-index: 3;
+            margin: 24px 0 20px;
+        }
+
+        .simda-login-welcome-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #FFFFFF;
+            line-height: 1.1;
+            margin: 0 0 4px;
             text-transform: uppercase;
         }
 
         .simda-login-welcome-sub {
             font-size: 0.88rem;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: #D6B66C;
-            margin: 0 0 16px;
+            margin: 0 0 10px;
         }
 
         .simda-login-welcome-desc {
             font-size: 0.82rem;
-            line-height: 1.65;
-            color: rgba(244, 245, 240, 0.84);
-            margin: 0;
+            line-height: 1.6;
+            color: rgba(244, 245, 240, 0.82);
+            margin: 0 0 20px;
+            max-width: 440px;
         }
 
-        /* Right White Sign-In Form Side */
+        /* 3 Luxury Feature Items */
+        .simda-login-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .simda-login-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .simda-login-feature-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(214, 182, 108, 0.3);
+        }
+
+        .simda-feature-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: rgba(214, 182, 108, 0.16);
+            border: 1px solid rgba(214, 182, 108, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #D6B66C;
+            flex-shrink: 0;
+        }
+
+        .simda-feature-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .simda-feature-text strong {
+            font-size: 0.84rem;
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
+        .simda-feature-text span {
+            font-size: 0.72rem;
+            color: rgba(244, 245, 240, 0.72);
+            line-height: 1.35;
+        }
+
+        /* Bottom Stats Ribbon */
+        .simda-login-stats-ribbon {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            margin-top: 10px;
+        }
+
+        .simda-stat-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .simda-stat-col strong {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #D6B66C;
+            letter-spacing: -0.01em;
+        }
+
+        .simda-stat-col span {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: rgba(244, 245, 240, 0.72);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .simda-stat-divider {
+            width: 1px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        /* RIGHT SIDE: Clean Modern Form Panel */
         .simda-login-right {
             position: relative;
             z-index: 3;
-            padding: 48px 52px;
+            padding: 48px 46px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: transparent;
+            background: #FFFFFF;
         }
 
         .simda-signin-title {
-            font-size: 2rem;
+            font-size: 1.95rem;
             font-weight: 800;
-            color: #162621;
+            color: #123B32;
             margin: 0 0 6px;
             letter-spacing: -0.02em;
         }
 
         .simda-signin-sub {
-            font-size: 0.8rem;
-            color: #6B7872;
+            font-size: 0.82rem;
+            color: #61736B;
             margin: 0 0 24px;
+            line-height: 1.5;
         }
 
         .simda-input-pill {
             display: flex;
             align-items: center;
             gap: 12px;
-            background: #F2F4F3;
+            background: #F4F6F4;
             border: 1.5px solid transparent;
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 14px;
+            border-radius: 12px;
+            padding: 13px 16px;
+            margin-bottom: 15px;
             transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
         }
 
         .simda-input-pill:focus-within {
             background: #FFFFFF;
             border-color: #123B32;
-            box-shadow: 0 0 0 3px rgba(18, 59, 50, 0.1);
+            box-shadow: 0 0 0 3px rgba(18, 59, 50, 0.12);
         }
 
         .simda-input-icon {
-            color: #26332E;
+            color: #123B32;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -274,15 +436,16 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             flex: 1;
             border: none;
             background: transparent;
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             color: #162621;
             font-family: inherit;
             outline: none;
             min-width: 0;
+            font-weight: 500;
         }
 
         .simda-input-pill input::placeholder {
-            color: #87938C;
+            color: #8C9993;
         }
 
         .simda-pw-toggle {
@@ -293,7 +456,13 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             font-weight: 800;
             letter-spacing: 0.05em;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.15s ease;
+        }
+
+        .simda-pw-toggle:hover {
+            background: rgba(18, 59, 50, 0.08);
         }
 
         .simda-login-meta-row {
@@ -301,38 +470,50 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin: 2px 0 20px;
-            font-size: 0.78rem;
+            margin: 4px 0 22px;
+            font-size: 0.8rem;
             color: #4A5751;
         }
 
         .simda-btn-signin-main {
             width: 100%;
-            background: #123B32;
+            background: linear-gradient(135deg, #123B32 0%, #0A2620 100%);
             color: #FFFFFF;
-            border: none;
-            border-radius: 10px;
-            padding: 13px 20px;
-            font-size: 0.92rem;
+            border: 1px solid rgba(214, 182, 108, 0.3);
+            border-radius: 12px;
+            padding: 14px 22px;
+            font-size: 0.94rem;
             font-weight: 700;
+            letter-spacing: 0.02em;
             cursor: pointer;
-            box-shadow: 0 10px 22px rgba(18, 59, 50, 0.24);
-            transition: background-color 0.18s ease, transform 0.18s ease;
+            box-shadow: 0 10px 24px rgba(18, 59, 50, 0.28);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .simda-btn-signin-main:hover {
-            background: #0D2B24;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #184D41 0%, #0D332B 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(18, 59, 50, 0.35);
+        }
+
+        .simda-btn-signin-main:active {
+            transform: translateY(0);
         }
 
         .simda-or-divider {
             display: flex;
             align-items: center;
             gap: 14px;
-            margin: 16px 0;
-            color: #87938C;
+            margin: 18px 0;
+            color: #8C9993;
             font-size: 0.76rem;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .simda-or-divider::before,
@@ -340,7 +521,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             content: "";
             flex: 1;
             height: 1px;
-            background: #E2E7E4;
+            background: #E5E9E6;
         }
 
         .simda-btn-signin-alt {
@@ -350,51 +531,53 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             justify-content: center;
             gap: 8px;
             background: #FFFFFF;
-            color: #162621;
-            border: 1.5px solid #26332E;
-            border-radius: 10px;
-            padding: 11px 20px;
-            font-size: 0.86rem;
-            font-weight: 600;
+            color: #123B32;
+            border: 1.5px solid #D5DBD8;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.88rem;
+            font-weight: 700;
             text-decoration: none;
-            transition: background-color 0.18s ease;
+            transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
 
         .simda-btn-signin-alt:hover {
-            background: #F6F7F3;
+            background: #F4F6F4;
+            border-color: #123B32;
         }
 
         .simda-login-bottom-note {
-            margin-top: 22px;
+            margin-top: 24px;
             text-align: center;
-            font-size: 0.78rem;
-            color: #5A6660;
+            font-size: 0.8rem;
+            color: #61736B;
         }
 
         .simda-login-bottom-note a {
             color: #123B32;
-            font-weight: 700;
+            font-weight: 800;
+            text-decoration: underline;
         }
 
-        @media (max-width: 820px) {
+        @media (max-width: 860px) {
             .simda-login-card {
                 grid-template-columns: 1fr;
-                max-width: 460px;
+                max-width: 480px;
+                min-height: auto;
             }
             .simda-login-left {
-                padding: 36px 32px 28px;
-                background: linear-gradient(135deg, #194D40 0%, #123B32 100%);
+                padding: 34px 28px 30px;
+                border-right: none;
+                border-bottom: 1px solid rgba(214, 182, 108, 0.2);
             }
-            .simda-login-circle-main,
-            .simda-login-sphere-mid,
-            .simda-login-sphere-bl {
+            .simda-login-welcome-title {
+                font-size: 1.8rem;
+            }
+            .simda-login-features {
                 display: none;
             }
-            .simda-login-welcome-content {
-                margin-bottom: 0;
-            }
             .simda-login-right {
-                padding: 34px 30px 40px;
+                padding: 34px 28px 38px;
             }
         }
     </style>
@@ -403,25 +586,83 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
 <div class="simda-login-stage">
     <div class="simda-login-card animate-in">
-        <!-- Left Circular Welcome Panel with 3D Spheres -->
+        <!-- Left Circular & Deep Emerald Brand Experience -->
         <div class="simda-login-left">
-            <div class="simda-login-circle-main"></div>
-            <div class="simda-login-sphere-mid"></div>
-            <div class="simda-login-sphere-bl"></div>
-
-            <div class="simda-login-welcome-content">
-                <a href="?route=home" class="simda-login-logo-pill">
-                    <img src="assets/images/simda-logo.png" alt="SIMDA Logo">
+            <div class="simda-login-top-brand">
+                <a href="?route=home" class="simda-login-logo-link" title="SIMDA Microfinance">
+                    <img src="assets/images/simda-logo.png" alt="SIMDA Logo" class="simda-login-logo-img">
+                    <span class="simda-login-logo-tagline">
+                        <span>SOMALI ISLAMIC MICROFINANCE</span>
+                        <span>DEVELOPMENT ASSOCIATION</span>
+                    </span>
                 </a>
+                <div class="simda-login-sharia-badge">
+                    <?= Icons::svg('check-circle', 14) ?>
+                    <span><?= Security::e($lt['badge_sharia']) ?></span>
+                </div>
+            </div>
+
+            <div class="simda-login-mid-hero">
                 <h1 class="simda-login-welcome-title"><?= Security::e($lt['welcome']) ?></h1>
                 <div class="simda-login-welcome-sub"><?= Security::e($lt['portal']) ?></div>
                 <p class="simda-login-welcome-desc">
-                    <?= Security::e(Lang::get('tagline')) ?> — <?= Security::e($lt['portal_desc']) ?>
+                    <?= Security::e($lt['portal_desc']) ?>
                 </p>
+
+                <!-- 3 Feature Pillars -->
+                <div class="simda-login-features">
+                    <div class="simda-login-feature-item">
+                        <div class="simda-feature-icon-box">
+                            <?= Icons::svg('shield', 18) ?>
+                        </div>
+                        <div class="simda-feature-text">
+                            <strong><?= Security::e($lt['trust_p1_title']) ?></strong>
+                            <span><?= Security::e($lt['trust_p1_sub']) ?></span>
+                        </div>
+                    </div>
+
+                    <div class="simda-login-feature-item">
+                        <div class="simda-feature-icon-box">
+                            <?= Icons::svg('send', 18) ?>
+                        </div>
+                        <div class="simda-feature-text">
+                            <strong><?= Security::e($lt['trust_p2_title']) ?></strong>
+                            <span><?= Security::e($lt['trust_p2_sub']) ?></span>
+                        </div>
+                    </div>
+
+                    <div class="simda-login-feature-item">
+                        <div class="simda-feature-icon-box">
+                            <?= Icons::svg('lock', 18) ?>
+                        </div>
+                        <div class="simda-feature-text">
+                            <strong><?= Security::e($lt['trust_p3_title']) ?></strong>
+                            <span><?= Security::e($lt['trust_p3_sub']) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Stats Ribbon -->
+            <div class="simda-login-stats-ribbon">
+                <div class="simda-stat-col">
+                    <strong>15K+</strong>
+                    <span><?= Security::e($lt['stat_clients']) ?></span>
+                </div>
+                <div class="simda-stat-divider"></div>
+                <div class="simda-stat-col">
+                    <strong>0%</strong>
+                    <span>Ribo (Riba)</span>
+                </div>
+                <div class="simda-stat-divider"></div>
+                <div class="simda-stat-col">
+                    <strong>100%</strong>
+                    <span><?= Security::e($lt['stat_sharia']) ?></span>
+                </div>
             </div>
         </div>
 
-        <!-- Right White Sign-In Form Panel -->
+        <!-- Right Modern Clean Sign-In Form Panel -->
         <div class="simda-login-right">
             <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
             <p class="simda-signin-sub"><?= Security::e($lt['signin_sub']) ?></p>
@@ -457,8 +698,8 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                 </div>
 
                 <div class="simda-login-meta-row">
-                    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
-                        <input type="checkbox" name="remember" style="accent-color:#123B32;">
+                    <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-weight:600;">
+                        <input type="checkbox" name="remember" style="accent-color:#123B32;width:15px;height:15px;">
                         <span><?= Security::e($lt['remember']) ?></span>
                     </label>
                     <?php
@@ -498,6 +739,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                 <div class="simda-or-divider"><?= Security::e($lt['or']) ?></div>
 
                 <a href="?route=home" class="simda-btn-signin-alt">
+                    <?= Icons::svg('home', 16) ?>
                     <span><?= Security::e($lt['back_home']) ?></span>
                 </a>
             </form>
@@ -506,9 +748,6 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                 <?= Security::e($lt['need_help']) ?> <a href="?route=contact"><?= Security::e($lt['contact_office']) ?></a>
             </div>
         </div>
-
-        <!-- Bottom-right decorative 3D sphere -->
-        <div class="simda-login-sphere-br"></div>
     </div>
 </div>
 
@@ -520,10 +759,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             btn.addEventListener('click', function () {
                 if (pw.type === 'password') {
                     pw.type = 'text';
-                    btn.textContent = 'HIDE';
+                    btn.textContent = '<?= Security::e($lt['hide']) ?>';
                 } else {
                     pw.type = 'password';
-                    btn.textContent = 'SHOW';
+                    btn.textContent = '<?= Security::e($lt['show']) ?>';
                 }
             });
         }
