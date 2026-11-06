@@ -8,6 +8,8 @@ use App\Helpers\Security;
 $locale = Lang::locale();
 $csrf = Security::csrfToken();
 $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
+$preVerifiedEmail = (string) ($_SESSION['login_verified_identifier'] ?? '');
+unset($_SESSION['login_verified_identifier']);
 
 $loginI18n = [
     'en' => [
@@ -16,12 +18,19 @@ $loginI18n = [
         'portal_desc' => 'Centralized, ethical, and 100% Zero-Riba Sharia-compliant financial management platform.',
         'signin' => 'Sign in',
         'signin_sub' => 'Enter your SIMDA staff or client credentials to access the portal',
+        'step1_sub' => 'Enter your user name or registered email to verify your account',
+        'btn_continue' => 'Continue →',
+        'btn_verifying' => 'Verifying...',
+        'step2_title' => 'Enter Password',
+        'step2_sub' => 'Please enter your password to access your account',
+        'btn_change_email' => 'Change',
+        'err_not_found' => 'Please note this email is not recognized. Try again.',
         'identifier' => 'User Name or Email',
         'password' => 'Password',
         'remember' => 'Remember me',
         'show' => 'SHOW',
         'hide' => 'HIDE',
-        'btn_signin' => 'Sign in',
+        'btn_signin' => 'Sign In to Portal →',
         'or' => 'Or',
         'back_home' => 'Back to Public Website',
         'need_help' => 'Need assistance?',
@@ -33,12 +42,19 @@ $loginI18n = [
         'portal_desc' => 'Nidaam dhexe, xalaal ah, oo 100% waafaqsan Shareecada Islaamka iyo 0% Ribo.',
         'signin' => 'Gal Nidaamka',
         'signin_sub' => 'Gali magacaaga ama email-kaaga si aad u gasho maamulka',
+        'step1_sub' => 'Geli email-kaaga ama magacaaga si loo xaqiijiyo akoonkaaga',
+        'btn_continue' => 'Sii Wad →',
+        'btn_verifying' => 'Waa la hubinayaa...',
+        'step2_title' => 'Geli Furaha Sirta ah',
+        'step2_sub' => 'Fadlan geli furahaaga sirta ah si aad u gasho',
+        'btn_change_email' => 'Beddel',
+        'err_not_found' => 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.',
         'identifier' => 'Magaca ama Email-ka',
         'password' => 'Furaha Sirta ah',
         'remember' => 'I xasuuso',
         'show' => 'MUUG',
         'hide' => 'QARI',
-        'btn_signin' => 'Gal Nidaamka',
+        'btn_signin' => 'Gal Bortaalka →',
         'or' => 'Ama',
         'back_home' => 'Ku laabo Bogga Guud',
         'need_help' => 'Ma u baahan tahay caawimaad?',
@@ -50,12 +66,19 @@ $loginI18n = [
         'portal_desc' => 'منظومة مالية إسلامية مركزية وأخلاقية متوافقة 100% مع الشريعة وبدون ربا (0%).',
         'signin' => 'تسجيل الدخول',
         'signin_sub' => 'أدخل بيانات الموظف أو العميل للوصول إلى لوحة التحكم',
+        'step1_sub' => 'أدخل بريدك الإلكتروني أو اسم المستخدم للتحقق من حسابك',
+        'btn_continue' => 'متابعة ←',
+        'btn_verifying' => 'جارٍ التحقق...',
+        'step2_title' => 'أدخل كلمة المرور',
+        'step2_sub' => 'يرجى إدخال كلمة المرور الخاصة بك للوصول إلى حسابك',
+        'btn_change_email' => 'تغيير',
+        'err_not_found' => 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.',
         'identifier' => 'اسم المستخدم أو البريد الإلكتروني',
         'password' => 'كلمة المرور',
         'remember' => 'تذكرني',
         'show' => 'إظهار',
         'hide' => 'إخفاء',
-        'btn_signin' => 'تسجيل الدخول',
+        'btn_signin' => 'الدخول إلى البوابة ←',
         'or' => 'أو',
         'back_home' => 'العودة للموقع العام',
         'need_help' => 'هل تحتاج إلى مساعدة؟',
@@ -269,6 +292,58 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             margin: 0 0 24px;
         }
 
+        .simda-account-chip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #F2F5F3;
+            border: 1px solid #D5DDD8;
+            border-radius: 12px;
+            padding: 9px 14px;
+            margin-bottom: 18px;
+            gap: 10px;
+        }
+
+        .simda-account-chip-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .simda-chip-avatar {
+            color: #10B981;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .simda-chip-email {
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #123B32;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .simda-chip-change-btn {
+            background: none;
+            border: none;
+            color: #2872A1;
+            font-size: 0.78rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 2px 6px;
+            flex-shrink: 0;
+        }
+
+        .simda-chip-change-btn:hover {
+            color: #123B32;
+        }
+
         .simda-input-pill {
             display: flex;
             align-items: center;
@@ -452,84 +527,111 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
         <!-- Right White Sign-In Form Panel -->
         <div class="simda-login-right">
-            <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
-            <p class="simda-signin-sub"><?= Security::e($lt['signin_sub']) ?></p>
+            <!-- STEP 1: EMAIL ENTRY ONLY (Password is hidden until email is verified) -->
+            <div id="loginStep1" style="<?= !empty($preVerifiedEmail) ? 'display:none;' : '' ?>">
+                <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
+                <p class="simda-signin-sub"><?= Security::e($lt['step1_sub']) ?></p>
 
-            <?php if (!empty($_SESSION['flash_error'])): ?>
-                <div class="alert alert-danger" style="padding:10px 14px;font-size:0.8rem;margin-bottom:14px;">
+                <div id="step1AlertError" class="alert alert-danger" style="display:<?= !empty($_SESSION['flash_error']) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
                     <?= Icons::svg('alert-triangle', 16) ?>
-                    <span><?= Security::e($_SESSION['flash_error']) ?></span>
+                    <span id="step1AlertText"><?= Security::e($_SESSION['flash_error'] ?? '') ?></span>
                 </div>
                 <?php unset($_SESSION['flash_error']); ?>
-            <?php endif; ?>
 
-            <?php if (!empty($_SESSION['flash_warning'])): ?>
-                <div class="alert alert-warning" style="padding:10px 14px;font-size:0.8rem;margin-bottom:14px;">
-                    <?= Icons::svg('info', 16) ?>
-                    <span><?= Security::e($_SESSION['flash_warning']) ?></span>
-                </div>
-                <?php unset($_SESSION['flash_warning']); ?>
-            <?php endif; ?>
+                <form id="formCheckEmail" onsubmit="handleCheckEmail(event)">
+                    <div class="simda-input-pill" id="identifierPill">
+                        <span class="simda-input-icon"><?= Icons::svg('user', 18) ?></span>
+                        <input type="text" id="identifierInput" name="identifier" required autofocus placeholder="<?= Security::e($lt['identifier']) ?>" value="<?= Security::e($preVerifiedEmail) ?>" autocomplete="username">
+                    </div>
 
-            <form method="POST" action="?route=login_submit">
-                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-
-                <div class="simda-input-pill">
-                    <span class="simda-input-icon"><?= Icons::svg('user', 18) ?></span>
-                    <input type="text" id="identifier" name="identifier" required autofocus placeholder="<?= Security::e($lt['identifier']) ?>">
-                </div>
-
-                <div class="simda-input-pill">
-                    <span class="simda-input-icon"><?= Icons::svg('lock', 18) ?></span>
-                    <input type="password" id="password" name="password" required placeholder="<?= Security::e($lt['password']) ?>">
-                    <button type="button" class="simda-pw-toggle" id="togglePwBtn"><?= Security::e($lt['show']) ?></button>
-                </div>
-
-                <div class="simda-login-meta-row">
-                    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
-                        <input type="checkbox" name="remember" style="accent-color:#123B32;">
-                        <span><?= Security::e($lt['remember']) ?></span>
-                    </label>
-                    <?php
-                    $loginLanguagesList = [
-                        'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
-                        'en' => ['label' => 'English (US)', 'code' => 'EN', 'flag' => 'assets/images/flags/flag-us.jpg'],
-                        'ar' => ['label' => 'العربية', 'code' => 'AR', 'flag' => 'assets/images/flags/flag-ar.jpg'],
-                    ];
-                    $loginActiveLang = $loginLanguagesList[$locale] ?? $loginLanguagesList['en'];
-                    ?>
-                    <div class="simda-lang-dropdown">
-                        <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
-                            <img src="<?= Security::e($loginActiveLang['flag']) ?>" alt="<?= Security::e($loginActiveLang['label']) ?>" class="simda-lang-flag-circle">
-                            <span class="simda-lang-code"><?= Security::e($loginActiveLang['code']) ?></span>
-                            <svg class="simda-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="1 1 5 5 9 1"></polyline>
-                            </svg>
-                        </button>
-                        <div class="simda-lang-menu" role="menu" style="bottom:calc(100% + 8px);top:auto;">
-                            <?php foreach ($loginLanguagesList as $code => $info): ?>
-                                <a href="?route=login&lang=<?= $code ?>" class="simda-lang-item <?= $locale === $code ? 'is-active' : '' ?>" role="menuitem">
-                                    <img src="<?= Security::e($info['flag']) ?>" alt="<?= Security::e($info['label']) ?>" class="simda-lang-flag-circle">
-                                    <span class="simda-lang-name"><?= Security::e($info['label']) ?></span>
-                                    <?php if ($locale === $code): ?>
-                                        <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    <?php endif; ?>
-                                </a>
-                            <?php endforeach; ?>
+                    <div class="simda-login-meta-row">
+                        <span></span>
+                        <?php
+                        $loginLanguagesList = [
+                            'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
+                            'en' => ['label' => 'English (US)', 'code' => 'EN', 'flag' => 'assets/images/flags/flag-us.jpg'],
+                            'ar' => ['label' => 'العربية', 'code' => 'AR', 'flag' => 'assets/images/flags/flag-ar.jpg'],
+                        ];
+                        $loginActiveLang = $loginLanguagesList[$locale] ?? $loginLanguagesList['en'];
+                        ?>
+                        <div class="simda-lang-dropdown">
+                            <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
+                                <img src="<?= Security::e($loginActiveLang['flag']) ?>" alt="<?= Security::e($loginActiveLang['label']) ?>" class="simda-lang-flag-circle">
+                                <span class="simda-lang-code"><?= Security::e($loginActiveLang['code']) ?></span>
+                                <svg class="simda-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="1 1 5 5 9 1"></polyline>
+                                </svg>
+                            </button>
+                            <div class="simda-lang-menu" role="menu" style="bottom:calc(100% + 8px);top:auto;">
+                                <?php foreach ($loginLanguagesList as $code => $info): ?>
+                                    <a href="?route=login&lang=<?= $code ?>" class="simda-lang-item <?= $locale === $code ? 'is-active' : '' ?>" role="menuitem">
+                                        <img src="<?= Security::e($info['flag']) ?>" alt="<?= Security::e($info['label']) ?>" class="simda-lang-flag-circle">
+                                        <span class="simda-lang-name"><?= Security::e($info['label']) ?></span>
+                                        <?php if ($locale === $code): ?>
+                                            <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                        <?php endif; ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
+
+                    <button type="submit" id="btnContinue" class="simda-btn-signin-main">
+                        <span id="btnContinueText"><?= Security::e($lt['btn_continue']) ?></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 2: PASSWORD ENTRY (Only revealed when email is verified in database) -->
+            <div id="loginStep2" style="<?= empty($preVerifiedEmail) ? 'display:none;' : '' ?>">
+                <h2 class="simda-signin-title"><?= Security::e($lt['step2_title']) ?></h2>
+                <p class="simda-signin-sub"><?= Security::e($lt['step2_sub']) ?></p>
+
+                <!-- Verified Account Pill -->
+                <div class="simda-account-chip">
+                    <div class="simda-account-chip-info">
+                        <span class="simda-chip-avatar"><?= Icons::svg('check-circle', 16) ?></span>
+                        <span id="verifiedUserEmail" class="simda-chip-email"><?= Security::e($preVerifiedEmail) ?></span>
+                    </div>
+                    <button type="button" class="simda-chip-change-btn" onclick="handleChangeEmail()"><?= Security::e($lt['btn_change_email']) ?></button>
                 </div>
 
-                <button type="submit" class="simda-btn-signin-main"><?= Security::e($lt['btn_signin']) ?></button>
+                <div id="step2AlertError" class="alert alert-danger" style="display:none;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
+                    <?= Icons::svg('alert-triangle', 16) ?>
+                    <span id="step2AlertText"></span>
+                </div>
 
-                <div class="simda-or-divider"><?= Security::e($lt['or']) ?></div>
+                <form method="POST" action="?route=login_submit" id="formLoginSubmit">
+                    <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                    <input type="hidden" name="identifier" id="finalIdentifier" value="<?= Security::e($preVerifiedEmail) ?>">
 
-                <a href="?route=home" class="simda-btn-signin-alt">
-                    <span><?= Security::e($lt['back_home']) ?></span>
-                </a>
-            </form>
+                    <div class="simda-input-pill" id="passwordPill">
+                        <span class="simda-input-icon"><?= Icons::svg('lock', 18) ?></span>
+                        <input type="password" id="password" name="password" required placeholder="<?= Security::e($lt['password']) ?>" autocomplete="current-password">
+                        <button type="button" class="simda-pw-toggle" id="togglePwBtn"><?= Security::e($lt['show']) ?></button>
+                    </div>
+
+                    <div class="simda-login-meta-row">
+                        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+                            <input type="checkbox" name="remember" style="accent-color:#123B32;">
+                            <span><?= Security::e($lt['remember']) ?></span>
+                        </label>
+                        <a href="javascript:void(0)" onclick="handleChangeEmail()" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
+                            <?= Security::e($lt['btn_change_email']) ?>
+                        </a>
+                    </div>
+
+                    <button type="submit" class="simda-btn-signin-main"><?= Security::e($lt['btn_signin']) ?></button>
+                </form>
+            </div>
+
+            <div class="simda-or-divider"><?= Security::e($lt['or']) ?></div>
+
+            <a href="?route=home" class="simda-btn-signin-alt">
+                <span><?= Security::e($lt['back_home']) ?></span>
+            </a>
 
             <div class="simda-login-bottom-note">
                 <?= Security::e($lt['need_help']) ?> <a href="?route=contact"><?= Security::e($lt['contact_office']) ?></a>
@@ -549,14 +651,90 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             btn.addEventListener('click', function () {
                 if (pw.type === 'password') {
                     pw.type = 'text';
-                    btn.textContent = 'HIDE';
+                    btn.textContent = '<?= Security::e($lt['hide']) ?>';
                 } else {
                     pw.type = 'password';
-                    btn.textContent = 'SHOW';
+                    btn.textContent = '<?= Security::e($lt['show']) ?>';
                 }
             });
         }
     })();
+
+    function handleCheckEmail(e) {
+        if (e) e.preventDefault();
+        var emailInput = document.getElementById('identifierInput');
+        var btn = document.getElementById('btnContinue');
+        var btnText = document.getElementById('btnContinueText');
+        var alertErr = document.getElementById('step1AlertError');
+        var alertText = document.getElementById('step1AlertText');
+        var pill = document.getElementById('identifierPill');
+
+        var val = (emailInput.value || '').trim();
+        if (!val) {
+            emailInput.focus();
+            return;
+        }
+
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btnText.textContent = '<?= Security::e($lt['btn_verifying']) ?>';
+        alertErr.style.display = 'none';
+        pill.style.borderColor = 'transparent';
+
+        var fd = new FormData();
+        fd.append('_csrf', '<?= Security::e($csrf) ?>');
+        fd.append('identifier', val);
+
+        fetch('?route=login_check_email', {
+            method: 'POST',
+            body: fd
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btnText.textContent = '<?= Security::e($lt['btn_continue']) ?>';
+
+            if (data.success) {
+                // Email found in database! Reveal Step 2 (Password box)
+                document.getElementById('finalIdentifier').value = data.identifier || val;
+                document.getElementById('verifiedUserEmail').textContent = data.identifier || val;
+                document.getElementById('loginStep1').style.display = 'none';
+                document.getElementById('loginStep2').style.display = 'block';
+                setTimeout(function() {
+                    var pw = document.getElementById('password');
+                    if (pw) {
+                        pw.value = '';
+                        pw.focus();
+                    }
+                }, 100);
+            } else {
+                // Email NOT in database! Keep password box hidden, show error message
+                alertText.textContent = data.message || '<?= Security::e($lt['err_not_found']) ?>';
+                alertErr.style.display = 'flex';
+                pill.style.borderColor = '#C94B4B';
+                emailInput.focus();
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btnText.textContent = '<?= Security::e($lt['btn_continue']) ?>';
+            alertText.textContent = '<?= Security::e($lt['err_not_found']) ?>';
+            alertErr.style.display = 'flex';
+            pill.style.borderColor = '#C94B4B';
+        });
+    }
+
+    function handleChangeEmail() {
+        document.getElementById('loginStep2').style.display = 'none';
+        document.getElementById('loginStep1').style.display = 'block';
+        var emailInput = document.getElementById('identifierInput');
+        if (emailInput) {
+            emailInput.focus();
+            emailInput.select();
+        }
+    }
 </script>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>

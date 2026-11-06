@@ -37,6 +37,7 @@ final class PortalController
                 'contact_submit' => self::contactSubmit($pdo),
                 'offline' => self::publicOffline(),
                 'login' => self::loginForm(),
+                'login_check_email' => self::loginCheckEmail($pdo),
                 'login_submit' => self::loginSubmit($pdo),
                 'logout' => self::logout(),
                 'api_schedule_preview' => self::apiSchedulePreview(),
@@ -648,14 +649,96 @@ final class PortalController
         require dirname(__DIR__, 2) . '/resources/views/auth/login.php';
     }
 
+    private static function loginCheckEmail(PDO $pdo): void
+    {
+        AuthMiddleware::verifyCsrfOrAbort();
+        header('Content-Type: application/json; charset=utf-8');
+        $identifier = trim((string) ($_POST['identifier'] ?? ''));
+        $isSo = Lang::locale() === 'so';
+        $isAr = Lang::locale() === 'ar';
+
+        if ($identifier === '') {
+            $msg = $isSo ? 'Fadlan geli email-kaaga.' : ($isAr ? 'يرجى إدخال البريد الإلكتروني.' : 'Please enter your email.');
+            echo json_encode(['success' => false, 'message' => $msg]);
+            exit;
+        }
+
+        $st = $pdo->prepare('
+            SELECT id, full_name, email, username, is_active
+            FROM users
+            WHERE (email = :id1 OR username = :id2)
+              AND deleted_at IS NULL
+            LIMIT 1
+        ');
+        $st->execute([':id1' => $identifier, ':id2' => $identifier]);
+        $user = $st->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user || !(bool) $user['is_active']) {
+            $msg = $isSo
+                ? 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.'
+                : ($isAr
+                    ? 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.'
+                    : 'Please note this email is not recognized. Try again.');
+            echo json_encode(['success' => false, 'message' => $msg]);
+            exit;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'identifier' => $user['email'] ?: $user['username'],
+            'full_name' => $user['full_name'],
+            'message' => $isSo ? 'Email-ka waa la aqoonsaday. Fadlan geli furahaaga sirta ah.' : 'Email recognized. Please enter your password.'
+        ]);
+        exit;
+    }
+
     private static function loginSubmit(PDO $pdo): void
     {
         AuthMiddleware::verifyCsrfOrAbort();
-        $identifier = (string) ($_POST['identifier'] ?? '');
+        $identifier = trim((string) ($_POST['identifier'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
-        AuthService::attemptLogin($identifier, $password, $pdo);
-        header('Location: ?route=dashboard');
-        exit;
+        $isSo = Lang::locale() === 'so';
+        $isAr = Lang::locale() === 'ar';
+
+        // Security Step 1: Check Email existence
+        $st = $pdo->prepare('
+            SELECT id, email, username, is_active
+            FROM users
+            WHERE (email = :id1 OR username = :id2)
+              AND deleted_at IS NULL
+            LIMIT 1
+        ');
+        $st->execute([':id1' => $identifier, ':id2' => $identifier]);
+        $user = $st->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user || !(bool) $user['is_active']) {
+            $_SESSION['flash_error'] = $isSo
+                ? 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.'
+                : ($isAr ? 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.' : 'Please note this email is not recognized. Try again.');
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // If email was posted without password (progressive enhancement), store verified identifier
+        if ($password === '') {
+            $_SESSION['login_verified_identifier'] = $user['email'] ?: $user['username'];
+            header('Location: ?route=login');
+            exit;
+        }
+
+        try {
+            AuthService::attemptLogin($identifier, $password, $pdo);
+            unset($_SESSION['login_verified_identifier']);
+            header('Location: ?route=dashboard');
+            exit;
+        } catch (\Throwable $e) {
+            $_SESSION['login_verified_identifier'] = $user['email'] ?: $user['username'];
+            $_SESSION['flash_error'] = $isSo
+                ? 'Furaha sirta ah waa qalad. Fadlan hubi oo isku day mar kale.'
+                : ($isAr ? 'كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.' : 'Incorrect password. Please try again.');
+            header('Location: ?route=login');
+            exit;
+        }
     }
 
     private static function logout(): void
