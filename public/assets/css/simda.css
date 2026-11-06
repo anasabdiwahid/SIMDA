@@ -2380,9 +2380,9 @@ html:not([data-theme="dark"]) .fid-footer-logo-tagline span:last-child {
 }
 
 .sidebar-brand {
-    min-height: 82px;
+    min-height: 72px;
     height: auto;
-    padding: 14px 16px 12px;
+    padding: 10px 16px 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3119,7 +3119,7 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-compact {
     margin: 0 auto !important;
 }
 
-/* Sidebar Brand Centering & Tagline */
+/* Sidebar Brand Centering & Tagline (Tight, cohesive lockup) */
 .sidebar .brand-logo-wrap {
     display: flex;
     flex-direction: column;
@@ -3128,6 +3128,16 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-compact {
     text-align: center;
     text-decoration: none;
     width: 100%;
+    gap: 0 !important;
+}
+
+.sidebar .brand-logo-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
 }
 
 .sidebar-brand-tagline {
@@ -3136,11 +3146,12 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-compact {
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin-top: 5px;
+    margin-top: 1px !important;
+    gap: 1px !important;
     font-size: 0.58rem;
     font-weight: 800;
-    letter-spacing: 0.055em;
-    line-height: 1.25;
+    letter-spacing: 0.05em;
+    line-height: 1.15;
     white-space: nowrap;
     text-transform: uppercase;
 }
