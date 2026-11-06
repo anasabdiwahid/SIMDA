@@ -3078,25 +3078,32 @@ html:not([data-theme="dark"]) .fid-nav-links a:not(.active) {
     color: #2B3B34 !important;
 }
 
-/* Dashboard Sidebar Logo Pill (Dark vs Light) */
-[data-theme="dark"] .sidebar .brand-logo-pill {
+/* Dashboard Sidebar Logo Pill: Always Pure White Logo on Transparent Background */
+.sidebar .brand-logo-pill,
+[data-theme="dark"] .sidebar .brand-logo-pill,
+[data-theme="light"] .sidebar .brand-logo-pill,
+html:not([data-theme="dark"]) .sidebar .brand-logo-pill {
     background: transparent !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: none !important;
-}
-
-[data-theme="dark"] .sidebar .brand-logo-pill img.brand-logo-full {
-    filter: brightness(0) invert(1) !important;
-}
-
-[data-theme="light"] .sidebar .brand-logo-pill {
-    background: #FFFFFF !important;
     border: none !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
-[data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-full {
-    filter: none !important;
+.sidebar .brand-logo-pill img.brand-logo-full,
+[data-theme="dark"] .sidebar .brand-logo-pill img.brand-logo-full,
+[data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-full,
+html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-full {
+    filter: brightness(0) invert(1) !important;
+    height: 32px !important;
+    width: auto !important;
+    display: block !important;
+}
+
+.sidebar .brand-logo-pill img.brand-logo-compact,
+[data-theme="dark"] .sidebar .brand-logo-pill img.brand-logo-compact,
+[data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-compact,
+html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-compact {
+    filter: brightness(0) invert(1) !important;
 }
 
 /* Nav fonts in Dark Mode: High contrast readable white & gold */

@@ -173,16 +173,24 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         .simda-login-logo-pill {
             display: inline-flex;
             align-items: center;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 7px 14px;
-            border-radius: 12px;
+            background: transparent !important;
+            padding: 0 !important;
             margin-bottom: 26px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+            box-shadow: none !important;
+            text-decoration: none;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .simda-login-logo-pill:hover {
+            transform: scale(1.04);
+            opacity: 0.92;
         }
 
         .simda-login-logo-pill img {
-            height: 28px;
+            height: 38px;
             width: auto;
+            display: block;
+            filter: brightness(0) invert(1) !important;
         }
 
         .simda-login-welcome-title {
