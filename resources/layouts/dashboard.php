@@ -92,15 +92,15 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </a>
 
                 <!-- 5. Loans Taken (Daynta La Qaatay) -->
-                <a href="?route=loans" class="sidebar-link <?= in_array($currentRoute, ['loans', 'financings', 'financing_view', 'schedules', 'repayments', 'repayment_record'], true) ? 'active' : '' ?>">
+                <a href="?route=loans" class="sidebar-link <?= in_array($currentRoute, ['loans', 'loan_new', 'financings', 'financing_view', 'schedules', 'repayments', 'repayment_record'], true) ? 'active' : '' ?>">
                     <?= Icons::svg('credit-card', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Loans Taken' : ($locale === 'ar' ? 'التمويلات والقروض' : 'Loans Taken') ?></span>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Dayn Oo Lacag Ah' : ($locale === 'ar' ? 'التمويلات النقدية' : 'Cash Loans') ?></span>
                 </a>
 
                 <!-- 6. Murabaha Taken (Murabaxada La Qaatay) -->
                 <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>">
                     <?= Icons::svg('shopping-bag', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Murabaha Taken' : ($locale === 'ar' ? 'عقود المرابحة' : 'Murabaha Taken') ?></span>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Murabaxo' : ($locale === 'ar' ? 'عقود المرابحة' : 'Murabaha') ?></span>
                 </a>
 
                 <!-- 7. Branch Manage -->
@@ -165,7 +165,11 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 
                 <?php if (AuthMiddleware::hasPermission('loans.view')): ?>
                 <!-- DAYMAHA (LOANS / QARD HASSAN) -->
-                <div class="sidebar-group-label"><?= $locale === 'so' ? 'DAYMAHA (LOANS)' : 'CASH LOANS' ?></div>
+                <div class="sidebar-group-label"><?= $locale === 'so' ? 'DAYN OO LACAG AH (CASH LOANS)' : 'CASH LOANS' ?></div>
+                <a href="?route=loan_new" class="sidebar-link <?= $currentRoute === 'loan_new' ? 'active' : '' ?>" style="color:var(--gold-color,#D6B66C);font-weight:700;">
+                    <?= Icons::svg('plus-circle', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? '+ Sii Dayn Lacag Ah' : '+ New Cash Loan' ?></span>
+                </a>
                 <a href="?route=loans&filter=active" class="sidebar-link <?= ($currentRoute === 'loans' && (($_GET['filter'] ?? '') === 'active' || empty($_GET['filter']))) ? 'active' : '' ?>">
                     <?= Icons::svg('activity', 18) ?>
                     <span class="sidebar-text"><?= $locale === 'so' ? 'Dadka Deynta Qaatay' : 'Active Borrowers' ?></span>
@@ -183,39 +187,22 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <?php if (AuthMiddleware::hasPermission('murabaha.view')): ?>
                 <!-- MURABAXO (MURABAHA ASSET FINANCING) -->
                 <div class="sidebar-group-label"><?= $locale === 'so' ? 'MURABAXO (ASSET FINANCING)' : 'MURABAHA' ?></div>
-                <div class="sidebar-dropdown-wrap">
-                    <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>" style="justify-content:space-between;">
-                        <span style="display:flex;align-items:center;gap:12px;">
-                            <?= Icons::svg('shopping-bag', 18) ?>
-                            <span class="sidebar-text"><?= $locale === 'so' ? 'Heshiiska Murabaxada' : 'Murabaha Financing' ?></span>
-                        </span>
-                        <span style="display:inline-flex;padding:2px;opacity:0.75;" onclick="event.preventDefault(); event.stopPropagation(); const sm = document.getElementById('murabahaSubMenu'); if(sm){ sm.style.display = sm.style.display === 'none' ? 'flex' : 'none'; }">
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="1 1 5 5 9 1"></polyline>
-                            </svg>
-                        </span>
-                    </a>
-                    <div class="sidebar-submenu" id="murabahaSubMenu" style="display:<?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'flex' : 'flex' ?>;">
-                        <?php if (AuthMiddleware::hasPermission('murabaha.create')): ?>
-                        <a href="?route=murabaha_new" class="sidebar-sublink <?= $currentRoute === 'murabaha_new' ? 'active' : '' ?>">
-                            <?= Icons::svg('plus', 13) ?>
-                            <span><?= $locale === 'so' ? 'Qof Cusub u Diwaangeli' : 'New Murabaha Application' ?></span>
-                        </a>
-                        <?php endif; ?>
-                        <a href="?route=murabaha&filter=all" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && (($_GET['filter'] ?? '') === 'all' || empty($_GET['filter']))) ? 'active' : '' ?>">
-                            <?= Icons::svg('layers', 13) ?>
-                            <span><?= $locale === 'so' ? 'Dadka Murabaxada Qaatay' : 'All Murabaha Contracts' ?></span>
-                        </a>
-                        <a href="?route=murabaha&filter=settled" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'settled') ? 'active' : '' ?>">
-                            <?= Icons::svg('check-circle', 13) ?>
-                            <span><?= $locale === 'so' ? 'Inta Qaadatay & Soo Celisay' : 'Settled Murabaha' ?></span>
-                        </a>
-                        <a href="?route=murabaha&filter=unpaid" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'unpaid') ? 'active' : '' ?>">
-                            <?= Icons::svg('alert-triangle', 13) ?>
-                            <span><?= $locale === 'so' ? 'Inta Aan Weli Soo Celin' : 'Unpaid / Active' ?></span>
-                        </a>
-                    </div>
-                </div>
+                <a href="?route=murabaha_new" class="sidebar-link <?= $currentRoute === 'murabaha_new' ? 'active' : '' ?>" style="color:var(--gold-color,#D6B66C);font-weight:700;">
+                    <?= Icons::svg('plus-circle', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? '+ Sii Murabaxo' : '+ New Murabaha' ?></span>
+                </a>
+                <a href="?route=murabaha&filter=all" class="sidebar-link <?= ($currentRoute === 'murabaha' && (($_GET['filter'] ?? '') === 'all' || empty($_GET['filter']))) ? 'active' : '' ?>">
+                    <?= Icons::svg('shopping-bag', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Dadka Murabaxada Qaatay' : 'All Murabaha Contracts' ?></span>
+                </a>
+                <a href="?route=murabaha&filter=settled" class="sidebar-link <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'settled') ? 'active' : '' ?>">
+                    <?= Icons::svg('check-circle', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Inta Qaadatay & Soo Celisay' : 'Settled Murabaha' ?></span>
+                </a>
+                <a href="?route=murabaha&filter=unpaid" class="sidebar-link <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'unpaid') ? 'active' : '' ?>">
+                    <?= Icons::svg('alert-triangle', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Inta Aan Weli Soo Celin' : 'Unpaid / Active' ?></span>
+                </a>
                 <?php endif; ?>
 
                 <!-- FINANCING -->

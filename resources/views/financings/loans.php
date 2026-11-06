@@ -47,8 +47,8 @@ $labels = [
             <p><?= Security::e($headText) ?></p>
         </div>
         <div class="adm-head-actions">
+            <a href="?route=loan_new" class="btn btn-sm btn-primary" style="background:var(--brand-primary,#1B7A53);"><?= Icons::svg('plus', 14) ?> <span><?= $isSo ? '+ Sii Dayn Lacag Ah' : '+ New Cash Loan' ?></span></a>
             <a href="?route=repayment_record" class="btn btn-sm btn-outline"><?= Icons::svg('clock', 14) ?> <span><?= $isSo ? 'Qabo Bixin' : 'Record Repayment' ?></span></a>
-            <a href="?route=applications" class="btn btn-sm btn-gold"><?= Icons::svg('plus', 14) ?> <span><?= $isSo ? 'Codsi Cusub' : 'New Application' ?></span></a>
         </div>
     </header>
 

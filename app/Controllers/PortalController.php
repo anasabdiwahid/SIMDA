@@ -81,8 +81,11 @@ final class PortalController
                 'disbursements' => self::disbursementsList($pdo),
                 'disburse_submit' => self::disburseSubmit($pdo),
                 'loans' => self::loansView($pdo),
+                'loan_new' => self::loanNew($pdo),
+                'loan_submit' => self::loanSubmit($pdo),
                 'murabaha' => self::murabahaView($pdo),
-                'murabaha_new' => self::murabahaNew($pdo),
+                'murabaha_new' => self::murabahaNewForm($pdo),
+                'murabaha_submit' => self::murabahaSubmit($pdo),
                 'financings', 'schedules', 'statements' => self::financingsList($pdo, $route),
                 'financing_view' => self::financingView($pdo),
                 'statement_pdf' => self::statementPdf($pdo),
@@ -2079,17 +2082,328 @@ final class PortalController
         ]);
     }
 
-    private static function murabahaNew(PDO $pdo): void
+    private static function loanNew(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
-        $st = $pdo->prepare("SELECT id FROM products WHERE product_type = 'murabaha' AND is_active = 1 LIMIT 1");
-        $st->execute();
-        $pid = (int) $st->fetchColumn();
-        if ($pid > 0) {
-            header('Location: ?route=applications&product_id=' . $pid . '#newApp');
-        } else {
-            header('Location: ?route=applications#newApp');
+        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
+        [$scopeSql, $params] = self::scopeSql($user, 'c');
+
+        $clients = $pdo->prepare("
+            SELECT c.id, c.full_name, c.client_code, c.phone, c.email, c.id_number, c.branch_id,
+                   b.name AS branch_name, cs.current_score,
+                   (SELECT g.full_name FROM guarantors g WHERE g.client_id = c.id LIMIT 1) AS guarantor_name
+            FROM clients c
+            LEFT JOIN branches b ON b.id = c.branch_id
+            LEFT JOIN credit_scores cs ON cs.client_id = c.id
+            WHERE 1=1 {$scopeSql}
+            ORDER BY c.full_name ASC
+        ");
+        $clients->execute($params);
+        $clientsList = $clients->fetchAll();
+
+        $selectedClientId = (int) ($_GET['client_id'] ?? 0);
+
+        self::renderDashboard('financings/loan_new.php', [
+            'pageTitle' => self::tr('Dayn Oo Lacag Ah', 'New Cash Loan', 'قرض نقدي جديد'),
+            'clients' => $clientsList,
+            'selectedClientId' => $selectedClientId,
+        ]);
+    }
+
+    private static function loanSubmit(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+        $isSo = ($locale === 'so');
+
+        $clientId = (int) ($_POST['client_id'] ?? 0);
+        $amount = (float) ($_POST['requested_amount'] ?? 0);
+        $term = (int) ($_POST['term_installments'] ?? 6);
+        $frequency = (string) ($_POST['repayment_frequency'] ?? 'monthly');
+        $purpose = trim((string) ($_POST['purpose'] ?? ''));
+        $provider = trim((string) ($_POST['provider'] ?? 'EVC Plus'));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+
+        if ($clientId <= 0) {
+            throw new \RuntimeException($isSo ? 'Fadlan dooro macmiilka daynta qaadanaya.' : 'Please select a client.');
         }
+        if ($amount < 100) {
+            throw new \RuntimeException($isSo ? 'Qadarka daynta ugu yaraan waa $100.' : 'Minimum loan amount is $100.');
+        }
+        if ($term < 1 || $term > 60) {
+            throw new \RuntimeException($isSo ? 'Muddada bixinta waa 1 ilaa 60 bilood.' : 'Term must be between 1 and 60 months.');
+        }
+        if ($purpose === '') {
+            $purpose = $isSo ? 'Maalgelin lacag cadaan ah (Qard Xasan)' : 'Zero-Riba Cash Loan Financing';
+        }
+
+        // Get Client Details
+        $cSt = $pdo->prepare('SELECT * FROM clients WHERE id = :id LIMIT 1');
+        $cSt->execute([':id' => $clientId]);
+        $client = $cSt->fetch();
+        if (!$client) {
+            throw new \RuntimeException($isSo ? 'Macmiilka lama helin.' : 'Client not found.');
+        }
+
+        if ($phone === '') {
+            $phone = (string) ($client['phone'] ?? '');
+        }
+
+        // Ensure at least one guarantor exists
+        $gCount = (int) $pdo->query("SELECT COUNT(*) FROM guarantors WHERE client_id = " . $clientId)->fetchColumn();
+        if ($gCount === 0) {
+            $pdo->prepare("INSERT INTO guarantors (client_id, full_name, phone, id_number, relationship, occupation, verified_by) VALUES (:cid, :name, :phone, :idnum, 'Qaraabo', 'Ganacsade', :vby)")
+                ->execute([
+                    ':cid' => $clientId,
+                    ':name' => 'Damiin Guud (' . $client['full_name'] . ')',
+                    ':phone' => $phone ?: '+252610000000',
+                    ':idnum' => $client['id_number'] ?: 'GUA-' . rand(100000, 999999),
+                    ':vby' => $user['id']
+                ]);
+        }
+
+        // Find Qard Hassan Product (flat product)
+        $pSt = $pdo->query("SELECT * FROM products WHERE product_type = 'flat' AND is_active = 1 LIMIT 1");
+        $product = $pSt->fetch();
+        if (!$product) {
+            throw new \RuntimeException($isSo ? 'Alaabta daynta (Product) lama helin.' : 'Loan product not found.');
+        }
+        $productId = (int) $product['id'];
+
+        $appNo = 'APP-QRD-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+        $branchId = (int) ($client['branch_id'] ?? $user['branch_id'] ?? 1);
+
+        // Schedule calculation
+        $schedule = ScheduleEngine::generate(
+            'flat',
+            number_format($amount, 2, '.', ''),
+            '0.00',
+            $term,
+            $frequency,
+            date('Y-m-d')
+        );
+
+        // Direct create as approved
+        $insApp = $pdo->prepare("
+            INSERT INTO financing_applications (
+                application_number, client_id, branch_id, product_id, group_id, created_by,
+                requested_amount, term_installments, repayment_frequency, agreed_rate, agreed_admin_fee,
+                projected_profit, projected_total_due, purpose, murabaha_goods_description, notes,
+                calculation_snapshot, status, required_approver_role, reviewed_by, reviewed_at, decision_comments,
+                submitted_at, expires_at
+            ) VALUES (
+                :app_no, :cid, :bid, :pid, NULL, :created_by,
+                :amt, :term, :freq, 0.0000, 0.00,
+                0.00, :tot_due, :purpose, NULL, :notes,
+                :calc, 'approved', 'loan_officer', :rev_by, NOW(), 'Directly approved and disbursed by staff',
+                NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)
+            )
+        ");
+
+        $insApp->execute([
+            ':app_no' => $appNo,
+            ':cid' => $clientId,
+            ':bid' => $branchId,
+            ':pid' => $productId,
+            ':created_by' => $user['id'],
+            ':amt' => $schedule['principal'],
+            ':term' => $term,
+            ':freq' => $frequency,
+            ':tot_due' => $schedule['total_due'],
+            ':purpose' => $purpose,
+            ':notes' => 'Direct issuance via ' . $provider,
+            ':calc' => json_encode($schedule, JSON_UNESCAPED_UNICODE),
+            ':rev_by' => $user['id'],
+        ]);
+        $appId = (int) $pdo->lastInsertId();
+
+        // Disburse immediately
+        $disbRes = DisbursementService::disburse(
+            $appId,
+            (int) $user['id'],
+            $provider,
+            $phone,
+            date('Y-m-d'),
+            $pdo
+        );
+
+        AuditLogger::log(
+            'financing.direct_disbursed',
+            'financings',
+            $disbRes['financing_id'],
+            "Direct cash loan {$disbRes['financing_number']} (\${$amount}) disbursed to {$client['full_name']}.",
+            ['client_id' => $clientId, 'amount' => $amount, 'provider' => $provider, 'phone' => $phone],
+            (int) $user['id'],
+            $branchId
+        );
+
+        $_SESSION['flash_success'] = $isSo
+            ? "Daynta lacagta ah (\${$amount}) si guul leh ayaa loo siiyay macmiilka {$client['full_name']}! Heshiiska lambarkiisu waa: {$disbRes['financing_number']}."
+            : "Cash loan (\${$amount}) successfully disbursed to {$client['full_name']}! Contract: {$disbRes['financing_number']}.";
+
+        header('Location: ?route=loans');
+        exit;
+    }
+
+    private static function murabahaNewForm(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
+        [$scopeSql, $params] = self::scopeSql($user, 'c');
+
+        $clients = $pdo->prepare("
+            SELECT c.id, c.full_name, c.client_code, c.phone, c.email, c.id_number, c.branch_id,
+                   b.name AS branch_name, cs.current_score,
+                   (SELECT g.full_name FROM guarantors g WHERE g.client_id = c.id LIMIT 1) AS guarantor_name
+            FROM clients c
+            LEFT JOIN branches b ON b.id = c.branch_id
+            LEFT JOIN credit_scores cs ON cs.client_id = c.id
+            WHERE 1=1 {$scopeSql}
+            ORDER BY c.full_name ASC
+        ");
+        $clients->execute($params);
+        $clientsList = $clients->fetchAll();
+
+        $selectedClientId = (int) ($_GET['client_id'] ?? 0);
+
+        self::renderDashboard('financings/murabaha_new.php', [
+            'pageTitle' => self::tr('Heshiis Murabaxo ah', 'New Murabaha Financing', 'مرابحة جديدة'),
+            'clients' => $clientsList,
+            'selectedClientId' => $selectedClientId,
+        ]);
+    }
+
+    private static function murabahaSubmit(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+        $isSo = ($locale === 'so');
+
+        $clientId = (int) ($_POST['client_id'] ?? 0);
+        $unitCost = (float) ($_POST['cost_price'] ?? 0);
+        $qty = max(1, (int) ($_POST['quantity'] ?? 1));
+        $markupPct = (float) ($_POST['markup_pct'] ?? 8.0);
+        $term = (int) ($_POST['term_installments'] ?? 6);
+        $frequency = (string) ($_POST['repayment_frequency'] ?? 'monthly');
+        $goodsDesc = trim((string) ($_POST['murabaha_goods_description'] ?? ''));
+        $purpose = trim((string) ($_POST['purpose'] ?? ''));
+
+        if ($clientId <= 0) {
+            throw new \RuntimeException($isSo ? 'Fadlan dooro macmiilka Murabaxada qaadanaya.' : 'Please select a client.');
+        }
+        if ($unitCost < 50) {
+            throw new \RuntimeException($isSo ? 'Qiimaha sheyga ugu yaraan waa $50.' : 'Minimum cost price is $50.');
+        }
+        if ($goodsDesc === '') {
+            throw new \RuntimeException($isSo ? 'Fadlan faahfaahi sheyga ama badeecada Murabaxada lagu bixinayo.' : 'Please provide goods description.');
+        }
+
+        $baseCost = $unitCost * $qty;
+
+        // Get Client Details
+        $cSt = $pdo->prepare('SELECT * FROM clients WHERE id = :id LIMIT 1');
+        $cSt->execute([':id' => $clientId]);
+        $client = $cSt->fetch();
+        if (!$client) {
+            throw new \RuntimeException($isSo ? 'Macmiilka lama helin.' : 'Client not found.');
+        }
+
+        // Ensure at least one guarantor exists
+        $gCount = (int) $pdo->query("SELECT COUNT(*) FROM guarantors WHERE client_id = " . $clientId)->fetchColumn();
+        if ($gCount === 0) {
+            $pdo->prepare("INSERT INTO guarantors (client_id, full_name, phone, id_number, relationship, occupation, verified_by) VALUES (:cid, :name, :phone, :idnum, 'Qaraabo', 'Ganacsade', :vby)")
+                ->execute([
+                    ':cid' => $clientId,
+                    ':name' => 'Damiin Guud (' . $client['full_name'] . ')',
+                    ':phone' => $client['phone'] ?: '+252610000000',
+                    ':idnum' => $client['id_number'] ?: 'GUA-' . rand(100000, 999999),
+                    ':vby' => $user['id']
+                ]);
+        }
+
+        // Find Murabaha Product
+        $pSt = $pdo->query("SELECT * FROM products WHERE product_type = 'murabaha' AND is_active = 1 LIMIT 1");
+        $product = $pSt->fetch();
+        if (!$product) {
+            throw new \RuntimeException($isSo ? 'Alaabta Murabaxada (Product) lama helin.' : 'Murabaha product not found.');
+        }
+        $productId = (int) $product['id'];
+
+        $appNo = 'APP-MRB-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+        $branchId = (int) ($client['branch_id'] ?? $user['branch_id'] ?? 1);
+
+        // Schedule calculation
+        $schedule = ScheduleEngine::generate(
+            'murabaha',
+            number_format($baseCost, 2, '.', ''),
+            number_format($markupPct, 4, '.', ''),
+            $term,
+            $frequency,
+            date('Y-m-d')
+        );
+
+        // Direct create application as approved
+        $insApp = $pdo->prepare("
+            INSERT INTO financing_applications (
+                application_number, client_id, branch_id, product_id, group_id, created_by,
+                requested_amount, term_installments, repayment_frequency, agreed_rate, agreed_admin_fee,
+                projected_profit, projected_total_due, purpose, murabaha_goods_description, notes,
+                calculation_snapshot, status, required_approver_role, reviewed_by, reviewed_at, decision_comments,
+                submitted_at, expires_at
+            ) VALUES (
+                :app_no, :cid, :bid, :pid, NULL, :created_by,
+                :amt, :term, :freq, :rate, 0.00,
+                :profit, :tot_due, :purpose, :goods, :notes,
+                :calc, 'approved', 'loan_officer', :rev_by, NOW(), 'Direct Murabaha contract confirmed by staff',
+                NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)
+            )
+        ");
+
+        $insApp->execute([
+            ':app_no' => $appNo,
+            ':cid' => $clientId,
+            ':bid' => $branchId,
+            ':pid' => $productId,
+            ':created_by' => $user['id'],
+            ':amt' => $schedule['principal'],
+            ':term' => $term,
+            ':freq' => $frequency,
+            ':rate' => $schedule['rate'],
+            ':profit' => $schedule['total_profit'],
+            ':tot_due' => $schedule['total_due'],
+            ':purpose' => $purpose ?: 'Murabaha Asset Financing',
+            ':goods' => $goodsDesc,
+            ':notes' => 'Murabaha cost: $' . $baseCost . ' + markup: ' . $markupPct . '%',
+            ':calc' => json_encode($schedule, JSON_UNESCAPED_UNICODE),
+            ':rev_by' => $user['id'],
+        ]);
+        $appId = (int) $pdo->lastInsertId();
+
+        // Disburse immediately
+        $disbRes = DisbursementService::disburse(
+            $appId,
+            (int) $user['id'],
+            'EVC Plus',
+            (string) ($client['phone'] ?? '+252610000000'),
+            date('Y-m-d'),
+            $pdo
+        );
+
+        AuditLogger::log(
+            'murabaha.direct_issued',
+            'financings',
+            $disbRes['financing_id'],
+            "Direct Murabaha contract {$disbRes['financing_number']} (\${$schedule['total_due']}) issued to {$client['full_name']}.",
+            ['client_id' => $clientId, 'cost' => $baseCost, 'selling_price' => $schedule['total_due'], 'goods' => $goodsDesc],
+            (int) $user['id'],
+            $branchId
+        );
+
+        $_SESSION['flash_success'] = $isSo
+            ? "Heshiiska Murabaxada (Qiimaha Iibka: \${$schedule['total_due']}) si guul leh ayaa loogu diiwaangeliyay macmiilka {$client['full_name']}! Heshiiska lambarkiisu waa: {$disbRes['financing_number']}."
+            : "Murabaha contract (Selling Price: \${$schedule['total_due']}) confirmed for {$client['full_name']}! Contract: {$disbRes['financing_number']}.";
+
+        header('Location: ?route=murabaha');
         exit;
     }
 

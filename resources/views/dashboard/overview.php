@@ -154,8 +154,8 @@ $renderEmpty = static function (string $icon, string $title, string $body, ?stri
         </div>
         <div class="dash-actions">
             <a href="?route=client_register" class="btn btn-sm btn-gold"><?= Icons::svg('user-plus', 14) ?> <span><?= Security::e($t('Diiwaangeli Macmiil', 'Register Client', 'تسجيل عميل')) ?></span></a>
+            <a href="?route=loan_new" class="btn btn-sm btn-outline"><?= Icons::svg('credit-card', 14) ?> <span><?= Security::e($t('Dayn Oo Lacag Ah', 'New Cash Loan', 'قرض نقدي جديد')) ?></span></a>
             <a href="?route=murabaha_new" class="btn btn-sm btn-outline"><?= Icons::svg('shopping-bag', 14) ?> <span><?= Security::e($t('Murabaxo Cusub', 'New Murabaha', 'مرابحة جديدة')) ?></span></a>
-            <a href="?route=applications" class="btn btn-sm btn-outline"><?= Icons::svg('file-text', 14) ?> <span><?= Security::e($t('Codsi Deyn', 'New Loan', 'طلب قرض')) ?></span></a>
             <a href="?route=repayment_record" class="btn btn-sm btn-outline"><?= Icons::svg('wallet', 14) ?> <span><?= Security::e($t('Qabo Bixin', 'Record Repayment', 'تسجيل سداد')) ?></span></a>
         </div>
     </header>
