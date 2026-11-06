@@ -101,7 +101,190 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
     <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('simda_theme_pref') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
+        :root {
+            --login-stage-bg: radial-gradient(circle at 25% 20%, #1F5B4C 0%, #123B32 52%, #0A221C 100%);
+            --login-card-bg: #FFFFFF;
+            --login-card-text: #162621;
+            --login-card-sub: #6B7872;
+            --login-input-bg: #F2F4F3;
+            --login-input-text: #162621;
+            --login-input-border: transparent;
+            --login-alt-btn-bg: #FFFFFF;
+            --login-alt-btn-border: #26332E;
+            --login-alt-btn-text: #162621;
+            --login-loader-bg: #FFFFFF;
+            --login-loader-overlay: rgba(255, 255, 255, 0.92);
+        }
+
+        [data-theme="dark"] {
+            --login-stage-bg: radial-gradient(circle at 25% 20%, #142822 0%, #0D1A16 55%, #050B09 100%);
+            --login-card-bg: #14221D;
+            --login-card-text: #FFFFFF;
+            --login-card-sub: #A2B0A9;
+            --login-input-bg: #1C3029;
+            --login-input-text: #FFFFFF;
+            --login-input-border: rgba(214, 182, 108, 0.25);
+            --login-alt-btn-bg: #1A2C24;
+            --login-alt-btn-border: rgba(255, 255, 255, 0.25);
+            --login-alt-btn-text: #FFFFFF;
+            --login-loader-bg: #14221D;
+            --login-loader-overlay: rgba(13, 26, 22, 0.94);
+        }
+
+        .simda-login-top-bar {
+            position: absolute;
+            top: 24px;
+            right: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .simda-top-icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--login-input-bg);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: var(--login-card-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.18s ease;
+        }
+
+        .simda-top-icon-btn:hover {
+            border-color: #D6B66C;
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .simda-top-icon-btn {
+            border-color: rgba(214, 182, 108, 0.25);
+            background: #1C3029;
+            color: #FFFFFF;
+        }
+
+        [data-theme="dark"] .simda-signin-title {
+            color: var(--login-card-text);
+        }
+
+        [data-theme="dark"] .simda-signin-sub {
+            color: var(--login-card-sub);
+        }
+
+        [data-theme="dark"] .simda-input-pill {
+            background: var(--login-input-bg);
+            border-color: var(--login-input-border);
+        }
+
+        [data-theme="dark"] .simda-input-pill:focus-within {
+            background: #1C3029;
+            border-color: #D6B66C;
+            box-shadow: 0 0 0 3px rgba(214, 182, 108, 0.2);
+        }
+
+        [data-theme="dark"] .simda-input-pill input {
+            color: var(--login-input-text);
+        }
+
+        [data-theme="dark"] .simda-input-icon {
+            color: #A2B0A9;
+        }
+
+        [data-theme="dark"] .simda-account-chip {
+            background: #1C3029;
+            border-color: rgba(214, 182, 108, 0.25);
+        }
+
+        [data-theme="dark"] .simda-chip-email {
+            color: #FFFFFF;
+        }
+
+        [data-theme="dark"] .simda-chip-change-btn {
+            color: #D6B66C;
+        }
+
+        [data-theme="dark"] .simda-pw-toggle {
+            color: #D6B66C;
+        }
+
+        [data-theme="dark"] .simda-btn-signin-main {
+            background: linear-gradient(135deg, #1A4D41 0%, #123B32 100%);
+            border: 1px solid rgba(214, 182, 108, 0.35);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        [data-theme="dark"] .simda-btn-signin-main:hover {
+            background: #205C4E;
+        }
+
+        [data-theme="dark"] .simda-or-divider {
+            color: var(--login-card-sub);
+        }
+
+        [data-theme="dark"] .simda-or-divider::before,
+        [data-theme="dark"] .simda-or-divider::after {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .simda-btn-signin-alt {
+            background: var(--login-alt-btn-bg);
+            color: var(--login-alt-btn-text);
+            border-color: var(--login-alt-btn-border);
+        }
+
+        [data-theme="dark"] .simda-btn-signin-alt:hover {
+            background: #1E342B;
+            border-color: #D6B66C;
+        }
+
+        [data-theme="dark"] .simda-login-bottom-note {
+            color: var(--login-card-sub);
+        }
+
+        [data-theme="dark"] .simda-login-bottom-note a {
+            color: #D6B66C;
+        }
+
+        [data-theme="dark"] .simda-forgot-link {
+            color: #D6B66C !important;
+        }
+
+        [data-theme="dark"] .simda-center-loader {
+            background: var(--login-loader-overlay);
+        }
+
+        [data-theme="dark"] .simda-loader-card {
+            background: var(--login-loader-bg);
+            border-color: rgba(214, 182, 108, 0.25);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        [data-theme="dark"] .simda-loader-ring {
+            border-color: #D6B66C;
+            background: linear-gradient(135deg, rgba(214, 182, 108, 0.12), rgba(18, 59, 50, 0.25));
+        }
+
+        [data-theme="dark"] .simda-loader-title {
+            color: #FFFFFF;
+        }
+
+        [data-theme="dark"] .simda-loader-sub {
+            color: #A2B0A9;
+        }
+
         .simda-login-stage {
             min-height: 100vh;
             width: 100%;
@@ -109,7 +292,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             align-items: center;
             justify-content: center;
             padding: 28px 18px;
-            background: radial-gradient(circle at 25% 20%, #1F5B4C 0%, #123B32 52%, #0A221C 100%);
+            background: var(--login-stage-bg);
             font-family: 'Plus Jakarta Sans', var(--font-body);
         }
 
@@ -118,12 +301,13 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             width: 100%;
             max-width: 940px;
             min-height: 550px;
-            background: #FFFFFF;
+            background: var(--login-card-bg);
             border-radius: 26px;
-            box-shadow: 0 32px 70px rgba(0, 0, 0, 0.38);
+            box-shadow: 0 32px 70px rgba(0, 0, 0, 0.42);
             display: grid;
             grid-template-columns: 1.05fr 0.95fr;
             overflow: hidden;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
 
         /* Left Circular Welcome Panel & 3D Spheres */
@@ -643,6 +827,44 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
         <!-- Right White Sign-In Form Panel -->
         <div class="simda-login-right">
+            <!-- Top Controls (Dark/Light Mode & Language Selector) -->
+            <div class="simda-login-top-bar">
+                <button type="button" class="simda-top-icon-btn" id="loginThemeBtn" onclick="toggleSimdaTheme()" title="Toggle Dark/Light Mode">
+                    <span id="loginThemeIcon">🌙</span>
+                </button>
+
+                <?php
+                $loginLanguagesList = [
+                    'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
+                    'en' => ['label' => 'English (US)', 'code' => 'EN', 'flag' => 'assets/images/flags/flag-us.jpg'],
+                    'ar' => ['label' => 'العربية', 'code' => 'AR', 'flag' => 'assets/images/flags/flag-ar.jpg'],
+                ];
+                $loginActiveLang = $loginLanguagesList[$locale] ?? $loginLanguagesList['en'];
+                ?>
+                <div class="simda-lang-dropdown">
+                    <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
+                        <img src="<?= Security::e($loginActiveLang['flag']) ?>" alt="<?= Security::e($loginActiveLang['label']) ?>" class="simda-lang-flag-circle">
+                        <span class="simda-lang-code"><?= Security::e($loginActiveLang['code']) ?></span>
+                        <svg class="simda-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="1 1 5 5 9 1"></polyline>
+                        </svg>
+                    </button>
+                    <div class="simda-lang-menu" role="menu" style="top:calc(100% + 8px);bottom:auto;">
+                        <?php foreach ($loginLanguagesList as $code => $info): ?>
+                            <a href="?route=login&lang=<?= $code ?>" class="simda-lang-item <?= $locale === $code ? 'is-active' : '' ?>" role="menuitem">
+                                <img src="<?= Security::e($info['flag']) ?>" alt="<?= Security::e($info['label']) ?>" class="simda-lang-flag-circle">
+                                <span class="simda-lang-name"><?= Security::e($info['label']) ?></span>
+                                <?php if ($locale === $code): ?>
+                                    <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
             <!-- Center Loading Modal (Visible in the dead center during email verification) -->
             <div id="loginCenterLoader" class="simda-center-loader" style="display:none;">
                 <div class="simda-loader-card">
@@ -673,40 +895,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                         <input type="text" id="identifierInput" name="identifier" required autofocus placeholder="<?= Security::e($lt['identifier']) ?>" value="<?= Security::e($preVerifiedEmail) ?>" autocomplete="username">
                     </div>
 
-                    <div class="simda-login-meta-row">
-                        <a href="?route=forgot_password" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
+                    <div class="simda-login-meta-row" style="justify-content:flex-end;">
+                        <a href="?route=forgot_password" class="simda-forgot-link" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
                             <?= Security::e($lt['forgot_password']) ?>
                         </a>
-                        <?php
-                        $loginLanguagesList = [
-                            'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
-                            'en' => ['label' => 'English (US)', 'code' => 'EN', 'flag' => 'assets/images/flags/flag-us.jpg'],
-                            'ar' => ['label' => 'العربية', 'code' => 'AR', 'flag' => 'assets/images/flags/flag-ar.jpg'],
-                        ];
-                        $loginActiveLang = $loginLanguagesList[$locale] ?? $loginLanguagesList['en'];
-                        ?>
-                        <div class="simda-lang-dropdown">
-                            <button type="button" class="simda-lang-trigger" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation(); const p = this.closest('.simda-lang-dropdown'); const open = p.classList.toggle('is-open'); this.setAttribute('aria-expanded', open);" title="Change Language / Dooro Luqadda">
-                                <img src="<?= Security::e($loginActiveLang['flag']) ?>" alt="<?= Security::e($loginActiveLang['label']) ?>" class="simda-lang-flag-circle">
-                                <span class="simda-lang-code"><?= Security::e($loginActiveLang['code']) ?></span>
-                                <svg class="simda-lang-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="1 1 5 5 9 1"></polyline>
-                                </svg>
-                            </button>
-                            <div class="simda-lang-menu" role="menu" style="bottom:calc(100% + 8px);top:auto;">
-                                <?php foreach ($loginLanguagesList as $code => $info): ?>
-                                    <a href="?route=login&lang=<?= $code ?>" class="simda-lang-item <?= $locale === $code ? 'is-active' : '' ?>" role="menuitem">
-                                        <img src="<?= Security::e($info['flag']) ?>" alt="<?= Security::e($info['label']) ?>" class="simda-lang-flag-circle">
-                                        <span class="simda-lang-name"><?= Security::e($info['label']) ?></span>
-                                        <?php if ($locale === $code): ?>
-                                            <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
-                                        <?php endif; ?>
-                                    </a>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
                     </div>
 
                     <button type="submit" id="btnContinue" class="simda-btn-signin-main" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;">
@@ -752,7 +944,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                             <input type="checkbox" name="remember" style="accent-color:#123B32;">
                             <span><?= Security::e($lt['remember']) ?></span>
                         </label>
-                        <a href="?route=forgot_password" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
+                        <a href="?route=forgot_password" class="simda-forgot-link" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.78rem;">
                             <?= Security::e($lt['forgot_password']) ?>
                         </a>
                     </div>
@@ -890,6 +1082,26 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             emailInput.select();
         }
     }
+
+    function toggleSimdaTheme() {
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var next = (current === 'dark') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('simda_theme_pref', next);
+        updateLoginThemeIcon(next);
+    }
+
+    function updateLoginThemeIcon(theme) {
+        var icon = document.getElementById('loginThemeIcon');
+        if (icon) {
+            icon.textContent = (theme === 'dark') ? '☀️' : '🌙';
+        }
+    }
+
+    (function() {
+        var saved = localStorage.getItem('simda_theme_pref') || 'light';
+        updateLoginThemeIcon(saved);
+    })();
 </script>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
