@@ -387,6 +387,7 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                         <th><?= $isSo ? 'Laanta (Branch Assignment)' : 'Branch Assignment' ?></th>
                         <th><?= $isSo ? 'Email / Telefoon' : 'Contact' ?></th>
                         <th><?= $isSo ? 'Galitaankii Ugu Dambeeyay' : 'Last Login' ?></th>
+                        <th><?= $isSo ? 'Amniga & Xaaladda' : 'Security & Status' ?></th>
                         <?php if ($curRole === 'admin'): ?>
                             <th><?= $isSo ? 'Awoodaha' : 'Permissions' ?></th>
                         <?php endif; ?>
@@ -415,6 +416,51 @@ $curRole = $curUser['role_slug'] ?? 'admin';
                             </td>
                             <td><?= Security::e($u['email']) ?> • <span class="num-tabular"><?= Security::e($u['phone']) ?></span></td>
                             <td class="num-tabular" style="font-size:0.78rem;"><?= Security::e($u['last_login_at'] ?? ($isSo ? 'Weli ma gelin' : 'Never')) ?></td>
+                            <td>
+                                <?php
+                                    $isPermBlocked = ((int) ($u['lockout_tier'] ?? 0) >= 5) || (!(bool) $u['is_active'] && !empty($u['security_block_reason']));
+                                    $isTempLocked = !empty($u['locked_until']) && strtotime((string) $u['locked_until']) > time();
+                                ?>
+                                <?php if ($isPermBlocked): ?>
+                                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-danger" style="font-size:0.72rem;font-weight:700;" title="<?= Security::e($u['security_block_reason'] ?? 'Suspect activity') ?>">
+                                            🚨 <?= $isSo ? 'Xaniban (Shaki)' : 'Blocked (Suspect)' ?>
+                                        </span>
+                                        <?php if ($curRole === 'admin'): ?>
+                                            <form method="POST" action="?route=user_security_reset" style="display:inline;" onsubmit="return confirm('<?= $isSo ? 'Ma hubtaa inaad xanibaadda amniga ka qaaddo isticmaalahan?' : 'Are you sure you want to restore access for this user?' ?>');">
+                                                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                                                <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
+                                                <button type="submit" class="btn btn-xs btn-outline-danger" style="padding:2px 7px;font-size:0.7rem;font-weight:700;">
+                                                    🔓 <?= $isSo ? 'Fur Akoonka' : 'Unblock' ?>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php elseif ($isTempLocked): ?>
+                                    <?php
+                                        $remSec = strtotime((string) $u['locked_until']) - time();
+                                        $remMin = ceil($remSec / 60);
+                                    ?>
+                                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-warning" style="font-size:0.72rem;font-weight:700;">
+                                            ⏳ <?= $isSo ? "Hakad ({$remMin} daq)" : "Locked ({$remMin}m)" ?>
+                                        </span>
+                                        <?php if ($curRole === 'admin'): ?>
+                                            <form method="POST" action="?route=user_security_reset" style="display:inline;">
+                                                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                                                <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
+                                                <button type="submit" class="btn btn-xs btn-outline-warning" style="padding:2px 7px;font-size:0.7rem;font-weight:700;">
+                                                    🔓 <?= $isSo ? 'Fur Hadda' : 'Unlock' ?>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php elseif (!(bool) $u['is_active']): ?>
+                                    <span class="badge badge-secondary" style="font-size:0.72rem;font-weight:700;"><?= $isSo ? 'Dansan' : 'Disabled' ?></span>
+                                <?php else: ?>
+                                    <span class="badge badge-success" style="font-size:0.72rem;font-weight:700;"><?= $isSo ? 'Shaqeynaya' : 'Active' ?></span>
+                                <?php endif; ?>
+                            </td>
                             <?php if ($curRole === 'admin'): ?>
                                 <td>
                                     <?php if ($u['role_slug'] !== 'admin'): ?>

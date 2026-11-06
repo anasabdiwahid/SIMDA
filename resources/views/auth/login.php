@@ -10,6 +10,8 @@ $csrf = Security::csrfToken();
 $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.css'), (int) @filemtime(BASE_PATH . '/public/assets/js/simda.js'), 1);
 $preVerifiedEmail = (string) ($_SESSION['login_verified_identifier'] ?? '');
 unset($_SESSION['login_verified_identifier']);
+$flashError = (string) ($_SESSION['flash_error'] ?? '');
+unset($_SESSION['flash_error']);
 
 $loginI18n = [
     'en' => [
@@ -532,11 +534,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                 <h2 class="simda-signin-title"><?= Security::e($lt['signin']) ?></h2>
                 <p class="simda-signin-sub"><?= Security::e($lt['step1_sub']) ?></p>
 
-                <div id="step1AlertError" class="alert alert-danger" style="display:<?= !empty($_SESSION['flash_error']) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
+                <div id="step1AlertError" class="alert alert-danger" style="display:<?= (!empty($flashError) && empty($preVerifiedEmail)) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
                     <?= Icons::svg('alert-triangle', 16) ?>
-                    <span id="step1AlertText"><?= Security::e($_SESSION['flash_error'] ?? '') ?></span>
+                    <span id="step1AlertText"><?= Security::e(empty($preVerifiedEmail) ? $flashError : '') ?></span>
                 </div>
-                <?php unset($_SESSION['flash_error']); ?>
 
                 <form id="formCheckEmail" onsubmit="handleCheckEmail(event)">
                     <div class="simda-input-pill" id="identifierPill">
@@ -598,18 +599,18 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     <button type="button" class="simda-chip-change-btn" onclick="handleChangeEmail()"><?= Security::e($lt['btn_change_email']) ?></button>
                 </div>
 
-                <div id="step2AlertError" class="alert alert-danger" style="display:none;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
+                <div id="step2AlertError" class="alert alert-danger" style="display:<?= (!empty($flashError) && !empty($preVerifiedEmail)) ? 'flex' : 'none' ?>;padding:10px 14px;font-size:0.8rem;margin-bottom:14px;align-items:center;gap:8px;">
                     <?= Icons::svg('alert-triangle', 16) ?>
-                    <span id="step2AlertText"></span>
+                    <span id="step2AlertText"><?= Security::e(!empty($preVerifiedEmail) ? $flashError : '') ?></span>
                 </div>
 
                 <form method="POST" action="?route=login_submit" id="formLoginSubmit">
                     <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                     <input type="hidden" name="identifier" id="finalIdentifier" value="<?= Security::e($preVerifiedEmail) ?>">
 
-                    <div class="simda-input-pill" id="passwordPill">
+                    <div class="simda-input-pill" id="passwordPill" style="<?= (!empty($flashError) && !empty($preVerifiedEmail)) ? 'border-color:#C94B4B;' : '' ?>">
                         <span class="simda-input-icon"><?= Icons::svg('lock', 18) ?></span>
-                        <input type="password" id="password" name="password" required placeholder="<?= Security::e($lt['password']) ?>" autocomplete="current-password">
+                        <input type="password" id="password" name="password" required autofocus placeholder="<?= Security::e($lt['password']) ?>" autocomplete="current-password">
                         <button type="button" class="simda-pw-toggle" id="togglePwBtn"><?= Security::e($lt['show']) ?></button>
                     </div>
 

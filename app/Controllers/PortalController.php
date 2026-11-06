@@ -88,6 +88,7 @@ final class PortalController
                 'branch_create' => self::branchCreate($pdo),
                 'branch_toggle' => self::branchToggle($pdo),
                 'user_create' => self::userCreate($pdo),
+                'user_security_reset' => self::userSecurityReset($pdo),
                 'user_permissions_save' => self::userPermissionsSave($pdo),
                 'settings_save' => self::settingsSave($pdo),
 
@@ -654,8 +655,9 @@ final class PortalController
         AuthMiddleware::verifyCsrfOrAbort();
         header('Content-Type: application/json; charset=utf-8');
         $identifier = trim((string) ($_POST['identifier'] ?? ''));
-        $isSo = Lang::locale() === 'so';
-        $isAr = Lang::locale() === 'ar';
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+        $isAr = $locale === 'ar';
 
         if ($identifier === '') {
             $msg = $isSo ? 'Fadlan geli email-kaaga.' : ($isAr ? 'يرجى إدخال البريد الإلكتروني.' : 'Please enter your email.');
@@ -664,7 +666,7 @@ final class PortalController
         }
 
         $st = $pdo->prepare('
-            SELECT id, full_name, email, username, is_active
+            SELECT id, full_name, email, username, is_active, lockout_tier, locked_until, security_block_reason
             FROM users
             WHERE (email = :id1 OR username = :id2)
               AND deleted_at IS NULL
@@ -673,13 +675,25 @@ final class PortalController
         $st->execute([':id1' => $identifier, ':id2' => $identifier]);
         $user = $st->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user || !(bool) $user['is_active']) {
+        if (!$user) {
             $msg = $isSo
                 ? 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.'
                 : ($isAr
                     ? 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.'
                     : 'Please note this email is not recognized. Try again.');
             echo json_encode(['success' => false, 'message' => $msg]);
+            exit;
+        }
+
+        // Check if account is locked or blocked
+        $lockoutStatus = AuthService::checkLockoutStatus($user, $locale);
+        if ($lockoutStatus !== null) {
+            echo json_encode([
+                'success' => false,
+                'message' => $lockoutStatus['message'],
+                'is_locked' => true,
+                'is_permanent' => $lockoutStatus['permanent'] ?? false
+            ]);
             exit;
         }
 
@@ -697,12 +711,13 @@ final class PortalController
         AuthMiddleware::verifyCsrfOrAbort();
         $identifier = trim((string) ($_POST['identifier'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
-        $isSo = Lang::locale() === 'so';
-        $isAr = Lang::locale() === 'ar';
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+        $isAr = $locale === 'ar';
 
         // Security Step 1: Check Email existence
         $st = $pdo->prepare('
-            SELECT id, email, username, is_active
+            SELECT id, email, username, is_active, password_hash, lockout_tier, locked_until, failed_login_attempts, security_block_reason
             FROM users
             WHERE (email = :id1 OR username = :id2)
               AND deleted_at IS NULL
@@ -711,10 +726,19 @@ final class PortalController
         $st->execute([':id1' => $identifier, ':id2' => $identifier]);
         $user = $st->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user || !(bool) $user['is_active']) {
+        if (!$user) {
             $_SESSION['flash_error'] = $isSo
                 ? 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.'
                 : ($isAr ? 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.' : 'Please note this email is not recognized. Try again.');
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // Check if account is locked or blocked
+        $lockoutStatus = AuthService::checkLockoutStatus($user, $locale);
+        if ($lockoutStatus !== null) {
+            unset($_SESSION['login_verified_identifier']);
+            $_SESSION['flash_error'] = $lockoutStatus['message'];
             header('Location: ?route=login');
             exit;
         }
@@ -726,16 +750,27 @@ final class PortalController
             exit;
         }
 
+        // Verify password
+        if (!Security::verifyPassword($password, (string) $user['password_hash'])) {
+            $failResult = AuthService::handleFailedPassword($user, $pdo, $locale);
+            if (!empty($failResult['locked'])) {
+                unset($_SESSION['login_verified_identifier']);
+            } else {
+                $_SESSION['login_verified_identifier'] = $user['email'] ?: $user['username'];
+            }
+            $_SESSION['flash_error'] = $failResult['message'];
+            header('Location: ?route=login');
+            exit;
+        }
+
+        // Password verified successfully!
         try {
             AuthService::attemptLogin($identifier, $password, $pdo);
             unset($_SESSION['login_verified_identifier']);
             header('Location: ?route=dashboard');
             exit;
         } catch (\Throwable $e) {
-            $_SESSION['login_verified_identifier'] = $user['email'] ?: $user['username'];
-            $_SESSION['flash_error'] = $isSo
-                ? 'Furaha sirta ah waa qalad. Fadlan hubi oo isku day mar kale.'
-                : ($isAr ? 'كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.' : 'Incorrect password. Please try again.');
+            $_SESSION['flash_error'] = $e->getMessage();
             header('Location: ?route=login');
             exit;
         }
@@ -2051,6 +2086,24 @@ final class PortalController
             $_SESSION['flash_warning'] = $locale === 'so'
                 ? "Akoonka ({$fullName}) waa la abuuray (Furaha sirta ah: {$plainPassword}), laakiin email-ka lama diri karin: " . ($mailStatus['error'] ?? '')
                 : "User account created (Password: {$plainPassword}), but email notification failed: " . ($mailStatus['error'] ?? '');
+        }
+
+        header('Location: ?route=users');
+        exit;
+    }
+
+    private static function userSecurityReset(PDO $pdo): void
+    {
+        $admin = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $targetUserId = (int) ($_POST['user_id'] ?? 0);
+        $locale = Lang::locale();
+
+        if ($targetUserId > 0) {
+            AuthService::adminUnblockUser($targetUserId, $pdo, (int) $admin['id']);
+            $_SESSION['flash_success'] = $locale === 'so'
+                ? 'Xanibaaddii amniga waa laga qaaday isticmaalaha, akoonkana dib ayaa loo hawlgeliyay!'
+                : 'Security restriction cleared and user account successfully restored!';
         }
 
         header('Location: ?route=users');
