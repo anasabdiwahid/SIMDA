@@ -58,6 +58,7 @@ final class PortalController
                 'clients' => self::clientsList($pdo),
                 'client_register' => self::clientRegisterForm($pdo),
                 'client_register_submit' => self::clientRegisterSubmit($pdo),
+                'client_check_duplicate' => self::clientCheckDuplicate($pdo),
                 'client_transfer' => self::clientTransfer($pdo),
                 'guarantors' => self::guarantorsList($pdo),
                 'guarantor_add' => self::guarantorAdd($pdo),
@@ -124,6 +125,7 @@ final class PortalController
         } catch (\Throwable $e) {
             $_SESSION['flash_error'] = $e->getMessage();
             if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+                $_SESSION['old_input'] = $_POST;
                 $fallback = AuthMiddleware::check() ? '?route=dashboard' : '?route=login';
                 $referer = $_SERVER['HTTP_REFERER'] ?? $fallback;
                 header('Location: ' . $referer);
@@ -1482,7 +1484,59 @@ final class PortalController
         ], (int) $user['id'], $pdo);
 
         $_SESSION['flash_success'] = "Client registered successfully ({$res['client_code']}) with verified Guarantor and baseline 600 Credit Score.";
+        unset($_SESSION['old_input']);
         header('Location: ?route=clients');
+        exit;
+    }
+
+    private static function clientCheckDuplicate(PDO $pdo): void
+    {
+        AuthMiddleware::requireAuth();
+        header('Content-Type: application/json; charset=utf-8');
+        $field = trim((string) ($_GET['field'] ?? ''));
+        $value = trim((string) ($_GET['value'] ?? ''));
+        $excludeId = (int) ($_GET['exclude_id'] ?? 0);
+
+        if ($field === '' || $value === '') {
+            echo json_encode(['exists' => false]);
+            exit;
+        }
+
+        $col = match ($field) {
+            'id_number' => 'id_number',
+            'phone' => 'phone',
+            'email' => 'email',
+            default => null,
+        };
+
+        if (!$col) {
+            echo json_encode(['exists' => false]);
+            exit;
+        }
+
+        $sql = "SELECT id, full_name, client_code FROM clients WHERE {$col} = :val";
+        if ($excludeId > 0) {
+            $sql .= " AND id != " . $excludeId;
+        }
+        $sql .= " LIMIT 1";
+
+        $st = $pdo->prepare($sql);
+        $st->execute([':val' => $value]);
+        $row = $st->fetch();
+
+        echo json_encode([
+            'exists' => (bool) $row,
+            'field' => $col,
+            'value' => $value,
+            'client_name' => $row['full_name'] ?? null,
+            'client_code' => $row['client_code'] ?? null,
+            'message' => $row ? match ($col) {
+                'id_number' => "Lambarka Aqoonsiga '{$value}' horey ayaa loogu diiwaangeliyay macmiilka: " . ($row['full_name'] ?? '') . " (" . ($row['client_code'] ?? '') . ")",
+                'phone' => "Lambarka Telefoonka '{$value}' horey ayaa loogu diiwaangeliyay macmiilka: " . ($row['full_name'] ?? '') . " (" . ($row['client_code'] ?? '') . ")",
+                'email' => "Email-ka '{$value}' horey ayaa loogu diiwaangeliyay macmiilka: " . ($row['full_name'] ?? '') . " (" . ($row['client_code'] ?? '') . ")",
+                default => 'Xogtani horey ayaa nidaamka ugu jirtay.'
+            } : ''
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 

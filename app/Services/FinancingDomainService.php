@@ -58,15 +58,27 @@ final class FinancingDomainService
             throw new RuntimeException('Every client must have at least one complete guarantor (name, phone, ID, and relationship).');
         }
 
-        // Check uniqueness of ID number and Phone number
-        $dupStmt = $db->prepare('SELECT id, id_number, phone FROM clients WHERE id_number = :id_num OR phone = :phone LIMIT 1');
-        $dupStmt->execute([':id_num' => $idNumber, ':phone' => $phone]);
+        // Check uniqueness of ID number, Phone number, and Email
+        $sql = 'SELECT id, id_number, phone, email FROM clients WHERE id_number = :id_num OR phone = :phone';
+        $params = [':id_num' => $idNumber, ':phone' => $phone];
+        if ($email !== '') {
+            $sql .= ' OR email = :email';
+            $params[':email'] = $email;
+        }
+        $sql .= ' LIMIT 1';
+        $dupStmt = $db->prepare($sql);
+        $dupStmt->execute($params);
         $dup = $dupStmt->fetch();
         if ($dup) {
             if (strcasecmp((string) $dup['id_number'], $idNumber) === 0) {
                 throw new RuntimeException("Client ID number '{$idNumber}' is already registered.");
             }
-            throw new RuntimeException("Client phone number '{$phone}' is already registered.");
+            if (strcasecmp((string) $dup['phone'], $phone) === 0) {
+                throw new RuntimeException("Client phone number '{$phone}' is already registered.");
+            }
+            if ($email !== '' && strcasecmp((string) ($dup['email'] ?? ''), $email) === 0) {
+                throw new RuntimeException("Client email '{$email}' is already registered.");
+            }
         }
 
         $ownTx = !$db->inTransaction();
