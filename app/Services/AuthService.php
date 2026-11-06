@@ -305,7 +305,12 @@ final class AuthService
         // Successful password verification
         self::recordAttempt($identifier, $ip, true, $db);
         self::resetSecurityCounters((int) $user['id'], $db);
-        $db->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')->execute([':id' => $user['id']]);
+
+        // Generate a new unique session token (terminates any concurrent session elsewhere)
+        $sessionToken = bin2hex(random_bytes(32));
+
+        $db->prepare('UPDATE users SET last_login_at = NOW(), current_session_token = :token WHERE id = :id')
+           ->execute([':token' => $sessionToken, ':id' => $user['id']]);
 
         $sessionUser = [
             'id' => (int) $user['id'],
@@ -325,6 +330,7 @@ final class AuthService
             'preferred_locale' => 'en',
             'preferred_theme' => (string) $user['preferred_theme'],
             'is_synthetic_demo' => (bool) $user['is_synthetic_demo'],
+            'session_token' => $sessionToken,
         ];
 
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -351,9 +357,13 @@ final class AuthService
         $db = $pdo ?? Database::connection();
         $ip = Security::clientIp();
 
+        // Generate a new unique session token (terminates any concurrent session elsewhere)
+        $sessionToken = bin2hex(random_bytes(32));
+
         self::recordAttempt((string) ($user['email'] ?? $user['username']), $ip, true, $db);
         self::resetSecurityCounters((int) $user['id'], $db);
-        $db->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')->execute([':id' => $user['id']]);
+        $db->prepare('UPDATE users SET last_login_at = NOW(), current_session_token = :token WHERE id = :id')
+           ->execute([':token' => $sessionToken, ':id' => $user['id']]);
 
         $sessionUser = [
             'id' => (int) $user['id'],
@@ -373,6 +383,7 @@ final class AuthService
             'preferred_locale' => (string) ($user['preferred_locale'] ?? 'en'),
             'preferred_theme' => (string) ($user['preferred_theme'] ?? 'light'),
             'is_synthetic_demo' => !empty($user['is_synthetic_demo']),
+            'session_token' => $sessionToken,
         ];
 
         if (session_status() === PHP_SESSION_ACTIVE) {

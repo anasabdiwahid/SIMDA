@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS users (
     lockout_tier TINYINT UNSIGNED NOT NULL DEFAULT 0,
     locked_until DATETIME NULL,
     security_block_reason VARCHAR(255) NULL,
+    current_session_token VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,

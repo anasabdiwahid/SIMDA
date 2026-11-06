@@ -46,6 +46,7 @@ final class PortalController
                 'forgot_password_verify_otp' => self::forgotPasswordVerifyOtp($pdo),
                 'forgot_password_reset' => self::forgotPasswordReset($pdo),
                 'logout' => self::logout(),
+                'auth_session_check' => self::authSessionCheck($pdo),
                 'api_schedule_preview' => self::apiSchedulePreview(),
 
                 'dashboard' => self::dashboard($pdo),
@@ -1251,14 +1252,40 @@ final class PortalController
 
     private static function logout(): void
     {
-        if (AuthMiddleware::check()) {
-            AuditLogger::log('auth.logout', 'users', (int) $_SESSION['user']['id'], 'User signed out.');
+        if (!empty($_SESSION['user']['id'])) {
+            $uid = (int) $_SESSION['user']['id'];
+            try {
+                \App\Helpers\Database::connection()
+                    ->prepare('UPDATE users SET current_session_token = NULL WHERE id = :id')
+                    ->execute([':id' => $uid]);
+            } catch (\Throwable $e) {}
+            AuditLogger::log('auth.logout', 'users', $uid, 'User signed out.');
         }
         $_SESSION = [];
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }
         header('Location: ?route=login');
+        exit;
+    }
+
+    private static function authSessionCheck(PDO $pdo): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        if (!AuthMiddleware::check()) {
+            $locale = Lang::locale();
+            $msg = $_SESSION['flash_error'] ?? ($locale === 'so'
+                ? 'Akoonkaaga waxaa laga soo galay aalad kale ama browser kale. Amnigaaga dartii, kalfadhigan hore waa la xiray (Logged out).'
+                : 'Your account was signed in from another device or browser. Session ended.');
+            echo json_encode([
+                'valid' => false,
+                'message' => $msg,
+                'redirect' => '?route=login',
+            ]);
+            exit;
+        }
+
+        echo json_encode(['valid' => true]);
         exit;
     }
 

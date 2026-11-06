@@ -416,5 +416,36 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 </div>
 
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
+<script>
+    // Security: Concurrent Session Watcher (Single Active Session Enforcement)
+    (function () {
+        var isChecking = false;
+        function checkActiveSession() {
+            if (isChecking) return;
+            isChecking = true;
+            fetch('?route=auth_session_check', {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                isChecking = false;
+                if (data && data.valid === false) {
+                    // Previous session invalidated because account was opened on another device/browser
+                    window.location.href = data.redirect || '?route=login';
+                }
+            })
+            .catch(function() {
+                isChecking = false;
+            });
+        }
+
+        // Periodic heartbeat check every 25 seconds
+        setInterval(checkActiveSession, 25000);
+
+        // Immediate check whenever user returns to or focuses this window
+        window.addEventListener('focus', checkActiveSession);
+    })();
+</script>
 </body>
 </html>

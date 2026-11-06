@@ -15,7 +15,97 @@ final class AuthMiddleware
 
     public static function check(): bool
     {
-        return !empty($_SESSION['user']['id']);
+        if (empty($_SESSION['user']['id'])) {
+            return false;
+        }
+
+        return self::validateActiveSession();
+    }
+
+    /**
+     * Enforce single active session per user account (kicks out prior session if logged in elsewhere)
+     */
+    public static function validateActiveSession(): bool
+    {
+        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        if ($userId <= 0) {
+            return false;
+        }
+
+        $sessionToken = (string) ($_SESSION['user']['session_token'] ?? '');
+        if ($sessionToken === '') {
+            return true;
+        }
+
+        // Cache per HTTP request
+        $cacheKey = $userId . ':' . $sessionToken;
+        static $validatedCache = [];
+        if (isset($validatedCache[$cacheKey])) {
+            return $validatedCache[$cacheKey];
+        }
+
+        try {
+            $pdo = \App\Helpers\Database::connection();
+            $st = $pdo->prepare('SELECT current_session_token, is_active FROM users WHERE id = :id AND deleted_at IS NULL LIMIT 1');
+            $st->execute([':id' => $userId]);
+            $row = $st->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$row || (int) $row['is_active'] !== 1) {
+                self::forceKickUser('account_disabled');
+                $validatedCache[$cacheKey] = false;
+                return false;
+            }
+
+            $dbToken = (string) ($row['current_session_token'] ?? '');
+
+            // If token in DB does not match this session, another login occurred on another device/browser
+            if ($dbToken !== '' && !hash_equals($dbToken, $sessionToken)) {
+                self::forceKickUser('concurrent_login');
+                $validatedCache[$cacheKey] = false;
+                return false;
+            }
+
+            $validatedCache[$cacheKey] = true;
+            return true;
+        } catch (\Throwable $e) {
+            return true;
+        }
+    }
+
+    /**
+     * Invalidate session and set security kick notification
+     */
+    public static function forceKickUser(string $reason = 'concurrent_login'): void
+    {
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+        $isAr = $locale === 'ar';
+
+        if ($reason === 'concurrent_login') {
+            $msg = $isSo
+                ? 'Akoonkaaga waxaa laga soo galay aalad kale ama browser kale. Amnigaaga dartii, kalfadhigan hore si toos ah ayaa looga saaray (Logged out).'
+                : ($isAr
+                    ? 'تم تسجيل الدخول إلى حسابك من جهاز أو متصفح آخر. لدواعي الأمان، تم إنهاء هذه الجلسة.'
+                    : 'Your account was signed in from another device or browser. For your security, this previous session was ended.');
+        } else {
+            $msg = $isSo
+                ? 'Akoonkaaga waa la damiyey ama lama heli karo. Fadlan la xiriir maamulka.'
+                : ($isAr
+                    ? 'تم تعطيل حسابك أو تعليقه. يرجى مراجعة الإدارة.'
+                    : 'Your account is deactivated or unavailable. Please contact administration.');
+        }
+
+        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        if ($userId > 0) {
+            \App\Helpers\AuditLogger::log(
+                'auth.concurrent_kick',
+                'users',
+                $userId,
+                "Concurrent session terminated for user ID {$userId} (signed in from another device/browser)."
+            );
+        }
+
+        $_SESSION = ['flash_error' => $msg];
     }
 
     public static function role(): string
@@ -38,7 +128,9 @@ final class AuthMiddleware
     public static function requireAuth(): array
     {
         if (!self::check()) {
-            $_SESSION['flash_error'] = Lang::get('please_login_first');
+            if (empty($_SESSION['flash_error'])) {
+                $_SESSION['flash_error'] = Lang::get('please_login_first');
+            }
             header('Location: ?route=login');
             exit;
         }
