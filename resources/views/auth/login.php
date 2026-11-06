@@ -1046,14 +1046,14 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                 </div>
             </div>
 
-            <!-- Center Loading Modal (Visible in the dead center during email verification) -->
+            <!-- Center Loading Modal (Visible in the dead center during email verification & login dispatch) -->
             <div id="loginCenterLoader" class="simda-center-loader" style="display:none;">
                 <div class="simda-loader-card">
                     <div class="simda-loader-ring">
                         <img src="assets/images/simda-icon.png" alt="S" class="simda-loader-spin-logo">
                     </div>
-                    <div class="simda-loader-title"><?= Security::e($lt['btn_verifying']) ?></div>
-                    <div class="simda-loader-sub"><?= ($locale === 'so') ? 'Fadlan sug wax yar, akoonka ayaa la hubinayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري التحقق...' : 'Please wait, verifying account...') ?></div>
+                    <div class="simda-loader-title" id="centerLoaderTitle"><?= Security::e($lt['btn_verifying']) ?></div>
+                    <div class="simda-loader-sub" id="centerLoaderSub"><?= ($locale === 'so') ? 'Fadlan sug wax yar, akoonka ayaa la hubinayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري التحقق...' : 'Please wait, verifying account...') ?></div>
                 </div>
             </div>
 
@@ -1110,7 +1110,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     <span id="step2AlertText"><?= Security::e((!empty($preVerifiedEmail) && !$admin2faPending) ? $flashError : '') ?></span>
                 </div>
 
-                <form method="POST" action="?route=login_submit" id="formLoginSubmit">
+                <form method="POST" action="?route=login_submit" id="formLoginSubmit" onsubmit="handlePasswordSubmit(event)">
                     <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                     <input type="hidden" name="identifier" id="finalIdentifier" value="<?= Security::e($preVerifiedEmail) ?>">
 
@@ -1130,7 +1130,12 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                         </a>
                     </div>
 
-                    <button type="submit" class="simda-btn-signin-main"><?= Security::e($lt['btn_signin']) ?></button>
+                    <button type="submit" id="btnSubmitPassword" class="simda-btn-signin-main" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+                        <span id="btnSubmitPwSpinner" class="simda-btn-spinner-s" style="display:none;">
+                            <img src="assets/images/simda-icon.png" alt="S" class="simda-spin-icon">
+                        </span>
+                        <span id="btnSubmitPwText"><?= Security::e($lt['btn_signin']) ?></span>
+                    </button>
                 </form>
             </div>
 
@@ -1174,7 +1179,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="?route=admin_2fa_verify" id="formAdmin2fa">
+                <form method="POST" action="?route=admin_2fa_verify" id="formAdmin2fa" onsubmit="handleAdmin2faSubmit(event)">
                     <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
 
                     <div class="simda-input-pill" id="admin2faPill" style="margin-bottom:6px;">
@@ -1194,13 +1199,16 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                         <span style="font-size:0.77rem;color:#7A8782;" id="admin2faTimerLabel">
                             <?= Security::e($lt['step3_expires_in']) ?>: <strong id="admin2faTimerVal" style="color:#123B32;font-variant-numeric:tabular-nums;">10:00</strong>
                         </span>
-                        <a href="?route=admin_2fa_resend" class="simda-forgot-link" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.77rem;">
+                        <a href="?route=admin_2fa_resend" onclick="handleResend2faClick(event)" class="simda-forgot-link" style="color:#2872A1;font-weight:700;text-decoration:none;font-size:0.77rem;">
                             <?= Security::e($lt['step3_resend']) ?>
                         </a>
                     </div>
 
-                    <button type="submit" class="simda-btn-signin-main" id="btnAdmin2faVerify" style="background:#123B32;color:#FFFFFF;border:none;">
-                        <span><?= Security::e($lt['step3_verify_btn']) ?></span>
+                    <button type="submit" class="simda-btn-signin-main" id="btnAdmin2faVerify" style="background:#123B32;color:#FFFFFF;border:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+                        <span id="btnAdmin2faSpinner" class="simda-btn-spinner-s" style="display:none;">
+                            <img src="assets/images/simda-icon.png" alt="S" class="simda-spin-icon">
+                        </span>
+                        <span id="btnAdmin2faText"><?= Security::e($lt['step3_verify_btn']) ?></span>
                     </button>
                 </form>
             </div>
@@ -1238,6 +1246,68 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         }
     })();
 
+    function showCenterLoading(title, sub) {
+        var centerLoader = document.getElementById('loginCenterLoader');
+        var tEl = document.getElementById('centerLoaderTitle');
+        var sEl = document.getElementById('centerLoaderSub');
+        if (tEl && title) tEl.textContent = title;
+        if (sEl && sub) sEl.textContent = sub;
+        if (centerLoader) centerLoader.style.display = 'flex';
+    }
+
+    function handlePasswordSubmit(e) {
+        var pw = document.getElementById('password');
+        if (!pw || !pw.value) {
+            return;
+        }
+
+        var btn = document.getElementById('btnSubmitPassword');
+        var btnText = document.getElementById('btnSubmitPwText');
+        var btnSpinner = document.getElementById('btnSubmitPwSpinner');
+
+        if (btn) {
+            btn.style.opacity = '0.85';
+            btn.style.pointerEvents = 'none';
+        }
+        if (btnSpinner) btnSpinner.style.display = 'inline-flex';
+        if (btnText) btnText.textContent = '<?= ($locale === 'so') ? 'Waa la dirayaa...' : (($locale === 'ar') ? 'جارٍ الإرسال...' : 'Signing In...') ?>';
+
+        showCenterLoading(
+            '<?= ($locale === 'so') ? 'Waa la dirayaa...' : (($locale === 'ar') ? 'جارٍ التحقق والدخول...' : 'Signing In...') ?>',
+            '<?= ($locale === 'so') ? 'Fadlan sug wax yar, xogtaada ayaa la hubinayaa oo la dirayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري التحقق من بياناتك...' : 'Please wait, verifying your credentials...') ?>'
+        );
+    }
+
+    function handleAdmin2faSubmit(e) {
+        var code = document.getElementById('admin2faCodeInput');
+        if (!code || !code.value) {
+            return;
+        }
+
+        var btn = document.getElementById('btnAdmin2faVerify');
+        var btnText = document.getElementById('btnAdmin2faText');
+        var btnSpinner = document.getElementById('btnAdmin2faSpinner');
+
+        if (btn) {
+            btn.style.opacity = '0.85';
+            btn.style.pointerEvents = 'none';
+        }
+        if (btnSpinner) btnSpinner.style.display = 'inline-flex';
+        if (btnText) btnText.textContent = '<?= ($locale === 'so') ? 'Waa la hubinayaa...' : (($locale === 'ar') ? 'جارٍ التحقق...' : 'Verifying...') ?>';
+
+        showCenterLoading(
+            '<?= ($locale === 'so') ? 'Koodhka ayaa la hubinayaa...' : (($locale === 'ar') ? 'جارٍ التحقق من الرمز...' : 'Verifying Security Code...') ?>',
+            '<?= ($locale === 'so') ? 'Fadlan sug wax yar, koodhka amniga ayaa la xaqiijinayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري التحقق من رمز الأمان...' : 'Please wait, verifying your security code...') ?>'
+        );
+    }
+
+    function handleResend2faClick(e) {
+        showCenterLoading(
+            '<?= ($locale === 'so') ? 'Koodh cusub ayaa la dirayaa...' : (($locale === 'ar') ? 'جارٍ إرسال رمز جديد...' : 'Sending New Code...') ?>',
+            '<?= ($locale === 'so') ? 'Fadlan sug wax yar, koodh 8 xaraf ah ayaa email-kaaga loo dirayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري إرسال الرمز إلى بريدك الإلكتروني...' : 'Please wait, dispatching code to your email...') ?>'
+        );
+    }
+
     function handleCheckEmail(e) {
         if (e) e.preventDefault();
         var emailInput = document.getElementById('identifierInput');
@@ -1259,7 +1329,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
         btn.disabled = true;
         btn.style.opacity = '0.85';
-        if (centerLoader) centerLoader.style.display = 'flex';
+        showCenterLoading(
+            '<?= Security::e($lt['btn_verifying']) ?>',
+            '<?= ($locale === 'so') ? 'Fadlan sug wax yar, akoonka ayaa la hubinayaa...' : (($locale === 'ar') ? 'يرجى الانتظار، جاري التحقق...' : 'Please wait, verifying account...') ?>'
+        );
         if (btnSpinner) btnSpinner.style.display = 'inline-flex';
         if (userIcon) userIcon.style.display = 'none';
         if (spinIcon) spinIcon.style.display = 'inline-block';
