@@ -63,233 +63,268 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
         </div>
 
         <nav class="sidebar-nav">
-            <!-- MAIN -->
-            <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_main')) ?></div>
-            <a href="?route=dashboard" class="sidebar-link <?= $currentRoute === 'dashboard' ? 'active' : '' ?>">
-                <?= Icons::svg('dashboard', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_dashboard')) ?></span>
-            </a>
-
             <?php if ($role === 'admin'): ?>
-                <!-- ADMIN MASTER NAVIGATION SHORTCUTS -->
-                <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
-                    <?= Icons::svg('user-check', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Users & Shaqaalaha' : 'Users & Staff' ?></span>
+                <!-- ADMIN EXCLUSIVE CLEAN & STREAMLINED SIDEBAR (KALIYA 10-KA SHEY EE LA CODSADAY) -->
+                <div class="sidebar-group-label"><?= $locale === 'so' ? 'BORTAALKA MAAMULKA' : ($locale === 'ar' ? 'لوحة المسؤول' : 'ADMIN PORTAL') ?></div>
+
+                <!-- 1. Dashboard -->
+                <a href="?route=dashboard" class="sidebar-link <?= $currentRoute === 'dashboard' ? 'active' : '' ?>">
+                    <?= Icons::svg('dashboard', 18) ?>
+                    <span class="sidebar-text">Dashboard</span>
                 </a>
+
+                <!-- 2. All Users -->
+                <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
+                    <?= Icons::svg('users', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'All Users' : ($locale === 'ar' ? 'جميع المستخدمين' : 'All Users') ?></span>
+                </a>
+
+                <!-- 3. Client -->
+                <a href="?route=clients" class="sidebar-link <?= in_array($currentRoute, ['clients', 'client_view', 'client_register', 'client_transfer', 'guarantors'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('user-check', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Clients' : ($locale === 'ar' ? 'العملاء' : 'Clients') ?></span>
+                </a>
+
+                <!-- 4. Daynta La Qaatay (Loans) -->
+                <a href="?route=loans" class="sidebar-link <?= in_array($currentRoute, ['loans', 'financings', 'financing_view', 'schedules', 'repayments', 'repayment_record'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('credit-card', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Daynta La Qaatay' : ($locale === 'ar' ? 'التمويلات والقروض' : 'Loans Taken') ?></span>
+                </a>
+
+                <!-- 5. Murabaxada La Qaatay -->
+                <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('shopping-bag', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Murabaxada La Qaatay' : ($locale === 'ar' ? 'عقود المرابحة' : 'Murabaha Taken') ?></span>
+                </a>
+
+                <!-- 6. Branch Manage -->
                 <a href="?route=branches" class="sidebar-link <?= $currentRoute === 'branches' ? 'active' : '' ?>">
                     <?= Icons::svg('building', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Laamaha (Branches)' : 'Branches Management' ?></span>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Branch Manage' : ($locale === 'ar' ? 'إدارة الفروع' : 'Branch Manage') ?></span>
                 </a>
-                <a href="?route=permissions" class="sidebar-link <?= $currentRoute === 'permissions' ? 'active' : '' ?>">
-                    <?= Icons::svg('shield', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Awoodaha & Ogolaanshaha' : 'Permissions & Access' ?></span>
-                </a>
-            <?php endif; ?>
 
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('clients.view')): ?>
-                <!-- CLIENT MANAGEMENT -->
-                <div class="sidebar-group-label"><?= $locale === 'so' ? 'MACAAMIISHA' : 'CLIENTS' ?></div>
-                <a href="?route=clients" class="sidebar-link <?= in_array($currentRoute, ['clients', 'client_view'], true) ? 'active' : '' ?>">
-                    <?= Icons::svg('users', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'All Clients (Macaamiisha)' : 'All Clients' ?></span>
+                <!-- 7. Report -->
+                <a href="?route=reports" class="sidebar-link <?= in_array($currentRoute, ['reports', 'statements', 'audit_logs', 'credit_scores', 'par30', 'charity_charges'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('bar-chart', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Reports' : ($locale === 'ar' ? 'التقارير' : 'Reports') ?></span>
                 </a>
-                <?php if ($role === 'admin' || AuthMiddleware::hasPermission('clients.register')): ?>
-                <a href="?route=client_register" class="sidebar-link <?= $currentRoute === 'client_register' ? 'active' : '' ?>">
-                    <?= Icons::svg('user-plus', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_register_client')) ?></span>
-                </a>
-                <?php endif; ?>
-                <?php if ($role === 'admin' || AuthMiddleware::hasPermission('guarantors.manage')): ?>
-                <a href="?route=guarantors" class="sidebar-link <?= $currentRoute === 'guarantors' ? 'active' : '' ?>">
-                    <?= Icons::svg('shield', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_guarantors')) ?></span>
-                </a>
-                <?php endif; ?>
-            <?php endif; ?>
 
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('loans.view')): ?>
-            <!-- DAYMAHA (LOANS / QARD HASSAN — Requested Sections) -->
-            <div class="sidebar-group-label"><?= $locale === 'so' ? 'DAYMAHA (LOANS)' : 'CASH LOANS' ?></div>
-            <a href="?route=loans&filter=active" class="sidebar-link <?= ($currentRoute === 'loans' && (($_GET['filter'] ?? '') === 'active' || empty($_GET['filter']))) ? 'active' : '' ?>">
-                <?= Icons::svg('activity', 18) ?>
-                <span class="sidebar-text"><?= $locale === 'so' ? 'Dadka Deynta Qaatay' : 'Active Borrowers' ?></span>
-            </a>
-            <a href="?route=loans&filter=settled_ontime" class="sidebar-link <?= ($currentRoute === 'loans' && ($_GET['filter'] ?? '') === 'settled_ontime') ? 'active' : '' ?>">
-                <?= Icons::svg('check-circle', 18) ?>
-                <span class="sidebar-text"><?= $locale === 'so' ? 'Deynta Iska Bixiyay (Waqtiga)' : 'Settled On-Time' ?></span>
-            </a>
-            <a href="?route=loans&filter=settled_late" class="sidebar-link <?= ($currentRoute === 'loans' && ($_GET['filter'] ?? '') === 'settled_late') ? 'active' : '' ?>">
-                <?= Icons::svg('clock', 18) ?>
-                <span class="sidebar-text"><?= $locale === 'so' ? 'Deynta Bixiyay (Dib u Dhacay)' : 'Settled Late' ?></span>
-            </a>
-            <?php endif; ?>
-
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('murabaha.view')): ?>
-            <!-- MURABAXO (MURABAHA ASSET FINANCING — Accordion Submenu) -->
-            <div class="sidebar-group-label"><?= $locale === 'so' ? 'MURABAXO (ASSET FINANCING)' : 'MURABAHA' ?></div>
-            <div class="sidebar-dropdown-wrap">
-                <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>" style="justify-content:space-between;">
-                    <span style="display:flex;align-items:center;gap:12px;">
-                        <?= Icons::svg('shopping-bag', 18) ?>
-                        <span class="sidebar-text"><?= $locale === 'so' ? 'Heshiiska Murabaxada' : 'Murabaha Financing' ?></span>
-                    </span>
-                    <span style="display:inline-flex;padding:2px;opacity:0.75;" onclick="event.preventDefault(); event.stopPropagation(); const sm = document.getElementById('murabahaSubMenu'); if(sm){ sm.style.display = sm.style.display === 'none' ? 'flex' : 'none'; }">
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="1 1 5 5 9 1"></polyline>
-                        </svg>
-                    </span>
+                <!-- 8. Setting -->
+                <a href="?route=settings" class="sidebar-link <?= in_array($currentRoute, ['settings', 'permissions'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('settings', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Settings' : ($locale === 'ar' ? 'الإعدادات' : 'Settings') ?></span>
                 </a>
-                <div class="sidebar-submenu" id="murabahaSubMenu" style="display:<?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'flex' : 'flex' ?>;">
-                    <?php if ($role === 'admin' || AuthMiddleware::hasPermission('murabaha.create')): ?>
-                    <a href="?route=murabaha_new" class="sidebar-sublink <?= $currentRoute === 'murabaha_new' ? 'active' : '' ?>">
-                        <?= Icons::svg('plus', 13) ?>
-                        <span><?= $locale === 'so' ? 'Qof Cusub u Diwaangeli' : 'New Murabaha Application' ?></span>
-                    </a>
-                    <?php endif; ?>
-                    <a href="?route=murabaha&filter=all" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && (($_GET['filter'] ?? '') === 'all' || empty($_GET['filter']))) ? 'active' : '' ?>">
-                        <?= Icons::svg('layers', 13) ?>
-                        <span><?= $locale === 'so' ? 'Dadka Murabaxada Qaatay' : 'All Murabaha Contracts' ?></span>
-                    </a>
-                    <a href="?route=murabaha&filter=settled" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'settled') ? 'active' : '' ?>">
-                        <?= Icons::svg('check-circle', 13) ?>
-                        <span><?= $locale === 'so' ? 'Inta Qaadatay & Soo Celisay' : 'Settled Murabaha' ?></span>
-                    </a>
-                    <a href="?route=murabaha&filter=unpaid" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'unpaid') ? 'active' : '' ?>">
-                        <?= Icons::svg('alert-triangle', 13) ?>
-                        <span><?= $locale === 'so' ? 'Inta Aan Weli Soo Celin' : 'Unpaid / Active' ?></span>
+
+                <!-- 9. Message -->
+                <a href="?route=sms_outbox" class="sidebar-link <?= $currentRoute === 'sms_outbox' ? 'active' : '' ?>">
+                    <?= Icons::svg('message-square', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Messages' : ($locale === 'ar' ? 'الرسائل' : 'Messages') ?></span>
+                </a>
+
+                <!-- 10. Logout -->
+                <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+                    <a href="?route=logout" class="sidebar-link" style="color:#FF7676;">
+                        <?= Icons::svg('log-out', 18) ?>
+                        <span class="sidebar-text"><?= $locale === 'so' ? 'Logout (Ka Bax)' : ($locale === 'ar' ? 'تسجيل الخروج' : 'Logout') ?></span>
                     </a>
                 </div>
-            </div>
-            <?php endif; ?>
 
-            <!-- FINANCING -->
-            <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_financing')) ?></div>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('products.manage')): ?>
-                <a href="?route=products" class="sidebar-link <?= $currentRoute === 'products' ? 'active' : '' ?>">
-                    <?= Icons::svg('layers', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_products')) ?></span>
+            <?php else: ?>
+                <!-- NON-ADMIN ROLES (Staff, Branch Managers, Officers, Clients) -->
+                <!-- MAIN -->
+                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_main')) ?></div>
+                <a href="?route=dashboard" class="sidebar-link <?= $currentRoute === 'dashboard' ? 'active' : '' ?>">
+                    <?= Icons::svg('dashboard', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_dashboard')) ?></span>
                 </a>
-            <?php endif; ?>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('applications.view')): ?>
-                <a href="?route=applications" class="sidebar-link <?= $currentRoute === 'applications' ? 'active' : '' ?>">
-                    <?= Icons::svg('file-text', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_applications')) ?></span>
+
+                <?php if (AuthMiddleware::hasPermission('clients.view')): ?>
+                    <!-- CLIENT MANAGEMENT -->
+                    <div class="sidebar-group-label"><?= $locale === 'so' ? 'MACAAMIISHA' : 'CLIENTS' ?></div>
+                    <a href="?route=clients" class="sidebar-link <?= in_array($currentRoute, ['clients', 'client_view'], true) ? 'active' : '' ?>">
+                        <?= Icons::svg('users', 18) ?>
+                        <span class="sidebar-text"><?= $locale === 'so' ? 'All Clients (Macaamiisha)' : 'All Clients' ?></span>
+                    </a>
+                    <?php if (AuthMiddleware::hasPermission('clients.register')): ?>
+                    <a href="?route=client_register" class="sidebar-link <?= $currentRoute === 'client_register' ? 'active' : '' ?>">
+                        <?= Icons::svg('user-plus', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_register_client')) ?></span>
+                    </a>
+                    <?php endif; ?>
+                    <?php if (AuthMiddleware::hasPermission('guarantors.manage')): ?>
+                    <a href="?route=guarantors" class="sidebar-link <?= $currentRoute === 'guarantors' ? 'active' : '' ?>">
+                        <?= Icons::svg('shield', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_guarantors')) ?></span>
+                    </a>
+                    <?php endif; ?>
+                <?php endif; ?>
+
+                <?php if (AuthMiddleware::hasPermission('loans.view')): ?>
+                <!-- DAYMAHA (LOANS / QARD HASSAN) -->
+                <div class="sidebar-group-label"><?= $locale === 'so' ? 'DAYMAHA (LOANS)' : 'CASH LOANS' ?></div>
+                <a href="?route=loans&filter=active" class="sidebar-link <?= ($currentRoute === 'loans' && (($_GET['filter'] ?? '') === 'active' || empty($_GET['filter']))) ? 'active' : '' ?>">
+                    <?= Icons::svg('activity', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Dadka Deynta Qaatay' : 'Active Borrowers' ?></span>
                 </a>
-            <?php endif; ?>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('applications.approve_small') || AuthMiddleware::hasPermission('applications.approve_large')): ?>
-                <a href="?route=approval_queue" class="sidebar-link <?= $currentRoute === 'approval_queue' ? 'active' : '' ?>">
-                    <?= Icons::svg('check-square', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_approval_queue')) ?></span>
+                <a href="?route=loans&filter=settled_ontime" class="sidebar-link <?= ($currentRoute === 'loans' && ($_GET['filter'] ?? '') === 'settled_ontime') ? 'active' : '' ?>">
+                    <?= Icons::svg('check-circle', 18) ?>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Deynta Iska Bixiyay (Waqtiga)' : 'Settled On-Time' ?></span>
                 </a>
-            <?php endif; ?>
-
-            <a href="?route=financings" class="sidebar-link <?= in_array($currentRoute, ['financings', 'financing_view'], true) ? 'active' : '' ?>">
-                <?= Icons::svg('credit-card', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_active_financing')) ?></span>
-            </a>
-
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('financings.disburse')): ?>
-                <a href="?route=disbursements" class="sidebar-link <?= $currentRoute === 'disbursements' ? 'active' : '' ?>">
-                    <?= Icons::svg('dollar-sign', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_disbursements')) ?></span>
-                </a>
-            <?php endif; ?>
-
-            <a href="?route=schedules" class="sidebar-link <?= $currentRoute === 'schedules' ? 'active' : '' ?>">
-                <?= Icons::svg('calendar', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_schedules')) ?></span>
-            </a>
-
-            <!-- PAYMENTS -->
-            <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_payments')) ?></div>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('repayments.record')): ?>
-                <a href="?route=repayment_record" class="sidebar-link <?= $currentRoute === 'repayment_record' ? 'active' : '' ?>">
+                <a href="?route=loans&filter=settled_late" class="sidebar-link <?= ($currentRoute === 'loans' && ($_GET['filter'] ?? '') === 'settled_late') ? 'active' : '' ?>">
                     <?= Icons::svg('clock', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_record_repayment')) ?></span>
+                    <span class="sidebar-text"><?= $locale === 'so' ? 'Deynta Bixiyay (Dib u Dhacay)' : 'Settled Late' ?></span>
                 </a>
-            <?php endif; ?>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('repayments.view')): ?>
-            <a href="?route=repayments" class="sidebar-link <?= $currentRoute === 'repayments' ? 'active' : '' ?>">
-                <?= Icons::svg('activity', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_repayment_history')) ?></span>
-            </a>
-            <?php endif; ?>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('charity.view')): ?>
-            <a href="?route=charity_charges" class="sidebar-link <?= $currentRoute === 'charity_charges' ? 'active' : '' ?>">
-                <?= Icons::svg('heart-handshake', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_charity_charges')) ?></span>
-            </a>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <!-- RISK MANAGEMENT -->
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('risk.view')): ?>
-            <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_risk')) ?></div>
-            <a href="?route=credit_scores" class="sidebar-link <?= $currentRoute === 'credit_scores' ? 'active' : '' ?>">
-                <?= Icons::svg('bar-chart', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_credit_scores')) ?></span>
-            </a>
-            <a href="?route=par30" class="sidebar-link <?= $currentRoute === 'par30' ? 'active' : '' ?>">
-                <?= Icons::svg('alert-triangle', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_par30')) ?></span>
-            </a>
-            <?php endif; ?>
+                <?php if (AuthMiddleware::hasPermission('murabaha.view')): ?>
+                <!-- MURABAXO (MURABAHA ASSET FINANCING) -->
+                <div class="sidebar-group-label"><?= $locale === 'so' ? 'MURABAXO (ASSET FINANCING)' : 'MURABAHA' ?></div>
+                <div class="sidebar-dropdown-wrap">
+                    <a href="?route=murabaha" class="sidebar-link <?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'active' : '' ?>" style="justify-content:space-between;">
+                        <span style="display:flex;align-items:center;gap:12px;">
+                            <?= Icons::svg('shopping-bag', 18) ?>
+                            <span class="sidebar-text"><?= $locale === 'so' ? 'Heshiiska Murabaxada' : 'Murabaha Financing' ?></span>
+                        </span>
+                        <span style="display:inline-flex;padding:2px;opacity:0.75;" onclick="event.preventDefault(); event.stopPropagation(); const sm = document.getElementById('murabahaSubMenu'); if(sm){ sm.style.display = sm.style.display === 'none' ? 'flex' : 'none'; }">
+                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 1 5 5 9 1"></polyline>
+                            </svg>
+                        </span>
+                    </a>
+                    <div class="sidebar-submenu" id="murabahaSubMenu" style="display:<?= in_array($currentRoute, ['murabaha', 'murabaha_new'], true) ? 'flex' : 'flex' ?>;">
+                        <?php if (AuthMiddleware::hasPermission('murabaha.create')): ?>
+                        <a href="?route=murabaha_new" class="sidebar-sublink <?= $currentRoute === 'murabaha_new' ? 'active' : '' ?>">
+                            <?= Icons::svg('plus', 13) ?>
+                            <span><?= $locale === 'so' ? 'Qof Cusub u Diwaangeli' : 'New Murabaha Application' ?></span>
+                        </a>
+                        <?php endif; ?>
+                        <a href="?route=murabaha&filter=all" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && (($_GET['filter'] ?? '') === 'all' || empty($_GET['filter']))) ? 'active' : '' ?>">
+                            <?= Icons::svg('layers', 13) ?>
+                            <span><?= $locale === 'so' ? 'Dadka Murabaxada Qaatay' : 'All Murabaha Contracts' ?></span>
+                        </a>
+                        <a href="?route=murabaha&filter=settled" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'settled') ? 'active' : '' ?>">
+                            <?= Icons::svg('check-circle', 13) ?>
+                            <span><?= $locale === 'so' ? 'Inta Qaadatay & Soo Celisay' : 'Settled Murabaha' ?></span>
+                        </a>
+                        <a href="?route=murabaha&filter=unpaid" class="sidebar-sublink <?= ($currentRoute === 'murabaha' && ($_GET['filter'] ?? '') === 'unpaid') ? 'active' : '' ?>">
+                            <?= Icons::svg('alert-triangle', 13) ?>
+                            <span><?= $locale === 'so' ? 'Inta Aan Weli Soo Celin' : 'Unpaid / Active' ?></span>
+                        </a>
+                    </div>
+                </div>
+                <?php endif; ?>
 
-            <!-- COMMUNICATION -->
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('communication.sms')): ?>
-            <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_communication')) ?></div>
-            <a href="?route=sms_outbox" class="sidebar-link <?= $currentRoute === 'sms_outbox' ? 'active' : '' ?>">
-                <?= Icons::svg('message-square', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_sms_outbox')) ?></span>
-            </a>
-            <?php endif; ?>
+                <!-- FINANCING -->
+                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_financing')) ?></div>
+                <?php if (AuthMiddleware::hasPermission('products.manage')): ?>
+                    <a href="?route=products" class="sidebar-link <?= $currentRoute === 'products' ? 'active' : '' ?>">
+                        <?= Icons::svg('layers', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_products')) ?></span>
+                    </a>
+                <?php endif; ?>
+                <?php if (AuthMiddleware::hasPermission('applications.view')): ?>
+                    <a href="?route=applications" class="sidebar-link <?= $currentRoute === 'applications' ? 'active' : '' ?>">
+                        <?= Icons::svg('file-text', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_applications')) ?></span>
+                    </a>
+                <?php endif; ?>
+                <?php if (AuthMiddleware::hasPermission('applications.approve_small') || AuthMiddleware::hasPermission('applications.approve_large')): ?>
+                    <a href="?route=approval_queue" class="sidebar-link <?= $currentRoute === 'approval_queue' ? 'active' : '' ?>">
+                        <?= Icons::svg('check-square', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_approval_queue')) ?></span>
+                    </a>
+                <?php endif; ?>
 
-            <!-- REPORTS & STATEMENTS -->
-            <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_reports')) ?></div>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('statements.generate')): ?>
-            <a href="?route=statements" class="sidebar-link <?= $currentRoute === 'statements' ? 'active' : '' ?>">
-                <?= Icons::svg('file-text', 18) ?>
-                <span class="sidebar-text"><?= Security::e(Lang::get('menu_client_statements')) ?></span>
-            </a>
-            <?php endif; ?>
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('reports.view')): ?>
-                <a href="?route=reports" class="sidebar-link <?= $currentRoute === 'reports' ? 'active' : '' ?>">
+                <a href="?route=financings" class="sidebar-link <?= in_array($currentRoute, ['financings', 'financing_view'], true) ? 'active' : '' ?>">
+                    <?= Icons::svg('credit-card', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_active_financing')) ?></span>
+                </a>
+
+                <?php if (AuthMiddleware::hasPermission('financings.disburse')): ?>
+                    <a href="?route=disbursements" class="sidebar-link <?= $currentRoute === 'disbursements' ? 'active' : '' ?>">
+                        <?= Icons::svg('dollar-sign', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_disbursements')) ?></span>
+                    </a>
+                <?php endif; ?>
+
+                <a href="?route=schedules" class="sidebar-link <?= $currentRoute === 'schedules' ? 'active' : '' ?>">
+                    <?= Icons::svg('calendar', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_schedules')) ?></span>
+                </a>
+
+                <!-- PAYMENTS -->
+                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_payments')) ?></div>
+                <?php if (AuthMiddleware::hasPermission('repayments.record')): ?>
+                    <a href="?route=repayment_record" class="sidebar-link <?= $currentRoute === 'repayment_record' ? 'active' : '' ?>">
+                        <?= Icons::svg('clock', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_record_repayment')) ?></span>
+                    </a>
+                <?php endif; ?>
+                <?php if (AuthMiddleware::hasPermission('repayments.view')): ?>
+                <a href="?route=repayments" class="sidebar-link <?= $currentRoute === 'repayments' ? 'active' : '' ?>">
+                    <?= Icons::svg('activity', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_repayment_history')) ?></span>
+                </a>
+                <?php endif; ?>
+                <?php if (AuthMiddleware::hasPermission('charity.view')): ?>
+                <a href="?route=charity_charges" class="sidebar-link <?= $currentRoute === 'charity_charges' ? 'active' : '' ?>">
+                    <?= Icons::svg('heart-handshake', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_charity_charges')) ?></span>
+                </a>
+                <?php endif; ?>
+
+                <!-- RISK MANAGEMENT -->
+                <?php if (AuthMiddleware::hasPermission('risk.view')): ?>
+                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_risk')) ?></div>
+                <a href="?route=credit_scores" class="sidebar-link <?= $currentRoute === 'credit_scores' ? 'active' : '' ?>">
                     <?= Icons::svg('bar-chart', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_financial_reports')) ?></span>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_credit_scores')) ?></span>
                 </a>
-            <?php endif; ?>
+                <a href="?route=par30" class="sidebar-link <?= $currentRoute === 'par30' ? 'active' : '' ?>">
+                    <?= Icons::svg('alert-triangle', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_par30')) ?></span>
+                </a>
+                <?php endif; ?>
 
-            <?php if ($role === 'admin' || AuthMiddleware::hasPermission('branches.manage') || AuthMiddleware::hasPermission('users.manage')): ?>
-                <!-- ADMINISTRATION -->
-                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_admin')) ?></div>
-                <?php if ($role === 'admin' || AuthMiddleware::hasPermission('branches.manage')): ?>
-                <a href="?route=branches" class="sidebar-link <?= $currentRoute === 'branches' ? 'active' : '' ?>">
-                    <?= Icons::svg('building', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_branches')) ?></span>
+                <!-- COMMUNICATION -->
+                <?php if (AuthMiddleware::hasPermission('communication.sms')): ?>
+                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_communication')) ?></div>
+                <a href="?route=sms_outbox" class="sidebar-link <?= $currentRoute === 'sms_outbox' ? 'active' : '' ?>">
+                    <?= Icons::svg('message-square', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_sms_outbox')) ?></span>
                 </a>
                 <?php endif; ?>
-                <?php if ($role === 'admin' || AuthMiddleware::hasPermission('users.manage')): ?>
-                <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
-                    <?= Icons::svg('users', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_users')) ?></span>
+
+                <!-- REPORTS & STATEMENTS -->
+                <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_reports')) ?></div>
+                <?php if (AuthMiddleware::hasPermission('statements.generate')): ?>
+                <a href="?route=statements" class="sidebar-link <?= $currentRoute === 'statements' ? 'active' : '' ?>">
+                    <?= Icons::svg('file-text', 18) ?>
+                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_client_statements')) ?></span>
                 </a>
                 <?php endif; ?>
-                <?php if ($role === 'admin'): ?>
-                <a href="?route=permissions" class="sidebar-link <?= $currentRoute === 'permissions' ? 'active' : '' ?>">
-                    <?= Icons::svg('shield', 18) ?>
-                    <span class="sidebar-text"><?= $locale === 'so' ? 'Awoodaha & Ogolaanshaha' : 'Permissions & Access' ?></span>
-                </a>
+                <?php if (AuthMiddleware::hasPermission('reports.view')): ?>
+                    <a href="?route=reports" class="sidebar-link <?= $currentRoute === 'reports' ? 'active' : '' ?>">
+                        <?= Icons::svg('bar-chart', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_financial_reports')) ?></span>
+                    </a>
                 <?php endif; ?>
-                <?php if ($role === 'admin' || AuthMiddleware::hasPermission('audit.view')): ?>
-                <a href="?route=audit_logs" class="sidebar-link <?= $currentRoute === 'audit_logs' ? 'active' : '' ?>">
-                    <?= Icons::svg('shield', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_audit_logs')) ?></span>
-                </a>
-                <?php endif; ?>
-                <?php if ($role === 'admin' || AuthMiddleware::hasPermission('settings.manage')): ?>
-                <a href="?route=settings" class="sidebar-link <?= $currentRoute === 'settings' ? 'active' : '' ?>">
-                    <?= Icons::svg('settings', 18) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('menu_settings')) ?></span>
-                </a>
+
+                <?php if (AuthMiddleware::hasPermission('branches.manage') || AuthMiddleware::hasPermission('users.manage')): ?>
+                    <!-- ADMINISTRATION -->
+                    <div class="sidebar-group-label"><?= Security::e(Lang::get('grp_admin')) ?></div>
+                    <?php if (AuthMiddleware::hasPermission('branches.manage')): ?>
+                    <a href="?route=branches" class="sidebar-link <?= $currentRoute === 'branches' ? 'active' : '' ?>">
+                        <?= Icons::svg('building', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_branches')) ?></span>
+                    </a>
+                    <?php endif; ?>
+                    <?php if (AuthMiddleware::hasPermission('users.manage')): ?>
+                    <a href="?route=users" class="sidebar-link <?= $currentRoute === 'users' ? 'active' : '' ?>">
+                        <?= Icons::svg('users', 18) ?>
+                        <span class="sidebar-text"><?= Security::e(Lang::get('menu_users')) ?></span>
+                    </a>
+                    <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
         </nav>
