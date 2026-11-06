@@ -145,22 +145,22 @@ $period = $df['period'] ?? 'all';
 <!-- 3. THE 5 CORE FINANCIAL KPI CARDS (Precisely requested by user) -->
 <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:14px;margin-bottom:22px;" class="animate-in delay-2">
     <!-- 1. INTA LACAG LA BIXIYAY (TOTAL DISBURSED) -->
-    <div class="kpi-card kpi-gold" style="border-top:3px solid var(--simda-green);">
+    <div class="kpi-card" style="border-top:3px solid #10B981;">
         <div class="kpi-header">
             <span class="kpi-label"><?= $isSo ? 'Inta Lacag La Bixiyay' : 'Total Disbursed' ?></span>
-            <span class="kpi-icon" style="background:rgba(18,59,50,0.12);color:var(--simda-green);"><?= Icons::svg('dollar-sign', 18) ?></span>
+            <span class="kpi-icon" style="background:rgba(16,185,129,0.16);color:#10B981;"><?= Icons::svg('dollar-sign', 18) ?></span>
         </div>
-        <div class="kpi-value num-tabular" style="color:var(--simda-green);"><?= Security::formatMoney($m['total_disbursed_amount']) ?></div>
+        <div class="kpi-value num-tabular" style="color:#10B981;"><?= Security::formatMoney($m['total_disbursed_amount']) ?></div>
         <div class="kpi-sub">
             <?= (int) ($m['disbursed_contracts_count'] ?? 0) ?> <?= $isSo ? 'heshiis oo la siiyay' : 'disbursed contracts' ?>
         </div>
     </div>
 
     <!-- 2. INTA LASOO CELIYAY (TOTAL REPAID) -->
-    <div class="kpi-card kpi-success" style="border-top:3px solid #1FAF62;">
+    <div class="kpi-card" style="border-top:3px solid #1FAF62;">
         <div class="kpi-header">
             <span class="kpi-label"><?= $isSo ? 'Inta La Soo Celiyay' : 'Total Repaid' ?></span>
-            <span class="kpi-icon" style="background:rgba(31,175,98,0.12);color:#1FAF62;"><?= Icons::svg('check-circle', 18) ?></span>
+            <span class="kpi-icon" style="background:rgba(31,175,98,0.16);color:#1FAF62;"><?= Icons::svg('check-circle', 18) ?></span>
         </div>
         <div class="kpi-value num-tabular" style="color:#1FAF62;"><?= Security::formatMoney($m['total_repayments_collected']) ?></div>
         <div class="kpi-sub">
@@ -181,24 +181,24 @@ $period = $df['period'] ?? 'all';
     </div>
 
     <!-- 4. INTA WAQTIGOODA DHAWYAHAY (DUE SOON — NEXT 30 DAYS) -->
-    <div class="kpi-card" style="border-top:3px solid #2872A1;">
+    <div class="kpi-card" style="border-top:3px solid #38BDF8;">
         <div class="kpi-header">
             <span class="kpi-label"><?= $isSo ? 'Inta Waqtigoodu Dhawyahay' : 'Due Soon (30 Days)' ?></span>
-            <span class="kpi-icon" style="background:rgba(40,114,161,0.12);color:#2872A1;"><?= Icons::svg('clock', 18) ?></span>
+            <span class="kpi-icon" style="background:rgba(56,189,248,0.16);color:#38BDF8;"><?= Icons::svg('clock', 18) ?></span>
         </div>
-        <div class="kpi-value num-tabular" style="color:#2872A1;"><?= Security::formatMoney($m['due_soon_balance']) ?></div>
+        <div class="kpi-value num-tabular" style="color:#38BDF8;"><?= Security::formatMoney($m['due_soon_balance']) ?></div>
         <div class="kpi-sub">
             <?= (int) $m['due_soon_count'] ?> <?= $isSo ? 'heshiis xilligoodu dhowyahay' : 'contracts due within 30d' ?>
         </div>
     </div>
 
     <!-- 5. INTA DEADLINE-KOODA DHAMADAY OO AAN WELI LA SOO CELIN (OVERDUE & UNSETTLED) -->
-    <div class="kpi-card <?= ((int) $m['overdue_unsettled_count'] > 0) ? 'kpi-danger' : '' ?>" style="border-top:3px solid #C94B4B;">
+    <div class="kpi-card <?= ((int) $m['overdue_unsettled_count'] > 0) ? 'kpi-danger' : '' ?>" style="border-top:3px solid #F87171;">
         <div class="kpi-header">
             <span class="kpi-label"><?= $isSo ? 'Waqtigii Dhacay (Aan Soo Xaroon)' : 'Overdue & Unsettled' ?></span>
-            <span class="kpi-icon" style="background:rgba(201,75,75,0.12);color:#C94B4B;"><?= Icons::svg('alert-triangle', 18) ?></span>
+            <span class="kpi-icon" style="background:rgba(248,113,113,0.16);color:#F87171;"><?= Icons::svg('alert-triangle', 18) ?></span>
         </div>
-        <div class="kpi-value num-tabular" style="color:#C94B4B;"><?= Security::formatMoney($m['overdue_unsettled_balance']) ?></div>
+        <div class="kpi-value num-tabular" style="color:#F87171;"><?= Security::formatMoney($m['overdue_unsettled_balance']) ?></div>
         <div class="kpi-sub">
             <?= (int) $m['overdue_unsettled_count'] ?> <?= $isSo ? 'heshiis dib u dhacay' : 'overdue contracts past deadline' ?>
         </div>
@@ -266,7 +266,7 @@ $period = $df['period'] ?? 'all';
 
             <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text-muted);">
                 <span><?= $isSo ? 'Xaaladda:' : 'Status:' ?> <strong><?= (int) $m['murabaha']['active_count'] ?></strong> <?= $isSo ? 'socota' : 'active' ?> • <strong><?= (int) $m['murabaha']['settled_count'] ?></strong> <?= $isSo ? 'la wada bixiyay' : 'settled' ?></span>
-                <a href="?route=murabaha" style="color:var(--simda-green);font-weight:700;text-decoration:underline;"><?= $isSo ? 'Eeg Dhammaan' : 'View All' ?> →</a>
+                <a href="?route=murabaha" style="color:var(--simda-gold);font-weight:700;text-decoration:underline;"><?= $isSo ? 'Eeg Dhammaan' : 'View All' ?> →</a>
             </div>
         </div>
 
@@ -309,7 +309,7 @@ $period = $df['period'] ?? 'all';
 
             <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text-muted);">
                 <span><?= $isSo ? 'Xaaladda:' : 'Status:' ?> <strong><?= (int) $m['loans']['active_count'] ?></strong> <?= $isSo ? 'firfircoon' : 'active' ?> • <strong><?= (int) $m['loans']['settled_count'] ?></strong> <?= $isSo ? 'la wada bixiyay' : 'settled' ?></span>
-                <a href="?route=loans" style="color:var(--simda-green);font-weight:700;text-decoration:underline;"><?= $isSo ? 'Eeg Dhammaan' : 'View All' ?> →</a>
+                <a href="?route=loans" style="color:var(--simda-gold);font-weight:700;text-decoration:underline;"><?= $isSo ? 'Eeg Dhammaan' : 'View All' ?> →</a>
             </div>
         </div>
     </div>
