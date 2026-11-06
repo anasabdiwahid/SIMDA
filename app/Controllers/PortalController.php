@@ -895,7 +895,6 @@ final class PortalController
             'success' => true,
             'token' => $token,
             'masked_target' => $masked,
-            'demo_otp' => $otp,
             'message' => $isSo ? 'Koodhka xaqiijinta si guul leh ayaa laguu soo diray!' : 'Verification code sent successfully!'
         ]);
         exit;

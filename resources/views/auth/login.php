@@ -138,6 +138,114 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             --login-loader-overlay: rgba(13, 26, 22, 0.94);
         }
 
+        /* Sliding Pill Theme Toggle Switch (Matches media_1793974722315_3b73df2d.png) */
+        .simda-theme-pill-toggle {
+            position: relative;
+            width: 66px;
+            height: 34px;
+            background: rgba(18, 42, 34, 0.72);
+            border: 1.5px solid rgba(214, 182, 108, 0.32);
+            border-radius: 999px;
+            padding: 2px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+            outline: none;
+            transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .simda-theme-pill-toggle:focus-visible {
+            box-shadow: 0 0 0 3px rgba(214, 182, 108, 0.4);
+        }
+
+        [data-theme="light"] .simda-theme-pill-toggle {
+            background: #E5ECE8;
+            border-color: rgba(18, 59, 50, 0.22);
+        }
+
+        [data-theme="dark"] .simda-theme-pill-toggle {
+            background: rgba(12, 26, 21, 0.85);
+            border-color: rgba(214, 182, 108, 0.4);
+        }
+
+        .simda-track-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8A9C93;
+            z-index: 1;
+            pointer-events: none;
+            transition: opacity 0.22s ease, color 0.22s ease;
+            flex-shrink: 0;
+        }
+
+        .simda-pill-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background: #D8B76E;
+            color: #12332B;
+            box-shadow: 0 0 14px rgba(216, 183, 110, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s ease;
+        }
+
+        /* LIGHT MODE: Thumb is on left (Sun active) */
+        [data-theme="light"] .simda-pill-thumb {
+            transform: translateX(0);
+        }
+        [data-theme="light"] .simda-thumb-sun {
+            display: flex;
+        }
+        [data-theme="light"] .simda-thumb-moon {
+            display: none;
+        }
+        [data-theme="light"] .simda-track-sun {
+            opacity: 0;
+        }
+        [data-theme="light"] .simda-track-moon {
+            opacity: 1;
+            color: #586961;
+        }
+
+        /* DARK MODE: Thumb is on right (Moon active) */
+        [data-theme="dark"] .simda-pill-thumb {
+            transform: translateX(33px);
+        }
+        [data-theme="dark"] .simda-thumb-sun {
+            display: none;
+        }
+        [data-theme="dark"] .simda-thumb-moon {
+            display: flex;
+        }
+        [data-theme="dark"] .simda-track-sun {
+            opacity: 1;
+            color: #8E9F97;
+        }
+        [data-theme="dark"] .simda-track-moon {
+            opacity: 0;
+        }
+
+        .simda-thumb-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
         .simda-login-top-bar {
             position: absolute;
             top: 24px;
@@ -829,8 +937,46 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         <div class="simda-login-right">
             <!-- Top Controls (Dark/Light Mode & Language Selector) -->
             <div class="simda-login-top-bar">
-                <button type="button" class="simda-top-icon-btn" id="loginThemeBtn" onclick="toggleSimdaTheme()" title="Toggle Dark/Light Mode">
-                    <span id="loginThemeIcon">🌙</span>
+                <!-- Sliding Pill Theme Toggle Switch -->
+                <button type="button" class="simda-theme-pill-toggle" id="loginThemePillToggle" onclick="toggleSimdaTheme()" title="Toggle Dark / Light Mode" aria-label="Toggle Dark / Light Mode">
+                    <span class="simda-track-icon simda-track-sun" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3.5" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </span>
+                    <span class="simda-track-icon simda-track-moon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </span>
+                    <span class="simda-pill-thumb">
+                        <span class="simda-thumb-icon simda-thumb-sun" aria-hidden="true">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3.5" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                        </span>
+                        <span class="simda-thumb-icon simda-thumb-moon" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                        </span>
+                    </span>
                 </button>
 
                 <?php
@@ -1088,20 +1234,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         var next = (current === 'dark') ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('simda_theme_pref', next);
-        updateLoginThemeIcon(next);
     }
-
-    function updateLoginThemeIcon(theme) {
-        var icon = document.getElementById('loginThemeIcon');
-        if (icon) {
-            icon.textContent = (theme === 'dark') ? '☀️' : '🌙';
-        }
-    }
-
-    (function() {
-        var saved = localStorage.getItem('simda_theme_pref') || 'light';
-        updateLoginThemeIcon(saved);
-    })();
 </script>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
