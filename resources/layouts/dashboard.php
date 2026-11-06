@@ -53,7 +53,11 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
             <a href="?route=dashboard" class="brand-logo-wrap">
                 <span class="brand-logo-pill">
                     <img src="assets/images/simda-logo.png" alt="SIMDA Logo" class="brand-logo-full">
-                    <img src="assets/images/simda-icon.png" alt="S" style="height:24px;width:auto;display:none;" class="brand-logo-compact">
+                    <img src="assets/images/simda-icon.png" alt="S" style="height:32px;width:auto;display:none;" class="brand-logo-compact">
+                </span>
+                <span class="sidebar-brand-tagline">
+                    <span>SOMALI ISLAMIC MICROFINANCE</span>
+                    <span>DEVELOPMENT ASSOCIATION</span>
                 </span>
             </a>
         </div>

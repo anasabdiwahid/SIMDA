@@ -2380,13 +2380,15 @@ html:not([data-theme="dark"]) .fid-footer-logo-tagline span:last-child {
 }
 
 .sidebar-brand {
-    height: var(--header-height);
-    padding: 0 16px;
+    min-height: 82px;
+    height: auto;
+    padding: 14px 16px 12px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
+    text-align: center;
 }
 
 .sidebar-nav {
@@ -2510,8 +2512,9 @@ body.sidebar-collapsed .sidebar {
 }
 body.sidebar-collapsed .sidebar .sidebar-text,
 body.sidebar-collapsed .sidebar .sidebar-group-label,
-body.sidebar-collapsed .sidebar .brand-logo-full {
-    display: none;
+body.sidebar-collapsed .sidebar .brand-logo-full,
+body.sidebar-collapsed .sidebar .sidebar-brand-tagline {
+    display: none !important;
 }
 body.sidebar-collapsed .sidebar .brand-logo-compact {
     display: block !important;
@@ -3094,10 +3097,11 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill {
 [data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-full,
 html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-full {
     filter: brightness(0) invert(1) !important;
-    height: 48px !important;
-    max-height: 52px !important;
+    height: 42px !important;
+    max-height: 46px !important;
     width: auto !important;
     display: block !important;
+    margin: 0 auto !important;
     transition: transform 0.2s ease;
 }
 
@@ -3110,8 +3114,49 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-full {
 [data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-compact,
 html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-compact {
     filter: brightness(0) invert(1) !important;
-    height: 34px !important;
+    height: 32px !important;
     width: auto !important;
+    margin: 0 auto !important;
+}
+
+/* Sidebar Brand Centering & Tagline */
+.sidebar .brand-logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+}
+
+.sidebar-brand-tagline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.055em;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.sidebar-brand-tagline span:first-child,
+[data-theme="light"] .sidebar-brand-tagline span:first-child,
+[data-theme="dark"] .sidebar-brand-tagline span:first-child,
+html:not([data-theme="dark"]) .sidebar-brand-tagline span:first-child {
+    color: #FFFFFF !important;
+}
+
+.sidebar-brand-tagline span:last-child,
+[data-theme="light"] .sidebar-brand-tagline span:last-child,
+[data-theme="dark"] .sidebar-brand-tagline span:last-child,
+html:not([data-theme="dark"]) .sidebar-brand-tagline span:last-child {
+    color: #D6B66C !important;
 }
 
 /* Nav fonts in Dark Mode: High contrast readable white & gold */
