@@ -95,6 +95,8 @@ final class PortalController
                 'branch_create' => self::branchCreate($pdo),
                 'branch_toggle' => self::branchToggle($pdo),
                 'user_create' => self::userCreate($pdo),
+                'user_update' => self::userUpdate($pdo),
+                'user_toggle_status' => self::userToggleStatus($pdo),
                 'user_security_reset' => self::userSecurityReset($pdo),
                 'user_permissions_save' => self::userPermissionsSave($pdo),
                 'settings_save' => self::settingsSave($pdo),
@@ -2586,6 +2588,260 @@ final class PortalController
             $_SESSION['flash_warning'] = $locale === 'so'
                 ? "Akoonka ({$fullName}) waa la abuuray (Furaha sirta ah: {$plainPassword}), laakiin email-ka lama diri karin: " . ($mailStatus['error'] ?? '')
                 : "User account created (Password: {$plainPassword}), but email notification failed: " . ($mailStatus['error'] ?? '');
+        }
+
+        header('Location: ?route=users');
+        exit;
+    }
+
+    private static function userUpdate(PDO $pdo): void
+    {
+        $actor = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $targetUserId = (int) ($_POST['user_id'] ?? 0);
+        $locale = Lang::locale();
+        $actorRole = (string) ($actor['role_slug'] ?? '');
+        $actorId = (int) ($actor['id'] ?? 0);
+
+        if ($targetUserId <= 0) {
+            throw new \RuntimeException($locale === 'so' ? 'Isticmaalaha lama helin.' : 'Invalid user ID.');
+        }
+
+        // Fetch existing target user
+        $stmt = $pdo->prepare('
+            SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            WHERE u.id = :id
+        ');
+        $stmt->execute([':id' => $targetUserId]);
+        $targetUser = $stmt->fetch();
+        if (!$targetUser) {
+            throw new \RuntimeException($locale === 'so' ? 'Isticmaalaha lama helin.' : 'User not found.');
+        }
+
+        $targetRoleSlug = (string) ($targetUser['role_slug'] ?? '');
+
+        // Strict Hierarchy check on target
+        if ($actorRole === 'manager') {
+            if ($targetRoleSlug === 'admin' || ($targetRoleSlug === 'manager' && $targetUserId !== $actorId)) {
+                throw new \RuntimeException($locale === 'so' ? 'Awood uma lihid inaad wax ka beddesho maamulaha kale ama Admin-ka.' : 'Unauthorized to edit Admin or General Manager.');
+            }
+        } elseif ($actorRole === 'branch_manager') {
+            if ($targetUserId !== $actorId && !in_array($targetRoleSlug, ['loan_officer', 'client'], true)) {
+                throw new \RuntimeException($locale === 'so' ? 'Waxaad wax ka beddeli kartaa kaliya shaqaalaha ama macaamiisha laantaada.' : 'Unauthorized to edit this user role.');
+            }
+            if ($targetUserId !== $actorId && (int) ($targetUser['branch_id'] ?? 0) !== (int) ($actor['branch_id'] ?? 0)) {
+                throw new \RuntimeException($locale === 'so' ? 'Isticmaalahaan kama tirsana laantaada.' : 'User does not belong to your branch.');
+            }
+        }
+
+        $fullName = trim((string) ($_POST['full_name'] ?? ''));
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+
+        if ($fullName === '' || $username === '' || $email === '') {
+            throw new \RuntimeException($locale === 'so' ? 'Fadlan buuxi magaca buuxa, username-ka, iyo email-ka.' : 'Please provide full name, username, and email.');
+        }
+
+        // Check duplicates for username/email excluding this user
+        $dupSt = $pdo->prepare("SELECT id FROM users WHERE (username = :u OR email = :e) AND id != :uid LIMIT 1");
+        $dupSt->execute([':u' => $username, ':e' => $email, ':uid' => $targetUserId]);
+        if ($dupSt->fetch()) {
+            throw new \RuntimeException($locale === 'so' ? 'Username-kaan ama Email-kaan waxaa horey u isticmaalay qof kale.' : 'This username or email is already taken by another user.');
+        }
+
+        // Role & Branch assignment
+        $newRoleId = (int) $targetUser['role_id'];
+        $newBranchId = $targetUser['branch_id'] !== null ? (int) $targetUser['branch_id'] : null;
+
+        // Role update logic
+        if (isset($_POST['role_id']) && ($actorRole === 'admin' || $actorRole === 'manager')) {
+            $reqRoleId = (int) $_POST['role_id'];
+            $stR = $pdo->prepare("SELECT id, slug FROM roles WHERE id = :id");
+            $stR->execute([':id' => $reqRoleId]);
+            $newRoleObj = $stR->fetch();
+            if ($newRoleObj) {
+                $newSlug = (string) $newRoleObj['slug'];
+                // Prevent creating/promoting to Admin
+                if ($newSlug === 'admin' && $targetRoleSlug !== 'admin') {
+                    throw new \RuntimeException($locale === 'so' ? 'Lama magacaabi karo Admin cusub xeerka nidaamka dartiis.' : 'System policy prevents assigning Administrator role.');
+                }
+                // Manager cannot promote to admin or manager
+                if ($actorRole === 'manager' && in_array($newSlug, ['admin', 'manager'], true)) {
+                    throw new \RuntimeException($locale === 'so' ? 'Awood uma lihid inaad doorkaan u magacowdo.' : 'Unauthorized role assignment.');
+                }
+                $newRoleId = (int) $newRoleObj['id'];
+                $targetRoleSlug = $newSlug;
+            }
+        }
+
+        // Branch assignment logic
+        if ($targetRoleSlug === 'manager' || $targetRoleSlug === 'admin') {
+            $newBranchId = null; // company-wide / HQ
+        } elseif (isset($_POST['branch_id'])) {
+            $rawB = (int) $_POST['branch_id'];
+            if (in_array($targetRoleSlug, ['branch_manager', 'loan_officer'], true) && $rawB <= 0) {
+                throw new \RuntimeException($locale === 'so' ? 'Fadlan dooro laanta shaqaalaha.' : 'Please select a branch.');
+            }
+            $newBranchId = $rawB > 0 ? $rawB : null;
+        }
+
+        // Active status update if provided in edit form
+        $newIsActive = isset($_POST['is_active']) ? (int) $_POST['is_active'] : (int) $targetUser['is_active'];
+        // Cannot deactivate yourself
+        if ($targetUserId === $actorId && $newIsActive === 0) {
+            $newIsActive = 1;
+        }
+
+        // Optional password update
+        $newPassword = trim((string) ($_POST['password'] ?? ''));
+
+        if ($newPassword !== '') {
+            $passHash = Security::hashPassword($newPassword);
+            $updStmt = $pdo->prepare('
+                UPDATE users
+                SET full_name = :fname,
+                    username = :uname,
+                    email = :email,
+                    phone = :phone,
+                    role_id = :rid,
+                    branch_id = :bid,
+                    is_active = :act,
+                    password_hash = :phash,
+                    current_session_token = NULL
+                WHERE id = :id
+            ');
+            $updStmt->execute([
+                ':fname' => $fullName,
+                ':uname' => $username,
+                ':email' => $email,
+                ':phone' => $phone,
+                ':rid' => $newRoleId,
+                ':bid' => $newBranchId,
+                ':act' => $newIsActive,
+                ':phash' => $passHash,
+                ':id' => $targetUserId,
+            ]);
+        } else {
+            $updStmt = $pdo->prepare('
+                UPDATE users
+                SET full_name = :fname,
+                    username = :uname,
+                    email = :email,
+                    phone = :phone,
+                    role_id = :rid,
+                    branch_id = :bid,
+                    is_active = :act
+                WHERE id = :id
+            ');
+            $updStmt->execute([
+                ':fname' => $fullName,
+                ':uname' => $username,
+                ':email' => $email,
+                ':phone' => $phone,
+                ':rid' => $newRoleId,
+                ':bid' => $newBranchId,
+                ':act' => $newIsActive,
+                ':id' => $targetUserId,
+            ]);
+        }
+
+        AuditLogger::log('user.updated', 'users', $targetUserId, 'Updated details for user ' . $username, [
+            'full_name' => $fullName,
+            'email' => $email,
+            'role_id' => $newRoleId,
+            'branch_id' => $newBranchId,
+            'is_active' => $newIsActive,
+            'password_changed' => ($newPassword !== ''),
+        ], $actorId);
+
+        $_SESSION['flash_success'] = $locale === 'so'
+            ? 'Macluumaadka isticmaalaha (' . $fullName . ') si guul leh ayaa loo cusbooneysiiyay!'
+            : 'User (' . $fullName . ') details successfully updated!';
+
+        header('Location: ?route=users');
+        exit;
+    }
+
+    private static function userToggleStatus(PDO $pdo): void
+    {
+        $actor = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $targetUserId = (int) ($_POST['user_id'] ?? 0);
+        $locale = Lang::locale();
+        $actorRole = (string) ($actor['role_slug'] ?? '');
+        $actorId = (int) ($actor['id'] ?? 0);
+
+        if ($targetUserId <= 0) {
+            throw new \RuntimeException($locale === 'so' ? 'Isticmaalaha lama helin.' : 'Invalid user ID.');
+        }
+
+        // Cannot deactivate yourself
+        if ($targetUserId === $actorId) {
+            throw new \RuntimeException(
+                $locale === 'so'
+                    ? 'Ma damin kartid (deactivate) akoonkaaga aad hadda ku jirto!'
+                    : 'You cannot deactivate your own active session account!'
+            );
+        }
+
+        // Fetch target user with role
+        $stmt = $pdo->prepare('
+            SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en
+            FROM users u
+            INNER JOIN roles r ON r.id = u.role_id
+            WHERE u.id = :id
+        ');
+        $stmt->execute([':id' => $targetUserId]);
+        $targetUser = $stmt->fetch();
+        if (!$targetUser) {
+            throw new \RuntimeException($locale === 'so' ? 'Isticmaalaha lama helin.' : 'User not found.');
+        }
+
+        $targetRoleSlug = (string) ($targetUser['role_slug'] ?? '');
+
+        // Hierarchy rule check
+        if ($actorRole === 'manager') {
+            if (in_array($targetRoleSlug, ['admin', 'manager'], true)) {
+                throw new \RuntimeException($locale === 'so' ? 'Awood uma lihid inaad wax ka beddesho maamulaha kale ama Admin-ka.' : 'Unauthorized to change status of Admin or General Manager.');
+            }
+        } elseif ($actorRole === 'branch_manager') {
+            if ($targetRoleSlug !== 'loan_officer' && $targetRoleSlug !== 'client') {
+                throw new \RuntimeException($locale === 'so' ? 'Waxaad beddeli kartaa kaliya shaqaalaha ama macaamiisha laantaada.' : 'Unauthorized to change status of this user role.');
+            }
+            if ((int) ($targetUser['branch_id'] ?? 0) !== (int) ($actor['branch_id'] ?? 0)) {
+                throw new \RuntimeException($locale === 'so' ? 'Isticmaalahaan kama tirsana laantaada.' : 'User does not belong to your branch.');
+            }
+        }
+
+        $newStatus = (int) $targetUser['is_active'] === 1 ? 0 : 1;
+
+        if ($newStatus === 0) {
+            // Deactivating: clear session token to kick user immediately
+            $upd = $pdo->prepare('UPDATE users SET is_active = 0, current_session_token = NULL WHERE id = :id');
+            $upd->execute([':id' => $targetUserId]);
+            AuditLogger::log('user.deactivated', 'users', $targetUserId, 'Deactivated user ' . $targetUser['username'], [], $actorId);
+            $_SESSION['flash_warning'] = $locale === 'so'
+                ? 'Akoonka (' . $targetUser['full_name'] . ') waa la damiyay (Deactivated). Gelitaankiisii nidaamka waa la hakiyay.'
+                : 'Account for (' . $targetUser['full_name'] . ') has been deactivated and access is revoked.';
+        } else {
+            // Activating: reset lockouts
+            $upd = $pdo->prepare('
+                UPDATE users
+                SET is_active = 1,
+                    failed_login_attempts = 0,
+                    lockout_tier = 0,
+                    locked_until = NULL,
+                    security_block_reason = NULL
+                WHERE id = :id
+            ');
+            $upd->execute([':id' => $targetUserId]);
+            AuditLogger::log('user.activated', 'users', $targetUserId, 'Activated user ' . $targetUser['username'], [], $actorId);
+            $_SESSION['flash_success'] = $locale === 'so'
+                ? 'Akoonka (' . $targetUser['full_name'] . ') si buuxda ayaa dib loogu hawlgeliyay (Activated)!'
+                : 'Account for (' . $targetUser['full_name'] . ') has been successfully activated!';
         }
 
         header('Location: ?route=users');
