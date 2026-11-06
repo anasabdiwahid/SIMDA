@@ -427,6 +427,32 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
             transform: translateY(-1px);
         }
 
+        @keyframes simdaSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .simda-spin-icon {
+            display: inline-block;
+            vertical-align: middle;
+            animation: simdaSpin 0.75s linear infinite;
+            transform-origin: center center;
+        }
+
+        .simda-btn-spinner-s {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .simda-btn-spinner-s img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
         .simda-or-divider {
             display: flex;
             align-items: center;
@@ -541,7 +567,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
 
                 <form id="formCheckEmail" onsubmit="handleCheckEmail(event)">
                     <div class="simda-input-pill" id="identifierPill">
-                        <span class="simda-input-icon"><?= Icons::svg('user', 18) ?></span>
+                        <span class="simda-input-icon" id="identifierIconWrap">
+                            <span id="identifierUserIcon"><?= Icons::svg('user', 18) ?></span>
+                            <img id="identifierSpinIcon" src="assets/images/simda-icon.png" alt="S" class="simda-spin-icon" style="display:none;width:18px;height:18px;object-fit:contain;">
+                        </span>
                         <input type="text" id="identifierInput" name="identifier" required autofocus placeholder="<?= Security::e($lt['identifier']) ?>" value="<?= Security::e($preVerifiedEmail) ?>" autocomplete="username">
                     </div>
 
@@ -579,7 +608,10 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                         </div>
                     </div>
 
-                    <button type="submit" id="btnContinue" class="simda-btn-signin-main">
+                    <button type="submit" id="btnContinue" class="simda-btn-signin-main" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+                        <span id="btnContinueSpinner" class="simda-btn-spinner-s" style="display:none;">
+                            <img src="assets/images/simda-icon.png" alt="S" class="simda-spin-icon">
+                        </span>
                         <span id="btnContinueText"><?= Security::e($lt['btn_continue']) ?></span>
                     </button>
                 </form>
@@ -666,6 +698,9 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         var emailInput = document.getElementById('identifierInput');
         var btn = document.getElementById('btnContinue');
         var btnText = document.getElementById('btnContinueText');
+        var btnSpinner = document.getElementById('btnContinueSpinner');
+        var userIcon = document.getElementById('identifierUserIcon');
+        var spinIcon = document.getElementById('identifierSpinIcon');
         var alertErr = document.getElementById('step1AlertError');
         var alertText = document.getElementById('step1AlertText');
         var pill = document.getElementById('identifierPill');
@@ -677,26 +712,37 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         }
 
         btn.disabled = true;
-        btn.style.opacity = '0.7';
+        btn.style.opacity = '0.85';
+        if (btnSpinner) btnSpinner.style.display = 'inline-flex';
+        if (userIcon) userIcon.style.display = 'none';
+        if (spinIcon) spinIcon.style.display = 'inline-block';
         btnText.textContent = '<?= Security::e($lt['btn_verifying']) ?>';
         alertErr.style.display = 'none';
-        pill.style.borderColor = 'transparent';
+        pill.style.borderColor = '#123B32';
 
         var fd = new FormData();
         fd.append('_csrf', '<?= Security::e($csrf) ?>');
         fd.append('identifier', val);
 
-        fetch('?route=login_check_email', {
+        var fetchPromise = fetch('?route=login_check_email', {
             method: 'POST',
             body: fd
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
+        }).then(function(res) { return res.json(); });
+
+        // Ensure user sees the rotating 'S' icon smoothly (~550ms minimum)
+        var minDelay = new Promise(function(resolve) { setTimeout(resolve, 550); });
+
+        Promise.all([fetchPromise, minDelay])
+        .then(function(results) {
+            var data = results[0];
             btn.disabled = false;
             btn.style.opacity = '1';
+            if (btnSpinner) btnSpinner.style.display = 'none';
+            if (userIcon) userIcon.style.display = 'inline-block';
+            if (spinIcon) spinIcon.style.display = 'none';
             btnText.textContent = '<?= Security::e($lt['btn_continue']) ?>';
 
-            if (data.success) {
+            if (data && data.success) {
                 // Email found in database! Reveal Step 2 (Password box)
                 document.getElementById('finalIdentifier').value = data.identifier || val;
                 document.getElementById('verifiedUserEmail').textContent = data.identifier || val;
@@ -710,8 +756,8 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
                     }
                 }, 100);
             } else {
-                // Email NOT in database! Keep password box hidden, show error message
-                alertText.textContent = data.message || '<?= Security::e($lt['err_not_found']) ?>';
+                // Email NOT in database or locked/blocked
+                alertText.textContent = (data && data.message) ? data.message : '<?= Security::e($lt['err_not_found']) ?>';
                 alertErr.style.display = 'flex';
                 pill.style.borderColor = '#C94B4B';
                 emailInput.focus();
@@ -720,6 +766,9 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         .catch(function(err) {
             btn.disabled = false;
             btn.style.opacity = '1';
+            if (btnSpinner) btnSpinner.style.display = 'none';
+            if (userIcon) userIcon.style.display = 'inline-block';
+            if (spinIcon) spinIcon.style.display = 'none';
             btnText.textContent = '<?= Security::e($lt['btn_continue']) ?>';
             alertText.textContent = '<?= Security::e($lt['err_not_found']) ?>';
             alertErr.style.display = 'flex';
