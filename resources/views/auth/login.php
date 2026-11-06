@@ -187,7 +187,7 @@ $lt = $loginI18n[$locale] ?? $loginI18n['en'];
         }
 
         .simda-login-logo-pill img {
-            height: 38px;
+            height: 52px;
             width: auto;
             display: block;
             filter: brightness(0) invert(1) !important;

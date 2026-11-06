@@ -3094,9 +3094,15 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill {
 [data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-full,
 html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-full {
     filter: brightness(0) invert(1) !important;
-    height: 32px !important;
+    height: 48px !important;
+    max-height: 52px !important;
     width: auto !important;
     display: block !important;
+    transition: transform 0.2s ease;
+}
+
+.sidebar .brand-logo-pill:hover img.brand-logo-full {
+    transform: scale(1.03);
 }
 
 .sidebar .brand-logo-pill img.brand-logo-compact,
@@ -3104,6 +3110,8 @@ html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-full {
 [data-theme="light"] .sidebar .brand-logo-pill img.brand-logo-compact,
 html:not([data-theme="dark"]) .sidebar .brand-logo-pill img.brand-logo-compact {
     filter: brightness(0) invert(1) !important;
+    height: 34px !important;
+    width: auto !important;
 }
 
 /* Nav fonts in Dark Mode: High contrast readable white & gold */
