@@ -67,7 +67,7 @@ $charityCharges = $statement['charity_charges'];
     </div>
 
     <!-- INSTALLMENT SCHEDULE TABLE -->
-    <h3 style="font-size:1rem;margin-bottom:10px;">1. Repayment Schedule (Module 5 — Friday → Saturday Adjusted)</h3>
+    <h3 style="font-size:1rem;margin-bottom:10px;">1. Repayment Schedule (Friday → Saturday adjusted)</h3>
     <div class="table-responsive" style="margin-bottom:22px;">
         <table class="simda-table">
             <thead>
@@ -111,7 +111,7 @@ $charityCharges = $statement['charity_charges'];
     </div>
 
     <!-- PAYMENT HISTORY TABLE -->
-    <h3 style="font-size:1rem;margin-bottom:10px;">2. Payment History & Allocation Breakdown (Module 7)</h3>
+    <h3 style="font-size:1rem;margin-bottom:10px;">2. Payment History & Allocation Breakdown</h3>
     <div class="table-responsive" style="margin-bottom:22px;">
         <table class="simda-table">
             <thead>
@@ -150,7 +150,7 @@ $charityCharges = $statement['charity_charges'];
     </div>
 
     <!-- CHARITY LATE CHARGES TABLE -->
-    <h3 style="font-size:1rem;margin-bottom:10px;">3. Segregated Charity Late Charges (Module 8 — Non-Income Charity Account)</h3>
+    <h3 style="font-size:1rem;margin-bottom:10px;">3. Charity Late Charges (separate, non-income account)</h3>
     <div class="table-responsive">
         <table class="simda-table">
             <thead>

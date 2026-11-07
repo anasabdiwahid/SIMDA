@@ -8,7 +8,6 @@ $csrf = Security::csrfToken();
 ?>
 
 <div class="card animate-in" style="margin-bottom:24px;">
-    <span class="badge badge-gold">Module 6 — Simulated Mobile Money Disbursement (EVC Plus, Zaad, eDahab)</span>
     <h2 style="font-size:1.25rem;margin:6px 0;"><?= Security::e(Lang::get('menu_disbursements')) ?></h2>
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:18px;">
         Formula: <code>Net Disbursed = Approved Amount − Administrative Fee</code>. Approved applications expire after 30 days if undisbursed. The repayment schedule activates from the disbursement date.

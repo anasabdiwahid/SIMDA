@@ -14,6 +14,7 @@ use App\Services\DashboardAnalyticsService;
 use App\Services\DisbursementService;
 use App\Services\FinancingDomainService;
 use App\Services\MailService;
+use App\Services\MurabahaGoodsService;
 use App\Services\Par30Service;
 use App\Services\RepaymentEngine;
 use App\Services\ScheduleEngine;
@@ -57,6 +58,7 @@ final class PortalController
                 'dashboard' => self::dashboard($pdo),
                 'clients' => self::clientsList($pdo),
                 'client_register' => self::clientRegisterForm($pdo),
+                'client_view' => self::clientView($pdo),
                 'client_register_submit' => self::clientRegisterSubmit($pdo),
                 'client_check_duplicate' => self::clientCheckDuplicate($pdo),
                 'client_transfer' => self::clientTransfer($pdo),
@@ -86,11 +88,16 @@ final class PortalController
                 'murabaha' => self::murabahaView($pdo),
                 'murabaha_new' => self::murabahaNewForm($pdo),
                 'murabaha_submit' => self::murabahaSubmit($pdo),
+                'murabaha_goods' => self::murabahaGoodsList($pdo),
+                'murabaha_goods_save' => self::murabahaGoodsSave($pdo),
+                'murabaha_goods_toggle' => self::murabahaGoodsToggle($pdo),
+                'murabaha_goods_delete' => self::murabahaGoodsDelete($pdo),
                 'financings', 'schedules', 'statements' => self::financingsList($pdo, $route),
                 'financing_view' => self::financingView($pdo),
                 'statement_pdf' => self::statementPdf($pdo),
 
-                'repayments', 'repayment_record' => self::repaymentsList($pdo),
+                'repayments' => self::repaymentsList($pdo),
+                'repayment_record' => self::repaymentCollect($pdo),
                 'repayment_submit' => self::repaymentSubmit($pdo),
                 'repayment_receipt' => self::repaymentReceipt($pdo),
 
@@ -1488,9 +1495,11 @@ final class PortalController
             'estimated_income' => $_POST['guarantor_income'] ?? '0.00',
         ], (int) $user['id'], $pdo);
 
-        $_SESSION['flash_success'] = "Client registered successfully ({$res['client_code']}) with verified Guarantor and baseline 600 Credit Score.";
+        $_SESSION['flash_success'] = Lang::locale() === 'so'
+            ? "Macmiilka si guul leh ayaa loo diiwaangeliyay ({$res['client_code']}). Hadda waad siin kartaa dayn ama Murabaxo."
+            : "Client registered successfully ({$res['client_code']}) with verified Guarantor and baseline 600 Credit Score.";
         unset($_SESSION['old_input']);
-        header('Location: ?route=clients');
+        header('Location: ?route=client_view&new=1&id=' . (int) $res['client_id']);
         exit;
     }
 
@@ -2237,9 +2246,11 @@ final class PortalController
             $branchId
         );
 
-        $_SESSION['flash_success'] = $isSo
+        $mailNote = self::emailFinancingIssued($pdo, (int) $disbRes['financing_id'], $client, $disbRes, $purpose, '', $user, $locale);
+
+        $_SESSION['flash_success'] = ($isSo
             ? "Daynta lacagta ah (\${$amount}) si guul leh ayaa loo siiyay macmiilka {$client['full_name']}! Heshiiska lambarkiisu waa: {$disbRes['financing_number']}."
-            : "Cash loan (\${$amount}) successfully disbursed to {$client['full_name']}! Contract: {$disbRes['financing_number']}.";
+            : "Cash loan (\${$amount}) successfully disbursed to {$client['full_name']}! Contract: {$disbRes['financing_number']}.") . $mailNote;
 
         header('Location: ?route=loans');
         exit;
@@ -2268,6 +2279,7 @@ final class PortalController
         self::renderDashboard('financings/murabaha_new.php', [
             'pageTitle' => self::tr('Heshiis Murabaxo ah', 'New Murabaha Financing', 'مرابحة جديدة'),
             'clients' => $clientsList,
+            'goods' => MurabahaGoodsService::all($pdo, true),
             'selectedClientId' => $selectedClientId,
         ]);
     }
@@ -2287,6 +2299,10 @@ final class PortalController
         $frequency = (string) ($_POST['repayment_frequency'] ?? 'monthly');
         $goodsDesc = trim((string) ($_POST['murabaha_goods_description'] ?? ''));
         $purpose = trim((string) ($_POST['purpose'] ?? ''));
+        $goodsName = trim((string) ($_POST['goods_name'] ?? ''));
+        if ($goodsName !== '' && stripos($goodsDesc, $goodsName) === false) {
+            $goodsDesc = $goodsName . ($goodsDesc !== '' ? ' — ' . $goodsDesc : '');
+        }
 
         if ($clientId <= 0) {
             throw new \RuntimeException($isSo ? 'Fadlan dooro macmiilka Murabaxada qaadanaya.' : 'Please select a client.');
@@ -2399,12 +2415,149 @@ final class PortalController
             $branchId
         );
 
-        $_SESSION['flash_success'] = $isSo
+        $mailNote = self::emailFinancingIssued($pdo, (int) $disbRes['financing_id'], $client, $disbRes, $purpose ?: 'Murabaha Asset Financing', $goodsDesc, $user, $locale);
+
+        $_SESSION['flash_success'] = ($isSo
             ? "Heshiiska Murabaxada (Qiimaha Iibka: \${$schedule['total_due']}) si guul leh ayaa loogu diiwaangeliyay macmiilka {$client['full_name']}! Heshiiska lambarkiisu waa: {$disbRes['financing_number']}."
-            : "Murabaha contract (Selling Price: \${$schedule['total_due']}) confirmed for {$client['full_name']}! Contract: {$disbRes['financing_number']}.";
+            : "Murabaha contract (Selling Price: \${$schedule['total_due']}) confirmed for {$client['full_name']}! Contract: {$disbRes['financing_number']}.") . $mailNote;
 
         header('Location: ?route=murabaha');
         exit;
+    }
+
+    private static function murabahaGoodsList(PDO $pdo): void
+    {
+        AuthMiddleware::requirePermission('products.manage');
+        $editId = (int) ($_GET['edit'] ?? 0);
+        self::renderDashboard('financings/murabaha_goods.php', [
+            'pageTitle' => self::tr('Alaabta Murabaxada', 'Murabaha Products', 'منتجات المرابحة'),
+            'goods' => MurabahaGoodsService::all($pdo),
+            'editItem' => $editId > 0 ? MurabahaGoodsService::find($pdo, $editId) : null,
+        ]);
+    }
+
+    private static function murabahaGoodsSave(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requirePermission('products.manage');
+        AuthMiddleware::verifyCsrfOrAbort();
+        $isSo = Lang::locale() === 'so';
+        $id = (int) ($_POST['id'] ?? 0);
+        MurabahaGoodsService::save($pdo, $id, $_POST, $_FILES['image'] ?? null, (int) $user['id'], $isSo);
+        $_SESSION['flash_success'] = $id > 0
+            ? ($isSo ? 'Sheyga Murabaxada waa la cusboonaysiiyay.' : 'Murabaha product updated.')
+            : ($isSo ? 'Sheyga Murabaxada cusub waa la diiwaangeliyay.' : 'New Murabaha product added.');
+        header('Location: ?route=murabaha_goods');
+        exit;
+    }
+
+    private static function murabahaGoodsToggle(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requirePermission('products.manage');
+        AuthMiddleware::verifyCsrfOrAbort();
+        MurabahaGoodsService::toggle($pdo, (int) ($_POST['id'] ?? 0), (int) $user['id']);
+        header('Location: ?route=murabaha_goods');
+        exit;
+    }
+
+    private static function murabahaGoodsDelete(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requirePermission('products.manage');
+        AuthMiddleware::verifyCsrfOrAbort();
+        MurabahaGoodsService::delete($pdo, (int) ($_POST['id'] ?? 0), (int) $user['id']);
+        $_SESSION['flash_success'] = Lang::locale() === 'so' ? 'Sheyga waa la tirtiray.' : 'Product deleted.';
+        header('Location: ?route=murabaha_goods');
+        exit;
+    }
+
+    private static function clientView(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
+        $clientId = (int) ($_GET['id'] ?? 0);
+        $st = $pdo->prepare('
+            SELECT c.*, b.name AS branch_name, cs.current_score, cs.score_category, u.full_name AS registered_by_name
+            FROM clients c
+            LEFT JOIN branches b ON b.id = c.branch_id
+            LEFT JOIN credit_scores cs ON cs.client_id = c.id
+            LEFT JOIN users u ON u.id = c.registered_by
+            WHERE c.id = :id AND c.deleted_at IS NULL
+            LIMIT 1
+        ');
+        $st->execute([':id' => $clientId]);
+        $client = $st->fetch();
+        if (!$client || !AuthMiddleware::canAccessClientRecord($client, $user)) {
+            throw new \RuntimeException(Lang::locale() === 'so' ? 'Macmiilka lama helin.' : 'Client not found.');
+        }
+
+        $g = $pdo->prepare('SELECT * FROM guarantors WHERE client_id = :id ORDER BY id ASC');
+        $g->execute([':id' => $clientId]);
+        $f = $pdo->prepare('SELECT id, financing_number, product_type, approved_amount, total_due, outstanding_balance, status, disbursed_at FROM financings WHERE client_id = :id ORDER BY id DESC');
+        $f->execute([':id' => $clientId]);
+        $r = $pdo->prepare('
+            SELECT r.id, r.receipt_number, r.amount, r.payment_method, r.payment_date, r.created_at, f.financing_number, u.full_name AS recorded_by_name
+            FROM repayments r
+            INNER JOIN financings f ON f.id = r.financing_id
+            LEFT JOIN users u ON u.id = r.recorded_by
+            WHERE r.client_id = :id
+            ORDER BY r.id DESC
+        ');
+        $r->execute([':id' => $clientId]);
+
+        self::renderDashboard('clients/view.php', [
+            'pageTitle' => (string) $client['full_name'],
+            'client' => $client,
+            'guarantors' => $g->fetchAll(),
+            'financings' => $f->fetchAll(),
+            'repayments' => $r->fetchAll(),
+            'canCollect' => AuthMiddleware::hasPermission('repayments.record', $user),
+            'isNew' => !empty($_GET['new']),
+        ]);
+    }
+
+    /**
+     * Emails the client the money they received, how and when they repay it, and the disbursement receipt.
+     * Never throws: the financing is already saved, so a mail problem only changes the message shown to staff.
+     */
+    private static function emailFinancingIssued(PDO $pdo, int $financingId, array $client, array $disb, string $purpose, string $goods, array $user, string $locale): string
+    {
+        $isSo = $locale === 'so';
+        $email = trim((string) ($client['email'] ?? ''));
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $isSo ? ' Macmiilku email ma laha, sidaas darteed rasiidka looma dirin.' : ' The client has no email address, so no receipt was emailed.';
+        }
+        try {
+            $fin = $pdo->prepare('SELECT f.*, b.name AS branch_name FROM financings f LEFT JOIN branches b ON b.id = f.branch_id WHERE f.id = :id');
+            $fin->execute([':id' => $financingId]);
+            $row = $fin->fetch() ?: [];
+            $inst = $pdo->prepare('SELECT installment_number, due_date, total_due FROM installments WHERE financing_id = :id ORDER BY installment_number ASC');
+            $inst->execute([':id' => $financingId]);
+
+            $result = MailService::sendFinancingIssuedEmail([
+                'client_email' => $email,
+                'client_name' => (string) $client['full_name'],
+                'client_code' => (string) $client['client_code'],
+                'financing_number' => (string) $disb['financing_number'],
+                'receipt_reference' => (string) ($disb['disbursement_reference'] ?? ''),
+                'product_type' => (string) ($row['product_type'] ?? ''),
+                'amount_given' => (float) ($disb['approved_amount'] ?? 0),
+                'net_disbursed' => (float) ($disb['net_disbursed_amount'] ?? 0),
+                'total_due' => (float) ($disb['total_due'] ?? 0),
+                'term' => (int) ($row['term_installments'] ?? 0),
+                'frequency' => (string) ($row['repayment_frequency'] ?? 'monthly'),
+                'purpose' => $purpose,
+                'goods' => $goods,
+                'provider' => (string) ($disb['provider'] ?? ''),
+                'disbursed_at' => (string) ($disb['disbursed_at'] ?? date('Y-m-d H:i')),
+                'branch_name' => (string) ($row['branch_name'] ?? 'SIMDA'),
+                'issued_by' => (string) ($user['full_name'] ?? 'SIMDA'),
+                'installments' => $inst->fetchAll(),
+            ], $locale);
+        } catch (\Throwable $e) {
+            $result = ['success' => false];
+        }
+        if (!empty($result['success'])) {
+            return $isSo ? " Rasiidka iyo jadwalka bixinta waxaa loo diray {$email}." : " Receipt and repayment schedule emailed to {$email}.";
+        }
+        return $isSo ? " Email-ka loo diri waayay {$email}; fadlan hubi dejinta email-ka." : " The email to {$email} could not be sent; please check the mail settings.";
     }
 
     private static function financingsList(PDO $pdo, string $route): void
@@ -2471,6 +2624,66 @@ final class PortalController
         header('Content-Length: ' . strlen($pdfBytes));
         echo $pdfBytes;
         exit;
+    }
+
+    /**
+     * Collect Repayment: search a client who owes money, pick the contract, enter what they paid.
+     * Posts to repayment_submit, which records it, emails the receipt and opens the receipt page.
+     */
+    private static function repaymentCollect(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requirePermission('repayments.record');
+        [$scope, $params] = self::scopeSql($user, 'f');
+        $open = "i.financing_id = f.id AND i.status IN ('pending', 'partial', 'overdue')";
+        $stmt = $pdo->prepare("
+            SELECT f.id, f.financing_number, f.product_type, f.total_due, f.outstanding_balance, f.status,
+                   f.term_installments, f.repayment_frequency,
+                   c.id AS client_id, c.full_name, c.client_code, c.phone, c.email, c.id_number,
+                   (SELECT i.due_date FROM installments i WHERE {$open} ORDER BY i.installment_number LIMIT 1) AS next_due_date,
+                   (SELECT i.total_due - i.total_paid FROM installments i WHERE {$open} ORDER BY i.installment_number LIMIT 1) AS next_due_amount,
+                   (SELECT COUNT(*) FROM installments i WHERE i.financing_id = f.id AND i.status = 'paid') AS paid_count
+            FROM financings f
+            INNER JOIN clients c ON c.id = f.client_id
+            WHERE f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 {$scope}
+            ORDER BY c.full_name ASC, f.id ASC
+        ");
+        $stmt->execute($params);
+
+        $debtors = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $cid = (int) $row['client_id'];
+            if (!isset($debtors[$cid])) {
+                $debtors[$cid] = [
+                    'id' => $cid,
+                    'name' => (string) $row['full_name'],
+                    'code' => (string) $row['client_code'],
+                    'phone' => (string) $row['phone'],
+                    'email' => (string) ($row['email'] ?? ''),
+                    'idnum' => (string) ($row['id_number'] ?? ''),
+                    'owed' => 0.0,
+                    'contracts' => [],
+                ];
+            }
+            $debtors[$cid]['owed'] += (float) $row['outstanding_balance'];
+            $debtors[$cid]['contracts'][] = [
+                'id' => (int) $row['id'],
+                'number' => (string) $row['financing_number'],
+                'type' => (string) $row['product_type'],
+                'status' => (string) $row['status'],
+                'total' => (float) $row['total_due'],
+                'balance' => (float) $row['outstanding_balance'],
+                'term' => (int) $row['term_installments'],
+                'paid' => (int) $row['paid_count'],
+                'next_date' => $row['next_due_date'],
+                'next_amount' => $row['next_due_amount'] !== null ? (float) $row['next_due_amount'] : null,
+            ];
+        }
+
+        self::renderDashboard('repayments/collect.php', [
+            'pageTitle' => self::tr('Qabo Lacag-celin', 'Collect Repayment', 'تحصيل سداد'),
+            'debtors' => array_values($debtors),
+            'selectedClientId' => (int) ($_GET['client_id'] ?? 0),
+        ]);
     }
 
     private static function repaymentsList(PDO $pdo): void
@@ -2760,8 +2973,14 @@ final class PortalController
         $user = AuthMiddleware::requireAuth();
         $role = $user['role_slug'] ?? '';
 
-        // The Managers, Branch Managers and Header Office pages are admin-only views of the user list.
-        if ($roleFocus !== null && $role !== 'admin') {
+        // Role-focused staff lists: each role may open the lists of staff below it (admin sees all).
+        $focusAllowed = match ($role) {
+            'admin' => true,
+            'manager' => in_array($roleFocus, ['branch_manager', 'loan_officer'], true),
+            'branch_manager' => $roleFocus === 'loan_officer',
+            default => false,
+        };
+        if ($roleFocus !== null && !$focusAllowed) {
             throw new \RuntimeException(Lang::get('unauthorized_access'));
         }
 
@@ -2876,7 +3095,7 @@ final class PortalController
         $pageName = match ($roleFocus) {
             'manager' => 'Managers',
             'branch_manager' => 'Branch Managers',
-            'loan_officer' => $isEmployeesRoute ? ($locale === 'so' ? 'Shaqaalaha (Employees)' : 'Employees') : 'Header Office',
+            'loan_officer' => $isEmployeesRoute ? (Lang::locale() === 'so' ? 'Shaqaalaha (Employees)' : 'Employees') : 'Header Office',
             default => $titleMap[$mode] ?? 'Administration',
         };
 
@@ -3245,7 +3464,8 @@ final class PortalController
         $newBranchId = $targetUser['branch_id'] !== null ? (int) $targetUser['branch_id'] : null;
 
         // Role update logic
-        if (isset($_POST['role_id']) && ($actorRole === 'admin' || $actorRole === 'manager')) {
+        // Nobody changes their own role; only admin/manager may change other users' roles.
+        if (isset($_POST['role_id']) && $targetUserId !== $actorId && ($actorRole === 'admin' || $actorRole === 'manager')) {
             $reqRoleId = (int) $_POST['role_id'];
             $stR = $pdo->prepare("SELECT id, slug FROM roles WHERE id = :id");
             $stR->execute([':id' => $reqRoleId]);

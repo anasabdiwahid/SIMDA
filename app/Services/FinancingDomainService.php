@@ -564,8 +564,8 @@ final class FinancingDomainService
         $reviewerId = (int) $reviewerUser['id'];
         $reviewerRole = (string) $reviewerUser['role_slug'];
 
-        // Rule: Application creators cannot approve their own applications
-        if ($decision === 'approved' && (int) $app['created_by'] === $reviewerId) {
+        // Rule: Application creators cannot approve their own applications (Admin has full override authority)
+        if ($decision === 'approved' && (int) $app['created_by'] === $reviewerId && $reviewerRole !== 'admin') {
             throw new RuntimeException('Conflict of interest protection: Application creators cannot approve their own applications.');
         }
 

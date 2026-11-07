@@ -69,7 +69,7 @@ $kpis = [
         <div class="apq-list" id="queueList" data-filter-list>
             <?php foreach ($queue as $q): ?>
                 <?php
-                $isCreator = (int) $q['created_by'] === $currentUserId;
+                $isCreator = ((int) $q['created_by'] === $currentUserId) && (($user['role_slug'] ?? '') !== 'admin');
                 $isMurabaha = $q['product_type'] === 'murabaha';
                 $termText = $isSo
                     ? (int) $q['term_installments'] . ' qaybood oo ' . ($q['repayment_frequency'] === 'weekly' ? 'toddobaadle' : 'bille') . ' ah'

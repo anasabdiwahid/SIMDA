@@ -82,16 +82,15 @@
             });
         });
 
-        // 2. Sidebar Collapse & Mobile Drawer
+        // 2. Mobile Drawer (Desktop sidebar stays fixed and never collapses/moves)
+        document.body.classList.remove('sidebar-collapsed');
+        localStorage.removeItem('simda_sidebar_collapsed');
         const toggleBtn = document.getElementById('sidebarToggleBtn');
         const backdrop = document.getElementById('sidebarBackdrop');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', function () {
                 if (window.innerWidth <= 992) {
                     document.body.classList.toggle('mobile-nav-open');
-                } else {
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem('simda_sidebar_collapsed', document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
                 }
             });
         }
@@ -100,9 +99,58 @@
                 document.body.classList.remove('mobile-nav-open');
             });
         }
-        if (window.innerWidth > 992 && localStorage.getItem('simda_sidebar_collapsed') === '1') {
-            document.body.classList.add('sidebar-collapsed');
+
+        // Sidebar groups: one open at a time, like an accordion.
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        const sbGroups = sidebarNav ? Array.from(sidebarNav.querySelectorAll('.sb-group')) : [];
+        sbGroups.forEach(function (group) {
+            const toggle = group.querySelector('.sb-group-toggle');
+            toggle.addEventListener('click', function () {
+                const open = !group.classList.contains('is-open');
+                sbGroups.forEach(function (g) {
+                    g.classList.remove('is-open');
+                    g.querySelector('.sb-group-toggle').setAttribute('aria-expanded', 'false');
+                });
+                group.classList.toggle('is-open', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        });
+
+        // Sidebar never scrolls: pick the largest text size (8–15px) at which the menu fits the screen
+        // even with its biggest group open, so opening a group never resizes anything.
+        function sidebarFits() {
+            return sidebarNav.scrollHeight <= sidebarNav.clientHeight;
         }
+        function fitSidebar() {
+            if (!sidebarNav) return;
+            const openNow = sbGroups.filter(function (g) { return g.classList.contains('is-open'); });
+            let biggest = null;
+            sbGroups.forEach(function (g) {
+                if (!biggest || g.querySelectorAll('.sb-sublink').length > biggest.querySelectorAll('.sb-sublink').length) biggest = g;
+            });
+            sidebarNav.classList.add('sb-measuring');
+            sbGroups.forEach(function (g) { g.classList.toggle('is-open', g === biggest); });
+
+            let lo = 8, hi = 15;
+            sidebarNav.style.setProperty('--sb-fs', hi + 'px');
+            if (!sidebarFits()) {
+                while (hi - lo > 0.1) {
+                    const mid = (lo + hi) / 2;
+                    sidebarNav.style.setProperty('--sb-fs', mid + 'px');
+                    if (sidebarFits()) lo = mid; else hi = mid;
+                }
+                sidebarNav.style.setProperty('--sb-fs', lo + 'px');
+            }
+
+            sbGroups.forEach(function (g) { g.classList.toggle('is-open', openNow.indexOf(g) !== -1); });
+            void sidebarNav.offsetHeight;
+            sidebarNav.classList.remove('sb-measuring');
+            sidebarNav.scrollTop = 0;
+        }
+        fitSidebar();
+        window.addEventListener('resize', fitSidebar);
+        window.addEventListener('load', fitSidebar);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSidebar);
 
         // 3. Double-Submission Prevention (Direct submission without blocking alerts/confirm popups)
         document.querySelectorAll('form[data-confirm], form').forEach(function (form) {

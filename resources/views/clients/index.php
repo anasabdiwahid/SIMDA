@@ -231,6 +231,9 @@ $labels = [
 
                                 <!-- ACTIONS: RECORD REPAYMENT BUTTON -->
                                 <td style="text-align:right;white-space:nowrap;padding-right:16px;">
+                                    <a href="?route=client_view&id=<?= (int) $c['id'] ?>" class="btn btn-xs btn-outline" style="font-size:0.75rem;padding:4px 10px;margin-right:4px;" title="<?= $isSo ? 'Eeg xogta oo dhan / Sii dayn' : 'View profile / Give financing' ?>">
+                                        <?= Icons::svg('eye', 13) ?> <?= $isSo ? 'Xogta' : 'Profile' ?>
+                                    </a>
                                     <?php if ($activeCount > 0): ?>
                                         <button type="button"
                                             class="btn btn-xs btn-primary"

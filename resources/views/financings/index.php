@@ -8,7 +8,6 @@ use App\Helpers\Security;
 <div class="card animate-in">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
         <div>
-            <span class="badge badge-gold">Modules 5, 6, 7 & 13</span>
             <h2 style="font-size:1.25rem;margin-top:6px;"><?= Security::e(Lang::get('menu_active_financing')) ?></h2>
         </div>
     </div>

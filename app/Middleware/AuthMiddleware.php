@@ -140,6 +140,9 @@ final class AuthMiddleware
     public static function requireRoles(array $allowedRoles): array
     {
         $user = self::requireAuth();
+        if (($user['role_slug'] ?? '') === 'admin') {
+            return $user;
+        }
         if (!in_array($user['role_slug'], $allowedRoles, true)) {
             http_response_code(403);
             $_SESSION['flash_error'] = Lang::get('unauthorized_access');

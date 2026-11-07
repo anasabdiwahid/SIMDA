@@ -11,7 +11,6 @@ $csrf = Security::csrfToken();
 <div class="card animate-in">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;">
         <div>
-            <span class="badge badge-gold"><?= Icons::svg('message-square', 13) ?> Module 11 — Simulated Bilingual SMS Outbox</span>
             <h2 style="font-size:1.2rem;margin-top:6px;"><?= Security::e(Lang::get('menu_sms_outbox')) ?></h2>
             <p style="font-size:0.84rem;color:var(--text-secondary);">
                 Dispatches 3 days before due date (`upcoming_3_days`) and 1 day after a missed due date (`overdue_1_day`). Deduplicated per installment and reminder type; paid installments never receive reminders.

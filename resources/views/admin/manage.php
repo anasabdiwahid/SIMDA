@@ -43,6 +43,8 @@ $adminDescriptions = [
 ];
 $adminTabs = [
     ['route' => 'users', 'icon' => 'users', 'label' => $isSo ? 'All Users' : 'All Users', 'count' => null, 'show' => true],
+    ['route' => 'managers', 'icon' => 'briefcase', 'label' => $isSo ? 'Maamulayaasha Guud (GM)' : 'General Managers', 'count' => null, 'show' => $curRole === 'admin'],
+    ['route' => 'branch_managers', 'icon' => 'shield', 'label' => $isSo ? 'Maamulayaasha Laamaha (BM)' : 'Branch Managers', 'count' => null, 'show' => in_array($curRole, ['admin', 'manager'], true)],
     ['route' => 'employees', 'icon' => 'user-check', 'label' => $isSo ? 'Shaqaalaha (Employees)' : 'Employees', 'count' => null, 'show' => true],
     ['route' => 'branches', 'icon' => 'building', 'label' => $isSo ? 'Laamaha' : 'Branches', 'count' => count($branches ?? []), 'show' => true],
     ['route' => 'permissions', 'icon' => 'shield', 'label' => $isSo ? 'Awoodaha' : 'Permissions', 'count' => null, 'show' => $curRole === 'admin'],
@@ -79,6 +81,10 @@ $adminTabs = [
             $tabRoute = $tab['route'];
             $isActiveTab = false;
             if ($isEmployeesRoute && $tabRoute === 'employees') {
+                $isActiveTab = true;
+            } elseif ($roleFocus === 'manager' && $tabRoute === 'managers') {
+                $isActiveTab = true;
+            } elseif ($roleFocus === 'branch_manager' && $tabRoute === 'branch_managers') {
                 $isActiveTab = true;
             } elseif (!$isEmployeesRoute && ($mode ?? '') === 'users' && $roleFocus === null && $tabRoute === 'users') {
                 $isActiveTab = true;

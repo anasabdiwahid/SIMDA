@@ -10,7 +10,7 @@ $csrf = Security::csrfToken();
 <div class="card animate-in" style="margin-bottom:24px;">
     <h2 style="font-size:1.25rem;margin-bottom:6px;"><?= Security::e(Lang::get('menu_guarantors')) ?></h2>
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:18px;">
-        Module 1 — Every client must have at least one guarantor before applying for financing. You can also attach additional guarantors to an existing client below.
+        Every client must have at least one guarantor before applying for financing. You can also attach additional guarantors to an existing client below.
     </p>
 
     <?php if (in_array($user['role_slug'] ?? '', ['admin', 'loan_officer'], true) && !empty($clients)): ?>

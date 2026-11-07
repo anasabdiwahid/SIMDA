@@ -19,7 +19,7 @@ $tables = [
     'charity_charges', 'installments', 'financings', 'financing_applications',
     'products', 'group_members', 'groups', 'guarantors', 'clients',
     'login_attempts', 'users', 'branches', 'role_permissions', 'permissions',
-    'roles', 'system_settings',
+    'roles', 'system_settings', 'murabaha_goods',
 ];
 foreach ($tables as $t) {
     $pdo->exec("DROP TABLE IF EXISTS `{$t}`");

@@ -9,7 +9,6 @@ $canWaive = in_array($user['role_slug'] ?? '', ['admin', 'branch_manager'], true
 ?>
 
 <div class="card animate-in">
-    <span class="badge badge-gold">Module 8 — Segregated Charity Account & Late-Charge Waivers</span>
     <h2 style="font-size:1.25rem;margin:6px 0;"><?= Security::e(Lang::get('menu_charity_charges')) ?></h2>
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:18px;">
         Sharia Governance Rule: An installment unpaid 7 days after its due date receives the configured fixed late charge. Late charges are directed to a separate <strong>Charity Account</strong> and are NEVER counted as institutional income. Branch Managers can waive charges with a mandatory reason.

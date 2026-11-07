@@ -10,7 +10,6 @@ $role = $user['role_slug'] ?? '';
 ?>
 
 <div class="card animate-in" style="margin-bottom:22px;">
-    <span class="badge badge-gold"><?= Icons::svg('file-text', 13) ?> Module 3 — Financing Application Builder & Schedule Preview</span>
     <h2 style="font-size:1.2rem;margin:6px 0;"><?= Security::e(Lang::get('menu_applications')) ?></h2>
     <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:16px;">
         Rules enforced: Client must have a Guarantor, amount and term must be within product limits, and clients &gt;30 days overdue on active financing are blocked. Applications up to $5,000 go to Header Office; above $5,000 up to $50,000, and group financing, go to the Branch Manager; above $50,000 go to the General Manager.

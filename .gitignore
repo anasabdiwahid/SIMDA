@@ -17,3 +17,7 @@ Thumbs.db
 .idea/
 /vendor/
 
+
+# Uploaded Murabaha product images (keep the folder guard only)
+/public/assets/uploads/goods/*
+!/public/assets/uploads/goods/.htaccess

@@ -66,6 +66,7 @@ final class Icons
             'shopping-bag' => '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
             'filter' => '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
             'check' => '<polyline points="20 6 9 17 4 12"/>',
+            'chevron-down' => '<polyline points="6 9 12 15 18 9"/>',
             'x' => '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
             default => '<circle cx="12" cy="12" r="9"/>',
         };

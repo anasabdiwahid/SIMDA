@@ -834,6 +834,156 @@ HTML;
     }
 
     /**
+     * Sent to the client when a cash loan or Murabaha is issued: the amount they received, the repayment
+     * period and schedule, the reason, and the official disbursement receipt.
+     */
+    public static function sendFinancingIssuedEmail(array $d, string $locale = 'so'): array
+    {
+        $isSo = $locale === 'so';
+        $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        $money = static fn($v): string => number_format((float) $v, 2);
+
+        $isMurabaha = ($d['product_type'] ?? '') === 'murabaha';
+        $term = (int) ($d['term'] ?? 0);
+        $weekly = ($d['frequency'] ?? 'monthly') === 'weekly';
+        $installments = (array) ($d['installments'] ?? []);
+        $first = $installments[0] ?? null;
+        $last = $installments ? $installments[count($installments) - 1] : null;
+        $perInstallment = $first ? (float) $first['total_due'] : ($term > 0 ? (float) $d['total_due'] / $term : 0);
+        $fmtDate = static fn(?string $v): string => $v ? date('d/m/Y', strtotime($v)) : '—';
+
+        $periodText = $isSo
+            ? $term . ($weekly ? ' toddobaad' : ' bilood')
+            : $term . ($weekly ? ' weeks' : ' months');
+        $perText = $isSo ? ($weekly ? 'toddobaadkii' : 'bishii') : ($weekly ? 'per week' : 'per month');
+        $productName = $isMurabaha
+            ? ($isSo ? 'Murabaxo (Iibka Alaabta)' : 'Murabaha Asset Financing')
+            : ($isSo ? 'Dayn Lacag Cadaan ah (Qard Xasan, 0% Ribo)' : 'Cash Loan (Qard Hassan, 0% Riba)');
+        $receiptNo = (string) ($d['receipt_reference'] ?: $d['financing_number']);
+
+        $subject = $isSo
+            ? "SIMDA: Rasiidka Daynta — \${$money($d['amount_given'])} ({$d['financing_number']})"
+            : "SIMDA: Financing Receipt — \${$money($d['amount_given'])} ({$d['financing_number']})";
+
+        $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
+        $inline = [];
+        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
+        if (is_file($logoPath)) {
+            $inline[] = ['cid' => 'simda_logo', 'path' => $logoPath, 'mime' => 'image/png', 'filename' => 'simda-logo.png'];
+            $logoSrc = 'cid:simda_logo';
+        }
+
+        $rows = [
+            [$isSo ? 'Macmiilka' : 'Client', $d['client_name'] . ' (' . $d['client_code'] . ')'],
+            [$isSo ? 'Lambarka Heshiiska' : 'Contract Number', (string) $d['financing_number']],
+            [$isSo ? 'Nooca' : 'Product', $productName],
+        ];
+        if ($isMurabaha && trim((string) $d['goods']) !== '') {
+            $rows[] = [$isSo ? 'Alaabta' : 'Goods', (string) $d['goods']];
+        }
+        $rows[] = [$isSo ? 'Sababta' : 'Purpose', (string) $d['purpose']];
+        $rows[] = [$isSo ? 'Lacagta la siiyay' : 'Amount Given', '$' . $money($d['net_disbursed'] ?: $d['amount_given'])];
+        $rows[] = [$isSo ? 'Wadarta la celinayo' : 'Total to Repay', '$' . $money($d['total_due'])];
+        $rows[] = [$isSo ? 'Muddada bixinta' : 'Repayment Period', $periodText];
+        $rows[] = [$isSo ? 'Qaybta ' . $perText : 'Installment ' . $perText, '$' . $money($perInstallment)];
+        $rows[] = [$isSo ? 'Bixinta koowaad' : 'First Payment', $fmtDate($first['due_date'] ?? null)];
+        $rows[] = [$isSo ? 'Bixinta ugu dambeysa' : 'Final Payment', $fmtDate($last['due_date'] ?? null)];
+        if (($d['provider'] ?? '') !== '') {
+            $rows[] = [$isSo ? 'Qaabka loo diray' : 'Paid Out Via', (string) $d['provider']];
+        }
+        $rows[] = [$isSo ? 'Taariikhda' : 'Date', date('d/m/Y H:i', strtotime((string) $d['disbursed_at']) ?: time())];
+        $rows[] = [$isSo ? 'Laanta & Shaqaalaha' : 'Branch & Staff', $d['branch_name'] . ' • ' . $d['issued_by']];
+
+        $detailHtml = '';
+        $n = count($rows);
+        foreach ($rows as $i => [$label, $value]) {
+            $border = $i < $n - 1 ? 'border-bottom:1px solid #E8EFEA;' : '';
+            $detailHtml .= '<tr><td style="padding:9px 14px;' . $border . 'color:#788780;width:42%;">' . $e($label) . '</td>'
+                . '<td style="padding:9px 14px;' . $border . 'font-weight:700;color:#1B2E28;">' . $e((string) $value) . '</td></tr>';
+        }
+
+        $scheduleHtml = '';
+        foreach ($installments as $row) {
+            $scheduleHtml .= '<tr><td style="padding:6px 10px;border-bottom:1px solid #EEF3F0;color:#52635B;">' . (int) $row['installment_number'] . '</td>'
+                . '<td style="padding:6px 10px;border-bottom:1px solid #EEF3F0;color:#1B2E28;">' . $e($fmtDate((string) $row['due_date'])) . '</td>'
+                . '<td style="padding:6px 10px;border-bottom:1px solid #EEF3F0;text-align:right;font-weight:700;color:#123B32;">$' . $money($row['total_due']) . '</td></tr>';
+        }
+
+        $hello = $isSo ? 'Asalaamu calaykum ' . $d['client_name'] . ',' : 'Assalamu alaikum ' . $d['client_name'] . ',';
+        $intro = $isSo
+            ? 'SIMDA waxay kuu bixisay maalgelinta hoos ku qoran. Fadlan kaydi email-kan; waa rasiidkaaga rasmiga ah.'
+            : 'SIMDA has issued the financing below to you. Please keep this email; it is your official receipt.';
+        $amountLabel = $isSo ? 'Lacagta Lagu Siiyay' : 'Amount You Received';
+        $repayLine = $isSo
+            ? 'Waxaad bixinaysaa $' . $money($perInstallment) . ' ' . $perText . ', muddo ' . $periodText . ' ah.'
+            : 'You repay $' . $money($perInstallment) . ' ' . $perText . ' for ' . $periodText . '.';
+        $receiptLabel = $isSo ? 'Lambarka Rasiidka' : 'Receipt Number';
+        $scheduleTitle = $isSo ? 'Jadwalka Bixinta' : 'Repayment Schedule';
+        $colDue = $isSo ? 'Taariikhda' : 'Due Date';
+        $colAmt = $isSo ? 'Lacagta' : 'Amount';
+        $notice = $isSo
+            ? 'Wax ribo ah laguma darin, si waafaqsan Shareecada Islaamka. Fadlan ku bixi qaybaha waqtigooda si dhibcahaaga daynta (credit score) u kordhaan.'
+            : 'No interest (riba) is charged, in line with Islamic Sharia. Paying each installment on time raises your credit score.';
+        $year = date('Y');
+
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="{$e($locale)}">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{$e($subject)}</title></head>
+<body style="margin:0;padding:24px 12px;background:#0d2620;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1B2E28;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;margin:0 auto;background:#FFFFFF;border-radius:16px;overflow:hidden;">
+    <tr><td style="background:#123B32;padding:26px 30px;text-align:center;border-bottom:3px solid #D6B66C;">
+      <img src="{$logoSrc}" alt="SIMDA" style="height:46px;max-width:180px;object-fit:contain;margin-bottom:8px;" />
+      <div style="color:#D6B66C;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;">Somali Islamic Microfinance Development Association</div>
+    </td></tr>
+    <tr><td style="padding:24px 30px 6px;font-size:14px;line-height:1.55;color:#1B2E28;">
+      <div style="font-weight:700;margin-bottom:6px;">{$e($hello)}</div>{$e($intro)}
+    </td></tr>
+    <tr><td style="padding:16px 30px;text-align:center;">
+      <div style="background:#F4F8F6;border:1px solid #E2EBE6;border-radius:14px;padding:20px;">
+        <div style="font-size:12px;color:#788780;text-transform:uppercase;letter-spacing:1px;font-weight:700;">{$e($amountLabel)}</div>
+        <div style="font-size:34px;font-weight:900;color:#23845B;line-height:1.1;margin-top:4px;">\${$money($d['net_disbursed'] ?: $d['amount_given'])} <span style="font-size:15px;color:#788780;">USD</span></div>
+        <div style="font-size:13px;color:#123B32;margin-top:8px;font-weight:600;">{$e($repayLine)}</div>
+        <div style="margin-top:12px;font-size:11px;color:#788780;text-transform:uppercase;letter-spacing:1px;font-weight:700;">{$e($receiptLabel)}</div>
+        <div style="font-family:monospace;font-size:17px;font-weight:800;color:#123B32;letter-spacing:1px;">{$e($receiptNo)}</div>
+      </div>
+    </td></tr>
+    <tr><td style="padding:6px 30px 18px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;background:#FAFCFB;border-radius:12px;border:1px solid #E8EFEA;">{$detailHtml}</table>
+    </td></tr>
+    <tr><td style="padding:0 30px 18px;">
+      <div style="font-size:13px;font-weight:800;color:#123B32;margin-bottom:8px;">{$e($scheduleTitle)}</div>
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px;border:1px solid #E8EFEA;border-radius:10px;">
+        <tr style="background:#F4F8F6;"><td style="padding:7px 10px;font-weight:700;color:#52635B;">#</td><td style="padding:7px 10px;font-weight:700;color:#52635B;">{$e($colDue)}</td><td style="padding:7px 10px;font-weight:700;color:#52635B;text-align:right;">{$e($colAmt)}</td></tr>
+        {$scheduleHtml}
+      </table>
+    </td></tr>
+    <tr><td style="padding:0 30px 24px;">
+      <div style="background:#FFF9EB;border-left:4px solid #D6B66C;padding:12px 16px;border-radius:8px;font-size:12px;color:#856404;line-height:1.5;">{$e($notice)}</div>
+    </td></tr>
+    <tr><td style="background:#123B32;padding:18px 30px;text-align:center;color:#A7C2B8;font-size:11px;line-height:1.6;">
+      <div style="color:#FFFFFF;font-weight:700;font-size:13px;margin-bottom:4px;">SIMDA</div>
+      Mogadishu Head Office, Somalia &bull; info@simda.so<br>&copy; {$year} SIMDA Microfinance Portal.
+    </td></tr>
+  </table>
+</body>
+</html>
+HTML;
+
+        $plain = ($isSo ? "RASIIDKA DAYNTA SIMDA\n" : "SIMDA FINANCING RECEIPT\n") . "{$receiptLabel}: {$receiptNo}\n\n";
+        foreach ($rows as [$label, $value]) {
+            $plain .= "{$label}: {$value}\n";
+        }
+        $plain .= "\n{$scheduleTitle}:\n";
+        foreach ($installments as $row) {
+            $plain .= '#' . (int) $row['installment_number'] . '  ' . $fmtDate((string) $row['due_date']) . '  $' . $money($row['total_due']) . "\n";
+        }
+        $plain .= "\n{$notice}\n";
+
+        return self::send((string) $d['client_email'], $subject, $html, $plain, $inline);
+    }
+
+    /**
      * Tells a Branch Manager or General Manager that an application was forwarded for their decision.
      */
     public static function sendApplicationForwardedEmail(string $email, string $fullName, array $app, string $locale = 'so'): array

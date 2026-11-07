@@ -9,7 +9,6 @@ $role = $user['role_slug'] ?? '';
 ?>
 
 <div class="card animate-in" style="margin-bottom:24px;">
-    <span class="badge badge-gold">Module 10 — Solidarity Group Financing (3–10 Members)</span>
     <h2 style="font-size:1.25rem;margin:6px 0;"><?= Security::e(Lang::get('menu_client_groups')) ?></h2>
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:18px;">
         Rules: Groups require 3 to 10 members and Branch Manager approval. Each member holds their own financing contract. If ANY group member is more than 30 days overdue, no member of that group can receive new financing. Members cannot leave while they have active financing.

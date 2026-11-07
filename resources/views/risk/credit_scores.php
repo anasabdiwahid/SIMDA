@@ -7,7 +7,6 @@ use App\Helpers\Security;
 ?>
 
 <div class="card animate-in" style="margin-bottom:22px;">
-    <span class="badge badge-gold"><?= Icons::svg('bar-chart', 13) ?> Module 9 — Transparent Credit Score Engine (300–850, Baseline 600)</span>
     <h2 style="font-size:1.2rem;margin:6px 0;"><?= Security::e(Lang::get('menu_credit_scores')) ?></h2>
     <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:16px;">
         Formula: <code>Score = 600 + (OnTime × 15) + (EarlySettlement × 25) − (Late1_7d × 10) − (Late8_30d × 25) − (Late&gt;30d × 45) − (UnpaidOverduePenalties)</code>. Waived charity late charges do not penalize the score.
