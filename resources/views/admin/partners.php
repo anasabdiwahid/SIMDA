@@ -53,6 +53,9 @@ $activeCount = count(array_filter($partners, static fn($p) => (int) $p['is_activ
                     </span>
                 </label>
                 <input type="file" name="logo" id="partnerLogo" accept="image/png,image/jpeg,image/webp" hidden>
+                <button type="button" class="pt-crop-btn" id="partnerLogoCrop" data-src="<?= Security::e((string) $v('logo_path')) ?>" <?= $v('logo_path') ? '' : 'hidden' ?>>
+                    <?= Icons::svg('edit', 13) ?> <?= $isSo ? 'Jar / Weynee sawirka' : 'Crop / Zoom logo' ?>
+                </button>
             </div>
 
             <div class="mg-fields pt-fields">
@@ -123,8 +126,9 @@ $activeCount = count(array_filter($partners, static fn($p) => (int) $p['is_activ
     const file = document.getElementById('partnerLogo');
     const img = document.getElementById('partnerLogoPreview');
     const empty = document.getElementById('partnerLogoEmpty');
-    // Choosing a logo opens the crop dialog (round, like it appears on the home page).
-    SimdaCropper.attach(file, {
+    const cropBtn = document.getElementById('partnerLogoCrop');
+    // Round crop, like the logo appears on the home page. Used for a new file and for re-cropping.
+    const cropOpts = {
         aspect: 1,
         round: true,
         outWidth: 600,
@@ -132,7 +136,14 @@ $activeCount = count(array_filter($partners, static fn($p) => (int) $p['is_activ
             img.src = url;
             img.hidden = false;
             empty.hidden = true;
+            cropBtn.hidden = false;
+            cropBtn.dataset.src = url; // crop again from the latest version
         }
+    };
+    SimdaCropper.attach(file, cropOpts);
+    // Re-crop / zoom the logo that is already saved (or just chosen); "Save changes" then uploads it.
+    cropBtn.addEventListener('click', function () {
+        if (cropBtn.dataset.src) SimdaCropper.editExisting(file, cropBtn.dataset.src, cropOpts);
     });
 })();
 </script>

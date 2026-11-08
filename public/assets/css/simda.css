@@ -7680,3 +7680,10 @@ a.pt-bubble:focus-visible { outline: none; }
 @keyframes scrop-pop { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .scrop-backdrop, .scrop-box { animation: none; } }
 @media (max-width: 420px) { .scrop-actions .btn { flex: 1; } }
+
+/* Crop / Zoom button under a saved picture, and the zoom - / + buttons */
+.pt-crop-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-surface); color: var(--color-success); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: border-color 0.15s ease, background-color 0.15s ease; }
+.pt-crop-btn:hover { border-color: var(--simda-gold); background: var(--simda-gold-muted); }
+.pt-crop-btn[hidden] { display: none; }
+.scrop-step { width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--border-color); background: var(--bg-elevated); color: var(--text-primary); font-size: 1.1rem; font-weight: 800; line-height: 1; cursor: pointer; }
+.scrop-step:hover { border-color: var(--simda-gold); }

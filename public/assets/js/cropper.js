@@ -11,8 +11,8 @@
     'use strict';
     var isSo = (document.documentElement.lang || '').indexOf('so') === 0;
     var T = isSo
-        ? { title: 'Jar sawirka', hint: 'Jiid si aad u dhaqaajiso · isticmaal slider-ka si aad u weyneyso', zoom: 'Weynee', cancel: 'Jooji', original: 'Sidiisa u isticmaal', crop: 'Jar & Kaydi', reset: 'Dib u celi' }
-        : { title: 'Crop picture', hint: 'Drag to move · use the slider or mouse wheel to zoom', zoom: 'Zoom', cancel: 'Cancel', original: 'Use original', crop: 'Crop & Use', reset: 'Reset' };
+        ? { title: 'Jar sawirka', hint: 'Jiid si aad u dhaqaajiso · − / + si aad u yareyso ama u weyneyso', zoom: 'Weynee', zoomIn: 'Weynee (zoom in)', zoomOut: 'Yaree (zoom out)', cancel: 'Jooji', original: 'Sidiisa u isticmaal', crop: 'Jar & Kaydi', reset: 'Dib u celi' }
+        : { title: 'Crop picture', hint: 'Drag to move · − / + to zoom out or in', zoom: 'Zoom', zoomIn: 'Zoom in', zoomOut: 'Zoom out', cancel: 'Cancel', original: 'Use original', crop: 'Crop & Use', reset: 'Reset' };
 
     function buildDialog() {
         var wrap = document.createElement('div');
@@ -24,7 +24,11 @@
             '<div class="scrop-box">' +
             '  <div class="scrop-head"><strong>' + T.title + '</strong><span>' + T.hint + '</span></div>' +
             '  <div class="scrop-stage"><img class="scrop-img" alt="" draggable="false"><div class="scrop-mask"></div></div>' +
-            '  <div class="scrop-zoom"><span>' + T.zoom + '</span><input type="range" class="scrop-range" min="0" max="100" value="0" aria-label="' + T.zoom + '"><button type="button" class="scrop-reset">' + T.reset + '</button></div>' +
+            '  <div class="scrop-zoom"><span>' + T.zoom + '</span>' +
+            '    <button type="button" class="scrop-step scrop-out" aria-label="' + T.zoomOut + '" title="' + T.zoomOut + '">−</button>' +
+            '    <input type="range" class="scrop-range" min="0" max="100" value="0" aria-label="' + T.zoom + '">' +
+            '    <button type="button" class="scrop-step scrop-in" aria-label="' + T.zoomIn + '" title="' + T.zoomIn + '">+</button>' +
+            '    <button type="button" class="scrop-reset">' + T.reset + '</button></div>' +
             '  <div class="scrop-actions">' +
             '    <button type="button" class="btn btn-outline scrop-cancel">' + T.cancel + '</button>' +
             '    <button type="button" class="btn btn-outline scrop-original">' + T.original + '</button>' +
@@ -51,7 +55,7 @@
             stage.style.height = SH + 'px';
 
             var url = URL.createObjectURL(file);
-            var iw = 0, ih = 0, minScale = 1, maxScale = 1, scale = 1, x = 0, y = 0;
+            var iw = 0, ih = 0, fitScale = 1, minScale = 1, maxScale = 1, scale = 1, x = 0, y = 0;
 
             function apply() {
                 img.style.width = (iw * scale) + 'px';
@@ -70,18 +74,20 @@
                 apply();
             }
             function reset() {
-                // Start with the whole picture visible ("contain"); zoom in from there.
-                scale = minScale;
+                // Start with the whole picture visible ("contain"); zoom in or out from there.
+                scale = fitScale;
                 x = (SW - iw * scale) / 2;
                 y = (SH - ih * scale) / 2;
-                range.value = 0;
+                range.value = Math.round((scale - minScale) / (maxScale - minScale || 1) * 100);
                 apply();
             }
 
             img.onload = function () {
                 iw = img.naturalWidth;
                 ih = img.naturalHeight;
-                minScale = Math.min(SW / iw, SH / ih);
+                fitScale = Math.min(SW / iw, SH / ih);
+                // Zoom out to 40% of "fits exactly" (leaves empty space around a logo), in to 4x "fills the frame".
+                minScale = fitScale * 0.4;
                 maxScale = Math.max(SW / iw, SH / ih) * 4;
                 reset();
                 range.focus();
@@ -92,6 +98,8 @@
                 setScale(minScale + (maxScale - minScale) * (range.value / 100));
             });
             dlg.querySelector('.scrop-reset').addEventListener('click', reset);
+            dlg.querySelector('.scrop-in').addEventListener('click', function () { setScale(scale * 1.15); });
+            dlg.querySelector('.scrop-out').addEventListener('click', function () { setScale(scale / 1.15); });
             stage.addEventListener('wheel', function (e) {
                 e.preventDefault();
                 var r = stage.getBoundingClientRect();
@@ -175,5 +183,28 @@
         });
     }
 
-    window.SimdaCropper = { open: open, attach: attach };
+    /**
+     * Re-crop a picture that is already saved: loads it from imageUrl, opens the dialog, and on "Crop"
+     * puts the result into the file input (so saving the form uploads it) and calls onCropped.
+     */
+    function editExisting(input, imageUrl, opts) {
+        opts = opts || {};
+        return fetch(imageUrl, { credentials: 'same-origin' })
+            .then(function (r) { if (!r.ok) throw new Error('load'); return r.blob(); })
+            .then(function (blob) {
+                var name = (imageUrl.split('/').pop() || 'image').split('?')[0];
+                return open(new File([blob], name, { type: blob.type || 'image/png' }), opts);
+            })
+            .then(function (result) {
+                if (!result) return;
+                try {
+                    var dt = new DataTransfer();
+                    dt.items.add(result);
+                    input.files = dt.files;
+                } catch (e) { /* the saved picture stays as it is */ }
+                if (typeof opts.onCropped === 'function') opts.onCropped(result, URL.createObjectURL(result));
+            });
+    }
+
+    window.SimdaCropper = { open: open, attach: attach, editExisting: editExisting };
 })();

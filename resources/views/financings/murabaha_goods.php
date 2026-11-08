@@ -50,6 +50,9 @@ $v = static fn(string $k, $default = '') => $edit[$k] ?? $default;
                     </span>
                 </label>
                 <input type="file" name="image" id="goodsImage" accept="image/jpeg,image/png,image/webp" hidden>
+                <button type="button" class="pt-crop-btn" id="goodsImageCrop" data-src="<?= Security::e((string) $v('image_path')) ?>" <?= $v('image_path') ? '' : 'hidden' ?>>
+                    <?= Icons::svg('edit', 13) ?> <?= $isSo ? 'Jar / Weynee sawirka' : 'Crop / Zoom picture' ?>
+                </button>
                 <?php if ($v('image_path')): ?>
                     <label class="mg-remove"><input type="checkbox" name="remove_image" value="1"> <?= $isSo ? 'Ka saar sawirka' : 'Remove image' ?></label>
                 <?php endif; ?>
@@ -175,15 +178,22 @@ $v = static fn(string $k, $default = '') => $edit[$k] ?? $default;
     const file = document.getElementById('goodsImage');
     const img = document.getElementById('goodsImagePreview');
     const empty = document.getElementById('goodsImageEmpty');
-    // Choosing a picture opens the crop dialog (4:3, the shape products are shown in).
-    SimdaCropper.attach(file, {
+    const cropBtn = document.getElementById('goodsImageCrop');
+    // 4:3 crop, the shape products are shown in. Used for a new file and for re-cropping.
+    const cropOpts = {
         aspect: 4 / 3,
         outWidth: 800,
         onCropped: function (f, url) {
             img.src = url;
             img.hidden = false;
             empty.hidden = true;
+            cropBtn.hidden = false;
+            cropBtn.dataset.src = url;
         }
+    };
+    SimdaCropper.attach(file, cropOpts);
+    cropBtn.addEventListener('click', function () {
+        if (cropBtn.dataset.src) SimdaCropper.editExisting(file, cropBtn.dataset.src, cropOpts);
     });
     const price = document.getElementById('goodsPrice');
     const markup = document.getElementById('goodsMarkup');
