@@ -38,9 +38,12 @@ final class MailService
     ): array {
         $host = (string) Env::get('MAIL_HOST', 'smtp.gmail.com');
         $port = (int) Env::get('MAIL_PORT', 465);
-        $username = (string) Env::get('MAIL_USERNAME', 'anasrk85@gmail.com');
-        $rawPassword = (string) Env::get('MAIL_PASSWORD', 'pcxgozgqinnputbo');
-        $password = str_replace(' ', '', $rawPassword);
+        // Credentials come from .env only; never hard-code them here.
+        $username = trim((string) Env::get('MAIL_USERNAME', ''));
+        $password = str_replace(' ', '', (string) Env::get('MAIL_PASSWORD', ''));
+        if ($username === '' || $password === '') {
+            return ['success' => false, 'error' => 'Mail is not configured: set MAIL_USERNAME and MAIL_PASSWORD in .env.'];
+        }
         $fromEmail = (string) Env::get('MAIL_FROM_ADDRESS', $username);
         $fromName = (string) Env::get('MAIL_FROM_NAME', 'SIMDA Somali Islamic Microfinance');
         $encryption = (string) Env::get('MAIL_ENCRYPTION', 'ssl');
