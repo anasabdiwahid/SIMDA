@@ -96,116 +96,156 @@ $kpis = [
             </div>
         </div>
 
-        <div class="rq-list" id="queueList" data-filter-list>
-            <?php foreach ($queue as $q): ?>
-                <?php
-                $isCreator = ((int) $q['created_by'] === $currentUserId) && (($user['role_slug'] ?? '') !== 'admin');
-                $isMurabaha = $q['product_type'] === 'murabaha';
-                $level = $levelOf((string) $q['approval_level']);
-                $term = (int) $q['term_installments'];
-                $weekly = $q['repayment_frequency'] === 'weekly';
-                $perInstallment = $term > 0 ? (float) $q['projected_total_due'] / $term : (float) $q['projected_total_due'];
-                $termText = $isSo
-                    ? $term . ' qaybood oo ' . ($weekly ? 'toddobaadle' : 'bille') . ' ah'
-                    : $term . ' ' . ($weekly ? 'weekly' : 'monthly') . ' installments';
-                // Murabaha goods are saved as "Item name — description"; show the name on its own.
-                $goods = trim((string) ($q['murabaha_goods_description'] ?? ''));
-                $goodsParts = $goods !== '' ? explode(' — ', $goods, 2) : [];
-                $itemName = $goodsParts[0] ?? '';
-                $itemDesc = $goodsParts[1] ?? '';
-                $hist = $q['history'] ?? [];
-                $histLate = count(array_filter($hist, static fn($h) => $h['late']));
-                $histOpen = count(array_filter($hist, static fn($h) => $h['state'] === 'processing'));
-                $city = trim(($q['client_city'] ?? '') . ', ' . ($q['client_district'] ?? ''), ', ');
-                ?>
-                <article class="rq-card <?= $histLate ? 'is-risky' : '' ?>" data-filter-item data-level="<?= Security::e($level) ?>">
-                    <header class="rq-head">
-                        <div class="rq-who">
-                            <span class="rq-avatar"><?= Security::e(Security::initials((string) $q['client_name'])) ?></span>
-                            <div>
-                                <h3><?= Security::e($q['client_name']) ?></h3>
-                                <span class="num-tabular"><?= Security::e($q['client_code']) ?> · <span dir="ltr"><?= Security::e($q['client_phone']) ?></span></span>
-                            </div>
-                        </div>
-                        <div class="rq-money">
-                            <strong class="num-tabular"><?= Security::formatMoney($q['requested_amount']) ?></strong>
-                            <span class="num-tabular">
-                                <?= $isSo ? 'Wadarta' : 'Total' ?> <?= Security::formatMoney($q['projected_total_due']) ?>
-                                · <?= Security::formatMoney($perInstallment) ?>/<?= $weekly ? ($isSo ? 'toddobaad' : 'wk') : ($isSo ? 'bishii' : 'mo') ?>
-                            </span>
-                        </div>
-                    </header>
-
-                    <div class="rq-tags">
-                        <span class="rq-tag is-<?= $isMurabaha ? 'gold' : 'green' ?>"><?= Icons::svg($isMurabaha ? 'shopping-bag' : 'credit-card', 13) ?> <?= $isMurabaha ? ($isSo ? 'Murabaxo' : 'Murabaha') : ($isSo ? 'Dayn Cadaan' : 'Cash Loan') ?></span>
-                        <span class="rq-tag is-info"><?= Icons::svg('user-check', 13) ?> <?= Security::e($levelLabel($level)) ?></span>
-                        <span class="rq-tag"><?= Icons::svg('bar-chart', 13) ?> <?= $isSo ? 'Dhibcaha' : 'Score' ?> <?= (int) ($q['current_score'] ?? 600) ?></span>
-                        <span class="rq-tag is-wait"><?= Icons::svg('clock', 13) ?> <?= Security::e($ago($q['submitted_at'] ?? null)) ?></span>
-                    </div>
-
-                    <div class="rq-grid">
-                        <section class="rq-panel">
-                            <h4><?= Icons::svg('file-text', 14) ?> <?= $isSo ? 'Codsiga' : 'Request' ?></h4>
-                            <?php if ($itemName !== ''): ?>
-                                <div class="rq-item">
-                                    <strong><?= Security::e($itemName) ?></strong>
-                                    <?php if ($itemDesc !== ''): ?><span><?= Security::e($itemDesc) ?></span><?php endif; ?>
+        <div class="rq-table-card">
+            <table class="rq-table" id="queueList" data-filter-list>
+                <thead>
+                    <tr>
+                        <th><?= $isSo ? 'Macmiilka' : 'Client' ?></th>
+                        <th><?= $isSo ? 'Nooca' : 'Type' ?></th>
+                        <th class="rq-num"><?= $isSo ? 'Lacagta' : 'Amount' ?></th>
+                        <th><?= $isSo ? 'Muddada' : 'Term' ?></th>
+                        <th><?= $isSo ? 'Waxaa diray' : 'Sent by' ?></th>
+                        <th><?= $isSo ? 'Sugaya' : 'Waiting' ?></th>
+                        <th><?= $isSo ? 'Taariikhda' : 'History' ?></th>
+                        <th class="rq-chev-col" aria-label="<?= $isSo ? 'Fur' : 'Open' ?>"></th>
+                    </tr>
+                </thead>
+                <?php foreach ($queue as $i => $q): ?>
+                    <?php
+                    $isCreator = ((int) $q['created_by'] === $currentUserId) && (($user['role_slug'] ?? '') !== 'admin');
+                    $isMurabaha = $q['product_type'] === 'murabaha';
+                    $level = $levelOf((string) $q['approval_level']);
+                    $term = (int) $q['term_installments'];
+                    $weekly = $q['repayment_frequency'] === 'weekly';
+                    $perInstallment = $term > 0 ? (float) $q['projected_total_due'] / $term : (float) $q['projected_total_due'];
+                    $termText = $isSo
+                        ? $term . ' qaybood oo ' . ($weekly ? 'toddobaadle' : 'bille') . ' ah'
+                        : $term . ' ' . ($weekly ? 'weekly' : 'monthly') . ' installments';
+                    // Murabaha goods are saved as "Item name — description"; show the name on its own.
+                    $goods = trim((string) ($q['murabaha_goods_description'] ?? ''));
+                    $goodsParts = $goods !== '' ? explode(' — ', $goods, 2) : [];
+                    $itemName = $goodsParts[0] ?? '';
+                    $itemDesc = $goodsParts[1] ?? '';
+                    $hist = $q['history'] ?? [];
+                    $histLate = count(array_filter($hist, static fn($h) => $h['late']));
+                    $histOpen = count(array_filter($hist, static fn($h) => $h['state'] === 'processing'));
+                    $city = trim(($q['client_city'] ?? '') . ', ' . ($q['client_district'] ?? ''), ', ');
+                    $detailId = 'rqDetail' . (int) $q['id'];
+                    ?>
+                    <tbody class="rq-group <?= $histLate ? 'is-risky' : '' ?>" data-filter-item data-level="<?= Security::e($level) ?>"
+                           data-search="<?= Security::e(mb_strtolower($q['client_name'] . ' ' . $q['client_code'] . ' ' . $q['client_phone'] . ' ' . $q['application_number'] . ' ' . $q['creator_name'] . ' ' . $itemName . ' ' . $q['branch_name'])) ?>">
+                        <tr class="rq-row" tabindex="0" role="button" aria-expanded="false" aria-controls="<?= $detailId ?>">
+                            <td>
+                                <div class="rq-who">
+                                    <span class="rq-avatar"><?= Security::e(Security::initials((string) $q['client_name'])) ?></span>
+                                    <div>
+                                        <strong><?= Security::e($q['client_name']) ?></strong>
+                                        <span class="num-tabular"><?= Security::e($q['client_code']) ?></span>
+                                    </div>
                                 </div>
-                            <?php endif; ?>
-                            <dl class="rq-dl">
-                                <div><dt><?= $isSo ? 'Lambarka' : 'Number' ?></dt><dd class="num-tabular"><?= Security::e($q['application_number']) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Muddada' : 'Term' ?></dt><dd><?= Security::e($termText) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Ujeeddada' : 'Purpose' ?></dt><dd><?= Security::e($dash($q['purpose'])) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Laanta' : 'Branch' ?></dt><dd><?= Security::e($q['branch_name']) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Waxaa diray' : 'Sent by' ?></dt><dd><?= Security::e($q['creator_name']) ?> <small class="num-tabular"><?= !empty($q['submitted_at']) ? Security::e(date('d/m/Y H:i', strtotime((string) $q['submitted_at']))) : '' ?></small></dd></div>
-                                <?php if (!empty($q['from_form'])): ?>
-                                    <div><dt><?= $isSo ? 'Lacagta loo dirayo' : 'Pay out to' ?></dt><dd><?= Security::e($dash($q['payout_provider'])) ?> · <span dir="ltr" class="num-tabular"><?= Security::e($dash($q['payout_phone'])) ?></span></dd></div>
+                            </td>
+                            <td>
+                                <span class="rq-tag is-<?= $isMurabaha ? 'gold' : 'green' ?>"><?= $isMurabaha ? ($isSo ? 'Murabaxo' : 'Murabaha') : ($isSo ? 'Dayn' : 'Cash Loan') ?></span>
+                                <?php if ($itemName !== ''): ?><div class="rq-sub"><?= Security::e($itemName) ?></div><?php endif; ?>
+                            </td>
+                            <td class="rq-num">
+                                <strong class="num-tabular"><?= Security::formatMoney($q['requested_amount']) ?></strong>
+                                <div class="rq-sub num-tabular"><?= Security::formatMoney($perInstallment) ?>/<?= $weekly ? ($isSo ? 'toddobaad' : 'wk') : ($isSo ? 'bishii' : 'mo') ?></div>
+                            </td>
+                            <td><?= Security::e($termText) ?></td>
+                            <td>
+                                <?= Security::e($q['creator_name']) ?>
+                                <div class="rq-sub"><?= Security::e($q['branch_name']) ?></div>
+                            </td>
+                            <td><span class="rq-tag is-wait"><?= Icons::svg('clock', 12) ?> <?= Security::e($ago($q['submitted_at'] ?? null)) ?></span></td>
+                            <td>
+                                <?php if ($histLate): ?>
+                                    <span class="rq-tag is-late"><?= Icons::svg('alert-triangle', 12) ?> <?= $isSo ? 'Waqtigii kuma bixin' : 'Paid late' ?></span>
+                                <?php elseif ($hist): ?>
+                                    <span class="rq-tag is-wait"><?= count($hist) ?> <?= $isSo ? 'hore' : 'before' ?><?= $histOpen ? ' · ' . $histOpen . ($isSo ? ' socota' : ' open') : '' ?></span>
+                                <?php else: ?>
+                                    <span class="rq-tag is-green"><?= $isSo ? 'Cusub' : 'New' ?></span>
                                 <?php endif; ?>
-                            </dl>
-                        </section>
+                            </td>
+                            <td class="rq-chev-col"><span class="rq-chev"><?= Icons::svg('chevron-down', 18) ?></span></td>
+                        </tr>
+                        <tr class="rq-detail" id="<?= $detailId ?>" hidden>
+                            <td colspan="8">
+                                <div class="rq-detail-inner">
+                                    <div class="rq-tags">
+                                        <span class="rq-tag is-info"><?= Icons::svg('user-check', 13) ?> <?= Security::e($levelLabel($level)) ?></span>
+                                        <span class="rq-tag"><?= Icons::svg('bar-chart', 13) ?> <?= $isSo ? 'Dhibcaha' : 'Score' ?> <?= (int) ($q['current_score'] ?? 600) ?></span>
+                                        <span class="rq-tag"><?= $isSo ? 'Wadarta la celinayo' : 'Total to repay' ?> <?= Security::formatMoney($q['projected_total_due']) ?></span>
+                                    </div>
 
-                        <section class="rq-panel">
-                            <h4><?= Icons::svg('user', 14) ?> <?= $isSo ? 'Macmiilka' : 'Client' ?>
-                                <a href="?route=client_view&id=<?= (int) $q['client_row_id'] ?>" class="rq-link"><?= $isSo ? 'Fur bogga' : 'Open profile' ?> <?= Icons::svg('arrow-right', 12) ?></a>
-                            </h4>
-                            <dl class="rq-dl">
-                                <div><dt>Email</dt><dd><?= Security::e($dash($q['client_email'] ?? '')) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Aqoonsiga' : 'ID number' ?></dt><dd class="num-tabular"><?= Security::e($dash($q['client_id_number'] ?? '')) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Magaalada' : 'City' ?></dt><dd><?= Security::e($dash($city)) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Ganacsiga' : 'Business' ?></dt><dd><?= Security::e($dash($q['business_type'] ?? '')) ?></dd></div>
-                                <div><dt><?= $isSo ? 'Dakhliga bishii' : 'Monthly income' ?></dt><dd class="num-tabular"><?= (float) ($q['monthly_income'] ?? 0) > 0 ? Security::formatMoney($q['monthly_income']) : '—' ?></dd></div>
-                                <div><dt><?= $isSo ? 'Damiinka' : 'Guarantor' ?></dt><dd><?= Security::e($dash($q['guarantor_name'] ?? '')) ?><?php if (!empty($q['guarantor_phone'])): ?> <small dir="ltr" class="num-tabular"><?= Security::e($q['guarantor_phone']) ?></small><?php endif; ?></dd></div>
-                            </dl>
-                        </section>
-                    </div>
+                                    <div class="rq-grid">
+                                        <section class="rq-panel">
+                                            <h4><?= Icons::svg('file-text', 14) ?> <?= $isSo ? 'Codsiga' : 'Request' ?></h4>
+                                            <?php if ($itemName !== ''): ?>
+                                                <div class="rq-item">
+                                                    <strong><?= Security::e($itemName) ?></strong>
+                                                    <?php if ($itemDesc !== ''): ?><span><?= Security::e($itemDesc) ?></span><?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            <dl class="rq-dl">
+                                                <div><dt><?= $isSo ? 'Lambarka' : 'Number' ?></dt><dd class="num-tabular"><?= Security::e($q['application_number']) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Muddada' : 'Term' ?></dt><dd><?= Security::e($termText) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Ujeeddada' : 'Purpose' ?></dt><dd><?= Security::e($dash($q['purpose'])) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Laanta' : 'Branch' ?></dt><dd><?= Security::e($q['branch_name']) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Waxaa diray' : 'Sent by' ?></dt><dd><?= Security::e($q['creator_name']) ?> <small class="num-tabular"><?= !empty($q['submitted_at']) ? Security::e(date('d/m/Y H:i', strtotime((string) $q['submitted_at']))) : '' ?></small></dd></div>
+                                                <?php if (!empty($q['from_form'])): ?>
+                                                    <div><dt><?= $isSo ? 'Lacagta loo dirayo' : 'Pay out to' ?></dt><dd><?= Security::e($dash($q['payout_provider'])) ?> · <span dir="ltr" class="num-tabular"><?= Security::e($dash($q['payout_phone'])) ?></span></dd></div>
+                                                <?php endif; ?>
+                                            </dl>
+                                        </section>
 
-                    <div class="rq-history <?= $histLate ? 'is-late' : ($hist ? 'is-known' : 'is-new') ?>">
-                        <?= Icons::svg($histLate ? 'alert-triangle' : ($hist ? 'info' : 'check-circle'), 15) ?>
-                        <span>
-                            <?php if (!$hist): ?>
-                                <?= $isSo ? 'Macmiil cusub: dayn ama Murabaxo hore ma qaadan.' : 'New client: no previous loan or Murabaha.' ?>
-                            <?php else: ?>
-                                <?= $isSo ? count($hist) . ' maalgelin hore · ' . $histOpen . ' weli socota' : count($hist) . ' previous financing · ' . $histOpen . ' still being repaid' ?>
-                                <?php if ($histLate): ?> · <strong><?= $isSo ? $histLate . ' waqtigii laguma bixin' : $histLate . ' not paid on time' ?></strong><?php endif; ?>
-                            <?php endif; ?>
-                        </span>
-                    </div>
+                                        <section class="rq-panel">
+                                            <h4><?= Icons::svg('user', 14) ?> <?= $isSo ? 'Macmiilka' : 'Client' ?>
+                                                <a href="?route=client_view&id=<?= (int) $q['client_row_id'] ?>" class="rq-link"><?= $isSo ? 'Fur bogga' : 'Open profile' ?> <?= Icons::svg('arrow-right', 12) ?></a>
+                                            </h4>
+                                            <dl class="rq-dl">
+                                                <div><dt><?= $isSo ? 'Telefoonka' : 'Phone' ?></dt><dd dir="ltr" class="num-tabular"><?= Security::e($dash($q['client_phone'] ?? '')) ?></dd></div>
+                                                <div><dt>Email</dt><dd><?= Security::e($dash($q['client_email'] ?? '')) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Aqoonsiga' : 'ID number' ?></dt><dd class="num-tabular"><?= Security::e($dash($q['client_id_number'] ?? '')) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Magaalada' : 'City' ?></dt><dd><?= Security::e($dash($city)) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Ganacsiga' : 'Business' ?></dt><dd><?= Security::e($dash($q['business_type'] ?? '')) ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Dakhliga bishii' : 'Monthly income' ?></dt><dd class="num-tabular"><?= (float) ($q['monthly_income'] ?? 0) > 0 ? Security::formatMoney($q['monthly_income']) : '—' ?></dd></div>
+                                                <div><dt><?= $isSo ? 'Damiinka' : 'Guarantor' ?></dt><dd><?= Security::e($dash($q['guarantor_name'] ?? '')) ?><?php if (!empty($q['guarantor_phone'])): ?> <small dir="ltr" class="num-tabular"><?= Security::e($q['guarantor_phone']) ?></small><?php endif; ?></dd></div>
+                                            </dl>
+                                        </section>
+                                    </div>
 
-                    <footer class="rq-foot">
-                        <?php if ($isCreator): ?>
-                            <span class="adm-status is-warn"><?= $isSo ? 'Adigaa sameeyay: qof kale ayaa go\'aaminaya' : 'You created this: someone else must decide' ?></span>
-                        <?php else: ?>
-                            <form method="POST" action="?route=application_review" class="apq-decide rq-decide" data-confirm="<?= $isSo ? "Ma hubtaa go'aankan?" : 'Confirm this decision?' ?>">
-                                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-                                <input type="hidden" name="application_id" value="<?= (int) $q['id'] ?>">
-                                <input type="text" name="comments" class="form-control" maxlength="500" placeholder="<?= $isSo ? 'Faallo: waa qasab haddii aad diiddo (macmiilka ayaa loo dirayaa)' : 'Note: required to reject (emailed to the client)' ?>" aria-label="<?= $isSo ? 'Faallo' : 'Note' ?>">
-                                <button type="submit" name="decision" value="rejected" class="btn rq-reject"><?= Icons::svg('x-circle', 15) ?> <span><?= $isSo ? 'Diid' : 'Reject' ?></span></button>
-                                <button type="submit" name="decision" value="approved" class="btn rq-approve"><?= Icons::svg('check-circle', 15) ?> <span><?= !empty($q['from_form']) ? ($isSo ? 'Aqbal & Bixi' : 'Approve & Pay Out') : ($isSo ? 'Aqbal' : 'Approve') ?></span></button>
-                            </form>
-                        <?php endif; ?>
-                    </footer>
-                </article>
-            <?php endforeach; ?>
+                                    <div class="rq-history <?= $histLate ? 'is-late' : ($hist ? 'is-known' : 'is-new') ?>">
+                                        <?= Icons::svg($histLate ? 'alert-triangle' : ($hist ? 'info' : 'check-circle'), 15) ?>
+                                        <span>
+                                            <?php if (!$hist): ?>
+                                                <?= $isSo ? 'Macmiil cusub: dayn ama Murabaxo hore ma qaadan.' : 'New client: no previous loan or Murabaha.' ?>
+                                            <?php else: ?>
+                                                <?= $isSo ? count($hist) . ' maalgelin hore · ' . $histOpen . ' weli socota' : count($hist) . ' previous financing · ' . $histOpen . ' still being repaid' ?>
+                                                <?php if ($histLate): ?> · <strong><?= $isSo ? $histLate . ' waqtigii laguma bixin' : $histLate . ' not paid on time' ?></strong><?php endif; ?>
+                                            <?php endif; ?>
+                                        </span>
+                                    </div>
+
+                                    <div class="rq-foot">
+                                        <?php if ($isCreator): ?>
+                                            <span class="adm-status is-warn"><?= $isSo ? 'Adigaa sameeyay: qof kale ayaa go\'aaminaya' : 'You created this: someone else must decide' ?></span>
+                                        <?php else: ?>
+                                            <form method="POST" action="?route=application_review" class="apq-decide rq-decide" data-confirm="<?= $isSo ? "Ma hubtaa go'aankan?" : 'Confirm this decision?' ?>">
+                                                <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
+                                                <input type="hidden" name="application_id" value="<?= (int) $q['id'] ?>">
+                                                <input type="text" name="comments" class="form-control" maxlength="500" placeholder="<?= $isSo ? 'Faallo: waa qasab haddii aad diiddo (macmiilka ayaa loo dirayaa)' : 'Note: required to reject (emailed to the client)' ?>" aria-label="<?= $isSo ? 'Faallo' : 'Note' ?>">
+                                                <button type="submit" name="decision" value="rejected" class="btn rq-reject"><?= Icons::svg('x-circle', 15) ?> <span><?= $isSo ? 'Diid' : 'Reject' ?></span></button>
+                                                <button type="submit" name="decision" value="approved" class="btn rq-approve"><?= Icons::svg('check-circle', 15) ?> <span><?= !empty($q['from_form']) ? ($isSo ? 'Aqbal & Bixi' : 'Approve & Pay Out') : ($isSo ? 'Aqbal' : 'Approve') ?></span></button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                <?php endforeach; ?>
+            </table>
         </div>
         <div class="adm-table-card" data-filter-empty="queueList" hidden>
             <div class="dash-empty">
@@ -231,4 +271,30 @@ document.querySelectorAll('.apq-decide').forEach(function (form) {
         }
     });
 });
+</script>
+
+<script>
+// Click (or Enter / Space) on a request row to open its full details; one open at a time.
+(function () {
+    const rows = Array.from(document.querySelectorAll('.rq-row'));
+    function setOpen(row, open) {
+        const detail = document.getElementById(row.getAttribute('aria-controls'));
+        row.setAttribute('aria-expanded', open ? 'true' : 'false');
+        row.closest('.rq-group').classList.toggle('is-open', open);
+        if (detail) detail.hidden = !open;
+    }
+    rows.forEach(function (row) {
+        function toggle() {
+            const open = row.getAttribute('aria-expanded') !== 'true';
+            rows.forEach(function (r) { if (r !== row) setOpen(r, false); });
+            setOpen(row, open);
+        }
+        row.addEventListener('click', toggle);
+        row.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+    });
+    // With a single request, show it straight away.
+    if (rows.length === 1) setOpen(rows[0], true);
+})();
 </script>
