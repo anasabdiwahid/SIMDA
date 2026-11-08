@@ -152,6 +152,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     ['route' => 'branches', 'label' => Lang::get('menu_branches'), 'show' => $can('branches.manage'), 'active' => $on(['branches'])],
                     ['route' => 'permissions', 'label' => $so ? 'Awoodaha' : 'Permissions', 'show' => $role === 'admin', 'active' => $on(['permissions'])],
                     ['route' => 'audit_logs', 'label' => $so ? 'Diiwaanka Dhaqdhaqaaqa' : 'Audit Logs', 'show' => $role === 'admin', 'active' => $on(['audit_logs'])],
+                    ['route' => 'partners', 'label' => $so ? 'La-hawlgalayaasha (Partners)' : 'Partners', 'show' => $role === 'admin', 'active' => $on(['partners'])],
                     ['route' => 'settings', 'label' => $so ? 'Dejinta' : 'Settings', 'show' => $role === 'admin', 'active' => $on(['settings'])],
                 ],
             ],

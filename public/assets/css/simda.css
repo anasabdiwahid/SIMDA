@@ -7593,3 +7593,64 @@ th.fin-end {
 .rqd-score.is-danger b { color: var(--color-danger); }
 .rqd-score.is-muted { border-color: var(--border-strong); }
 .rqd-score.is-muted b { color: var(--text-secondary); }
+
+/* ==========================================================================
+   PARTNERS: home page logo cloud (pt-) + admin page
+   ========================================================================== */
+.pt-section { overflow: hidden; }
+.pt-head { text-align: center; max-width: 620px; margin: 0 auto 30px; }
+.pt-head p { color: #5B6B64; font-size: 0.95rem; line-height: 1.6; margin: 8px 0 0; }
+.pt-cloud { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 18px 34px; padding: 10px 0 30px; }
+
+.pt-bubble { --size: 110px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: calc(var(--size) + 30px); text-decoration: none; color: inherit; transition-delay: calc(var(--i) * 70ms); }
+/* Varied sizes and heights give the scattered "cloud" look */
+.pt-bubble:nth-child(5n + 1) { --size: 120px; margin-top: 30px; }
+.pt-bubble:nth-child(5n + 2) { --size: 92px; margin-top: 0; }
+.pt-bubble:nth-child(5n + 3) { --size: 132px; margin-top: 46px; }
+.pt-bubble:nth-child(5n + 4) { --size: 100px; margin-top: 8px; }
+.pt-bubble:nth-child(5n + 5) { --size: 112px; margin-top: 54px; }
+
+.pt-bubble-logo {
+    width: var(--size); height: var(--size); border-radius: 50%;
+    background: #FFFFFF; display: flex; align-items: center; justify-content: center;
+    padding: calc(var(--size) * 0.2);
+    box-shadow: 0 14px 34px rgba(18, 59, 50, 0.12), 0 2px 6px rgba(18, 59, 50, 0.06);
+    animation: pt-float 6s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.9s);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.pt-bubble-logo img { width: 100%; height: 100%; object-fit: contain; }
+.pt-bubble-name { font-size: 0.82rem; font-weight: 700; color: #123B32; text-align: center; line-height: 1.3; opacity: 0.75; transition: opacity 0.2s ease, color 0.2s ease; }
+a.pt-bubble:hover .pt-bubble-logo, a.pt-bubble:focus-visible .pt-bubble-logo { animation-play-state: paused; transform: scale(1.1); box-shadow: 0 20px 44px rgba(18, 59, 50, 0.2), 0 0 0 4px rgba(214, 182, 108, 0.45); }
+a.pt-bubble:hover .pt-bubble-name, a.pt-bubble:focus-visible .pt-bubble-name { opacity: 1; color: #23845B; }
+a.pt-bubble:focus-visible { outline: none; }
+
+@keyframes pt-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pt-bubble-logo { animation: none; }
+}
+@media (max-width: 640px) {
+    .pt-cloud { gap: 14px 18px; }
+    .pt-bubble { --size: 84px !important; margin-top: 0 !important; }
+    .pt-bubble:nth-child(even) { margin-top: 26px !important; }
+}
+[data-theme="dark"] .pt-bubble-logo { background: #F4F5F0; }
+[data-theme="dark"] .pt-bubble-name { color: #E7ECE9; }
+[data-theme="dark"] .pt-head p { color: #A7B5AE; }
+
+/* Admin page */
+.pt-form-body { grid-template-columns: 170px minmax(0, 1fr); }
+.pt-logo-drop { height: 170px !important; border-radius: 50% !important; }
+.pt-logo-drop img { object-fit: contain !important; padding: 22px; background: #fff; }
+.pt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.pt-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 20px 14px 14px !important; }
+.pt-card.is-off { opacity: 0.55; }
+.pt-card-logo { width: 96px; height: 96px; border-radius: 50%; background: #fff; box-shadow: 0 8px 20px rgba(18, 59, 50, 0.1); display: flex; align-items: center; justify-content: center; padding: 18px; margin-bottom: 6px; }
+.pt-card-logo img { width: 100%; height: 100%; object-fit: contain; }
+.pt-card-name { font-size: 0.95rem; }
+.pt-card-link { font-size: 0.78rem; color: var(--color-success); font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-card-link.is-none { color: var(--text-muted); font-weight: 500; }
+.pt-card .mg-actions { align-items: center; justify-content: center; }

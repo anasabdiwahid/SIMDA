@@ -15,6 +15,7 @@ use App\Services\DisbursementService;
 use App\Services\FinancingDomainService;
 use App\Services\MailService;
 use App\Services\MurabahaGoodsService;
+use App\Services\PartnerService;
 use App\Services\Par30Service;
 use App\Services\RepaymentEngine;
 use App\Services\ScheduleEngine;
@@ -92,6 +93,10 @@ final class PortalController
                 'murabaha_goods_save' => self::murabahaGoodsSave($pdo),
                 'murabaha_goods_toggle' => self::murabahaGoodsToggle($pdo),
                 'murabaha_goods_home' => self::murabahaGoodsHomeToggle($pdo),
+                'partners' => self::partnersList($pdo),
+                'partner_save' => self::partnerSave($pdo),
+                'partner_toggle' => self::partnerToggle($pdo),
+                'partner_delete' => self::partnerDelete($pdo),
                 'murabaha_goods_delete' => self::murabahaGoodsDelete($pdo),
                 'financings', 'schedules', 'statements' => self::financingsList($pdo, $route),
                 'financing_view' => self::financingView($pdo),
@@ -207,6 +212,11 @@ final class PortalController
             $homeGoods = MurabahaGoodsService::homeShowcase($pdo);
         } catch (\Throwable $e) {
             $homeGoods = []; // the public home page must still render if the catalog is unavailable
+        }
+        try {
+            $partners = PartnerService::all($pdo, true);
+        } catch (\Throwable $e) {
+            $partners = [];
         }
         require dirname(__DIR__, 2) . '/resources/views/public/home.php';
     }
@@ -2615,6 +2625,50 @@ final class PortalController
             ? ($isSo ? 'Sheyga Murabaxada waa la cusboonaysiiyay.' : 'Murabaha product updated.')
             : ($isSo ? 'Sheyga Murabaxada cusub waa la diiwaangeliyay.' : 'New Murabaha product added.');
         header('Location: ?route=murabaha_goods');
+        exit;
+    }
+
+    private static function partnersList(PDO $pdo): void
+    {
+        AuthMiddleware::requireRoles(['admin']);
+        $editId = (int) ($_GET['edit'] ?? 0);
+        self::renderDashboard('admin/partners.php', [
+            'pageTitle' => self::tr('La-hawlgalayaasha', 'Partners', 'الشركاء'),
+            'partners' => PartnerService::all($pdo),
+            'editItem' => $editId > 0 ? PartnerService::find($pdo, $editId) : null,
+        ]);
+    }
+
+    private static function partnerSave(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $isSo = Lang::locale() === 'so';
+        $id = (int) ($_POST['id'] ?? 0);
+        PartnerService::save($pdo, $id, $_POST, $_FILES['logo'] ?? null, (int) $user['id'], $isSo);
+        $_SESSION['flash_success'] = $id > 0
+            ? ($isSo ? 'La-hawlgalaha waa la cusboonaysiiyay.' : 'Partner updated.')
+            : ($isSo ? 'La-hawlgale cusub ayaa la daray; wuxuu ka muuqdaa bogga Home-ka.' : 'Partner added; it now shows on the home page.');
+        header('Location: ?route=partners');
+        exit;
+    }
+
+    private static function partnerToggle(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        PartnerService::toggle($pdo, (int) ($_POST['id'] ?? 0), (int) $user['id']);
+        header('Location: ?route=partners');
+        exit;
+    }
+
+    private static function partnerDelete(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        PartnerService::delete($pdo, (int) ($_POST['id'] ?? 0), (int) $user['id']);
+        $_SESSION['flash_success'] = Lang::locale() === 'so' ? 'La-hawlgalaha waa la tirtiray.' : 'Partner deleted.';
+        header('Location: ?route=partners');
         exit;
     }
 

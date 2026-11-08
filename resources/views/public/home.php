@@ -474,6 +474,9 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <li><a href="#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="#our-process"><?= Security::e($t['nav_process']) ?></a></li>
             <li><a href="#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
+            <?php if (!empty($partners)): ?>
+                <li><a href="#partners"><?= $locale === 'so' ? 'La-hawlgalayaasha' : ($locale === 'ar' ? 'الشركاء' : 'Partners') ?></a></li>
+            <?php endif; ?>
             <li><a href="?route=faq"><?= Security::e($t['nav_faq']) ?></a></li>
             <li><a href="?route=contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>
@@ -925,6 +928,36 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
         </div>
     </div>
 </section>
+
+<?php if (!empty($partners)): ?>
+<!-- PARTNERS: floating logo bubbles managed by the admin (Administration → Partners). Click opens the partner's site. -->
+<section id="partners" class="fid-section pt-section">
+    <div class="fid-container">
+        <div class="pt-head">
+            <span class="fid-eyebrow"><?= $locale === 'so' ? 'LA-HAWLGALAYAASHA' : ($locale === 'ar' ? 'شركاؤنا' : 'OUR PARTNERS') ?></span>
+            <h2 class="fid-serif-h2"><?= $locale === 'so' ? 'Kuwa aan wada shaqeyno' : ($locale === 'ar' ? 'نعمل معًا من أجل مجتمعنا' : 'Working together for our community') ?></h2>
+            <p><?= $locale === 'so'
+                ? 'Hay\'adaha iyo shirkadaha aan la shaqeyno si aan u gaarsiino maalgelin xalaal ah ganacsatada Soomaaliyeed.'
+                : ($locale === 'ar' ? 'المؤسسات والشركات التي نعمل معها لإيصال التمويل الحلال إلى رواد الأعمال الصوماليين.' : 'The organisations and companies we work with to bring halal financing to Somali entrepreneurs.') ?></p>
+        </div>
+        <div class="pt-cloud" role="list">
+            <?php foreach ($partners as $i => $p): ?>
+                <?php
+                $name = (string) $p['name'];
+                $link = trim((string) ($p['link_url'] ?? ''));
+                $tag = $link !== '' ? 'a' : 'div';
+                ?>
+                <<?= $tag ?> class="pt-bubble reveal-on-scroll" role="listitem" style="--i: <?= (int) $i ?>;"
+                    <?php if ($link !== ''): ?>href="<?= Security::e($link) ?>" target="_blank" rel="noopener noreferrer"<?php endif; ?>
+                    title="<?= Security::e($name) ?>" aria-label="<?= Security::e($name) ?>">
+                    <span class="pt-bubble-logo"><img src="<?= Security::e((string) $p['logo_path']) ?>" alt="<?= Security::e($name) ?>" loading="lazy"></span>
+                    <span class="pt-bubble-name"><?= Security::e($name) ?></span>
+                </<?= $tag ?>>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- 6. FINANCIAL EDUCATION — 4 HORIZONTAL MEDIA CARDS + LIVE SCHEDULE CALCULATOR -->
 <section id="education" class="fid-section">
