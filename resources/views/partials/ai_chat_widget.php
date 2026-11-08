@@ -141,7 +141,7 @@ $aicChips = $aicLocale === 'so'
 
 <style>
 .aic { --aic-green: #123B32; --aic-green-2: #1E5A4A; --aic-gold: #D6B66C; --aic-bg: #FFFFFF; --aic-soft: #F5F2EB; --aic-ink: #1D2B26; --aic-muted: #6A756F; --aic-line: #ECE7DD;
-       position: fixed; bottom: 30px; inset-inline-end: 12px; z-index: 1200; font-family: inherit; }
+       position: fixed; bottom: 30px; inset-inline-end: 12px; z-index: 10000; font-family: inherit; }
 [data-theme="dark"] .aic { --aic-bg: #13231D; --aic-soft: #1A2E27; --aic-ink: #EDF1EE; --aic-muted: #9AA7A0; --aic-line: #2A4239; }
 
 /* ---- Robot button ---- */
@@ -202,7 +202,7 @@ $aicChips = $aicLocale === 'so'
 .aic-hint.is-shown { opacity: 1; transform: none; pointer-events: auto; cursor: pointer; }
 .aic.is-open .aic-hint { display: none; }
 
-.aic-panel { position: absolute; bottom: 100px; inset-inline-end: 0; width: 370px; height: min(560px, calc(100vh - 150px));
+.aic-panel { position: absolute; bottom: 100px; inset-inline-end: 0; width: 370px; height: min(540px, max(300px, calc(100vh - 240px)));
              display: flex; flex-direction: column; overflow: hidden; border-radius: 22px; background: var(--aic-bg); color: var(--aic-ink);
              border: 1px solid var(--aic-line); box-shadow: 0 24px 60px rgba(6, 26, 21, 0.28); transform-origin: bottom right; animation: aicIn 0.22s ease-out; }
 [dir="rtl"] .aic-panel { transform-origin: bottom left; }
