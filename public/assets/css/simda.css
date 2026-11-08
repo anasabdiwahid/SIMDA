@@ -7407,3 +7407,22 @@ th.fin-end {
 .sb-register-btn svg:last-child { display: none; }
 .sb-register-btn { gap: 0.5em; padding: 0.6em 0.65em; }
 
+
+/* Sidebar: Requests button with pending counter */
+.sidebar .sb-requests .sidebar-text { flex: 1; }
+.sb-count { min-width: 1.6em; height: 1.6em; padding: 0 0.45em; border-radius: 1em; background: var(--color-danger); color: #fff; font-size: 0.78em; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.sidebar .sb-requests.has-pending:not(.active) { color: #fff; font-weight: 600; }
+
+/* Requests page: client details, history line, reject reason */
+.apq-more { margin: 10px 0 0; border: 1px solid var(--border-color); border-radius: 10px; padding: 0 12px; }
+.apq-more summary { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 9px 0; font-size: 0.84rem; font-weight: 700; color: var(--text-secondary); list-style: none; }
+.apq-more summary::-webkit-details-marker { display: none; }
+.apq-more[open] summary { border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
+.apq-facts-client { margin-bottom: 8px; }
+.apq-profile-link { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 700; color: var(--color-success); margin: 0 0 10px; }
+.apq-history { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 9px 12px; border-radius: 10px; font-size: 0.82rem; }
+.apq-history svg { flex-shrink: 0; }
+.apq-history.is-new { background: var(--color-success-bg); color: var(--color-success); }
+.apq-history.is-known { background: var(--color-warning-bg); color: #8A6216; }
+.apq-history.is-late { background: var(--color-danger-bg); color: var(--color-danger); border: 1px solid var(--color-danger); }
+.apq-decide .form-control.is-invalid { border-color: var(--color-danger); box-shadow: 0 0 0 3px var(--color-danger-bg); }

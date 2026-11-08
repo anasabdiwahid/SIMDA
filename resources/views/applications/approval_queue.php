@@ -106,6 +106,43 @@ $kpis = [
                         <div class="apq-wide"><dt><?= $isSo ? 'Ujeeddada' : 'Purpose' ?></dt><dd><?= Security::e($q['purpose']) ?><?= !empty($q['murabaha_goods_description']) ? ' · ' . Security::e($q['murabaha_goods_description']) : '' ?></dd></div>
                     </dl>
 
+                    <?php
+                    $dash = static fn($v): string => ($v === null || trim((string) $v) === '') ? '—' : (string) $v;
+                    $hist = $q['history'] ?? [];
+                    $histLate = count(array_filter($hist, static fn($h) => $h['late']));
+                    $histOpen = count(array_filter($hist, static fn($h) => $h['state'] === 'processing'));
+                    ?>
+                    <details class="apq-more">
+                        <summary><?= Icons::svg('user', 14) ?> <?= $isSo ? 'Xogta macmiilka' : 'Client details' ?></summary>
+                        <dl class="apq-facts apq-facts-client">
+                            <div><dt>Email</dt><dd><?= Security::e($dash($q['client_email'] ?? '')) ?></dd></div>
+                            <div><dt><?= $isSo ? 'Aqoonsiga' : 'ID number' ?></dt><dd class="num-tabular"><?= Security::e($dash($q['client_id_number'] ?? '')) ?></dd></div>
+                            <div><dt><?= $isSo ? 'Magaalada' : 'City' ?></dt><dd><?= Security::e($dash(trim(($q['client_city'] ?? '') . ', ' . ($q['client_district'] ?? ''), ', '))) ?></dd></div>
+                            <div><dt><?= $isSo ? 'Dakhliga bishii' : 'Monthly income' ?></dt><dd class="num-tabular"><?= Security::formatMoney($q['monthly_income'] ?? 0) ?></dd></div>
+                            <div><dt><?= $isSo ? 'Damiinka' : 'Guarantor' ?></dt><dd><?= Security::e($dash($q['guarantor_name'] ?? '')) ?><?= !empty($q['guarantor_phone']) ? ' · ' . Security::e($q['guarantor_phone']) : '' ?></dd></div>
+                            <?php if (!empty($q['from_form'])): ?>
+                                <div><dt><?= $isSo ? 'Lacagta loo dirayo' : 'Pay out to' ?></dt><dd><?= Security::e($dash($q['payout_provider'])) ?> · <span dir="ltr"><?= Security::e($dash($q['payout_phone'])) ?></span></dd></div>
+                            <?php endif; ?>
+                        </dl>
+                        <a href="?route=client_view&id=<?= (int) $q['client_row_id'] ?>" class="apq-profile-link"><?= Icons::svg('eye', 13) ?> <?= $isSo ? 'Fur bogga macmiilka' : 'Open client profile' ?></a>
+                    </details>
+
+                    <div class="apq-history <?= $histLate ? 'is-late' : ($hist ? 'is-known' : 'is-new') ?>">
+                        <?= Icons::svg($histLate ? 'alert-triangle' : ($hist ? 'info' : 'check-circle'), 15) ?>
+                        <span>
+                            <?php if (!$hist): ?>
+                                <?= $isSo ? 'Macmiil cusub: dayn hore ma qaadan.' : 'New client: no previous financing.' ?>
+                            <?php else: ?>
+                                <?= $isSo
+                                    ? count($hist) . ' maalgelin hore · ' . $histOpen . ' socota'
+                                    : count($hist) . ' previous financing · ' . $histOpen . ' in progress' ?>
+                                <?php if ($histLate): ?>
+                                    · <strong><?= $isSo ? $histLate . ' waqtigii laguma bixin' : $histLate . ' not paid on time' ?></strong>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+
                     <div class="apq-foot">
                         <?php if ($isCreator): ?>
                             <span class="adm-status is-warn"><?= $isSo ? 'Adigaa sameeyay: qof kale ayaa ogolaanaya' : 'Created by you: someone else must approve it' ?></span>
@@ -113,8 +150,8 @@ $kpis = [
                             <form method="POST" action="?route=application_review" class="apq-decide" data-confirm="<?= $isSo ? "Ma hubtaa go'aankan?" : 'Confirm this decision?' ?>">
                                 <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                                 <input type="hidden" name="application_id" value="<?= (int) $q['id'] ?>">
-                                <input type="text" name="comments" class="form-control" required placeholder="<?= $isSo ? 'Faallo ama shuruudo...' : 'Comments or conditions...' ?>" aria-label="<?= $isSo ? 'Faallo' : 'Comments' ?>">
-                                <button type="submit" name="decision" value="approved" class="btn btn-sm btn-primary"><?= Icons::svg('check-circle', 14) ?> <span><?= $isSo ? 'Aqbal' : 'Approve' ?></span></button>
+                                <input type="text" name="comments" class="form-control" maxlength="500" placeholder="<?= $isSo ? 'Faallo (waa qasab haddii aad diiddo; macmiilka ayaa loo dirayaa)' : 'Note (required to reject; it is emailed to the client)' ?>" aria-label="<?= $isSo ? 'Faallo' : 'Comments' ?>">
+                                <button type="submit" name="decision" value="approved" class="btn btn-sm btn-primary"><?= Icons::svg('check-circle', 14) ?> <span><?= !empty($q['from_form']) ? ($isSo ? 'Aqbal & Bixi' : 'Approve & Pay Out') : ($isSo ? 'Aqbal' : 'Approve') ?></span></button>
                                 <button type="submit" name="decision" value="rejected" class="btn btn-sm btn-outline-danger"><?= Icons::svg('x-circle', 14) ?> <span><?= $isSo ? 'Diid' : 'Reject' ?></span></button>
                             </form>
                         <?php endif; ?>
@@ -130,3 +167,20 @@ $kpis = [
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+// A rejection reason is emailed to the client, so it is required; approving needs no note.
+document.querySelectorAll('.apq-decide').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+        const btn = e.submitter;
+        const note = form.querySelector('input[name="comments"]');
+        if (btn && btn.value === 'rejected' && note && note.value.trim() === '') {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            note.classList.add('is-invalid');
+            note.placeholder = <?= json_encode($isSo ? 'Fadlan qor sababta diidmada' : 'Please write the reason for rejecting') ?>;
+            note.focus();
+        }
+    });
+});
+</script>

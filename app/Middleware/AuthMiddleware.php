@@ -254,7 +254,8 @@ final class AuthMiddleware
         $branchManagerPerms = [
             'branches.manage', 'users.manage', 'clients.view', 'clients.register',
             'guarantors.manage', 'loans.view', 'murabaha.view', 'murabaha.create',
-            'products.manage', 'applications.view', 'applications.create',
+            // No products.manage: Branch Managers cannot add, edit or remove Murabaha / financing products.
+            'applications.view', 'applications.create',
             'applications.approve_small', 'applications.approve_large', 'financings.disburse',
             'repayments.view', 'repayments.record', 'charity.view', 'charity.waive',
             'risk.view', 'reports.view', 'statements.generate', 'communication.sms'

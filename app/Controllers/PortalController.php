@@ -1715,7 +1715,7 @@ final class PortalController
 
     private static function productsList(PDO $pdo): void
     {
-        AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
+        AuthMiddleware::requirePermission('products.manage');
         $products = $pdo->query('
             SELECT p.*,
                    (SELECT COUNT(*) FROM financing_applications fa WHERE fa.product_id = p.id) AS usage_count
@@ -1919,40 +1919,19 @@ final class PortalController
     private static function approvalQueue(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
-        [$scopeSql, $params] = self::scopeSql($user, 'fa');
-
-        $stmt = $pdo->prepare("
-            SELECT fa.*,
-                   c.full_name AS client_name,
-                   c.client_code,
-                   c.phone AS client_phone,
-                   c.business_type,
-                   b.name AS branch_name,
-                   p.product_type,
-                   u.full_name AS creator_name,
-                   cs.current_score,
-                   cs.score_category
-            FROM financing_applications fa
-            INNER JOIN clients c ON c.id = fa.client_id
-            INNER JOIN branches b ON b.id = fa.branch_id
-            INNER JOIN products p ON p.id = fa.product_id
-            INNER JOIN users u ON u.id = fa.created_by
-            LEFT JOIN credit_scores cs ON cs.client_id = c.id
-            WHERE fa.status = 'submitted' {$scopeSql}
-            ORDER BY fa.id ASC
-        ");
-        $stmt->execute($params);
-        // Each person sees only what falls within their approval level.
-        $queue = [];
-        foreach ($stmt->fetchAll() as $row) {
-            $row['approval_level'] = FinancingDomainService::requiredApproverRole((float) $row['requested_amount'], !empty($row['group_id']));
-            if (FinancingDomainService::canDecideLevel((string) $user['role_slug'], $row['approval_level'])) {
-                $queue[] = $row;
-            }
+        $queue = FinancingDomainService::pendingRequestsFor($user, $pdo);
+        $history = self::clientFinancingHistory($pdo, $user);
+        foreach ($queue as &$q) {
+            $meta = json_decode((string) ($q['notes'] ?? ''), true);
+            $q['payout_provider'] = is_array($meta) ? (string) ($meta['provider'] ?? '') : '';
+            $q['payout_phone'] = is_array($meta) ? (string) ($meta['phone'] ?? '') : '';
+            $q['from_form'] = is_array($meta) && in_array($meta['source'] ?? '', ['cash_loan_form', 'murabaha_form'], true);
+            $q['history'] = $history[(int) $q['client_row_id']] ?? [];
         }
+        unset($q);
 
         self::renderDashboard('applications/approval_queue.php', [
-            'pageTitle' => self::tr('Codsiyada Sugaya', 'Pending Applications', 'طلبات قيد الانتظار'),
+            'pageTitle' => self::tr('Codsiyada', 'Requests', 'الطلبات'),
             'queue' => $queue,
         ]);
     }
@@ -1963,7 +1942,12 @@ final class PortalController
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
         $decision = (string) ($_POST['decision'] ?? '');
-        $comments = (string) ($_POST['comments'] ?? '');
+        $comments = trim((string) ($_POST['comments'] ?? ''));
+        if ($decision === 'rejected' && $comments === '') {
+            throw new \RuntimeException(Lang::locale() === 'so'
+                ? 'Fadlan qor sababta diidmada; waxaa loo dirayaa macmiilka.'
+                : 'Please write the reason for rejecting; it is emailed to the client.');
+        }
 
         $res = FinancingDomainService::reviewApplication($appId, $user, $decision, $comments, $pdo);
         $locale = Lang::locale();

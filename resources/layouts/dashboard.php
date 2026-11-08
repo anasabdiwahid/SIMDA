@@ -102,7 +102,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 'items' => [
                     ['route' => 'products', 'label' => Lang::get('menu_products'), 'show' => $can('products.manage'), 'active' => $on(['products'])],
                     ['route' => 'applications', 'label' => Lang::get('menu_applications'), 'show' => $can('applications.view'), 'active' => $on(['applications'])],
-                    ['route' => 'approval_queue', 'label' => Lang::get('menu_approval_queue'), 'show' => $can('applications.approve_small') || $can('applications.approve_large'), 'active' => $on(['approval_queue'])],
+                    ['route' => 'approval_queue', 'label' => Lang::get('menu_approval_queue'), 'show' => false /* shown as the top-level Requests button */, 'active' => $on(['approval_queue'])],
                     ['route' => 'financings', 'label' => Lang::get('menu_active_financing'), 'active' => $on(['financings', 'financing_view'])],
                     ['route' => 'disbursements', 'label' => Lang::get('menu_disbursements'), 'show' => $can('financings.disburse'), 'active' => $on(['disbursements'])],
                     ['route' => 'schedules', 'label' => Lang::get('menu_schedules'), 'active' => $on(['schedules'])],
@@ -162,6 +162,24 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <?= Icons::svg('dashboard', 18) ?>
                 <span class="sidebar-text"><?= Security::e(Lang::get('menu_dashboard')) ?></span>
             </a>
+
+            <?php if (in_array($role, ['admin', 'manager', 'branch_manager'], true)): ?>
+                <?php
+                // Requests waiting for this person's decision (same rules as the Requests page).
+                try {
+                    $pendingRequests = count(\App\Services\FinancingDomainService::pendingRequestsFor($user));
+                } catch (\Throwable $e) {
+                    $pendingRequests = 0;
+                }
+                ?>
+                <a href="?route=approval_queue" class="sidebar-link sb-requests <?= $currentRoute === 'approval_queue' ? 'active' : '' ?> <?= $pendingRequests > 0 ? 'has-pending' : '' ?>">
+                    <?= Icons::svg('check-square', 18) ?>
+                    <span class="sidebar-text"><?= $so ? 'Codsiyada' : 'Requests' ?></span>
+                    <?php if ($pendingRequests > 0): ?>
+                        <span class="sb-count num-tabular" aria-label="<?= $pendingRequests ?> <?= $so ? 'sugaya' : 'waiting' ?>"><?= $pendingRequests ?></span>
+                    <?php endif; ?>
+                </a>
+            <?php endif; ?>
 
             <?php if ($can('users.manage') && $role !== 'branch_manager'): ?>
                 <?php

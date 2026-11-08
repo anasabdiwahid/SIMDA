@@ -265,6 +265,53 @@ final class FinancingDomainService
         return 'loan_officer';
     }
 
+    /**
+     * Submitted requests this person may decide: admin and General Manager see every branch, a Branch Manager
+     * only their own branch; each row is kept only if it falls within the person's approval level.
+     * Used by the Requests page and the sidebar counter so both always agree.
+     */
+    public static function pendingRequestsFor(array $user, ?PDO $pdo = null): array
+    {
+        $db = $pdo ?? Database::connection();
+        $role = (string) ($user['role_slug'] ?? '');
+        if (!in_array($role, ['admin', 'manager', 'branch_manager'], true)) {
+            return [];
+        }
+        $scope = '';
+        $params = [];
+        if ($role === 'branch_manager') {
+            $scope = ' AND fa.branch_id = :bid ';
+            $params[':bid'] = (int) ($user['branch_id'] ?? -1);
+        }
+        $stmt = $db->prepare("
+            SELECT fa.*,
+                   c.id AS client_row_id, c.full_name AS client_name, c.client_code, c.phone AS client_phone,
+                   c.email AS client_email, c.id_number AS client_id_number, c.city AS client_city,
+                   c.district AS client_district, c.business_type, c.monthly_income,
+                   (SELECT g.full_name FROM guarantors g WHERE g.client_id = c.id ORDER BY g.id LIMIT 1) AS guarantor_name,
+                   (SELECT g.phone FROM guarantors g WHERE g.client_id = c.id ORDER BY g.id LIMIT 1) AS guarantor_phone,
+                   b.name AS branch_name, p.product_type, u.full_name AS creator_name,
+                   cs.current_score, cs.score_category
+            FROM financing_applications fa
+            INNER JOIN clients c ON c.id = fa.client_id
+            INNER JOIN branches b ON b.id = fa.branch_id
+            INNER JOIN products p ON p.id = fa.product_id
+            INNER JOIN users u ON u.id = fa.created_by
+            LEFT JOIN credit_scores cs ON cs.client_id = c.id
+            WHERE fa.status = 'submitted' {$scope}
+            ORDER BY fa.id ASC
+        ");
+        $stmt->execute($params);
+        $rows = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $row['approval_level'] = self::requiredApproverRole((float) $row['requested_amount'], !empty($row['group_id']));
+            if (self::canDecideLevel($role, $row['approval_level'])) {
+                $rows[] = $row;
+            }
+        }
+        return $rows;
+    }
+
     public static function canDecideLevel(string $reviewerRole, string $requiredRole): bool
     {
         if ($reviewerRole === 'admin') {
