@@ -836,3 +836,95 @@
         });
     });
 })();
+
+// SIMDA loader everywhere: the login page's dashed ring with the spinning "S".
+//   SimdaLoader.show(title?, sub?, delayMs?) / SimdaLoader.hide()
+// Shown automatically (after a short delay, so quick actions never flicker) when a form is submitted
+// or an in-app link is followed. Skipped for downloads, new tabs, in-page anchors, forms with their
+// own overlay (data-loading), anything marked data-no-loader, and pages that have their own loader (login).
+(function () {
+    'use strict';
+    var lang = (document.documentElement.lang || 'en').slice(0, 2);
+    var TXT = {
+        so: { title: 'Fadlan sug...', sub: 'Waa la diyaarinayaa, ilbiriqsiyo yar.', send: 'Waa la dirayaa...', sendSub: 'Xogta waa la kaydinayaa. Fadlan ha xirin boggan.' },
+        ar: { title: 'يرجى الانتظار...', sub: 'جارٍ التحميل، لحظات قليلة.', send: 'جارٍ الإرسال...', sendSub: 'يتم حفظ البيانات. يرجى عدم إغلاق الصفحة.' },
+        en: { title: 'Please wait...', sub: 'Loading, just a moment.', send: 'Saving...', sendSub: 'Your information is being saved. Please keep this page open.' }
+    }[lang] || null;
+    if (!TXT) { TXT = { title: 'Please wait...', sub: 'Loading, just a moment.', send: 'Saving...', sendSub: 'Your information is being saved. Please keep this page open.' }; }
+
+    var ICON = 'assets/images/simda-icon.png';
+    var el = null, timer = null, safety = null;
+
+    function ensure() {
+        if (el) return el;
+        el = document.createElement('div');
+        el.id = 'simdaPageLoader';
+        el.className = 'simda-page-loader';
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
+        el.hidden = true;
+        el.innerHTML = '<div class="simda-page-loader-card">'
+            + '<span class="simda-spinner" aria-hidden="true"><img src="' + ICON + '" alt=""></span>'
+            + '<div class="simda-page-loader-title"></div><div class="simda-page-loader-sub"></div></div>';
+        document.body.appendChild(el);
+        return el;
+    }
+    function show(title, sub, delay) {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            var box = ensure();
+            box.querySelector('.simda-page-loader-title').textContent = title || TXT.title;
+            box.querySelector('.simda-page-loader-sub').textContent = sub || TXT.sub;
+            box.hidden = false;
+            // Never leave the screen blocked if the page somehow does not change.
+            clearTimeout(safety);
+            safety = setTimeout(hide, 25000);
+        }, delay || 0);
+    }
+    function hide() {
+        clearTimeout(timer);
+        clearTimeout(safety);
+        if (el) el.hidden = true;
+        document.querySelectorAll('.simda-btn-s').forEach(function (s) { s.remove(); });
+    }
+    window.SimdaLoader = { show: show, hide: hide };
+
+    var hasOwnLoader = !!document.querySelector('.simda-center-loader');
+    var isDownload = /(pdf|download|export|print)/i;
+
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (hasOwnLoader || e.defaultPrevented || !form || form.dataset.noLoader !== undefined || form.dataset.loading) return;
+        if (form.target && form.target !== '_self') return;
+        if (isDownload.test(form.getAttribute('action') || '')) return;
+        // Small spinning S inside the button that was pressed.
+        var btn = e.submitter || form.querySelector('button[type="submit"]');
+        if (btn && !btn.querySelector('.simda-btn-s')) {
+            var s = document.createElement('span');
+            s.className = 'simda-spinner is-sm simda-btn-s';
+            s.setAttribute('aria-hidden', 'true');
+            s.innerHTML = '<img src="' + ICON + '" alt="">';
+            btn.insertBefore(s, btn.firstChild);
+        }
+        var isPost = (form.getAttribute('method') || 'get').toLowerCase() === 'post';
+        show(isPost ? TXT.send : TXT.title, isPost ? TXT.sendSub : TXT.sub, 250);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (hasOwnLoader || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a || a.dataset.noLoader !== undefined || a.hasAttribute('download')) return;
+        if (a.target && a.target !== '_self') return;
+        var href = a.getAttribute('href') || '';
+        if (href === '' || href.charAt(0) === '#' || /^(javascript|mailto|tel|sms|whatsapp):/i.test(href) || isDownload.test(href)) return;
+        var url;
+        try { url = new URL(a.href, location.href); } catch (err) { return; }
+        if (url.origin !== location.origin) return;
+        // Only a hash change on the same page: no loading.
+        if (url.pathname === location.pathname && url.search === location.search && url.hash) return;
+        show(TXT.title, TXT.sub, 300);
+    });
+
+    // Coming back with the browser's Back button restores the old page: clear the loader.
+    window.addEventListener('pageshow', function (e) { if (e.persisted) hide(); });
+})();

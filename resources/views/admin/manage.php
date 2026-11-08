@@ -358,8 +358,7 @@ $adminTabs = [
 
             <div class="simda-loading" id="createUserLoading" role="status" aria-live="polite" hidden>
                 <div class="simda-loading-card">
-                    <img src="assets/images/simda-logo-white.png" alt="SIMDA" class="simda-loading-logo">
-                    <span class="simda-loading-bar" aria-hidden="true"><span></span></span>
+                    <span class="simda-spinner" aria-hidden="true"><img src="assets/images/simda-icon.png" alt=""></span>
                     <strong><?= $isSo ? 'Akoonka waa la samaynayaa...' : 'Creating the account...' ?></strong>
                     <p><?= $isSo ? 'Macluumaadka gelitaanka waxaa loo dirayaa email-kiisa. Fadlan ha xirin boggan.' : 'The login details are being emailed. Please keep this page open.' ?></p>
                 </div>

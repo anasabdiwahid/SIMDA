@@ -7687,3 +7687,52 @@ a.pt-bubble:focus-visible { outline: none; }
 .pt-crop-btn[hidden] { display: none; }
 .scrop-step { width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--border-color); background: var(--bg-elevated); color: var(--text-primary); font-size: 1.1rem; font-weight: 800; line-height: 1; cursor: pointer; }
 .scrop-step:hover { border-color: var(--simda-gold); }
+
+/* ==========================================================================
+   SIMDA LOADER: the login page's dashed ring with the spinning "S", used everywhere.
+   .simda-spinner (ring + S) can sit anywhere; #simdaPageLoader is the full-screen version.
+   ========================================================================== */
+@keyframes simdaSpinS { to { transform: rotate(360deg); } }
+@keyframes simdaRingTurn { to { transform: rotate(360deg); } }
+@keyframes simdaLoaderFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes simdaLoaderPop { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.simda-spinner { --s: 80px; position: relative; width: var(--s); height: var(--s); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.simda-spinner::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2.5px dashed rgba(18, 59, 50, 0.28); background: linear-gradient(135deg, rgba(18, 59, 50, 0.06), rgba(214, 182, 108, 0.14)); animation: simdaRingTurn 2.2s linear infinite; }
+.simda-spinner img { position: relative; width: 60%; height: 60%; object-fit: contain; animation: simdaSpinS 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite; filter: drop-shadow(0 4px 10px rgba(18, 59, 50, 0.24)); }
+.simda-spinner.is-sm { --s: 22px; }
+.simda-spinner.is-sm::before { border-width: 1.5px; }
+.simda-spinner.is-sm img { width: 70%; height: 70%; filter: none; }
+
+.simda-page-loader { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(255, 255, 255, 0.82); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: simdaLoaderFade 0.2s ease-out; }
+.simda-page-loader[hidden] { display: none; }
+.simda-page-loader-card { display: flex; flex-direction: column; align-items: center; text-align: center; width: min(320px, 100%); padding: 30px 34px; background: #FFFFFF; border-radius: 20px; border: 1.5px solid rgba(18, 59, 50, 0.08); box-shadow: 0 16px 40px rgba(18, 59, 50, 0.16), 0 2px 10px rgba(0, 0, 0, 0.04); animation: simdaLoaderPop 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.simda-page-loader-card .simda-spinner { margin-bottom: 16px; }
+.simda-page-loader-title { font-size: 1.02rem; font-weight: 800; color: #123B32; margin-bottom: 4px; letter-spacing: 0.02em; }
+.simda-page-loader-sub { font-size: 0.8rem; color: #5A6B63; font-weight: 600; line-height: 1.45; }
+
+[data-theme="dark"] .simda-spinner::before { border-color: #D6B66C; background: linear-gradient(135deg, rgba(214, 182, 108, 0.12), rgba(18, 59, 50, 0.25)); }
+[data-theme="dark"] .simda-page-loader { background: rgba(8, 20, 17, 0.78); }
+[data-theme="dark"] .simda-page-loader-card { background: #142621; border-color: rgba(214, 182, 108, 0.25); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); }
+[data-theme="dark"] .simda-page-loader-title { color: #FFFFFF; }
+[data-theme="dark"] .simda-page-loader-sub { color: #A2B0A9; }
+
+@media (prefers-reduced-motion: reduce) {
+    .simda-spinner::before { animation: none; }
+    .simda-spinner img { animation-duration: 2.4s; }
+}
+
+/* The older "creating account" overlay (.simda-loading) now uses the same look. */
+.simda-loading { background: rgba(255, 255, 255, 0.82) !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px) !important; }
+.simda-loading-card { background: #FFFFFF !important; color: #123B32 !important; border: 1.5px solid rgba(18, 59, 50, 0.08) !important; border-radius: 20px !important; box-shadow: 0 16px 40px rgba(18, 59, 50, 0.16) !important; width: min(340px, 100%) !important; }
+.simda-loading-card .simda-spinner { margin-bottom: 16px; }
+.simda-loading-card strong { color: #123B32; font-weight: 800; }
+.simda-loading-card p { color: #5A6B63 !important; }
+[data-theme="dark"] .simda-loading { background: rgba(8, 20, 17, 0.78) !important; }
+[data-theme="dark"] .simda-loading-card { background: #142621 !important; border-color: rgba(214, 182, 108, 0.25) !important; }
+[data-theme="dark"] .simda-loading-card strong { color: #FFFFFF; }
+[data-theme="dark"] .simda-loading-card p { color: #A2B0A9 !important; }
+
+/* Submit buttons while their form is sending: small spinning S in place of the icon. */
+button[data-submitting="1"] { position: relative; }
+button[data-submitting="1"] > svg { visibility: hidden; }
