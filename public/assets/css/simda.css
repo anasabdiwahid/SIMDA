@@ -7812,3 +7812,65 @@ button[data-submitting="1"] > svg { visibility: hidden; }
     .hdr-logout { padding: 0; width: 30px; }
     .hdr-logout span { display: none; }
 }
+
+/* ============================================================================
+   HOME PAGE — PHONE POLISH (≤680px): tighter gutters, compact hero,
+   horizontal service cards, 2-up footer links and calculator presets.
+   ============================================================================ */
+@media (max-width: 680px) {
+    .fid-page .fid-container { padding-left: 16px; padding-right: 16px; }
+    .fid-page .fid-section { padding-top: 28px; padding-bottom: 28px; }
+    .fid-page .fid-section-head { margin-bottom: 18px; text-align: center; }
+    .fid-page .fid-serif-h2 { font-size: 1.55rem; line-height: 1.2; }
+    .fid-page .fid-eyebrow { font-size: 0.68rem; letter-spacing: 0.12em; }
+
+    /* Hero */
+    .fid-page .fid-hero-wrap { padding-top: 14px; padding-bottom: 24px; }
+    .fid-page .fid-hero-card { border-radius: 24px; }
+    .fid-page .fid-hero-copy { padding: 26px 20px 4px; }
+    .fid-page .fid-hero-copy .fid-serif-h1 { font-size: 1.9rem; line-height: 1.12; margin-bottom: 12px; }
+    .fid-page .fid-hero-lead { font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px; }
+    .fid-page .fid-hero-copy > div:last-child { display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px !important; margin-bottom: 18px !important; }
+    .fid-page .fid-hero-copy > div:last-child > a { justify-content: center; min-height: 46px; padding: 8px 12px !important; font-size: 0.84rem; line-height: 1.2; text-align: center; white-space: normal; }
+    .fid-page .fid-hero-media { margin: 0 12px; width: auto; min-height: 260px; border-radius: 20px; }
+    .fid-page .fid-hero-media.murabaha-asset-showcase { min-height: 400px; }
+    .fid-page .murabaha-asset-canvas { height: 210px; margin-top: 10px; }
+    .fid-page .murabaha-asset-canvas img { max-height: 100%; object-fit: contain; }
+    .fid-page .fid-hero-nav-bar { margin: 14px 16px 16px; }
+
+    /* Services: image left, text right, arrow in the corner */
+    .fid-page .fid-services-grid { gap: 12px; }
+    .fid-page .fid-services-grid .fid-service-card { position: relative; padding: 14px; border-radius: 18px; min-height: 0; }
+    .fid-page .fid-services-grid .fid-service-card > div:first-child { display: grid; grid-template-columns: 76px minmax(0, 1fr); column-gap: 14px; align-items: start; }
+    .fid-page .fid-services-grid .fid-service-card .fid-service-illust { grid-row: 1 / span 2; width: 76px; height: 76px; margin: 0; padding: 6px; border-radius: 14px; }
+    .fid-page .fid-services-grid .fid-service-card .fid-service-illust img { width: 100%; height: 100%; object-fit: contain; }
+    .fid-page .fid-services-grid .fid-service-card h3 { font-size: 1rem; line-height: 1.25; margin: 2px 0 4px; padding-inline-end: 34px; }
+    .fid-page .fid-services-grid .fid-service-card p { font-size: 0.8rem; line-height: 1.5; margin: 0; }
+    .fid-page .fid-services-grid .fid-service-card > div:last-child { position: absolute; top: 12px; inset-inline-end: 12px; }
+    .fid-page .fid-services-grid .fid-service-card .fid-circle-arrow { width: 30px; height: 30px; }
+
+    /* Why us */
+    .fid-page .fid-why-grid { gap: 14px; }
+    .fid-page .fid-why-photo { height: 210px; border-radius: 20px; overflow: hidden; }
+    .fid-page .fid-why-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+    .fid-page .fid-why-panel { padding: 24px 18px; border-radius: 20px; }
+    .fid-page .fid-why-features { gap: 14px; margin-top: 16px; }
+
+    /* Steps & testimonials */
+    .fid-page .fid-steps-grid, .fid-page .fid-testi-grid { gap: 12px; }
+
+    /* Calculator */
+    .fid-page #calculator { padding: 24px 16px; margin-top: 18px; }
+    .fid-page #calculator .calc-quick-label { grid-column: 1 / -1; }
+    .fid-page #btnPreviewSchedule + div { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px !important; }
+    .fid-page #btnPreviewSchedule + div .btn { width: 100%; justify-content: center; margin: 0 !important; font-size: 0.8rem; padding-left: 6px; padding-right: 6px; }
+
+    .fid-page #schedulePreviewContainer > div:first-child { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+    .fid-page #schedulePreviewContainer > div:first-child > div { padding: 10px 12px !important; min-width: 0; }
+
+    /* Footer: brand full width, link columns two by two */
+    .fid-page .fid-footer-wrap { margin-top: 24px; }
+    .fid-page .fid-footer-grid { grid-template-columns: 1fr 1fr; gap: 22px 16px; padding-bottom: 24px; }
+    .fid-page .fid-footer-grid > div:first-child { grid-column: 1 / -1; }
+    .fid-page .fid-footer-bottom-bar { gap: 14px; }
+}
