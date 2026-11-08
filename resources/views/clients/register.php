@@ -26,7 +26,7 @@ if (stripos($flashError, 'ID number') !== false || stripos($flashError, 'id_numb
     <header class="adm-head adm-page-head">
         <div>
             <h1><?= Security::e(Lang::get('menu_register_client')) ?></h1>
-            <p><?= $isSo ? 'Macmiil kasta wuxuu u baahan yahay aqoonsi iyo telefoon u gaar ah, laan, iyo ugu yaraan hal damiin. Wuxuu ku bilaabmayaa 600 dhibcood oo credit ah.' : 'Each client needs a unique ID and phone number, a branch and at least one guarantor. They start with a credit score of 600.' ?></p>
+            <p><?= $isSo ? 'Macmiil kasta wuxuu u baahan yahay aqoonsi iyo telefoon u gaar ah, laan, iyo ugu yaraan hal damiin. Dhibcaha credit-ku waxay ka bilaabmaan 0 (0–100).' : 'Each client needs a unique ID and phone number, a branch and at least one guarantor. They start with a credit score of 600.' ?></p>
         </div>
         <div class="adm-head-actions">
             <a href="?route=clients" class="btn btn-sm btn-outline"><?= $isSo ? 'Ku noqo Macaamiisha' : 'Back to Clients' ?></a>

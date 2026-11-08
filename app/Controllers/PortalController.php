@@ -1522,7 +1522,7 @@ final class PortalController
 
         $_SESSION['flash_success'] = Lang::locale() === 'so'
             ? "Macmiilka si guul leh ayaa loo diiwaangeliyay ({$res['client_code']}). Hadda waad siin kartaa dayn ama Murabaxo."
-            : "Client registered successfully ({$res['client_code']}) with verified Guarantor and baseline 600 Credit Score.";
+            : "Client registered successfully ({$res['client_code']}) with verified Guarantor; credit score starts at 0 (of 100).";
         unset($_SESSION['old_input']);
         header('Location: ?route=client_view&new=1&id=' . (int) $res['client_id']);
         exit;
@@ -2955,7 +2955,7 @@ final class PortalController
                 'outstanding_balance_after' => $res['outstanding_balance_after'],
                 'branch_name' => $info['branch_name'] ?? 'Head Office',
                 'recorded_by' => $user['full_name'] ?? 'Staff',
-                'credit_score' => $res['credit_score']['current_score'] ?? 600,
+                'credit_score' => $res['credit_score']['current_score'] ?? 0,
             ], $locale);
 
             if ($mailStatus['success']) {

@@ -7583,3 +7583,13 @@ th.fin-end {
 @media (max-width: 900px) {
     .rqd-stats { grid-template-columns: 1fr 1fr; }
 }
+.rqd-score { width: 62px; height: 62px; }
+.rqd-score small { font-size: 0.56rem; font-weight: 700; text-align: center; padding: 0 4px; }
+.rqd-score.is-green { border-color: var(--color-success); }
+.rqd-score.is-green b { color: var(--color-success); }
+.rqd-score.is-gold { border-color: var(--simda-gold); }
+.rqd-score.is-gold b { color: #8A6A22; }
+.rqd-score.is-danger { border-color: var(--color-danger); }
+.rqd-score.is-danger b { color: var(--color-danger); }
+.rqd-score.is-muted { border-color: var(--border-strong); }
+.rqd-score.is-muted b { color: var(--text-secondary); }

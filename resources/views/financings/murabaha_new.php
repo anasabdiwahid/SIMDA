@@ -80,7 +80,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
                         <span id="clientEmailWrap"><?= Icons::svg('send', 12) ?> <span id="clientEmailDisplay"></span></span>
                     </div>
                 </div>
-                <span class="mf-score" id="clientScoreDisplay">600</span>
+                <span class="mf-score" id="clientScoreDisplay">0</span>
                 <button type="button" class="btn btn-outline btn-sm" id="changeClientBtn"><?= $isSo ? 'Beddel' : 'Change' ?></button>
             </div>
 
@@ -106,13 +106,13 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
                                 data-phone="<?= Security::e($c['phone']) ?>"
                                 data-email="<?= Security::e($c['email'] ?? '') ?>"
                                 data-idnum="<?= Security::e($c['id_number'] ?? '') ?>"
-                                data-score="<?= (int) ($c['current_score'] ?? 600) ?>">
+                                data-score="<?= (int) ($c['current_score'] ?? 0) ?>">
                             <span class="mf-avatar mf-avatar-sm"><?= Security::e($initials((string) $c['full_name'])) ?></span>
                             <span class="mf-option-text">
                                 <strong><?= Security::e($c['full_name']) ?></strong>
                                 <small><span class="num-tabular"><?= Security::e($c['client_code']) ?></span> · <?= Security::e($c['phone']) ?></small>
                             </span>
-                            <span class="mf-score"><?= (int) ($c['current_score'] ?? 600) ?></span>
+                            <span class="mf-score"><?= (int) ($c['current_score'] ?? 0) ?></span>
                         </button>
                     <?php endforeach; ?>
                     <div class="mf-dropdown-empty" id="clientNoMatch" hidden><?= $isSo ? 'Wax la mid ah lama helin.' : 'No matching client.' ?></div>

@@ -24,7 +24,7 @@ $role = $user['role_slug'] ?? '';
                 <label>Client *</label>
                 <select name="client_id" class="form-control" required>
                     <?php foreach ($clients as $c): ?>
-                        <option value="<?= (int) $c['id'] ?>"><?= Security::e($c['full_name'] . ' (' . $c['client_code'] . ') — Score: ' . ($c['current_score'] ?? 600)) ?></option>
+                        <option value="<?= (int) $c['id'] ?>"><?= Security::e($c['full_name'] . ' (' . $c['client_code'] . ') — Score: ' . ($c['current_score'] ?? 0) . '/100') ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

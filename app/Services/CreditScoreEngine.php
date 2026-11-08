@@ -7,37 +7,23 @@ use App\Helpers\Database;
 use PDO;
 
 /**
- * Module 9 — Deterministic Credit Score Engine
+ * Module 9 — Credit Score Engine (0 to 100)
  *
- * Score Range: 300 to 850.
- * New Clients Baseline: 600.
+ * New clients start at 0; trust is built payment by payment.
+ *   + 5  per installment paid on time (or late with the charity charge waived)
+ *   + 10 per full early settlement
+ *   - 3 / 8 / 15 per installment paid 1–7 / 8–30 / >30 days late
+ *   - 5 / 10 / 20 per installment unpaid and 1–7 / 8–30 / >30 days overdue
+ * Clamped to 0–100.
  *
- * Documented Formula (also detailed in README.md):
- *   Base Score = 600
- *   + (On-Time Paid Installments * 15 points)
- *   + (Full Early Settlements * 25 bonus points)
- *   - (Installments Paid 1–7 Days Late * 10 points)
- *   - (Installments Paid 8–30 Days Late * 25 points)
- *   - (Installments Paid >30 Days Late * 45 points)
- *   - (Currently Unpaid Overdue Installments 1–7 Days * 15 points)
- *   - (Currently Unpaid Overdue Installments 8–30 Days * 35 points)
- *   - (Currently Unpaid Overdue Installments >30 Days * 60 points)
- *
- * Special Rules:
- * - If an installment has a WAIVED charity late charge, its late penalty is neutralized (0 penalty).
- * - Clamped strictly between 300 and 850.
- * - Categories:
- *   750–850: excellent
- *   670–749: good
- *   580–669: fair
- *   480–579: caution
- *   300–479: high_risk
+ * Categories: new (no payments yet); otherwise 80+ excellent, 60+ good, 40+ fair, 20+ caution,
+ * below 20 high_risk. A client who has never paid late is never placed below fair.
  */
 final class CreditScoreEngine
 {
-    public const BASE_SCORE = 600;
-    public const MIN_SCORE = 300;
-    public const MAX_SCORE = 850;
+    public const BASE_SCORE = 0;
+    public const MIN_SCORE = 0;
+    public const MAX_SCORE = 100;
 
     public static function initializeForClient(int $clientId, ?PDO $pdo = null): void
     {
@@ -53,8 +39,8 @@ final class CreditScoreEngine
             'previous' => self::BASE_SCORE,
             'score' => self::BASE_SCORE,
             'delta' => 0,
-            'reason_en' => 'Initial client registration baseline score (600).',
-            'reason_so' => 'Dhibcaha aasaasiga ah ee diiwaangelinta macmiilka cusub (600).',
+            'reason_en' => 'New client: score starts at 0 and grows with on-time payments.',
+            'reason_so' => 'Macmiil cusub: dhibcuhu waxay ka bilaabmaan 0, waxayna korayaan marka uu waqtiga ku bixiyo.',
         ]];
 
         $ins = $db->prepare("
@@ -62,9 +48,9 @@ final class CreditScoreEngine
                 client_id, current_score, previous_score, last_delta, score_category,
                 last_change_reason_so, last_change_reason_en, history_log
             ) VALUES (
-                :cid, 600, 600, 0, 'fair',
-                'Dhibcaha aasaasiga ah ee diiwaangelinta macmiilka cusub (600).',
-                'Initial client registration baseline score (600).',
+                :cid, 0, 0, 0, 'new',
+                'Macmiil cusub: dhibcuhu waxay ka bilaabmaan 0, waxayna korayaan marka uu waqtiga ku bixiyo.',
+                'New client: score starts at 0 and grows with on-time payments.',
                 :history
             )
         ");
@@ -126,18 +112,18 @@ final class CreditScoreEngine
 
                 if ($daysDiff <= 0) {
                     $onTimeCount++;
-                    $score += 15;
+                    $score += 5;
                 } elseif ($isWaived) {
                     // Waived late charges do not penalize the client's score
                     $onTimeCount++;
                 } else {
                     $lateCount++;
                     if ($daysDiff <= 7) {
-                        $score -= 10;
+                        $score -= 3;
                     } elseif ($daysDiff <= 30) {
-                        $score -= 25;
+                        $score -= 8;
                     } else {
-                        $score -= 45;
+                        $score -= 15;
                     }
                 }
             } elseif ((float) $inst['remaining_balance'] > 0 && $dueDate < $refDate) {
@@ -146,23 +132,23 @@ final class CreditScoreEngine
                     $lateCount++;
                     $daysOverdue = (int) ((strtotime($refDate) - strtotime($dueDate)) / 86400);
                     if ($daysOverdue <= 7) {
-                        $score -= 15;
+                        $score -= 5;
                     } elseif ($daysOverdue <= 30) {
-                        $score -= 35;
+                        $score -= 10;
                     } else {
-                        $score -= 60;
+                        $score -= 20;
                     }
                 }
             }
         }
 
         // Bonus for full early repayment
-        $score += ($earlySettlementsCount * 25);
+        $score += ($earlySettlementsCount * 10);
 
-        // Clamp to [300, 850]
+        // Clamp to [0, 100]
         $clampedScore = max(self::MIN_SCORE, min(self::MAX_SCORE, $score));
         $delta = $clampedScore - $previousScore;
-        $category = self::categoryForScore($clampedScore);
+        $category = self::categoryForScore($clampedScore, $onTimeCount + $lateCount + $earlySettlementsCount > 0, $lateCount > 0);
 
         $history = json_decode((string) ($existing['history_log'] ?? '[]'), true);
         if (!is_array($history)) {
@@ -222,21 +208,49 @@ final class CreditScoreEngine
         ];
     }
 
-    public static function categoryForScore(int $score): string
+    public static function categoryForScore(int $score, bool $hasHistory = true, bool $everLate = true): string
     {
-        if ($score >= 750) {
+        if (!$hasHistory) {
+            return 'new';
+        }
+        if ($score >= 80) {
             return 'excellent';
         }
-        if ($score >= 670) {
+        if ($score >= 60) {
             return 'good';
         }
-        if ($score >= 580) {
+        if ($score >= 40 || !$everLate) {
             return 'fair';
         }
-        if ($score >= 480) {
+        if ($score >= 20) {
             return 'caution';
         }
         return 'high_risk';
     }
-}
 
+
+    /** Display label for a category, in Somali or English. */
+    public static function label(string $category, bool $isSo): string
+    {
+        return match ($category) {
+            'new' => $isSo ? 'Cusub' : 'New',
+            'excellent' => $isSo ? 'Aad u fiican' : 'Excellent',
+            'good' => $isSo ? 'Fiican' : 'Good',
+            'fair' => $isSo ? 'Caadi' : 'Fair',
+            'caution' => $isSo ? 'Taxaddar' : 'Caution',
+            'high_risk' => $isSo ? 'Khatar' : 'High risk',
+            default => ucfirst(str_replace('_', ' ', $category)),
+        };
+    }
+
+    /** Colour tone for a category: green, gold, danger or muted. */
+    public static function tone(string $category): string
+    {
+        return match ($category) {
+            'excellent', 'good' => 'green',
+            'fair' => 'gold',
+            'caution', 'high_risk' => 'danger',
+            default => 'muted',
+        };
+    }
+}

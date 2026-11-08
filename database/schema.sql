@@ -398,14 +398,14 @@ CREATE TABLE IF NOT EXISTS repayments (
     CONSTRAINT fk_rep_recorder FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 17. CREDIT SCORES (Module 9 — 300 to 850, Default 600)
+-- 17. CREDIT SCORES (0 to 100, new clients start at 0)
 CREATE TABLE IF NOT EXISTS credit_scores (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     client_id INT UNSIGNED NOT NULL UNIQUE,
-    current_score INT NOT NULL DEFAULT 600,
-    previous_score INT NOT NULL DEFAULT 600,
+    current_score INT NOT NULL DEFAULT 0,
+    previous_score INT NOT NULL DEFAULT 0,
     last_delta INT NOT NULL DEFAULT 0,
-    score_category ENUM('excellent', 'good', 'fair', 'caution', 'high_risk') NOT NULL DEFAULT 'fair',
+    score_category ENUM('new', 'excellent', 'good', 'fair', 'caution', 'high_risk') NOT NULL DEFAULT 'new',
     last_change_reason_so VARCHAR(255) NOT NULL,
     last_change_reason_en VARCHAR(255) NOT NULL,
     on_time_payments_count INT UNSIGNED NOT NULL DEFAULT 0,
