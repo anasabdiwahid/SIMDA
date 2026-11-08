@@ -97,7 +97,7 @@ $aicChips = $aicLocale === 'so'
     <section class="aic-panel" id="aicPanel" role="dialog" aria-modal="false" aria-labelledby="aicTitle" hidden>
         <header class="aic-head">
             <span class="aic-avatar" aria-hidden="true">
-                <svg viewBox="12 0 96 76" width="30" height="24">
+                <svg viewBox="12 0 96 76" width="24" height="19">
                     <g stroke="#AEB5C2" stroke-width="3" stroke-linecap="round"><line x1="36" y1="26" x2="31" y2="9"/><line x1="60" y1="20" x2="60" y2="5"/><line x1="84" y1="26" x2="89" y2="9"/></g>
                     <circle cx="31" cy="8" r="5" fill="#E7EAF0"/><circle cx="60" cy="4" r="5" fill="#E7EAF0"/><circle cx="89" cy="8" r="5" fill="#E7EAF0"/>
                     <rect x="13" y="37" width="11" height="22" rx="4" fill="#C4CAD6"/><rect x="96" y="37" width="11" height="22" rx="4" fill="#C4CAD6"/>
@@ -113,10 +113,10 @@ $aicChips = $aicLocale === 'so'
                 <span><?= Security::e($aicT('Khadka ku jira · SO · EN · AR', 'Online · SO · EN · AR', 'متصل الآن · SO · EN · AR')) ?></span>
             </div>
             <button type="button" class="aic-icon-btn" id="aicReset" title="<?= Security::e($aicT('Bilow wadahadal cusub', 'New chat', 'محادثة جديدة')) ?>" aria-label="<?= Security::e($aicT('Bilow wadahadal cusub', 'New chat', 'محادثة جديدة')) ?>">
-                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
             </button>
             <button type="button" class="aic-icon-btn" id="aicClose" aria-label="<?= Security::e($aicT('Xir', 'Close', 'إغلاق')) ?>">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
         </header>
 
@@ -209,15 +209,15 @@ $aicChips = $aicLocale === 'so'
 .aic-panel[hidden] { display: none; }
 @keyframes aicIn { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
 
-.aic-head { display: flex; align-items: center; gap: 10px; padding: 14px 12px 14px 16px; color: #fff;
+.aic-head { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; color: #fff;
             background: linear-gradient(135deg, var(--aic-green), var(--aic-green-2)); }
-.aic-avatar { position: relative; flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); color: var(--aic-gold);
+.aic-avatar { position: relative; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); color: var(--aic-gold);
               display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(214, 182, 108, 0.5); }
-.aic-online { position: absolute; bottom: 0; inset-inline-end: 0; width: 10px; height: 10px; border-radius: 50%; background: #3DDC84; box-shadow: 0 0 0 2px var(--aic-green); }
+.aic-online { position: absolute; bottom: 0; inset-inline-end: 0; width: 8px; height: 8px; border-radius: 50%; background: #3DDC84; box-shadow: 0 0 0 2px var(--aic-green); }
 .aic-head-text { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
-.aic-head-text strong { font-size: 0.98rem; }
-.aic-head-text span { font-size: 0.74rem; opacity: 0.8; }
-.aic-icon-btn { width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff;
+.aic-head-text strong { font-size: 0.86rem; }
+.aic-head-text span { font-size: 0.66rem; opacity: 0.8; }
+.aic-icon-btn { width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff;
                 display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s ease; }
 .aic-icon-btn:hover { background: rgba(255,255,255,0.22); }
 
