@@ -141,17 +141,17 @@ $aicChips = $aicLocale === 'so'
 
 <style>
 .aic { --aic-green: #123B32; --aic-green-2: #1E5A4A; --aic-gold: #D6B66C; --aic-bg: #FFFFFF; --aic-soft: #F5F2EB; --aic-ink: #1D2B26; --aic-muted: #6A756F; --aic-line: #ECE7DD;
-       position: fixed; bottom: 22px; inset-inline-end: 22px; z-index: 1200; font-family: inherit; }
+       position: fixed; bottom: 10px; inset-inline-end: 10px; z-index: 1200; font-family: inherit; }
 [data-theme="dark"] .aic { --aic-bg: #13231D; --aic-soft: #1A2E27; --aic-ink: #EDF1EE; --aic-muted: #9AA7A0; --aic-line: #2A4239; }
 
 /* ---- Robot button ---- */
-.aic-fab { position: relative; display: block; width: 92px; height: 115px; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 24px; -webkit-tap-highlight-color: transparent; }
+.aic-fab { position: relative; display: block; width: 72px; height: 90px; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 24px; -webkit-tap-highlight-color: transparent; }
 .aic-fab:focus-visible { outline: 3px solid var(--aic-gold); outline-offset: 2px; }
 .aic-bot { position: relative; z-index: 1; display: block; width: 100%; height: 100%; overflow: visible;
            filter: drop-shadow(0 10px 14px rgba(18, 40, 60, 0.28)); animation: aicFloat 3.2s ease-in-out infinite; transition: transform 0.25s ease; }
 .aic-fab:hover .aic-bot { transform: scale(1.06); }
 @keyframes aicFloat { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
-.aic-shadow { position: absolute; left: 50%; bottom: -4px; width: 54px; height: 9px; margin-left: -27px; border-radius: 50%;
+.aic-shadow { position: absolute; left: 50%; bottom: -3px; width: 42px; height: 7px; margin-left: -21px; border-radius: 50%;
               background: radial-gradient(ellipse, rgba(18, 40, 60, 0.32), transparent 70%); animation: aicShadow 3.2s ease-in-out infinite; }
 @keyframes aicShadow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.78); opacity: 0.6; } }
 
@@ -181,8 +181,8 @@ $aicChips = $aicLocale === 'so'
 @keyframes aicWaveNow { 0%, 100% { transform: rotate(-108deg); } 50% { transform: rotate(-142deg); } }
 
 /* "Hi!" speech bubble, in step with the wave */
-.aic-hi { position: absolute; bottom: 104px; inset-inline-end: 64px; z-index: 2; padding: 7px 13px; border-radius: 16px 16px 4px 16px;
-          background: var(--aic-bg); color: var(--aic-green); font-weight: 800; font-size: 0.95rem; white-space: nowrap;
+.aic-hi { position: absolute; bottom: 80px; inset-inline-end: 50px; z-index: 2; padding: 7px 13px; border-radius: 16px 16px 4px 16px;
+          background: var(--aic-bg); color: var(--aic-green); font-weight: 800; font-size: 0.85rem; white-space: nowrap;
           border: 1px solid var(--aic-line); box-shadow: 0 8px 20px rgba(18, 59, 50, 0.18); pointer-events: none;
           opacity: 0; transform-origin: bottom right; animation: aicHi 8s ease-in-out infinite 1.2s; }
 [dir="rtl"] .aic-hi { border-radius: 16px 16px 16px 4px; transform-origin: bottom left; }
@@ -191,18 +191,18 @@ $aicChips = $aicLocale === 'so'
 .aic-fab:hover ~ .aic-hi { animation: none; opacity: 1; transform: none; }
 
 /* open state: robot stays, small close badge appears */
-.aic-x { position: absolute; top: 4px; inset-inline-end: 2px; z-index: 2; width: 26px; height: 26px; border-radius: 50%;
+.aic-x { position: absolute; top: 2px; inset-inline-end: 0; z-index: 2; width: 22px; height: 22px; border-radius: 50%;
          background: var(--aic-green); color: #fff; display: none; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.25); }
 .aic.is-open .aic-x { display: inline-flex; }
 .aic.is-open .aic-hi { display: none; }
 
-.aic-hint { position: absolute; bottom: 20px; inset-inline-end: 98px; white-space: nowrap; padding: 9px 14px; border-radius: 14px;
+.aic-hint { position: absolute; bottom: 16px; inset-inline-end: 78px; white-space: nowrap; padding: 9px 14px; border-radius: 14px;
             background: var(--aic-bg); color: var(--aic-ink); font-size: 0.85rem; font-weight: 600; box-shadow: 0 10px 26px rgba(18, 59, 50, 0.18);
             border: 1px solid var(--aic-line); opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; }
 .aic-hint.is-shown { opacity: 1; transform: none; pointer-events: auto; cursor: pointer; }
 .aic.is-open .aic-hint { display: none; }
 
-.aic-panel { position: absolute; bottom: 126px; inset-inline-end: 0; width: 370px; height: min(560px, calc(100vh - 170px));
+.aic-panel { position: absolute; bottom: 100px; inset-inline-end: 0; width: 370px; height: min(560px, calc(100vh - 130px));
              display: flex; flex-direction: column; overflow: hidden; border-radius: 22px; background: var(--aic-bg); color: var(--aic-ink);
              border: 1px solid var(--aic-line); box-shadow: 0 24px 60px rgba(6, 26, 21, 0.28); transform-origin: bottom right; animation: aicIn 0.22s ease-out; }
 [dir="rtl"] .aic-panel { transform-origin: bottom left; }
@@ -253,10 +253,10 @@ $aicChips = $aicLocale === 'so'
 [dir="rtl"] .aic-send svg { transform: scaleX(-1); }
 
 @media (max-width: 680px) {
-    .aic { bottom: 16px; inset-inline-end: 16px; }
-    .aic-fab { width: 76px; height: 95px; }
-    .aic-hi { bottom: 86px; inset-inline-end: 52px; font-size: 0.85rem; }
-    .aic-hint { inset-inline-end: 80px; bottom: 14px; font-size: 0.8rem; }
+    .aic { bottom: 8px; inset-inline-end: 8px; }
+    .aic-fab { width: 58px; height: 72px; }
+    .aic-hi { bottom: 64px; inset-inline-end: 40px; font-size: 0.78rem; padding: 5px 10px; }
+    .aic-hint { inset-inline-end: 62px; bottom: 12px; font-size: 0.78rem; }
     .aic.is-open { inset: 0; }
     .aic.is-open .aic-fab { display: none; }
     .aic-panel { position: fixed; inset: auto 0 0 0; width: 100%; height: 88vh; height: 88dvh; border-radius: 22px 22px 0 0; animation: aicSheet 0.25s ease-out; }
