@@ -7407,6 +7407,3 @@ th.fin-end {
 .sb-register-btn svg:last-child { display: none; }
 .sb-register-btn { gap: 0.5em; padding: 0.6em 0.65em; }
 
-/* Dashboard: branch scope note for branch staff */
-.dash-scope { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 4px 12px; border-radius: 20px; background: var(--simda-gold-muted); color: #8A6A22; font-size: 0.8rem; font-weight: 700; }
-.dash-scope svg { flex-shrink: 0; }

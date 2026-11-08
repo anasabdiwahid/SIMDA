@@ -153,11 +153,7 @@ $renderEmpty = static function (string $icon, string $title, string $body, ?stri
             <?php if (in_array($user['role_slug'] ?? '', ['admin', 'manager'], true)): ?>
                 <p><?= Security::e($t('Kormeerka guud ee maalgelinta, lacag-celinta iyo khatarta SIMDA.', 'An overview of SIMDA financing, repayments and risk.', 'نظرة عامة على التمويل والسداد والمخاطر في سيمدا.')) ?></p>
             <?php elseif (($user['role_slug'] ?? '') !== 'client'): ?>
-                <?php $myBranch = (string) ($user['branch_name'] ?? ''); ?>
                 <p><?= Security::e($t('Kormeerka maalgelinta, lacag-celinta iyo khatarta laantaada.', 'An overview of financing, repayments and risk in your branch.', 'نظرة عامة على التمويل والسداد والمخاطر في فرعك.')) ?></p>
-                <span class="dash-scope"><?= Icons::svg('building', 13) ?> <?= Security::e($myBranch !== '' && !empty($user['branch_id'])
-                    ? $t('Xogta laanta ' . $myBranch . ' oo keliya', 'Showing ' . $myBranch . ' only', 'بيانات فرع ' . $myBranch . ' فقط')
-                    : $t('Laan laguma xirin akoonkaaga; la xiriir maamulka.', 'Your account has no branch; contact the administrator.', 'حسابك غير مرتبط بفرع؛ تواصل مع الإدارة.')) ?></span>
             <?php else: ?>
                 <p><?= Security::e($t('Kormeerka guud ee maalgelinta, lacag-celinta iyo khatarta SIMDA.', 'An overview of SIMDA financing, repayments and risk.', 'نظرة عامة على التمويل والسداد والمخاطر في سيمدا.')) ?></p>
             <?php endif; ?>
