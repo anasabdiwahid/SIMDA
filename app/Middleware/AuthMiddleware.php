@@ -296,13 +296,15 @@ final class AuthMiddleware
         if (!$u) {
             return false;
         }
-        if (in_array($u['role_slug'], ['admin', 'manager'], true)) {
+        // Clients are shared across branches: any staff member can open any client's record,
+        // so a client registered at one branch can be served at another. A client sees only themself.
+        if (in_array($u['role_slug'], ['admin', 'manager', 'branch_manager', 'loan_officer'], true)) {
             return true;
         }
         if ($u['role_slug'] === 'client') {
             return (int) ($u['client_id'] ?? 0) === (int) ($clientRecord['id'] ?? -1);
         }
-        return (int) ($u['branch_id'] ?? 0) === (int) ($clientRecord['branch_id'] ?? -2);
+        return false;
     }
 
     public static function verifyCsrfOrAbort(): void

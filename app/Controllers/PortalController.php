@@ -182,6 +182,19 @@ final class PortalController
         return [" AND {$tableAlias}.branch_id = :scope_bid ", [':scope_bid' => (int) ($user['branch_id'] ?? -1)]];
     }
 
+    /**
+     * Client lookup scope. Clients are shared across branches: a client registered at one branch can be
+     * found, served and paid in at any other, so every staff role sees all clients. A client account only
+     * sees itself. ($tableAlias.client_id is used when the alias is not the clients table itself.)
+     */
+    private static function clientScopeSql(array $user, string $tableAlias = 'c', string $idColumn = 'id'): array
+    {
+        if (in_array($user['role_slug'] ?? '', ['admin', 'manager', 'branch_manager', 'loan_officer'], true)) {
+            return ['', []];
+        }
+        return [" AND {$tableAlias}.{$idColumn} = :scope_cid ", [':scope_cid' => (int) ($user['client_id'] ?? -1)]];
+    }
+
     private static function publicHome(PDO $pdo): void
     {
         $products = $pdo->query('SELECT * FROM products WHERE is_active = 1 ORDER BY id ASC')->fetchAll();
@@ -1397,9 +1410,9 @@ final class PortalController
     private static function clientsList(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
-        $allBranches = in_array($user['role_slug'], ['admin', 'manager'], true);
-        $branchSql = $allBranches ? '' : ' AND c.branch_id = :bid ';
-        $params = $allBranches ? [] : [':bid' => (int) $user['branch_id']];
+        // Every staff member sees clients from all branches (the page has its own branch filter).
+        $branchSql = '';
+        $params = [];
 
         $q = trim((string) ($_GET['q'] ?? ''));
         if ($q !== '') {
@@ -1429,14 +1442,13 @@ final class PortalController
         $clients = $stmt->fetchAll();
         $branches = $pdo->query('SELECT * FROM branches WHERE is_active = 1 ORDER BY id ASC')->fetchAll();
 
-        // Active financings map for quick repayment modal
-        $fScope = $allBranches ? '' : ' AND f.branch_id = ' . (int) $user['branch_id'];
+        // Active financings map for the quick repayment modal (clients may pay at any branch)
         $activeFinancings = $pdo->query("
             SELECT f.id, f.financing_number, f.client_id, f.product_type, f.outstanding_balance, f.status,
                    c.full_name AS client_name, c.client_code, c.credit_balance
             FROM financings f
             INNER JOIN clients c ON c.id = f.client_id
-            WHERE f.status IN ('active', 'overdue') {$fScope}
+            WHERE f.status IN ('active', 'overdue')
             ORDER BY f.id DESC
         ")->fetchAll();
 
@@ -1790,9 +1802,9 @@ final class PortalController
         $stmt->execute($params);
         $applications = $stmt->fetchAll();
 
-        $allBranches = in_array($user['role_slug'], ['admin', 'manager'], true);
-        $cWhere = $allBranches ? '' : ' WHERE c.branch_id = :bid ';
-        $cParams = $allBranches ? [] : [':bid' => (int) $user['branch_id']];
+        // Clients are shared across branches, so any staff member can apply for any client.
+        $cWhere = '';
+        $cParams = [];
         $cStmt = $pdo->prepare("
             SELECT c.id, c.full_name, c.client_code, cs.current_score
             FROM clients c
@@ -2106,7 +2118,7 @@ final class PortalController
      */
     private static function clientFinancingHistory(PDO $pdo, array $user): array
     {
-        [$scope, $params] = self::scopeSql($user, 'f');
+        [$scope, $params] = self::clientScopeSql($user, 'f', 'client_id'); // full history, every branch
         $stmt = $pdo->prepare("
             SELECT f.id, f.client_id, f.financing_number, f.product_type, f.status, f.approved_amount, f.total_due,
                    f.outstanding_balance, f.disbursed_at,
@@ -2140,7 +2152,7 @@ final class PortalController
     private static function loanNew(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
-        [$scopeSql, $params] = self::scopeSql($user, 'c');
+        [$scopeSql, $params] = self::clientScopeSql($user, 'c');
 
         $clients = $pdo->prepare("
             SELECT c.id, c.full_name, c.client_code, c.phone, c.email, c.id_number, c.branch_id,
@@ -2306,7 +2318,7 @@ final class PortalController
     private static function murabahaNewForm(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
-        [$scopeSql, $params] = self::scopeSql($user, 'c');
+        [$scopeSql, $params] = self::clientScopeSql($user, 'c');
 
         $clients = $pdo->prepare("
             SELECT c.id, c.full_name, c.client_code, c.phone, c.email, c.id_number, c.branch_id,
@@ -2690,7 +2702,7 @@ final class PortalController
     private static function repaymentCollect(PDO $pdo): void
     {
         $user = AuthMiddleware::requirePermission('repayments.record');
-        [$scope, $params] = self::scopeSql($user, 'f');
+        [$scope, $params] = self::clientScopeSql($user, 'f', 'client_id'); // clients may pay at any branch
         $open = "i.financing_id = f.id AND i.status IN ('pending', 'partial', 'overdue')";
         $stmt = $pdo->prepare("
             SELECT f.id, f.financing_number, f.product_type, f.total_due, f.outstanding_balance, f.status,
