@@ -28,7 +28,7 @@ $contactI18n = [
         'hero_lead' => 'We are here to support your growth through transparent, ethical, and Sharia-compliant Islamic microfinance services in Mogadishu and across Somalia.',
 
         // Cards
-        'card_phone_title' => '(+252) 61 6256534',
+        'card_phone_title' => '+252 616256534 / +252 613496943',
         'card_phone_desc' => 'Direct customer support and WhatsApp consultation with our financing specialists.',
         'card_phone_action' => 'Call Directly',
 
@@ -108,7 +108,7 @@ $contactI18n = [
         'hero_lead' => 'Waxaan diyaar u nahay inaan kugu garab istaagno adeegyo maaliyadeed oo hufan, xalaal ah, oo 100% waafaqsan shareecada Islaamka meel kasta oo aad joogto.',
 
         // Cards
-        'card_phone_title' => '(+252) 61 6256534',
+        'card_phone_title' => '+252 616256534 / +252 613496943',
         'card_phone_desc' => 'Khadka tooska ah iyo WhatsApp-ka si aad u hesho talo iyo caawimaad degdeg ah.',
         'card_phone_action' => 'Toos u Soo Wac',
 
@@ -188,7 +188,7 @@ $contactI18n = [
         'hero_lead' => 'نحن هنا لمساعدتك وتقديم حلول التمويل الإسلامي الأخلاقية والميسرة بنسبة 0% ربا في مقديشو وكافة أرجاء الصومال.',
 
         // Cards
-        'card_phone_title' => '(+252) 61 6256534',
+        'card_phone_title' => '+252 616256534 / +252 613496943',
         'card_phone_desc' => 'خدمة العملاء المباشرة والاستشارات الفورية عبر الهاتف والواتساب.',
         'card_phone_action' => 'اتصل بنا مباشرة',
 
@@ -489,7 +489,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 
                 <div class="contact-field-group">
                     <label class="contact-field-label" for="contact_phone"><?= Security::e($t['label_phone']) ?> *</label>
-                    <input type="tel" id="contact_phone" name="phone" class="contact-input-styled" placeholder="e.g. +252 61 6256534" required>
+                    <input type="tel" id="contact_phone" name="phone" class="contact-input-styled" placeholder="e.g. +252 616256534" required>
                 </div>
 
                 <div class="contact-field-group">
@@ -694,7 +694,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                         <li><a href="?route=home#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
                     </ul>
                     <ul class="fid-footer-links" style="margin-top:20px;">
-                        <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
+                        <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 616256534 / +252 613496943') ?></li>
                         <li dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
                     </ul>
                 </div>
@@ -735,7 +735,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <!-- Center: Group Info, Language Switcher & Copyright -->
                 <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
                     <div><?= Security::e($t['footer_part_of']) ?> (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
-                    <div dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
+                    <div dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 616256534 / +252 613496943') ?></span></div>
                     <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin:12px 0;">
                         <a href="?route=contact&lang=so" title="Af-Soomaali (Somalia)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
                             <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">

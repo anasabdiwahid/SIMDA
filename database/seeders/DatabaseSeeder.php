@@ -86,7 +86,7 @@ final class DatabaseSeeder
             ['approval_branch_threshold', '50000.00', 'Maximum financing amount ($ USD) a Branch Manager can approve; above it goes to the General Manager'],
             ['late_charge_grace_days', '7', 'Grace period in days after due date before charity charge applies'],
             ['disbursement_expiry_days', '30', 'Number of days before an approved undisbursed application expires'],
-            ['institution_phone', '+252 61 6256534', 'Official institution contact phone (configurable)'],
+            ['institution_phone', '+252 616256534 / +252 613496943', 'Official institution contact phone (configurable)'],
             ['institution_email', 'anasabdiwahidhussein@gmail.com', 'Official institution contact email (configurable)'],
             ['institution_address', 'Mogadishu, Somalia', 'Headquarters address (configurable)'],
         ];
@@ -111,7 +111,7 @@ final class DatabaseSeeder
             ':city' => 'Mogadishu',
             ':dist' => 'Central',
             ':addr' => 'Headquarters',
-            ':phone' => '+252 61 500 0000',
+            ':phone' => '+252 616256534',
             ':mgr' => 'Branch Manager',
         ]);
 
@@ -127,7 +127,7 @@ final class DatabaseSeeder
             ':name' => 'System Administrator',
             ':uname' => 'admin',
             ':email' => 'anasabdiwahidhussein@gmail.com',
-            ':phone' => '+252 61 500 0000',
+            ':phone' => '+252 616256534',
             ':phash' => Security::hashPassword('yDnSl700'),
         ]);
 

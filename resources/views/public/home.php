@@ -1049,7 +1049,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     <ul class="fid-contact-list">
                         <li>
                             <span class="fid-contact-dot"><?= Icons::svg('phone', 12) ?></span>
-                            <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span>
+                            <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 616256534 / +252 613496943') ?></span>
                         </li>
                         <li>
                             <span class="fid-contact-dot"><?= Icons::svg('send', 12) ?></span>
@@ -1274,7 +1274,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                         <li><a href="#calculator"><?= Security::e($t['footer_schedule_engine']) ?></a></li>
                     </ul>
                     <ul class="fid-footer-links" style="margin-top:20px;">
-                        <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></li>
+                        <li class="num-tabular" dir="ltr"><?= Security::e($settings['institution_phone'] ?? '+252 616256534 / +252 613496943') ?></li>
                         <li dir="ltr"><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?></li>
                     </ul>
                 </div>
@@ -1315,7 +1315,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                 <!-- Center: Group Info, Language Switcher & Copyright -->
                 <div style="text-align:center;font-size:0.78rem;color:rgba(244,245,240,0.82);line-height:1.6;">
                     <div><?= Security::e($t['footer_part_of']) ?> (<?= Security::e(Lang::get('app_full_name')) ?>).</div>
-                    <div><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 61 6256534') ?></span></div>
+                    <div><?= Security::e($settings['institution_email'] ?? 'anasabdiwahidhussein@gmail.com') ?>, <span class="num-tabular"><?= Security::e($settings['institution_phone'] ?? '+252 616256534 / +252 613496943') ?></span></div>
                     <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin:12px 0;">
                         <a href="?route=home&lang=so" title="Af-Soomaali (Somalia)" style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;border:2px solid <?= $locale === 'so' ? '#D6B66C' : 'rgba(255,255,255,0.28)' ?>;box-shadow:<?= $locale === 'so' ? '0 0 0 3px rgba(214,182,108,0.35)' : '0 2px 6px rgba(0,0,0,0.25)' ?>;transition:transform 0.15s ease;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
                             <img src="assets/images/flags/flag-so.jpg" alt="Somalia" style="width:100%;height:100%;object-fit:cover;display:block;">

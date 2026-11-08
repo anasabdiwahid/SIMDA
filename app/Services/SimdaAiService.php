@@ -163,7 +163,7 @@ TXT;
 
         $lines[] = '';
         $lines[] = 'Contact';
-        $lines[] = '- Phone / WhatsApp: ' . ($set['institution_phone'] ?? '+252 61 6256534');
+        $lines[] = '- Phone / WhatsApp: ' . ($set['institution_phone'] ?? '+252 616256534');
         $lines[] = '- Email: ' . ($set['institution_email'] ?? 'anasabdiwahidhussein@gmail.com');
         $lines[] = '- Address: ' . ($set['institution_address'] ?? 'Mogadishu, Somalia') . ' (Head Office: KM4, Hodan District, Mogadishu)';
         $lines[] = '- Working hours: Saturday to Thursday, 8:00 AM - 4:30 PM. Closed on Friday.';

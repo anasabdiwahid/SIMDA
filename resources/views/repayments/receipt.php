@@ -173,7 +173,7 @@ $prodName = match ($r['product_type'] ?? '') {
                     </div>
                 </div>
                 <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
-                    <?= Security::e($r['branch_name'] ?? 'Head Office Branch') ?> &bull; <?= Security::e($r['branch_city'] ?? 'Mogadishu, Somalia') ?> &bull; <?= Security::e($r['branch_phone'] ?? '+252 61 500 0000') ?>
+                    <?= Security::e($r['branch_name'] ?? 'Head Office Branch') ?> &bull; <?= Security::e($r['branch_city'] ?? 'Mogadishu, Somalia') ?> &bull; <?= Security::e($r['branch_phone'] ?? '+252 616256534 / +252 613496943') ?>
                 </div>
             </div>
 

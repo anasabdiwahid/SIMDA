@@ -423,40 +423,40 @@ final class PortalController
 
             if ($lang === 'ar') {
                 $reply = "أهلاً بك! يمكنك التواصل المباشر مع مسؤولي سيمدا عبر الأرقام ووسائل الاتصال الرسمية التالية:\n\n"
-                    . "📱 رقم الواتساب والهاتف: +252 61 6256534\n"
-                    . "📞 هاتف إضافي: +252 61 5000000\n"
+                    . "📱 رقم الواتساب والهاتف: +252 616256534\n"
+                    . "📞 هاتف إضافي: +252 613496943\n"
                     . "✉️ البريد الإلكتروني: anasabdiwahidhussein@gmail.com\n"
                     . "📍 المقر: تقاطع KM4، مديرية هودن، مقديشو\n\n"
                     . "انقر على زر الواتساب الأخضر أدناه لبدء المحادثة المباشرة فوراً:";
                 $actionBtn = [
                     'type' => 'whatsapp',
-                    'label' => '💬 تواصل عبر واتساب (+252 61 6256534)',
+                    'label' => '💬 تواصل عبر واتساب (+252 616256534)',
                     'url' => $waUrl
                 ];
                 $suggestions = ['أخبرني عن هذا المكان', 'كيف أتقدم بطلب تمويل؟', 'هل التمويل 0% ربا؟'];
             } elseif ($lang === 'en') {
                 $reply = "Here are SIMDA's official contact numbers and direct support channels:\n\n"
-                    . "📱 WhatsApp & Phone: +252 61 6256534\n"
-                    . "📞 Office Line: +252 61 5000000\n"
+                    . "📱 WhatsApp & Phone: +252 616256534\n"
+                    . "📞 Office Line: +252 613496943\n"
                     . "✉️ Email: anasabdiwahidhussein@gmail.com\n"
                     . "📍 Location: KM4, Hodan District, Mogadishu\n\n"
                     . "Click the green WhatsApp button below to chat with our advisors immediately:";
                 $actionBtn = [
                     'type' => 'whatsapp',
-                    'label' => '💬 Chat on WhatsApp (+252 61 6256534)',
+                    'label' => '💬 Chat on WhatsApp (+252 616256534)',
                     'url' => $waUrl
                 ];
                 $suggestions = ['Tell me about this place', 'How can I apply?', 'Is it 0% Riba?'];
             } else {
                 $reply = "Waa kuwan lambarada rasmiga ah iyo xiriirka tooska ah ee SIMDA:\n\n"
-                    . "📱 WhatsApp & Taleefan: +252 61 6256534\n"
-                    . "📞 Khadka Xafiiska: +252 61 5000000\n"
+                    . "📱 WhatsApp & Taleefan: +252 616256534\n"
+                    . "📞 Khadka Xafiiska: +252 613496943\n"
                     . "✉️ Email: anasabdiwahidhussein@gmail.com\n"
                     . "📍 Goobta: KM4, Degmada Hodan, Muqdisho\n\n"
                     . "Guji batoonka cagaaran ee hoose si aad toos noogala hadasho WhatsApp:";
                 $actionBtn = [
                     'type' => 'whatsapp',
-                    'label' => '💬 La Hadal WhatsApp (+252 61 6256534)',
+                    'label' => '💬 La Hadal WhatsApp (+252 616256534)',
                     'url' => $waUrl
                 ];
                 $suggestions = ['Xogta meesha wax iga sheeg', 'Sideen u codsadaa?', '0% Ribo ma dhabbaa?'];
@@ -476,7 +476,7 @@ final class PortalController
                     . "4. نظام الموافقة الثنائي: رقابة صارمة عبر مسؤول التمويل (Loan Officer) واعتماد رسمي من مدير الفرع (Branch Manager).\n"
                     . "5. ترحيل أقساط الجمعة: احتراماً لعطلة الجمعة، تُرحل الأقساط آلياً إلى السبت دون أي غرامة.\n"
                     . "6. صندوق الصدقات: غرامات التأخير التأديبية تذهب 100% لصالح الفقراء والمحتاجين ($0 للمؤسسة).\n\n"
-                    . "المقر الرئيسي: تقاطع KM4، مديرية هودن، مقديشو | هاتف: 6256534 61 252+ | بريد: anasabdiwahidhussein@gmail.com";
+                    . "المقر الرئيسي: تقاطع KM4، مديرية هودن، مقديشو | هاتف: 616256534 252+ / 613496943 252+ | بريد: anasabdiwahidhussein@gmail.com";
                 $suggestions = ['هل التمويل 0% ربا؟', 'كيف أتقدم بطلب تمويل؟', 'ما هي المرابحة؟'];
             } elseif ($lang === 'en') {
                 $reply = "Welcome to SIMDA (Somali Islamic Microfinance Development Association)!\n\n"
@@ -487,7 +487,7 @@ final class PortalController
                     . "4. Dual-Threshold Approval: Fast, transparent governance managed by Loan Officers and authorized by Branch Managers.\n"
                     . "5. Automatic Friday Shift: Due dates falling on Islamic Friday weekend shift automatically to Saturday with zero late penalties.\n"
                     . "6. Segregated Charity Fund: Disciplinary late fees are never taken as income ($0 to SIMDA); they are 100% transferred to our community welfare Charity Fund.\n\n"
-                    . "Head Office: KM4, Hodan District, Mogadishu | Tel: +252 61 6256534 | Email: anasabdiwahidhussein@gmail.com";
+                    . "Head Office: KM4, Hodan District, Mogadishu | Tel: +252 616256534 / +252 613496943 | Email: anasabdiwahidhussein@gmail.com";
                 $suggestions = ['Is it 0% Riba?', 'How can I apply?', 'What is Murabaha?'];
             } else {
                 $reply = "Ku soo dhowow SIMDA (Somali Islamic Microfinance Development Association)!\n\n"
@@ -499,7 +499,7 @@ final class PortalController
                     . "4. Nidaamka Oggolaanshaha: Codsi kasta waxaa darsaya Sarkaalka Maaliyadda (Loan Officer), waxaana ansixinaya Maareeyaha Laanta (Branch Manager).\n"
                     . "5. Xushmadda Jimcaha: Maalinta Jimcaha lacag lama bixiyo; nidaamkayagu si toos ah ayuu bixinta ugu wareejiyaa Sabtida iyadoo wax ganaax ah aysan jirin.\n"
                     . "6. Sanduuqa Sadaqada: Haddii qofku sabab la'aan u daaho, ganaaxa edbinta ah 100% wuxuu toos u galaa Sanduuqa Sadaqada ($0 ayuu bangigu ka qaataa).\n\n"
-                    . "Xafiiska Sare: KM4, Degmada Hodan, Muqdisho | Tel: +252 61 6256534 / +252 61 5000000 | Email: anasabdiwahidhussein@gmail.com";
+                    . "Xafiiska Sare: KM4, Degmada Hodan, Muqdisho | Tel: +252 616256534 / +252 613496943 | Email: anasabdiwahidhussein@gmail.com";
                 $suggestions = ['0% Ribo ma dhabbaa?', 'Sideen u codsadaa?', 'Keyd ma leedihiin?'];
             }
         }
@@ -677,17 +677,17 @@ final class PortalController
             );
             $actionBtn = [
                 'type' => 'whatsapp',
-                'label' => ($lang === 'ar' ? '💬 تواصل عبر واتساب (+252 61 6256534)' : ($lang === 'en' ? '💬 Chat on WhatsApp (+252 61 6256534)' : '💬 La Hadal WhatsApp (+252 61 6256534)')),
+                'label' => ($lang === 'ar' ? '💬 تواصل عبر واتساب (+252 616256534)' : ($lang === 'en' ? '💬 Chat on WhatsApp (+252 616256534)' : '💬 La Hadal WhatsApp (+252 616256534)')),
                 'url' => $waUrl
             ];
             if ($lang === 'ar') {
-                $reply = "يقع المقر الرئيسي لسيمدا في تقاطع KM4، مديرية هودن، مقديشو، الصومال. هاتف: 6256534 61 252+ / 5000000 61 252+. البريد: anasabdiwahidhussein@gmail.com. ساعات العمل: السبت إلى الخميس، من 8:00 صباحاً حتى 4:30 مساءً (الجمعة عطلة).\n\nيمكنك أيضاً التحدث معنا فوراً عبر واتساب بالنقر أدناه:";
+                $reply = "يقع المقر الرئيسي لسيمدا في تقاطع KM4، مديرية هودن، مقديشو، الصومال. هاتف: 616256534 252+ / 613496943 252+. البريد: anasabdiwahidhussein@gmail.com. ساعات العمل: السبت إلى الخميس، من 8:00 صباحاً حتى 4:30 مساءً (الجمعة عطلة).\n\nيمكنك أيضاً التحدث معنا فوراً عبر واتساب بالنقر أدناه:";
                 $suggestions = ['كيف أتقدم بطلب؟', 'هل التمويل 0% ربا؟', 'ما هي المنتجات؟'];
             } elseif ($lang === 'en') {
-                $reply = "SIMDA Head Office is located at KM4, Hodan District, Mogadishu, Somalia. Phone: +252 61 6256534 / +252 61 5000000. Email: anasabdiwahidhussein@gmail.com. Working hours: Saturday to Thursday, 8:00 AM – 4:30 PM (Closed on Friday).\n\nYou can also click below to chat with us directly on WhatsApp:";
+                $reply = "SIMDA Head Office is located at KM4, Hodan District, Mogadishu, Somalia. Phone: +252 616256534 / +252 613496943. Email: anasabdiwahidhussein@gmail.com. Working hours: Saturday to Thursday, 8:00 AM – 4:30 PM (Closed on Friday).\n\nYou can also click below to chat with us directly on WhatsApp:";
                 $suggestions = ['How to apply?', 'Is it 0% Riba?', 'What are the products?'];
             } else {
-                $reply = "Xafiiska Sare ee SIMDA wuxuu ku yaallaa: KM4, Degmada Hodan, Muqdisho, Soomaaliya. Tel: +252 61 6256534 ama +252 61 5000000. Email: anasabdiwahidhussein@gmail.com. Saacadaha shaqadu waa Sabti ilaa Khamiis 8:00 subaxnimo ilaa 4:30 galabnimo (Jimcaha waa fasax).\n\nWaxaad sidoo kale toos noogala soo xiriiri kartaa WhatsApp adoo gujinaya batoonka hoose:";
+                $reply = "Xafiiska Sare ee SIMDA wuxuu ku yaallaa: KM4, Degmada Hodan, Muqdisho, Soomaaliya. Tel: +252 616256534 ama +252 613496943. Email: anasabdiwahidhussein@gmail.com. Saacadaha shaqadu waa Sabti ilaa Khamiis 8:00 subaxnimo ilaa 4:30 galabnimo (Jimcaha waa fasax).\n\nWaxaad sidoo kale toos noogala soo xiriiri kartaa WhatsApp adoo gujinaya batoonka hoose:";
                 $suggestions = ['Sideen u codsadaa?', '0% Ribo ma dhabbaa?', 'Maxaad maalgeliyaan?'];
             }
         }
@@ -743,13 +743,13 @@ final class PortalController
         else {
             $topic = 'fallback';
             if ($lang === 'ar') {
-                $reply = "سؤال رائع! في سيمدا نحن ملتزمون بتقديم تمويل أصغر إسلامي 100% خالٍ من الربا (0% ربا) لدعم رواد الأعمال، الأكشاك، وتمويل الأصول الإنتاجية بنظام المرابحة. للإجابة الدقيقة على تفاصيل استفسارك، يمكنك زيارة فرعنا بـ KM4 بمقديشو أو التواصل مباشرة عبر الهاتف: 6256534 61 252+ أو البريد anasabdiwahidhussein@gmail.com.";
+                $reply = "سؤال رائع! في سيمدا نحن ملتزمون بتقديم تمويل أصغر إسلامي 100% خالٍ من الربا (0% ربا) لدعم رواد الأعمال، الأكشاك، وتمويل الأصول الإنتاجية بنظام المرابحة. للإجابة الدقيقة على تفاصيل استفسارك، يمكنك زيارة فرعنا بـ KM4 بمقديشو أو التواصل مباشرة عبر الهاتف: 616256534 252+ / 613496943 252+ أو البريد anasabdiwahidhussein@gmail.com.";
                 $suggestions = ['هل التمويل خالٍ من الربا؟', 'ما هي شروط التقديم؟', 'أين يقع مكتبكم؟'];
             } elseif ($lang === 'en') {
-                $reply = "Thank you for asking! SIMDA is dedicated to 100% Sharia-compliant, 0% Riba microfinance for Somali entrepreneurs, kiosk owners, and asset financing through Murabaha. For tailored assistance on this specific inquiry, our team at KM4 Mogadishu is ready to help at +252 61 6256534 or anasabdiwahidhussein@gmail.com.";
+                $reply = "Thank you for asking! SIMDA is dedicated to 100% Sharia-compliant, 0% Riba microfinance for Somali entrepreneurs, kiosk owners, and asset financing through Murabaha. For tailored assistance on this specific inquiry, our team at KM4 Mogadishu is ready to help at +252 616256534 / +252 613496943 or anasabdiwahidhussein@gmail.com.";
                 $suggestions = ['Is it 0% Riba?', 'How can I apply?', 'Where is your office?'];
             } else {
-                $reply = "Waad ku mahadsan tahay su'aashaada! SIMDA waxay u taagan tahay maalgelin xalaal ah oo 100% ribo la'aan ah (0% Ribo) oo lagu taageerayo ganacsatada yaryar, baqaarrada, iyo qalabka ganacsiga iyadoo la adeegsanayo nidaamka Murabaha. Faahfaahin dheeraad ah oo ku saabsan su'aashaada gaarka ah, fadlan nagala soo xiriir xafiiska KM4, Muqdisho ama Tel: +252 61 6256534 / anasabdiwahidhussein@gmail.com.";
+                $reply = "Waad ku mahadsan tahay su'aashaada! SIMDA waxay u taagan tahay maalgelin xalaal ah oo 100% ribo la'aan ah (0% Ribo) oo lagu taageerayo ganacsatada yaryar, baqaarrada, iyo qalabka ganacsiga iyadoo la adeegsanayo nidaamka Murabaha. Faahfaahin dheeraad ah oo ku saabsan su'aashaada gaarka ah, fadlan nagala soo xiriir xafiiska KM4, Muqdisho ama Tel: +252 616256534 / +252 613496943 / anasabdiwahidhussein@gmail.com.";
                 $suggestions = ['0% Ribo ma dhabbaa?', 'Sideen u codsadaa?', 'Xafiiskiina xagee ku yaal?'];
             }
         }
