@@ -34,6 +34,8 @@ final class MurabahaGoodsService
                 markup_pct DECIMAL(6,2) NOT NULL DEFAULT 6.00,
                 image_path VARCHAR(255) NULL,
                 is_active TINYINT(1) NOT NULL DEFAULT 1,
+                show_on_home TINYINT(1) NOT NULL DEFAULT 0,
+                home_months INT UNSIGNED NOT NULL DEFAULT 12,
                 created_by INT UNSIGNED NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -43,7 +45,61 @@ final class MurabahaGoodsService
         if ($isNew) {
             self::seedDefaults($db);
         }
+        // Upgrade older installs: add the home-page columns, then bring in the items the home page used to hard-code.
+        $hasHome = $db->query("SHOW COLUMNS FROM murabaha_goods LIKE 'show_on_home'")->fetchColumn() !== false;
+        if (!$hasHome) {
+            $db->exec('ALTER TABLE murabaha_goods
+                ADD COLUMN show_on_home TINYINT(1) NOT NULL DEFAULT 0 AFTER is_active,
+                ADD COLUMN home_months INT UNSIGNED NOT NULL DEFAULT 12 AFTER show_on_home');
+        }
+        if ($isNew || !$hasHome) {
+            self::seedHomeShowcase($db);
+        }
         $done = true;
+    }
+
+    /** The five items the home page hero used to hard-code, now catalog items shown on the home page. */
+    private static function seedHomeShowcase(PDO $db): void
+    {
+        $dir = 'assets/images/landing/murabaha/';
+        $items = [
+            ['MG HS Luxury SUV (2024)', 'Gaadiidka', 'Gaari MG HS Luxury SUV, 2024.', 16500, $dir . 'murabaha-car.png', 48],
+            ['Hero Pleasure+ Scooter', 'Gaadiidka Shaqada', 'Mooto scooter loogu talagalay shaqada iyo delivery-ga.', 1250, $dir . 'murabaha-scooter.png', 18],
+            ['Honda CBR Sport (250cc)', 'Mootooyinka', 'Mooto Honda CBR Sport 250cc.', 3200, $dir . 'murabaha-bike.png', 24],
+            ['iPhone 17 Pro Max (Cosmic Orange)', 'Teknolojiyadda', 'iPhone 17 Pro Max, midabka Cosmic Orange.', 1150, $dir . 'murabaha-phone-orange.png', 12],
+            ['iPhone 18 Pro Max (Deep Crimson Red)', 'Teknolojiyadda', 'iPhone 18 Pro Max, midabka Deep Crimson Red.', 1280, $dir . 'murabaha-phone-red.png', 12],
+        ];
+        $exists = $db->prepare('SELECT 1 FROM murabaha_goods WHERE image_path = ? LIMIT 1');
+        // Markup 0: the price shown on the home page stays exactly what it was.
+        $ins = $db->prepare('INSERT INTO murabaha_goods (name, category, description, price, markup_pct, image_path, show_on_home, home_months) VALUES (?, ?, ?, ?, 0, ?, 1, ?)');
+        foreach ($items as $item) {
+            $exists->execute([$item[4]]);
+            if ($exists->fetchColumn() === false) {
+                $ins->execute($item);
+            }
+        }
+    }
+
+    /** Active items switched ON for the home page, for the hero showcase. */
+    public static function homeShowcase(PDO $db, int $limit = 8): array
+    {
+        self::ensureTable($db);
+        $st = $db->prepare('SELECT * FROM murabaha_goods WHERE is_active = 1 AND show_on_home = 1 ORDER BY id ASC LIMIT ' . max(1, $limit));
+        $st->execute();
+        return $st->fetchAll();
+    }
+
+    public static function monthlyPayment(array $item): float
+    {
+        $months = max(1, (int) ($item['home_months'] ?? 12));
+        return round(self::sellingPrice($item) / $months, 2);
+    }
+
+    public static function toggleHome(PDO $db, int $id, int $userId): void
+    {
+        self::ensureTable($db);
+        $db->prepare('UPDATE murabaha_goods SET show_on_home = 1 - show_on_home WHERE id = :id')->execute([':id' => $id]);
+        AuditLogger::log('murabaha_goods.home_toggled', 'murabaha_goods', $id, "Toggled home page visibility of Murabaha product #{$id}.", [], $userId);
     }
 
     /** The goods the New Murabaha form used to hard-code, so the catalog starts with them (no images). */
@@ -98,6 +154,11 @@ final class MurabahaGoodsService
         $description = trim((string) ($data['description'] ?? ''));
         $price = (float) ($data['price'] ?? 0);
         $markup = (float) ($data['markup_pct'] ?? 6);
+        $showOnHome = !empty($data['show_on_home']) ? 1 : 0;
+        $homeMonths = (int) ($data['home_months'] ?? 12);
+        if ($homeMonths < 1 || $homeMonths > 120) {
+            throw new RuntimeException($isSo ? 'Bilaha bixinta waa inay u dhexeeyaan 1 iyo 120.' : 'Months must be between 1 and 120.');
+        }
 
         if ($name === '' || mb_strlen($name) > 160) {
             throw new RuntimeException($isSo ? 'Fadlan geli magaca sheyga (ugu badnaan 160 xaraf).' : 'Please enter the product name (max 160 characters).');
@@ -131,18 +192,20 @@ final class MurabahaGoodsService
             ':price' => number_format($price, 2, '.', ''),
             ':markup' => number_format($markup, 2, '.', ''),
             ':img' => $imagePath,
+            ':home' => $showOnHome,
+            ':months' => $homeMonths,
         ];
 
         if ($existing) {
             $params[':id'] = $id;
-            $db->prepare('UPDATE murabaha_goods SET name = :name, category = :cat, description = :descr, price = :price, markup_pct = :markup, image_path = :img WHERE id = :id')
+            $db->prepare('UPDATE murabaha_goods SET name = :name, category = :cat, description = :descr, price = :price, markup_pct = :markup, image_path = :img, show_on_home = :home, home_months = :months WHERE id = :id')
                 ->execute($params);
             AuditLogger::log('murabaha_goods.updated', 'murabaha_goods', $id, "Updated Murabaha product {$name} (\${$params[':price']}).", [], $userId);
             return $id;
         }
 
         $params[':by'] = $userId;
-        $db->prepare('INSERT INTO murabaha_goods (name, category, description, price, markup_pct, image_path, created_by) VALUES (:name, :cat, :descr, :price, :markup, :img, :by)')
+        $db->prepare('INSERT INTO murabaha_goods (name, category, description, price, markup_pct, image_path, show_on_home, home_months, created_by) VALUES (:name, :cat, :descr, :price, :markup, :img, :home, :months, :by)')
             ->execute($params);
         $newId = (int) $db->lastInsertId();
         AuditLogger::log('murabaha_goods.created', 'murabaha_goods', $newId, "Added Murabaha product {$name} (\${$params[':price']}).", [], $userId);

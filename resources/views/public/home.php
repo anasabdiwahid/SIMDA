@@ -545,77 +545,29 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                     </div>
                 </div>
 
-                <!-- DYNAMIC MURABAHA 5-ASSET SHOWCASE (Switches every 4 seconds) -->
+                <!-- MURABAHA SHOWCASE: catalog items switched ON for the home page (Murabaha Products page). Switches every 4 seconds. -->
                 <?php
-                $murabahaAssets = [
-                    [
-                        'id' => 'car',
-                        'img' => 'assets/images/landing/murabaha/murabaha-car.png',
-                        'title_so' => 'Gaari MG HS Luxury SUV',
-                        'title_en' => 'MG HS Luxury SUV (2024)',
-                        'title_ar' => 'سيارة إم جي إتش إس الفاخرة',
-                        'category_so' => 'Maalgalinta Gaadiidka',
-                        'category_en' => 'Vehicle Financing',
-                        'category_ar' => 'تمويل السيارات',
-                        'price' => '$16,500',
-                        'monthly' => '$345',
-                        'badge' => '0% Ribo • Murabaha'
-                    ],
-                    [
-                        'id' => 'scooter',
-                        'img' => 'assets/images/landing/murabaha/murabaha-scooter.png',
-                        'title_so' => 'Mooto Scooter Pleasure+ (Delivery)',
-                        'title_en' => 'Hero Pleasure+ Scooter (Work & Delivery)',
-                        'title_ar' => 'سكوتر هيرو بليجر للتوصيل والعمل',
-                        'category_so' => 'Gaadiidka Tafaariiqda & Shaqada',
-                        'category_en' => 'Delivery & Commuter',
-                        'category_ar' => 'وسائل النقل الخفيفة',
-                        'price' => '$1,250',
-                        'monthly' => '$65',
-                        'badge' => '0% Ribo • Murabaha'
-                    ],
-                    [
-                        'id' => 'bike',
-                        'img' => 'assets/images/landing/murabaha/murabaha-bike.png',
-                        'title_so' => 'Mooto Honda CBR Sport (250cc)',
-                        'title_en' => 'Honda CBR Sport Motorcycle',
-                        'title_ar' => 'دراجة هوندا سي بي آر الرياضية',
-                        'category_so' => 'Mootooyinka Xawaaraha & Shaqada',
-                        'category_en' => 'Performance Transport',
-                        'category_ar' => 'دراجات نارية متطورة',
-                        'price' => '$3,200',
-                        'monthly' => '$135',
-                        'badge' => '0% Ribo • Murabaha'
-                    ],
-                    [
-                        'id' => 'phone_orange',
-                        'img' => 'assets/images/landing/murabaha/murabaha-phone-orange.png',
-                        'title_so' => 'iPhone 17 Pro Max (Cosmic Orange)',
-                        'title_en' => 'iPhone 17 Pro Max (Cosmic Orange)',
-                        'title_ar' => 'آيفون 17 برو ماكس برتقالي',
-                        'category_so' => 'Qalabka Casriga ah ee Ganacsiga',
-                        'category_en' => 'Smart Enterprise Tech',
-                        'category_ar' => 'الأجهزة الذكية للأعمال',
-                        'price' => '$1,150',
-                        'monthly' => '$95',
-                        'badge' => '0% Ribo • Murabaha'
-                    ],
-                    [
-                        'id' => 'phone_red',
-                        'img' => 'assets/images/landing/murabaha/murabaha-phone-red.png',
-                        'title_so' => 'iPhone 18 Pro Max (Deep Crimson Red)',
-                        'title_en' => 'iPhone 18 Pro Max (Deep Crimson Red)',
-                        'title_ar' => 'آيفون 18 برو ماكس قرمزي',
-                        'category_so' => 'Qalabka Casriga ah ee Ganacsiga',
-                        'category_en' => 'Smart Enterprise Tech',
-                        'category_ar' => 'الأجهزة الذكية للأعمال',
-                        'price' => '$1,280',
-                        'monthly' => '$105',
-                        'badge' => '0% Ribo • Murabaha'
-                    ],
-                ];
+                $fmtUsd = static fn(float $v): string => '$' . number_format($v, $v == floor($v) ? 0 : 2);
+                $murabahaAssets = [];
+                foreach (($homeGoods ?? []) as $g) {
+                    $name = (string) $g['name'];
+                    $cat = trim((string) ($g['category'] ?? '')) !== '' ? (string) $g['category'] : 'Murabaha';
+                    $murabahaAssets[] = [
+                        'id' => 'g' . (int) $g['id'],
+                        'img' => (string) ($g['image_path'] ?: 'assets/images/landing/hero-somali-mama-shop.jpg'),
+                        'title_so' => $name, 'title_en' => $name, 'title_ar' => $name,
+                        'category_so' => $cat, 'category_en' => $cat, 'category_ar' => $cat,
+                        'price' => $fmtUsd(\App\Services\MurabahaGoodsService::sellingPrice($g)),
+                        'monthly' => $fmtUsd(round(\App\Services\MurabahaGoodsService::monthlyPayment($g))),
+                    ];
+                }
                 ?>
 
+                <?php if (!$murabahaAssets): ?>
+                <div class="fid-hero-media">
+                    <img src="assets/images/landing/hero-somali-mama-shop.jpg" alt="SIMDA Murabaha">
+                </div>
+                <?php else: ?>
                 <div class="fid-hero-media murabaha-asset-showcase" id="murabahaAssetShowcase">
                     <?php foreach ($murabahaAssets as $aIdx => $asset): ?>
                         <div class="murabaha-asset-item <?= $aIdx === 0 ? 'active' : '' ?>" data-asset-idx="<?= $aIdx ?>">
@@ -663,6 +615,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
 
             <!-- SLIDE 2: MAALGALINTA DUKAAMADA (Somali Mother Roadside Kiosk / Dukaan) -->

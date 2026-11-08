@@ -91,6 +91,7 @@ final class PortalController
                 'murabaha_goods' => self::murabahaGoodsList($pdo),
                 'murabaha_goods_save' => self::murabahaGoodsSave($pdo),
                 'murabaha_goods_toggle' => self::murabahaGoodsToggle($pdo),
+                'murabaha_goods_home' => self::murabahaGoodsHomeToggle($pdo),
                 'murabaha_goods_delete' => self::murabahaGoodsDelete($pdo),
                 'financings', 'schedules', 'statements' => self::financingsList($pdo, $route),
                 'financing_view' => self::financingView($pdo),
@@ -188,6 +189,11 @@ final class PortalController
         $settings = [];
         foreach ($settingsRows as $r) {
             $settings[$r['setting_key']] = $r['setting_value'];
+        }
+        try {
+            $homeGoods = MurabahaGoodsService::homeShowcase($pdo);
+        } catch (\Throwable $e) {
+            $homeGoods = []; // the public home page must still render if the catalog is unavailable
         }
         require dirname(__DIR__, 2) . '/resources/views/public/home.php';
     }
@@ -2446,6 +2452,15 @@ final class PortalController
         $_SESSION['flash_success'] = $id > 0
             ? ($isSo ? 'Sheyga Murabaxada waa la cusboonaysiiyay.' : 'Murabaha product updated.')
             : ($isSo ? 'Sheyga Murabaxada cusub waa la diiwaangeliyay.' : 'New Murabaha product added.');
+        header('Location: ?route=murabaha_goods');
+        exit;
+    }
+
+    private static function murabahaGoodsHomeToggle(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requirePermission('products.manage');
+        AuthMiddleware::verifyCsrfOrAbort();
+        MurabahaGoodsService::toggleHome($pdo, (int) ($_POST['id'] ?? 0), (int) $user['id']);
         header('Location: ?route=murabaha_goods');
         exit;
     }

@@ -10,8 +10,13 @@ CREATE TABLE IF NOT EXISTS murabaha_goods (
     markup_pct DECIMAL(6,2) NOT NULL DEFAULT 6.00,
     image_path VARCHAR(255) NULL,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
+    show_on_home TINYINT(1) NOT NULL DEFAULT 0,
+    home_months INT UNSIGNED NOT NULL DEFAULT 12,
     created_by INT UNSIGNED NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_goods_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2026-11-08: home page showcase flags (older installs; the app also adds these on first use)
+-- ALTER TABLE murabaha_goods ADD COLUMN show_on_home TINYINT(1) NOT NULL DEFAULT 0 AFTER is_active, ADD COLUMN home_months INT UNSIGNED NOT NULL DEFAULT 12 AFTER show_on_home;
