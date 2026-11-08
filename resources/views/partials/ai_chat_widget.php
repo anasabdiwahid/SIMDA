@@ -202,7 +202,7 @@ $aicChips = $aicLocale === 'so'
 .aic-hint.is-shown { opacity: 1; transform: none; pointer-events: auto; cursor: pointer; }
 .aic.is-open .aic-hint { display: none; }
 
-.aic-panel { position: absolute; bottom: 100px; inset-inline-end: 0; width: 370px; height: min(540px, max(300px, calc(100vh - 240px)));
+.aic-panel { position: absolute; bottom: 0; inset-inline-end: 84px; width: 380px; height: min(720px, max(320px, calc(100vh - 135px)));
              display: flex; flex-direction: column; overflow: hidden; border-radius: 22px; background: var(--aic-bg); color: var(--aic-ink);
              border: 1px solid var(--aic-line); box-shadow: 0 24px 60px rgba(6, 26, 21, 0.28); transform-origin: bottom right; animation: aicIn 0.22s ease-out; }
 [dir="rtl"] .aic-panel { transform-origin: bottom left; }
