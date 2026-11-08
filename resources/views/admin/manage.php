@@ -448,8 +448,19 @@ $adminTabs = [
 
             document.addEventListener('DOMContentLoaded', function () {
                 // Opened from a sidebar "Register ..." link: show the registration form straight away.
-                if (new URLSearchParams(window.location.search).get('new') === '1') {
+                const qs = new URLSearchParams(window.location.search);
+                if (qs.get('new') === '1') {
                     toggleCreateUserForm(true);
+                    // Optional ?role=<slug> pre-selects that role (the others stay available).
+                    const wantRole = qs.get('role');
+                    const sel = document.getElementById('userRoleSelect');
+                    if (wantRole && sel) {
+                        const opt = Array.from(sel.options).find(function (o) { return o.dataset.slug === wantRole; });
+                        if (opt) {
+                            sel.value = opt.value;
+                            setTimeout(function () { sel.dispatchEvent(new Event('change')); }, 0);
+                        }
+                    }
                     const first = document.getElementById('userFullNameInput');
                     if (first) setTimeout(function () { first.focus(); }, 250);
                 }

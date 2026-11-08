@@ -137,14 +137,11 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 ],
             ],
             [
-                // Staff: register and list managers and employees. Each role only sees the levels below it.
+                // Staff lists. Registering is done with the two buttons under Dashboard.
                 'label' => $so ? 'Shaqaalaha' : 'Staff', 'icon' => 'user-check', 'show' => $can('users.manage'),
                 'items' => [
-                    ['route' => 'managers&new=1', 'label' => $so ? 'Diiwaangeli Maamule Guud' : 'Register General Manager', 'cta' => true, 'show' => $role === 'admin', 'active' => $on(['managers']) && $isNew],
-                    ['route' => 'branch_managers&new=1', 'label' => $so ? 'Diiwaangeli Maamule Laan' : 'Register Branch Manager', 'cta' => true, 'show' => in_array($role, ['admin', 'manager'], true), 'active' => $on(['branch_managers']) && $isNew],
-                    ['route' => 'employees&new=1', 'label' => $so ? 'Diiwaangeli Shaqaale' : 'Register Employee', 'cta' => true, 'active' => $on(['employees']) && $isNew],
-                    ['route' => 'managers', 'label' => $so ? 'Maamulayaasha Guud' : 'General Managers', 'show' => $role === 'admin', 'active' => $on(['managers']) && !$isNew],
-                    ['route' => 'branch_managers', 'label' => $so ? 'Maamulayaasha Laamaha' : 'Branch Managers', 'show' => in_array($role, ['admin', 'manager'], true), 'active' => $on(['branch_managers']) && !$isNew],
+                    ['route' => 'managers', 'label' => $so ? 'Maamulayaasha Guud' : 'General Managers', 'show' => $role === 'admin', 'active' => $on(['managers'])],
+                    ['route' => 'branch_managers', 'label' => $so ? 'Maamulayaasha Laamaha' : 'Branch Managers', 'show' => in_array($role, ['admin', 'manager'], true), 'active' => $on(['branch_managers'])],
                     ['route' => 'employees', 'label' => $so ? 'Liiska Shaqaalaha' : 'All Employees', 'active' => $on(['employees', 'employee_register']) && !$isNew],
                 ],
             ],
@@ -165,6 +162,35 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <?= Icons::svg('dashboard', 18) ?>
                 <span class="sidebar-text"><?= Security::e(Lang::get('menu_dashboard')) ?></span>
             </a>
+
+            <?php if ($can('users.manage') && $role !== 'branch_manager'): ?>
+                <?php
+                // Manager button: admin starts on General Manager (Branch Manager is in the same dropdown);
+                // a General Manager can only create Branch Managers.
+                $mgrHref = $role === 'admin' ? 'users&new=1&role=manager' : 'branch_managers&new=1';
+                $mgrActive = $isNew && (($currentRoute === 'users' && ($_GET['role'] ?? '') === 'manager') || $currentRoute === 'branch_managers');
+                ?>
+                <div class="sb-register">
+                    <a href="?route=<?= Security::e($mgrHref) ?>" class="sb-register-btn <?= $mgrActive ? 'active' : '' ?>">
+                        <?= Icons::svg('briefcase', 16) ?>
+                        <span><?= $so ? 'Manager' : 'Manager' ?></span>
+                        <?= Icons::svg('plus', 13) ?>
+                    </a>
+                    <a href="?route=employees&new=1" class="sb-register-btn <?= $isNew && $currentRoute === 'employees' ? 'active' : '' ?>">
+                        <?= Icons::svg('user-plus', 16) ?>
+                        <span><?= $so ? 'Shaqaale' : 'Employee' ?></span>
+                        <?= Icons::svg('plus', 13) ?>
+                    </a>
+                </div>
+            <?php elseif ($can('users.manage')): ?>
+                <div class="sb-register">
+                    <a href="?route=employees&new=1" class="sb-register-btn sb-register-full <?= $isNew && $currentRoute === 'employees' ? 'active' : '' ?>">
+                        <?= Icons::svg('user-plus', 16) ?>
+                        <span><?= $so ? 'Diiwaangeli Shaqaale' : 'Register Employee' ?></span>
+                        <?= Icons::svg('plus', 13) ?>
+                    </a>
+                </div>
+            <?php endif; ?>
 
             <?php foreach ($sidebarGroups as $gi => $group): ?>
                 <?php
