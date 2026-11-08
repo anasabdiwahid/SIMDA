@@ -2097,6 +2097,46 @@ final class PortalController
         ]);
     }
 
+    /**
+     * Past cash loans and Murabaha per client, for the history warning on the New Cash Loan / New Murabaha forms.
+     * state: processing (still being repaid) or complete. late: an installment is past due and unpaid,
+     * was paid after its due date, the contract closed after maturity, or charity late charges were applied.
+     *
+     * @return array<int, list<array<string, mixed>>> client_id => financings, newest first
+     */
+    private static function clientFinancingHistory(PDO $pdo, array $user): array
+    {
+        [$scope, $params] = self::scopeSql($user, 'f');
+        $stmt = $pdo->prepare("
+            SELECT f.id, f.client_id, f.financing_number, f.product_type, f.status, f.approved_amount, f.total_due,
+                   f.outstanding_balance, f.disbursed_at,
+                   (
+                       f.status = 'overdue'
+                       OR (f.status = 'completed' AND f.closed_at IS NOT NULL AND DATE(f.closed_at) > f.maturity_date)
+                       OR EXISTS (SELECT 1 FROM installments i WHERE i.financing_id = f.id AND i.paid_at IS NOT NULL AND DATE(i.paid_at) > i.due_date)
+                       OR EXISTS (SELECT 1 FROM installments i WHERE i.financing_id = f.id AND i.status IN ('pending', 'partial', 'overdue') AND i.due_date < CURDATE())
+                       OR EXISTS (SELECT 1 FROM charity_charges cc WHERE cc.financing_id = f.id)
+                   ) AS is_late
+            FROM financings f
+            WHERE f.status <> 'written_off' {$scope}
+            ORDER BY f.id DESC
+        ");
+        $stmt->execute($params);
+        $history = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $history[(int) $r['client_id']][] = [
+                'number' => (string) $r['financing_number'],
+                'type' => $r['product_type'] === 'murabaha' ? 'murabaha' : 'loan',
+                'state' => $r['status'] === 'completed' ? 'complete' : 'processing',
+                'late' => (bool) $r['is_late'],
+                'amount' => (float) $r['approved_amount'],
+                'balance' => (float) $r['outstanding_balance'],
+                'date' => $r['disbursed_at'] ? date('d/m/Y', strtotime((string) $r['disbursed_at'])) : '',
+            ];
+        }
+        return $history;
+    }
+
     private static function loanNew(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
@@ -2121,6 +2161,7 @@ final class PortalController
             'pageTitle' => self::tr('Dayn Oo Lacag Ah', 'New Cash Loan', 'قرض نقدي جديد'),
             'clients' => $clientsList,
             'selectedClientId' => $selectedClientId,
+            'history' => self::clientFinancingHistory($pdo, $user),
         ]);
     }
 
@@ -2287,6 +2328,7 @@ final class PortalController
             'clients' => $clientsList,
             'goods' => MurabahaGoodsService::all($pdo, true),
             'selectedClientId' => $selectedClientId,
+            'history' => self::clientFinancingHistory($pdo, $user),
         ]);
     }
 

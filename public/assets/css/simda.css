@@ -7373,3 +7373,36 @@ th.fin-end {
 .sb-register-btn:hover, .sb-register-btn.active { background: var(--simda-gold); color: var(--simda-green-deep); }
 .sb-register-btn:focus-visible { outline: 2px solid var(--simda-gold); outline-offset: 2px; }
 .sb-register-full { grid-column: 1 / -1; }
+
+/* ==========================================================================
+   CLIENT FINANCING HISTORY ALERT (New Cash Loan / New Murabaha)
+   ========================================================================== */
+.ch-box { margin-top: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-elevated); overflow: hidden; }
+.ch-box[hidden] { display: none; }
+.ch-head { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; }
+.ch-head svg { flex-shrink: 0; margin-top: 1px; }
+.ch-head > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ch-head strong { font-size: 0.9rem; }
+.ch-head span { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; }
+.ch-box.is-new, .ch-box.is-good { border-color: rgba(35, 132, 91, 0.35); background: var(--color-success-bg); }
+.ch-box.is-new .ch-head, .ch-box.is-good .ch-head { color: var(--color-success); }
+.ch-box.is-open { border-color: rgba(217, 155, 53, 0.45); background: var(--color-warning-bg); }
+.ch-box.is-open .ch-head { color: #9A6A1C; }
+.ch-box.is-late { border: 1.5px solid var(--color-danger); background: var(--color-danger-bg); }
+.ch-box.is-late .ch-head { color: var(--color-danger); }
+.ch-box .ch-head strong { color: inherit; }
+.ch-list { list-style: none; margin: 0; padding: 0 8px 8px; display: flex; flex-direction: column; gap: 6px; }
+.ch-list li { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "num kind amt" "tags tags tags"; gap: 4px 10px; align-items: center; padding: 9px 12px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-color); font-size: 0.82rem; }
+.ch-list li.is-late { border-color: var(--color-danger); box-shadow: inset 3px 0 0 var(--color-danger); }
+.ch-num { grid-area: num; font-weight: 800; color: var(--text-primary); }
+.ch-kind { grid-area: kind; color: var(--text-muted); }
+.ch-amt { grid-area: amt; font-weight: 700; color: var(--text-primary); text-align: right; }
+.ch-tags { grid-area: tags; display: flex; flex-wrap: wrap; gap: 6px; }
+.ch-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 800; padding: 2px 9px; border-radius: 20px; }
+.ch-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.ch-pill.is-done { background: var(--color-success-bg); color: var(--color-success); }
+.ch-pill.is-proc { background: var(--color-warning-bg); color: #9A6A1C; }
+.ch-pill.is-late { background: var(--color-danger); color: #fff; }
+.ch-pill.is-late::before { background: #fff; }
+.sb-register-btn svg:last-child { display: none; }
+.sb-register-btn { gap: 0.5em; padding: 0.6em 0.65em; }

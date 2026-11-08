@@ -84,6 +84,8 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
                 <button type="button" class="btn btn-outline btn-sm" id="changeClientBtn"><?= $isSo ? 'Beddel' : 'Change' ?></button>
             </div>
 
+            <?php require __DIR__ . '/_client_history.php'; ?>
+
             <div class="mf-search" id="clientSearchWrapper">
                 <span class="mf-search-icon"><?= Icons::svg('search', 17) ?></span>
                 <input type="search" id="clientSearchInput" class="form-control" autocomplete="off"
@@ -321,6 +323,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
         closeList();
         $('formError').hidden = true;
         updateSummary();
+        if (window.renderClientHistory) window.renderClientHistory(o.dataset.id);
     }
 
     function clearClient() {
@@ -332,6 +335,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
         filterClients();
         search.focus();
         updateSummary();
+        if (window.renderClientHistory) window.renderClientHistory(null);
     }
 
     search.addEventListener('focus', filterClients);
