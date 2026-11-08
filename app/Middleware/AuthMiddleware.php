@@ -263,8 +263,8 @@ final class AuthMiddleware
         $loanOfficerPerms = [
             'clients.view', 'clients.register', 'guarantors.manage', 'loans.view',
             'murabaha.view', 'murabaha.create', 'applications.view', 'applications.create',
-            'applications.approve_small', 'financings.disburse', 'repayments.view',
-            'repayments.record', 'statements.generate'
+            // No approving and no disbursing: an employee's loan or Murabaha is a request for the Branch Manager.
+            'repayments.view', 'repayments.record', 'statements.generate'
         ];
 
         return match ($role) {

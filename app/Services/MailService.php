@@ -837,6 +837,70 @@ HTML;
     }
 
     /**
+     * Tells the client the decision on their loan / Murabaha request: approved (paid out separately) or rejected, with the reason.
+     */
+    public static function sendApplicationDecisionEmail(string $email, string $fullName, array $app, string $decision, string $comments, string $locale = 'so'): array
+    {
+        $isSo = $locale === 'so';
+        $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        $approved = $decision === 'approved';
+        $isMurabaha = ($app['product_type'] ?? '') === 'murabaha';
+        $kind = $isMurabaha ? ($isSo ? 'Murabaxo' : 'Murabaha') : ($isSo ? 'Dayn lacag ah' : 'Cash loan');
+        $number = (string) ($app['application_number'] ?? '');
+        $amount = '$' . number_format((float) ($app['requested_amount'] ?? 0), 2);
+        $term = (int) ($app['term_installments'] ?? 0) . ' ' . ((($app['repayment_frequency'] ?? 'monthly') === 'weekly') ? ($isSo ? 'toddobaad' : 'weeks') : ($isSo ? 'bilood' : 'months'));
+
+        $subject = $approved
+            ? ($isSo ? "SIMDA: Codsigaaga waa la ansixiyay ({$number})" : "SIMDA: Your request was approved ({$number})")
+            : ($isSo ? "SIMDA: Go'aanka codsigaaga ({$number})" : "SIMDA: Decision on your request ({$number})");
+        $title = $approved ? ($isSo ? 'Codsigaaga waa la ansixiyay' : 'Your request was approved') : ($isSo ? 'Codsigaaga lama ansixin' : 'Your request was not approved');
+        $body = $approved
+            ? ($isSo ? 'Waxaan ku faraxsanahay inaan kuu sheegno in codsigaaga la ansixiyay. Waxaa lagula soo xiriiri doonaa si lacagta laguugu bixiyo.' : 'We are pleased to tell you your request was approved. We will contact you to pay it out.')
+            : ($isSo ? 'Waan ka xunnahay, codsigaaga hadda lama ansixin. Waxaad nala soo xiriiri kartaa laantaada wixii su\'aal ah.' : 'We are sorry, your request was not approved this time. Please contact your branch with any questions.');
+        $color = $approved ? '#23845B' : '#C94B4B';
+        $rows = [
+            [$isSo ? 'Lambarka codsiga' : 'Request number', $number],
+            [$isSo ? 'Nooca' : 'Type', $kind],
+            [$isSo ? 'Lacagta' : 'Amount', $amount],
+            [$isSo ? 'Muddada' : 'Term', $term],
+        ];
+        if (trim($comments) !== '') {
+            $rows[] = [$approved ? ($isSo ? 'Qoraal' : 'Note') : ($isSo ? 'Sababta' : 'Reason'), trim($comments)];
+        }
+        $rowsHtml = '';
+        foreach ($rows as [$k, $v]) {
+            $rowsHtml .= '<tr><td style="padding:9px 14px;border-bottom:1px solid #E8EFEA;color:#788780;width:40%;">' . $e($k) . '</td><td style="padding:9px 14px;border-bottom:1px solid #E8EFEA;font-weight:700;color:#1B2E28;">' . $e($v) . '</td></tr>';
+        }
+        $hello = ($isSo ? 'Asalaamu calaykum ' : 'Assalamu alaikum ') . $fullName . ',';
+
+        $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
+        $inline = [];
+        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
+        if (is_file($logoPath)) {
+            $inline[] = ['cid' => 'simda_logo', 'path' => $logoPath, 'mime' => 'image/png', 'filename' => 'simda-logo.png'];
+            $logoSrc = 'cid:simda_logo';
+        }
+
+        $html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' . $e($subject) . '</title></head>'
+            . '<body style="margin:0;padding:24px 12px;background:#0d2620;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Arial,sans-serif;color:#1B2E28;">'
+            . '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;">'
+            . '<tr><td style="background:#123B32;padding:24px 30px;text-align:center;border-bottom:3px solid #D6B66C;"><img src="' . $logoSrc . '" alt="SIMDA" style="height:44px;max-width:180px;object-fit:contain;" /></td></tr>'
+            . '<tr><td style="padding:26px 30px 8px;font-size:14px;line-height:1.55;"><div style="font-weight:700;margin-bottom:10px;">' . $e($hello) . '</div>'
+            . '<div style="display:inline-block;background:' . $color . ';color:#fff;padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px;margin-bottom:12px;">' . $e($title) . '</div>'
+            . '<div>' . $e($body) . '</div></td></tr>'
+            . '<tr><td style="padding:16px 30px 26px;"><table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;background:#FAFCFB;border:1px solid #E8EFEA;border-radius:12px;">' . $rowsHtml . '</table></td></tr>'
+            . '<tr><td style="background:#123B32;padding:16px 30px;text-align:center;color:#A7C2B8;font-size:11px;">SIMDA &bull; Mogadishu Head Office, Somalia</td></tr>'
+            . '</table></body></html>';
+
+        $plain = $hello . "\n\n" . $title . "\n" . $body . "\n\n";
+        foreach ($rows as [$k, $v]) {
+            $plain .= "{$k}: {$v}\n";
+        }
+
+        return self::send($email, $subject, $html, $plain, $inline);
+    }
+
+    /**
      * Sent to the client when a cash loan or Murabaha is issued: the amount they received, the repayment
      * period and schedule, the reason, and the official disbursement receipt.
      */

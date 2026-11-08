@@ -1375,6 +1375,14 @@ final class PortalController
         $metrics = DashboardAnalyticsService::getOverviewMetrics($user, $pdo, $dateFilter);
 
         [$finScope, $finParams] = self::scopeSql($user, 'f');
+        [$repScope, $repParams] = self::scopeSql($user, 'r');
+        if (($user['role_slug'] ?? '') === 'loan_officer') {
+            // Employees see only their own work on the dashboard.
+            $finScope = ' AND f.application_id IN (SELECT fa.id FROM financing_applications fa WHERE fa.created_by = :uid) ';
+            $finParams = [':uid' => (int) $user['id']];
+            $repScope = ' AND r.recorded_by = :uid ';
+            $repParams = [':uid' => (int) $user['id']];
+        }
         $st = $pdo->prepare("
             SELECT f.*, c.full_name AS client_name
             FROM financings f
@@ -1386,7 +1394,6 @@ final class PortalController
         $st->execute($finParams);
         $recentFinancings = $st->fetchAll();
 
-        [$repScope, $repParams] = self::scopeSql($user, 'r');
         $st2 = $pdo->prepare("
             SELECT r.*, c.full_name AS client_name
             FROM repayments r
@@ -1911,7 +1918,7 @@ final class PortalController
 
     private static function approvalQueue(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
         [$scopeSql, $params] = self::scopeSql($user, 'fa');
 
         $stmt = $pdo->prepare("
@@ -1952,21 +1959,61 @@ final class PortalController
 
     private static function applicationReview(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
         $decision = (string) ($_POST['decision'] ?? '');
         $comments = (string) ($_POST['comments'] ?? '');
 
         $res = FinancingDomainService::reviewApplication($appId, $user, $decision, $comments, $pdo);
-        $_SESSION['flash_success'] = "Application #{$appId} marked as {$res['status']}.";
+        $locale = Lang::locale();
+        $isSo = $locale === 'so';
+
+        $st = $pdo->prepare('
+            SELECT fa.*, c.full_name AS client_name, c.client_code, c.email AS client_email, c.phone AS client_phone,
+                   c.id AS client_row_id, p.product_type, u.full_name AS creator_name
+            FROM financing_applications fa
+            INNER JOIN clients c ON c.id = fa.client_id
+            INNER JOIN products p ON p.id = fa.product_id
+            LEFT JOIN users u ON u.id = fa.created_by
+            WHERE fa.id = :id
+        ');
+        $st->execute([':id' => $appId]);
+        $app = $st->fetch() ?: [];
+        $meta = json_decode((string) ($app['notes'] ?? ''), true);
+        $fromForm = is_array($meta) && in_array($meta['source'] ?? '', ['cash_loan_form', 'murabaha_form'], true);
+        $client = ['id' => (int) ($app['client_row_id'] ?? 0), 'full_name' => (string) ($app['client_name'] ?? ''), 'client_code' => (string) ($app['client_code'] ?? ''), 'email' => (string) ($app['client_email'] ?? '')];
+
+        if ($res['status'] === 'approved' && $fromForm) {
+            // A request from the New Cash Loan / New Murabaha form: pay it out now and send the client the receipt.
+            $phone = trim((string) ($meta['phone'] ?? '')) ?: (string) ($app['client_phone'] ?? '');
+            $disb = DisbursementService::disburse($appId, (int) $user['id'], (string) ($meta['provider'] ?? 'EVC Plus'), $phone, date('Y-m-d'), $pdo);
+            $mailNote = self::emailFinancingIssued($pdo, (int) $disb['financing_id'], $client, $disb, (string) $app['purpose'], (string) ($app['murabaha_goods_description'] ?? ''), $user, $locale);
+            $_SESSION['flash_success'] = ($isSo
+                ? "Codsiga {$app['application_number']} waa la ansixiyay oo lacagta waa la bixiyay ({$disb['financing_number']}). Waxaa codsaday: {$app['creator_name']}."
+                : "Request {$app['application_number']} approved and paid out ({$disb['financing_number']}). Requested by {$app['creator_name']}.") . $mailNote;
+        } else {
+            $mail = ['success' => false];
+            if ($client['email'] !== '' && filter_var($client['email'], FILTER_VALIDATE_EMAIL)) {
+                try {
+                    $mail = MailService::sendApplicationDecisionEmail($client['email'], $client['full_name'], $app, $res['status'], $comments, $locale);
+                } catch (\Throwable $e) {
+                    $mail = ['success' => false];
+                }
+            }
+            $what = $res['status'] === 'approved' ? ($isSo ? 'waa la ansixiyay' : 'approved') : ($isSo ? 'waa la diiday' : 'rejected');
+            $_SESSION['flash_success'] = ($isSo ? "Codsiga {$app['application_number']} {$what}." : "Application {$app['application_number']} {$what}.")
+                . (!empty($mail['success'])
+                    ? ($isSo ? " Macmiilka waxaa loo diray email ({$client['email']})." : " The client was emailed ({$client['email']}).")
+                    : ($isSo ? ' Macmiilka email looma dirin (email ma leh ama dirista way fashilantay).' : ' The client was not emailed (no email address or sending failed).'));
+        }
         header('Location: ?route=approval_queue');
         exit;
     }
 
     private static function disbursementsList(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
         DisbursementService::expireStaleApprovals(null, $pdo);
 
         [$appScope, $appParams] = self::scopeSql($user, 'fa');
@@ -2000,7 +2047,7 @@ final class PortalController
 
     private static function disburseSubmit(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'loan_officer', 'branch_manager']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
         $provider = (string) ($_POST['provider'] ?? 'EVC Plus');
@@ -2149,6 +2196,39 @@ final class PortalController
         return $history;
     }
 
+    /** Employees (loan officers) cannot issue financing themselves: their loan / Murabaha becomes a request. */
+    private static function submitsAsRequest(array $user): bool
+    {
+        return ($user['role_slug'] ?? '') === 'loan_officer';
+    }
+
+    /** A request belongs to the employee's own branch, so their Branch Manager decides it. */
+    private static function requestBranchId(array $user, array $client): int
+    {
+        $bid = (int) ($user['branch_id'] ?? 0);
+        return $bid > 0 ? $bid : (int) ($client['branch_id'] ?? 1);
+    }
+
+    /** After an employee's request is saved: tell the approvers, log it, and confirm to the employee. */
+    private static function finishEmployeeRequest(PDO $pdo, int $appId, string $appNo, array $client, float $amount, array $user, bool $isSo): void
+    {
+        AuditLogger::log(
+            'application.requested',
+            'financing_applications',
+            $appId,
+            "{$user['full_name']} requested {$appNo} (\$" . number_format($amount, 2) . ") for {$client['full_name']}; waiting for Branch Manager approval.",
+            ['client_id' => (int) $client['id'], 'amount' => $amount],
+            (int) $user['id'],
+            self::requestBranchId($user, $client)
+        );
+        self::notifyApprovers($pdo, $appId);
+        $_SESSION['flash_success'] = ($isSo
+            ? "Codsiga {$appNo} (\$" . number_format($amount, 2) . ") ee macmiilka {$client['full_name']} waxaa loo diray Maamulaha Laanta si uu u ansixiyo. Macmiilka waxaa email loogu diri doonaa marka go'aan la gaaro."
+            : "Request {$appNo} (\$" . number_format($amount, 2) . ") for {$client['full_name']} was sent to the Branch Manager for approval. The client is emailed once it is decided.");
+        header('Location: ?route=applications');
+        exit;
+    }
+
     private static function loanNew(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
@@ -2174,6 +2254,7 @@ final class PortalController
             'clients' => $clientsList,
             'selectedClientId' => $selectedClientId,
             'history' => self::clientFinancingHistory($pdo, $user),
+            'isRequest' => self::submitsAsRequest($user),
         ]);
     }
 
@@ -2251,7 +2332,14 @@ final class PortalController
             date('Y-m-d')
         );
 
-        // Direct create as approved
+        // Employees only submit a request; their Branch Manager approves it (see applicationReview).
+        // Admin, General Manager and Branch Manager issue directly.
+        $isRequest = self::submitsAsRequest($user);
+        if ($isRequest) {
+            $branchId = self::requestBranchId($user, $client);
+        }
+        $meta = json_encode(['source' => 'cash_loan_form', 'provider' => $provider, 'phone' => $phone], JSON_UNESCAPED_UNICODE);
+
         $insApp = $pdo->prepare("
             INSERT INTO financing_applications (
                 application_number, client_id, branch_id, product_id, group_id, created_by,
@@ -2263,8 +2351,8 @@ final class PortalController
                 :app_no, :cid, :bid, :pid, NULL, :created_by,
                 :amt, :term, :freq, 0.0000, 0.00,
                 0.00, :tot_due, :purpose, NULL, :notes,
-                :calc, 'approved', 'loan_officer', :rev_by, NOW(), 'Directly approved and disbursed by staff',
-                NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)
+                :calc, :status, :req_role, :rev_by, " . ($isRequest ? 'NULL' : 'NOW()') . ", :decision,
+                NOW(), " . ($isRequest ? 'NULL' : 'DATE_ADD(NOW(), INTERVAL 30 DAY)') . "
             )
         ");
 
@@ -2279,11 +2367,18 @@ final class PortalController
             ':freq' => $frequency,
             ':tot_due' => $schedule['total_due'],
             ':purpose' => $purpose,
-            ':notes' => 'Direct issuance via ' . $provider,
+            ':notes' => $meta,
             ':calc' => json_encode($schedule, JSON_UNESCAPED_UNICODE),
-            ':rev_by' => $user['id'],
+            ':status' => $isRequest ? 'submitted' : 'approved',
+            ':req_role' => $isRequest ? FinancingDomainService::requiredApproverRole((float) $schedule['principal'], false) : 'loan_officer',
+            ':rev_by' => $isRequest ? null : $user['id'],
+            ':decision' => $isRequest ? null : 'Directly approved and disbursed by staff',
         ]);
         $appId = (int) $pdo->lastInsertId();
+
+        if ($isRequest) {
+            self::finishEmployeeRequest($pdo, $appId, $appNo, $client, (float) $schedule['principal'], $user, $isSo);
+        }
 
         // Disburse immediately
         $disbRes = DisbursementService::disburse(
@@ -2341,6 +2436,7 @@ final class PortalController
             'goods' => MurabahaGoodsService::all($pdo, true),
             'selectedClientId' => $selectedClientId,
             'history' => self::clientFinancingHistory($pdo, $user),
+            'isRequest' => self::submitsAsRequest($user),
         ]);
     }
 
@@ -2418,7 +2514,11 @@ final class PortalController
             date('Y-m-d')
         );
 
-        // Direct create application as approved
+        // Employees only submit a request; their Branch Manager approves it. Senior roles issue directly.
+        $isRequest = self::submitsAsRequest($user);
+        if ($isRequest) {
+            $branchId = self::requestBranchId($user, $client);
+        }
         $insApp = $pdo->prepare("
             INSERT INTO financing_applications (
                 application_number, client_id, branch_id, product_id, group_id, created_by,
@@ -2430,8 +2530,8 @@ final class PortalController
                 :app_no, :cid, :bid, :pid, NULL, :created_by,
                 :amt, :term, :freq, :rate, 0.00,
                 :profit, :tot_due, :purpose, :goods, :notes,
-                :calc, 'approved', 'loan_officer', :rev_by, NOW(), 'Direct Murabaha contract confirmed by staff',
-                NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)
+                :calc, :status, :req_role, :rev_by, " . ($isRequest ? 'NULL' : 'NOW()') . ", :decision,
+                NOW(), " . ($isRequest ? 'NULL' : 'DATE_ADD(NOW(), INTERVAL 30 DAY)') . "
             )
         ");
 
@@ -2449,11 +2549,23 @@ final class PortalController
             ':tot_due' => $schedule['total_due'],
             ':purpose' => $purpose ?: 'Murabaha Asset Financing',
             ':goods' => $goodsDesc,
-            ':notes' => 'Murabaha cost: $' . $baseCost . ' + markup: ' . $markupPct . '%',
+            ':notes' => json_encode([
+                'source' => 'murabaha_form',
+                'provider' => 'EVC Plus',
+                'phone' => (string) ($client['phone'] ?? ''),
+                'text' => 'Murabaha cost: $' . $baseCost . ' + markup: ' . $markupPct . '%',
+            ], JSON_UNESCAPED_UNICODE),
             ':calc' => json_encode($schedule, JSON_UNESCAPED_UNICODE),
-            ':rev_by' => $user['id'],
+            ':status' => $isRequest ? 'submitted' : 'approved',
+            ':req_role' => $isRequest ? FinancingDomainService::requiredApproverRole((float) $schedule['principal'], false) : 'loan_officer',
+            ':rev_by' => $isRequest ? null : $user['id'],
+            ':decision' => $isRequest ? null : 'Direct Murabaha contract confirmed by staff',
         ]);
         $appId = (int) $pdo->lastInsertId();
+
+        if ($isRequest) {
+            self::finishEmployeeRequest($pdo, $appId, $appNo, $client, (float) $schedule['total_due'], $user, $isSo);
+        }
 
         // Disburse immediately
         $disbRes = DisbursementService::disburse(

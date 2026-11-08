@@ -270,6 +270,10 @@ final class FinancingDomainService
         if ($reviewerRole === 'admin') {
             return true;
         }
+        // Employees submit requests but never decide them; the Branch Manager is the lowest approver.
+        if ($reviewerRole === 'loan_officer') {
+            return false;
+        }
         $rank = ['loan_officer' => 1, 'branch_manager' => 2, 'manager' => 3];
         return isset($rank[$reviewerRole], $rank[$requiredRole]) && $rank[$reviewerRole] >= $rank[$requiredRole];
     }
@@ -311,8 +315,12 @@ final class FinancingDomainService
         }
 
         $requiredRole = (string) $app['required_approver_role'];
-        if ($requiredRole === 'loan_officer' || $app['status'] !== 'submitted') {
+        if ($app['status'] !== 'submitted') {
             return ['required_role' => $requiredRole, 'recipients' => 0, 'failed' => 0];
+        }
+        // Employees no longer approve financing, so the lowest level is decided by the Branch Manager.
+        if ($requiredRole === 'loan_officer') {
+            $requiredRole = 'branch_manager';
         }
 
         $sql = '

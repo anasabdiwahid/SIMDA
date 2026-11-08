@@ -265,9 +265,9 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
 
             <button type="submit" id="btnSubmitMurabaha" class="mf-submit">
                 <?= Icons::svg('check-circle', 18) ?>
-                <span><?= $isSo ? 'Xaqiiji Heshiiska' : 'Confirm Contract' ?></span>
+                <span><?= !empty($isRequest) ? ($isSo ? 'Dir Codsiga' : 'Send Request') : ($isSo ? 'Xaqiiji Heshiiska' : 'Confirm Contract') ?></span>
             </button>
-            <p class="mf-summary-note"><?= $isSo ? 'Macmiilka waxaa loo dirayaa rasiidka iyo jadwalka bixinta email ahaan.' : 'The client is emailed the receipt and repayment schedule.' ?></p>
+            <p class="mf-summary-note"><?= !empty($isRequest) ? ($isSo ? 'Codsigan waxaa loo dirayaa Maamulaha Laanta. Marka uu ansixiyo ama diido, macmiilka email ayaa loo dirayaa.' : 'This request goes to the Branch Manager. The client is emailed when it is approved or rejected.') : ($isSo ? 'Macmiilka waxaa loo dirayaa rasiidka iyo jadwalka bixinta email ahaan.' : 'The client is emailed the receipt and repayment schedule.') ?></p>
         </div>
 
         <div class="mf-notice">

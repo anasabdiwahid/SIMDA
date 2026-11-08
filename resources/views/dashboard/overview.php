@@ -152,6 +152,8 @@ $renderEmpty = static function (string $icon, string $title, string $body, ?stri
             <h1><?= Security::e($t('As-Salaamu Calaykum', 'Welcome back', 'السلام عليكم')) ?>, <?= Security::e($user['full_name'] ?? '') ?></h1>
             <?php if (in_array($user['role_slug'] ?? '', ['admin', 'manager'], true)): ?>
                 <p><?= Security::e($t('Kormeerka guud ee maalgelinta, lacag-celinta iyo khatarta SIMDA.', 'An overview of SIMDA financing, repayments and risk.', 'نظرة عامة على التمويل والسداد والمخاطر في سيمدا.')) ?></p>
+            <?php elseif (($user['role_slug'] ?? '') === 'loan_officer'): ?>
+                <p><?= Security::e($t('Shaqadaada: macaamiisha aad diiwaangelisay, lacagaha aad qabatay iyo codsiyada aad dirtay.', 'Your work: clients you registered, repayments you recorded and requests you sent.', 'عملك: العملاء الذين سجلتهم والمدفوعات التي سجلتها والطلبات التي أرسلتها.')) ?></p>
             <?php elseif (($user['role_slug'] ?? '') !== 'client'): ?>
                 <p><?= Security::e($t('Kormeerka maalgelinta, lacag-celinta iyo khatarta laantaada.', 'An overview of financing, repayments and risk in your branch.', 'نظرة عامة على التمويل والسداد والمخاطر في فرعك.')) ?></p>
             <?php else: ?>

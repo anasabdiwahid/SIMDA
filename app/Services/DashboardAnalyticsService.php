@@ -47,6 +47,16 @@ final class DashboardAnalyticsService
             $whereRep = ' AND r.client_id = :cid ';
             $whereCharity = ' AND cc.client_id = :cid ';
             $params[':cid'] = $clientId;
+        } elseif ($role === 'loan_officer') {
+            // Employees see only their own work: clients they registered, repayments they recorded,
+            // and financing that came from their own requests. (Each query uses exactly one :uid.)
+            $ownFin = 'SELECT f2.id FROM financings f2 INNER JOIN financing_applications fa2 ON fa2.id = f2.application_id WHERE fa2.created_by = :uid';
+            $whereClient = ' AND c.registered_by = :uid ';
+            $whereFin = ' AND f.application_id IN (SELECT fa3.id FROM financing_applications fa3 WHERE fa3.created_by = :uid) ';
+            $whereApp = ' AND fa.created_by = :uid ';
+            $whereRep = ' AND r.recorded_by = :uid ';
+            $whereCharity = " AND cc.financing_id IN ({$ownFin}) ";
+            $params[':uid'] = (int) ($user['id'] ?? -1);
         } elseif ($branchId !== null) {
             $whereClient = ' AND c.branch_id = :bid ';
             $whereFin = ' AND f.branch_id = :bid ';
