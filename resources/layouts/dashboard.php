@@ -254,23 +254,6 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 </div>
             <?php endforeach; ?>
         </nav>
-
-        <div class="sidebar-footer">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <a href="?route=profile" class="sidebar-text" style="min-width:0;text-decoration:none;color:inherit;" title="<?= Security::e(Lang::get('menu_profile')) ?>">
-                    <div style="font-weight:700;font-size:0.75rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                        <?= Security::e($user['full_name'] ?? '') ?>
-                    </div>
-                    <div style="font-size:0.65rem;line-height:1.15;color:var(--simda-gold);">
-                        <?= Security::e($user['role_name_en'] ?? '') ?> • <?= Security::e($user['branch_code'] ?? 'HQ') ?>
-                    </div>
-                </a>
-                <a href="?route=logout" class="btn btn-sm btn-outline" style="color:#FFF;border-color:rgba(255,255,255,0.22);padding:3px 7px;font-size:0.7rem;" title="<?= Security::e(Lang::get('nav_logout')) ?>">
-                    <?= Icons::svg('log-out', 13) ?>
-                    <span class="sidebar-text"><?= Security::e(Lang::get('nav_logout')) ?></span>
-                </a>
-            </div>
-        </div>
     </aside>
 
     <!-- MAIN CONTENT SHELL -->
@@ -337,6 +320,17 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     <button type="button" class="theme-pill-btn" data-theme-val="dark" aria-label="Dark Mode" title="<?= Security::e(Lang::get('theme_dark')) ?>">
                         <?= Icons::svg('moon', 16) ?>
                     </button>
+                </div>
+
+                <!-- Account: profile + sign out (next to the theme switcher) -->
+                <div class="hdr-account">
+                    <a href="?route=profile" class="hdr-acc-btn" title="<?= Security::e(($user['full_name'] ?? '') . ' — ' . ($user['role_name_en'] ?? '') . ' • ' . ($user['branch_code'] ?? 'HQ')) ?>" aria-label="<?= Security::e(Lang::get('menu_profile')) ?>">
+                        <?= Icons::svg('user', 16) ?>
+                    </a>
+                    <a href="?route=logout" class="hdr-acc-btn hdr-logout" title="<?= Security::e(Lang::get('nav_logout')) ?>">
+                        <?= Icons::svg('log-out', 15) ?>
+                        <span><?= Security::e(Lang::get('nav_logout')) ?></span>
+                    </a>
                 </div>
 
                 <a href="?route=home" class="btn btn-sm btn-outline">

@@ -7798,3 +7798,17 @@ button[data-submitting="1"] > svg { visibility: hidden; }
 .sidebar.sb-tight .sidebar-brand-tagline { display: none; }
 .sidebar.sb-tight .brand-logo-full { max-height: 30px; width: auto; }
 .sidebar.sb-tight .sidebar-footer { padding: 6px 10px; margin-bottom: 6px; }
+
+/* Header account buttons (profile + sign out), sits beside the theme switcher */
+.hdr-account { display: inline-flex; align-items: center; gap: 3px; padding: 3px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 999px; }
+.hdr-acc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 30px; height: 30px; padding: 0 8px; border-radius: 999px; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 600; white-space: nowrap; transition: background-color 0.15s ease, color 0.15s ease; }
+.hdr-acc-btn:first-child { padding: 0; width: 30px; }
+.hdr-acc-btn:hover { color: var(--simda-gold); background: rgba(214, 182, 108, 0.12); }
+.hdr-logout { background: #123B32; color: #F4F5F0; }
+.hdr-logout:hover { background: #B42318; color: #fff; }
+[data-theme="dark"] .hdr-logout { background: rgba(255, 255, 255, 0.08); }
+.hdr-acc-btn:focus-visible { outline: 2px solid var(--simda-gold); outline-offset: 2px; }
+@media (max-width: 680px) {
+    .hdr-logout { padding: 0; width: 30px; }
+    .hdr-logout span { display: none; }
+}
