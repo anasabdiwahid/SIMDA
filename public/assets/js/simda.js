@@ -131,15 +131,33 @@
             sidebarNav.classList.add('sb-measuring');
             sbGroups.forEach(function (g) { g.classList.toggle('is-open', g === biggest); });
 
-            let lo = 8, hi = 15;
-            sidebarNav.style.setProperty('--sb-fs', hi + 'px');
-            if (!sidebarFits()) {
-                while (hi - lo > 0.1) {
+            // Largest value in [lo, hi] at which the menu still fits, applied through set(v).
+            function largestFitting(lo, hi, set) {
+                set(hi);
+                if (sidebarFits()) return hi;
+                for (let i = 0; i < 10; i++) {
                     const mid = (lo + hi) / 2;
-                    sidebarNav.style.setProperty('--sb-fs', mid + 'px');
+                    set(mid);
                     if (sidebarFits()) lo = mid; else hi = mid;
                 }
-                sidebarNav.style.setProperty('--sb-fs', lo + 'px');
+                set(lo);
+                return lo;
+            }
+            const sidebarEl = sidebarNav.closest('.sidebar');
+            const setFs = function (v) { sidebarNav.style.setProperty('--sb-fs', v + 'px'); };
+            const setD = function (v) { sidebarEl.style.setProperty('--sb-d', v); };
+            sidebarEl.classList.remove('sb-tight');
+            setD(1);
+            // 1) shrink text down to 11px; 2) then tighten row spacing; 3) then compact logo/footer
+            //    and let text go down to 8px. Nothing is ever left hidden under the user card.
+            if (largestFitting(11, 15, setFs) === 11 && !sidebarFits()) {
+                if (largestFitting(0.25, 1, setD) === 0.25 && !sidebarFits()) {
+                    sidebarEl.classList.add('sb-tight');
+                    if (largestFitting(0.25, 1, setD) === 0.25 && !sidebarFits()) {
+                        setD(0.25);
+                        largestFitting(8, 11, setFs);
+                    }
+                }
             }
 
             sbGroups.forEach(function (g) { g.classList.toggle('is-open', openNow.indexOf(g) !== -1); });

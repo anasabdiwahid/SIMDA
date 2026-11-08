@@ -7784,3 +7784,17 @@ button[data-submitting="1"] > svg { visibility: hidden; }
     .mg-onoff { transform: scale(1.12); }
     .rq-row td { padding-top: 14px; padding-bottom: 14px; }
 }
+
+/* Sidebar density: simda.js lowers --sb-d (1 → 0.25) on short screens so every row fits
+   above the user card without shrinking the text below a readable size. */
+.sidebar .sidebar-link { padding-top: calc(0.62em * var(--sb-d, 1)); padding-bottom: calc(0.62em * var(--sb-d, 1)); margin-bottom: calc(0.15em * var(--sb-d, 1)); }
+.sidebar .sb-sublink { padding-top: calc(0.48em * var(--sb-d, 1)); padding-bottom: calc(0.48em * var(--sb-d, 1)); margin-bottom: calc(0.08em * var(--sb-d, 1)); }
+.sidebar .sb-group.is-open .sb-sub-inner { padding: calc(0.15em * var(--sb-d, 1)) 0 calc(0.35em * var(--sb-d, 1)); }
+.sidebar .sb-register { margin: calc(0.35em * var(--sb-d, 1)) 0 calc(0.6em * var(--sb-d, 1)); gap: calc(0.45em * var(--sb-d, 1)) 0.45em; }
+.sidebar .sb-register-btn { padding-top: calc(0.6em * var(--sb-d, 1)); padding-bottom: calc(0.6em * var(--sb-d, 1)); }
+.sidebar .sidebar-nav { padding-top: calc(0.75em * var(--sb-d, 1)); padding-bottom: calc(0.5em * var(--sb-d, 1)); }
+/* Very short screens: compact logo and user card too */
+.sidebar.sb-tight .sidebar-brand { padding: 6px 0 5px; }
+.sidebar.sb-tight .sidebar-brand-tagline { display: none; }
+.sidebar.sb-tight .brand-logo-full { max-height: 30px; width: auto; }
+.sidebar.sb-tight .sidebar-footer { padding: 6px 10px; margin-bottom: 6px; }
