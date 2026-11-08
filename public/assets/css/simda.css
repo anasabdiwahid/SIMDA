@@ -7962,3 +7962,65 @@ html.srv-dlg-open { overflow: hidden; }
 }
 @keyframes srvSheetIn { from { transform: translateY(100%); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .srv-dialog[open] { animation: none; } }
+
+/* ============================================================================
+   CLIENT ACCOUNTS: default-password banner, change-password page,
+   first sign-in celebration (balloons + confetti + welcome card)
+   ============================================================================ */
+.pw-nag { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-left: 4px solid #D97706; }
+.pw-nag > span { flex: 1; min-width: 200px; }
+.pw-nag-btn { display: inline-flex; align-items: center; gap: 6px; background: #B45309; border: 1px solid #B45309; color: #FFFFFF !important; border-radius: 999px; font-weight: 700; }
+.pw-nag-btn:hover { background: #92400E; border-color: #92400E; }
+.acpw-form { max-width: 520px; }
+.acpw-warn { max-width: 520px; display: flex; gap: 10px; align-items: flex-start; }
+
+.cw-dialog {
+    position: fixed; inset: 0; margin: auto; height: fit-content;
+    width: min(460px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: visible;
+    padding: 0; border: 0; background: transparent; text-align: center;
+}
+.cw-card {
+    position: relative; z-index: 1; padding: 30px 26px 24px; border-radius: 26px;
+    background: var(--bg-surface, #FFFFFF); color: var(--text-primary, #123B32);
+    box-shadow: 0 30px 80px rgba(6, 26, 21, 0.4);
+    max-height: calc(100vh - 32px); overflow-y: auto;
+}
+.cw-dialog[open] { animation: cwPop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.cw-dialog::backdrop { background: rgba(8, 28, 22, 0.6); backdrop-filter: blur(3px); }
+@keyframes cwPop { from { opacity: 0; scale: 0.8; } to { opacity: 1; scale: 1; } }
+.cw-emoji { font-size: 3.2rem; line-height: 1; margin-bottom: 8px; animation: cwWiggle 1.2s ease-in-out 0.5s 2; }
+@keyframes cwWiggle { 0%, 100% { rotate: 0deg; } 25% { rotate: -14deg; } 75% { rotate: 14deg; } }
+.cw-dialog h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.7rem; line-height: 1.2; margin: 0 0 10px; color: var(--simda-green, #123B32); }
+[data-theme="dark"] .cw-dialog h2 { color: var(--simda-gold, #D6B66C); }
+.cw-sub { margin: 0 0 18px; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted, #5D6B64); }
+.cw-warn { display: flex; gap: 12px; align-items: flex-start; text-align: start; padding: 14px 16px; margin-bottom: 20px; border-radius: 16px; background: #FFF7E6; border: 1px solid #F5C26B; color: #7A4B00; }
+.cw-warn svg { flex-shrink: 0; color: #D97706; margin-top: 1px; }
+.cw-warn strong { display: block; margin-bottom: 2px; font-size: 0.95rem; }
+.cw-warn span { font-size: 0.88rem; line-height: 1.5; }
+[data-theme="dark"] .cw-warn { background: rgba(217, 119, 6, 0.14); border-color: rgba(245, 194, 107, 0.45); color: #F8D9A0; }
+.cw-actions { display: flex; flex-direction: column; gap: 8px; }
+.cw-actions .btn { width: 100%; justify-content: center; min-height: 46px; border-radius: 999px; font-weight: 700; }
+.cw-go { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Party layer: fixed to the viewport, above the backdrop (it lives inside the modal) */
+.cw-party { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cw-balloon {
+    position: absolute; bottom: -140px; width: 54px; height: 66px; border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+    background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.65) 0 8%, transparent 9%), var(--c);
+    box-shadow: inset -6px -8px 0 rgba(0, 0, 0, 0.12);
+    scale: var(--s, 1); opacity: 0.95;
+    animation: cwRise var(--d, 7s) ease-in var(--delay, 0s) forwards;
+}
+.cw-balloon::before { content: ''; position: absolute; left: 50%; bottom: -6px; translate: -50% 0; border: 5px solid transparent; border-bottom-color: var(--c); }
+.cw-balloon::after { content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 60px; background: rgba(120, 120, 120, 0.55); }
+@keyframes cwRise {
+    0% { transform: translate(0, 0) rotate(-4deg); }
+    50% { transform: translate(var(--sway), -60vh) rotate(5deg); }
+    100% { transform: translate(calc(var(--sway) * -1), -125vh) rotate(-3deg); }
+}
+.cw-confetti { position: absolute; top: -20px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: cwFall var(--d, 3s) linear var(--delay, 0s) forwards; }
+@keyframes cwFall {
+    0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+    100% { opacity: 0.9; transform: translate(var(--x), 110vh) rotate(var(--r)); }
+}
+@media (prefers-reduced-motion: reduce) { .cw-dialog[open], .cw-emoji { animation: none; } }

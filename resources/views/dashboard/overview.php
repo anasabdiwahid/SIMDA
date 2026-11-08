@@ -131,7 +131,10 @@ $productTypeLabel = static fn (string $type): string => $type === 'murabaha'
     ? $t('Murabaxo', 'Murabaha', 'مرابحة')
     : $t('Deyn Cad', 'Cash Loan', 'قرض نقدي');
 
-$renderEmpty = static function (string $icon, string $title, string $body, ?string $href = null, ?string $action = null): void {
+$renderEmpty = static function (string $icon, string $title, string $body, ?string $href = null, ?string $action = null) use ($user): void {
+    if (($user['role_slug'] ?? '') === 'client') {
+        $href = null; // empty-state actions are staff tasks
+    }
     ?>
     <div class="dash-empty">
         <span class="dash-empty-icon"><?= Icons::svg($icon, 20) ?></span>
@@ -157,15 +160,23 @@ $renderEmpty = static function (string $icon, string $title, string $body, ?stri
             <?php elseif (($user['role_slug'] ?? '') !== 'client'): ?>
                 <p><?= Security::e($t('Kormeerka maalgelinta, lacag-celinta iyo khatarta laantaada.', 'An overview of financing, repayments and risk in your branch.', 'نظرة عامة على التمويل والسداد والمخاطر في فرعك.')) ?></p>
             <?php else: ?>
-                <p><?= Security::e($t('Kormeerka guud ee maalgelinta, lacag-celinta iyo khatarta SIMDA.', 'An overview of SIMDA financing, repayments and risk.', 'نظرة عامة على التمويل والسداد والمخاطر في سيمدا.')) ?></p>
+                <p><?= Security::e($t('Halkan ka eeg daynkaaga, jadwalka bixinta iyo lacagaha aad bixisay.', 'Follow your financing, your payment schedule and what you have paid.', 'تابع تمويلك وجدول السداد وما دفعته.')) ?></p>
             <?php endif; ?>
         </div>
+        <?php if (($user['role_slug'] ?? '') === 'client'): ?>
+        <div class="dash-actions">
+            <a href="?route=financings" class="btn btn-sm btn-gold"><?= Icons::svg('credit-card', 14) ?> <span><?= Security::e($t('Daynkayga', 'My Financing', 'تمويلي')) ?></span></a>
+            <a href="?route=schedules" class="btn btn-sm btn-outline"><?= Icons::svg('calendar', 14) ?> <span><?= Security::e($t('Jadwalka Bixinta', 'Payment Schedule', 'جدول السداد')) ?></span></a>
+            <a href="?route=account_password" class="btn btn-sm btn-outline"><?= Icons::svg('shield', 14) ?> <span><?= Security::e($t('Beddel Password-ka', 'Change Password', 'تغيير كلمة المرور')) ?></span></a>
+        </div>
+        <?php else: ?>
         <div class="dash-actions">
             <a href="?route=client_register" class="btn btn-sm btn-gold"><?= Icons::svg('user-plus', 14) ?> <span><?= Security::e($t('Diiwaangeli Macmiil', 'Register Client', 'تسجيل عميل')) ?></span></a>
             <a href="?route=loan_new" class="btn btn-sm btn-outline"><?= Icons::svg('credit-card', 14) ?> <span><?= Security::e($t('Dayn Oo Lacag Ah', 'New Cash Loan', 'قرض نقدي جديد')) ?></span></a>
             <a href="?route=murabaha_new" class="btn btn-sm btn-outline"><?= Icons::svg('shopping-bag', 14) ?> <span><?= Security::e($t('Murabaxo Cusub', 'New Murabaha', 'مرابحة جديدة')) ?></span></a>
             <a href="?route=repayment_record" class="btn btn-sm btn-outline"><?= Icons::svg('wallet', 14) ?> <span><?= Security::e($t('Qabo Bixin', 'Record Repayment', 'تسجيل سداد')) ?></span></a>
         </div>
+        <?php endif; ?>
     </header>
 
     <!-- PERIOD FILTER -->

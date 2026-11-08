@@ -81,6 +81,8 @@ final class FinancingDomainService
             }
         }
 
+        ClientAccountService::ensureSchema($db); // DDL: must run before the transaction starts
+
         $ownTx = !$db->inTransaction();
         if ($ownTx) {
             $db->beginTransaction();
@@ -90,31 +92,16 @@ final class FinancingDomainService
             $count = (int) $db->query('SELECT COUNT(*) FROM clients')->fetchColumn() + 1;
             $clientCode = 'CL-' . date('Y') . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT) . '-' . random_int(10, 99);
 
-            // Optional linked portal account for Client role if username/password supplied
-            $clientUserId = null;
-            if (!empty($clientData['create_portal_user'])) {
-                $roleId = (int) $db->query("SELECT id FROM roles WHERE slug = 'client' LIMIT 1")->fetchColumn();
-                if ($roleId > 0) {
-                    $username = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $clientCode));
-                    $email = $clientData['email'] ?? ($username . '@client.simda.so');
-                    $password = $clientData['portal_password'] ?? 'Client@123';
-                    $uStmt = $db->prepare('
-                        INSERT INTO users (role_id, branch_id, full_name, username, email, phone, password_hash, is_synthetic_demo)
-                        VALUES (:rid, :bid, :name, :uname, :email, :phone, :phash, :demo)
-                    ');
-                    $uStmt->execute([
-                        ':rid' => $roleId,
-                        ':bid' => $branchId,
-                        ':name' => $fullName,
-                        ':uname' => $username,
-                        ':email' => $email,
-                        ':phone' => $phone,
-                        ':phash' => Security::hashPassword((string) $password),
-                        ':demo' => (int) ($clientData['is_synthetic_demo'] ?? 0),
-                    ]);
-                    $clientUserId = (int) $db->lastInsertId();
-                }
-            }
+            // Every client gets a login account: email or phone + the default password (changed on first sign-in).
+            $clientUserId = ClientAccountService::createForClient(
+                $db,
+                $clientCode,
+                $fullName,
+                $phone,
+                $email !== '' ? $email : null,
+                $branchId,
+                !empty($clientData['is_synthetic_demo'])
+            );
 
             $insClient = $db->prepare('
                 INSERT INTO clients (

@@ -126,6 +126,8 @@ final class PortalController
                 'profile_otp_verify' => self::profileOtpVerify($pdo),
                 'profile_otp_resend' => self::profileOtpResend($pdo),
                 'profile_otp_cancel' => self::profileOtpCancel(),
+                'account_password' => self::accountPassword(),
+                'account_password_save' => self::accountPasswordSave($pdo),
                 'branch_create' => self::branchCreate($pdo),
                 'branch_toggle' => self::branchToggle($pdo),
                 'user_create' => self::userCreate($pdo),
@@ -754,27 +756,20 @@ final class PortalController
         $isAr = $locale === 'ar';
 
         if ($identifier === '') {
-            $msg = $isSo ? 'Fadlan geli email-kaaga.' : ($isAr ? 'يرجى إدخال البريد الإلكتروني.' : 'Please enter your email.');
+            $msg = $isSo ? 'Fadlan geli email-kaaga ama telefoonkaaga.' : ($isAr ? 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف.' : 'Please enter your email or phone number.');
             echo json_encode(['success' => false, 'message' => $msg]);
             exit;
         }
 
-        $st = $pdo->prepare('
-            SELECT id, full_name, email, username, is_active, lockout_tier, locked_until, security_block_reason
-            FROM users
-            WHERE (email = :id1 OR username = :id2)
-              AND deleted_at IS NULL
-            LIMIT 1
-        ');
-        $st->execute([':id1' => $identifier, ':id2' => $identifier]);
-        $user = $st->fetch(PDO::FETCH_ASSOC);
+        // User name, email or phone number (clients usually sign in with their phone).
+        $user = \App\Services\ClientAccountService::findLoginUser($pdo, $identifier);
 
         if (!$user) {
             $msg = $isSo
-                ? 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.'
+                ? 'Email-kan ama telefoonkan lama aqoonsano. Isku day mar kale.'
                 : ($isAr
-                    ? 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.'
-                    : 'Please note this email is not recognized. Try again.');
+                    ? 'عذراً، هذا البريد الإلكتروني أو رقم الهاتف غير مسجل. يرجى المحاولة مرة أخرى.'
+                    : 'This email or phone number is not recognized. Try again.');
             echo json_encode(['success' => false, 'message' => $msg]);
             exit;
         }
@@ -795,7 +790,7 @@ final class PortalController
             'success' => true,
             'identifier' => $user['email'] ?: $user['username'],
             'full_name' => $user['full_name'],
-            'message' => $isSo ? 'Email-ka waa la aqoonsaday. Fadlan geli furahaaga sirta ah.' : 'Email recognized. Please enter your password.'
+            'message' => $isSo ? 'Akoonka waa la aqoonsaday. Fadlan geli furahaaga sirta ah.' : 'Account recognized. Please enter your password.'
         ]);
         exit;
     }
@@ -810,25 +805,13 @@ final class PortalController
         $isAr = $locale === 'ar';
 
         // Security Step 1: Check Email existence and fetch user with role
-        $st = $pdo->prepare('
-            SELECT u.*, r.slug AS role_slug, r.name_so AS role_name_so, r.name_en AS role_name_en,
-                   b.name AS branch_name, b.code AS branch_code,
-                   c.id AS client_id, c.client_code
-            FROM users u
-            INNER JOIN roles r ON r.id = u.role_id
-            LEFT JOIN branches b ON b.id = u.branch_id
-            LEFT JOIN clients c ON c.user_id = u.id
-            WHERE (u.email = :id1 OR u.username = :id2)
-              AND u.deleted_at IS NULL
-            LIMIT 1
-        ');
-        $st->execute([':id1' => $identifier, ':id2' => $identifier]);
-        $user = $st->fetch(PDO::FETCH_ASSOC);
+        // User name, email or phone number (clients usually sign in with their phone).
+        $user = \App\Services\ClientAccountService::findLoginUser($pdo, $identifier);
 
         if (!$user) {
             $_SESSION['flash_error'] = $isSo
-                ? 'Fadlan Email-kan lama aqoonsano. Isku day mar kale.'
-                : ($isAr ? 'عذراً، هذا البريد الإلكتروني غير مسجل. يرجى المحاولة مرة أخرى.' : 'Please note this email is not recognized. Try again.');
+                ? 'Email-kan ama telefoonkan lama aqoonsano. Isku day mar kale.'
+                : ($isAr ? 'عذراً، هذا البريد الإلكتروني أو رقم الهاتف غير مسجل. يرجى المحاولة مرة أخرى.' : 'This email or phone number is not recognized. Try again.');
             header('Location: ?route=login');
             exit;
         }
@@ -913,8 +896,13 @@ final class PortalController
 
         // Non-admin login completes immediately
         try {
+            $isFirstLogin = empty($user['last_login_at']);
             AuthService::completeLoginForUser($user, $pdo);
             unset($_SESSION['login_verified_identifier']);
+            // Client's very first sign-in: celebrate, and warn about the default password.
+            if ($user['role_slug'] === 'client' && $isFirstLogin) {
+                $_SESSION['client_welcome'] = true;
+            }
             header('Location: ?route=dashboard');
             exit;
         } catch (\Throwable $e) {
@@ -4339,6 +4327,44 @@ HTML;
         self::sendProfileOtp($account, (string) $otp['purpose'], (string) $otp['target'], (array) $otp['payload'], (int) $otp['resends'] + 1);
         $_SESSION['flash_success'] = self::tr('Koodh cusub ayaa la diray.', 'A new code was sent.', 'تم إرسال رمز جديد.');
         self::redirectToProfile();
+    }
+
+    /** Client's own password change (no OTP: many clients have no real email). */
+    private static function accountPassword(): void
+    {
+        AuthMiddleware::requireRoles(['client']);
+        self::renderDashboard('dashboard/account_password.php', [
+            'pageTitle' => self::tr('Beddel Password-ka', 'Change Password', 'تغيير كلمة المرور'),
+        ]);
+    }
+
+    private static function accountPasswordSave(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['client']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        try {
+            \App\Services\ClientAccountService::changeOwnPassword(
+                $pdo,
+                (int) $user['id'],
+                (string) ($_POST['current_password'] ?? ''),
+                (string) ($_POST['new_password'] ?? ''),
+                (string) ($_POST['confirm_password'] ?? ''),
+                Lang::locale()
+            );
+        } catch (\RuntimeException $e) {
+            $_SESSION['flash_error'] = $e->getMessage();
+            header('Location: ?route=account_password');
+            exit;
+        }
+        $_SESSION['user']['must_change_password'] = false;
+        session_regenerate_id(true);
+        $_SESSION['flash_success'] = self::tr(
+            'Hambalyo! Password-kaaga cusub waa la keydiyay, akoonkaaguna hadda waa ammaan.',
+            'Done! Your new password is saved and your account is now secure.',
+            'تم! حُفظت كلمة المرور الجديدة وأصبح حسابك آمناً.'
+        );
+        header('Location: ?route=dashboard');
+        exit;
     }
 
     private static function profileOtpCancel(): void

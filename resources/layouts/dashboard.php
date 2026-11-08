@@ -324,7 +324,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
 
                 <!-- Account: profile + sign out (next to the theme switcher) -->
                 <div class="hdr-account">
-                    <a href="?route=profile" class="hdr-acc-btn" title="<?= Security::e(($user['full_name'] ?? '') . ' — ' . ($user['role_name_en'] ?? '') . ' • ' . ($user['branch_code'] ?? 'HQ')) ?>" aria-label="<?= Security::e(Lang::get('menu_profile')) ?>">
+                    <a href="?route=<?= $role === 'client' ? 'account_password' : 'profile' ?>" class="hdr-acc-btn" title="<?= Security::e(($user['full_name'] ?? '') . ' — ' . ($user['role_name_en'] ?? '') . ' • ' . ($user['branch_code'] ?? 'HQ')) ?>" aria-label="<?= Security::e(Lang::get('menu_profile')) ?>">
                         <?= Icons::svg('user', 16) ?>
                     </a>
                     <a href="?route=logout" class="hdr-acc-btn hdr-logout" title="<?= Security::e(Lang::get('nav_logout')) ?>">
@@ -341,6 +341,21 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
         </header>
 
         <main class="content-area">
+            <?php if (!empty($user['must_change_password']) && $currentRoute !== 'account_password'): ?>
+                <!-- Still on the default password: keep reminding until it is changed -->
+                <div class="alert alert-warning pw-nag animate-in" role="alert">
+                    <?= Icons::svg('alert-triangle', 18) ?>
+                    <span>
+                        <strong><?= $so ? 'Digniin:' : ($locale === 'ar' ? 'تنبيه:' : 'Warning:') ?></strong>
+                        <?= $so
+                            ? 'Weli waxaad isticmaalaysaa password-ka default-ka ah. Si dhaqso ah u beddel si akoonkaagu u ammaan noqdo.'
+                            : ($locale === 'ar'
+                                ? 'ما زلت تستخدم كلمة المرور الافتراضية. غيّرها بسرعة لحماية حسابك.'
+                                : 'You are still using the default password. Change it quickly to keep your account safe.') ?>
+                    </span>
+                    <a href="?route=account_password" class="btn btn-sm pw-nag-btn"><?= Icons::svg('shield', 14) ?><span><?= $so ? 'Beddel hadda' : ($locale === 'ar' ? 'غيّرها الآن' : 'Change now') ?></span></a>
+                </div>
+            <?php endif; ?>
             <?php if (!empty($_SESSION['flash_success'])): ?>
                 <div class="alert alert-success animate-in">
                     <?= Icons::svg('check-circle', 18) ?>
@@ -418,6 +433,82 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
         </main>
     </div>
 </div>
+
+<?php if (!empty($_SESSION['client_welcome'])): ?>
+    <?php
+    unset($_SESSION['client_welcome']);
+    $wFirst = trim(explode(' ', (string) ($user['full_name'] ?? ''))[0] ?? '');
+    $wT = static fn(string $s, string $e, string $a): string => $so ? $s : ($locale === 'ar' ? $a : $e);
+    ?>
+    <!-- CLIENT FIRST SIGN-IN: balloons + confetti, then a welcome card that warns about the default password -->
+    <dialog class="cw-dialog" id="cwDialog" aria-labelledby="cwTitle">
+        <div class="cw-party" id="cwParty" aria-hidden="true"></div>
+        <div class="cw-card">
+        <div class="cw-emoji" aria-hidden="true">🎉</div>
+        <h2 id="cwTitle"><?= Security::e($wT('Hambalyo, ' . $wFirst . '!', 'Congratulations, ' . $wFirst . '!', 'مبروك يا ' . $wFirst . '!')) ?></h2>
+        <p class="cw-sub"><?= Security::e($wT(
+            'Ku soo dhawoow SIMDA! Akoonkaaga si guul leh ayaad u gashay markii ugu horreysay. Halkan waxaad ka arki kartaa daynkaaga, jadwalka bixinta iyo lacagaha aad bixisay.',
+            'Welcome to SIMDA! You have signed in to your account for the first time. Here you can follow your financing, your payment schedule and what you have paid.',
+            'مرحباً بك في سيمدا! لقد دخلت إلى حسابك لأول مرة. هنا يمكنك متابعة تمويلك وجدول السداد وما دفعته.'
+        )) ?></p>
+        <div class="cw-warn" role="alert">
+            <?= Icons::svg('alert-triangle', 20) ?>
+            <div>
+                <strong><?= Security::e($wT('Digniin muhiim ah', 'Important warning', 'تنبيه مهم')) ?></strong>
+                <span><?= Security::e($wT(
+                    'Waxaad gashay password-ka default-ka ah ee qof walba la siiyo. Si dhaqso ah u beddel si qof kale uusan akoonkaaga u gelin.',
+                    'You signed in with the default password that every client receives. Change it right away so nobody else can open your account.',
+                    'لقد دخلت بكلمة المرور الافتراضية التي يحصل عليها كل عميل. غيّرها فوراً حتى لا يتمكن أحد غيرك من فتح حسابك.'
+                )) ?></span>
+            </div>
+        </div>
+        <div class="cw-actions">
+            <a href="?route=account_password" class="btn btn-primary cw-go"><?= Icons::svg('shield', 16) ?><span><?= Security::e($wT('Beddel password-ka hadda', 'Change password now', 'غيّر كلمة المرور الآن')) ?></span></a>
+            <button type="button" class="btn btn-outline cw-later" data-cw-close><?= Security::e($wT('Mar dambe', 'Later', 'لاحقاً')) ?></button>
+        </div>
+        </div>
+    </dialog>
+    <script>
+    (function () {
+        var party = document.getElementById('cwParty');
+        var dlg = document.getElementById('cwDialog');
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var colors = ['#D6B66C', '#23845B', '#123B32', '#E8574F', '#4A90D9', '#F2A93B', '#9B6BD3'];
+        function rnd(a, b) { return a + Math.random() * (b - a); }
+        if (!reduce && party) {
+            for (var i = 0; i < 16; i++) {
+                var b = document.createElement('span');
+                b.className = 'cw-balloon';
+                b.style.left = rnd(2, 94) + '%';
+                b.style.setProperty('--c', colors[i % colors.length]);
+                b.style.setProperty('--d', rnd(5.5, 9) + 's');
+                b.style.setProperty('--delay', rnd(0, 1.8) + 's');
+                b.style.setProperty('--sway', rnd(-40, 40) + 'px');
+                b.style.setProperty('--s', rnd(0.75, 1.15));
+                party.appendChild(b);
+            }
+            for (var j = 0; j < 90; j++) {
+                var c = document.createElement('i');
+                c.className = 'cw-confetti';
+                c.style.left = rnd(0, 100) + '%';
+                c.style.background = colors[j % colors.length];
+                c.style.setProperty('--d', rnd(2.6, 4.6) + 's');
+                c.style.setProperty('--delay', rnd(0, 1.2) + 's');
+                c.style.setProperty('--r', rnd(360, 1080) + 'deg');
+                c.style.setProperty('--x', rnd(-80, 80) + 'px');
+                party.appendChild(c);
+            }
+            setTimeout(function () { party.remove(); }, 11500);
+        }
+        if (dlg && typeof dlg.showModal === 'function') {
+            setTimeout(function () { dlg.showModal(); }, reduce ? 0 : 450);
+            dlg.querySelectorAll('[data-cw-close]').forEach(function (btn) {
+                btn.addEventListener('click', function () { dlg.close(); });
+            });
+        }
+    })();
+    </script>
+<?php endif; ?>
 
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 <script>

@@ -263,25 +263,7 @@ final class AuthService
         $db = $pdo ?? Database::connection();
         $ip = Security::clientIp();
 
-        $stmt = $db->prepare('
-            SELECT u.*,
-                   r.slug AS role_slug,
-                   r.name_so AS role_name_so,
-                   r.name_en AS role_name_en,
-                   b.name AS branch_name,
-                   b.code AS branch_code,
-                   c.id AS client_id,
-                   c.client_code
-            FROM users u
-            INNER JOIN roles r ON r.id = u.role_id
-            LEFT JOIN branches b ON b.id = u.branch_id
-            LEFT JOIN clients c ON c.user_id = u.id
-            WHERE (u.username = :ident1 OR u.email = :ident2)
-              AND u.deleted_at IS NULL
-            LIMIT 1
-        ');
-        $stmt->execute([':ident1' => $identifier, ':ident2' => $identifier]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = ClientAccountService::findLoginUser($db, $identifier);
 
         if (!$user) {
             self::recordAttempt($identifier, $ip, false, $db);
@@ -331,12 +313,14 @@ final class AuthService
             'preferred_theme' => (string) $user['preferred_theme'],
             'is_synthetic_demo' => (bool) $user['is_synthetic_demo'],
             'session_token' => $sessionToken,
+            'must_change_password' => !empty($user['must_change_password']),
         ];
 
         if (session_status() === PHP_SESSION_ACTIVE) {
             Security::regenerateSession();
             $_SESSION['user'] = $sessionUser;
-            $_SESSION['locale'] = $sessionUser['preferred_locale'];
+            // Keep the language picked on the login page; fall back to the account's preference.
+            $_SESSION['locale'] = $_SESSION['locale'] ?? $sessionUser['preferred_locale'];
         }
 
         AuditLogger::log(
@@ -384,12 +368,14 @@ final class AuthService
             'preferred_theme' => (string) ($user['preferred_theme'] ?? 'light'),
             'is_synthetic_demo' => !empty($user['is_synthetic_demo']),
             'session_token' => $sessionToken,
+            'must_change_password' => !empty($user['must_change_password']),
         ];
 
         if (session_status() === PHP_SESSION_ACTIVE) {
             Security::regenerateSession();
             $_SESSION['user'] = $sessionUser;
-            $_SESSION['locale'] = $sessionUser['preferred_locale'];
+            // Keep the language picked on the login page; fall back to the account's preference.
+            $_SESSION['locale'] = $_SESSION['locale'] ?? $sessionUser['preferred_locale'];
         }
 
         AuditLogger::log(
