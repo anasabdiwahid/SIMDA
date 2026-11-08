@@ -1403,6 +1403,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </footer>
 </dialog>
 
+<?php require BASE_PATH . '/resources/views/partials/ai_chat_widget.php'; ?>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 <script>
 // Service cards → details dialog

@@ -767,6 +767,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </footer>
 </div>
 
+<?php require BASE_PATH . '/resources/views/partials/ai_chat_widget.php'; ?>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 </body>
 </html>
