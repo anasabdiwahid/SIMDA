@@ -98,7 +98,9 @@ if (stripos($flashError, 'ID number') !== false || stripos($flashError, 'id_numb
                 <!-- DISTRICT -->
                 <div class="form-group">
                     <label><?= $isSo ? 'Degmada *' : 'District *' ?></label>
-                    <input type="text" name="district" id="field_district" class="form-control" required placeholder="Hodan" value="<?= Security::e($old['district'] ?? '') ?>">
+                    <select name="district" id="field_district" class="form-control" required>
+                        <?= \App\Helpers\Districts::options((string) ($old['district'] ?? ''), $isSo ? '— Dooro degmada —' : '— Choose district —') ?>
+                    </select>
                 </div>
 
                 <!-- ADDRESS -->

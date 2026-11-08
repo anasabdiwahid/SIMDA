@@ -154,7 +154,9 @@ $adminTabs = [
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Degmada *' : 'District *' ?></label>
-                        <input type="text" name="district" class="form-control" required placeholder="Hodan">
+                        <select name="district" class="form-control" required>
+                            <?= \App\Helpers\Districts::options('', $isSo ? '— Dooro degmada —' : '— Choose district —') ?>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label><?= $isSo ? 'Cinwaanka / Goobta *' : 'Physical Address *' ?></label>
