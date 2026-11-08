@@ -972,4 +972,20 @@
     links.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
     document.addEventListener('click', function (e) { if (!nav.contains(e.target)) setOpen(false); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+
+    // Desktop: if the links don't fit in one row (long Somali labels, narrow window, zoom),
+    // switch to the menu button instead of letting the bar spill off the screen.
+    var fitWidth = -1;
+    function fit(e) {
+        if (e && e.type === 'resize' && window.innerWidth === fitWidth) return;
+        fitWidth = window.innerWidth;
+        setOpen(false);
+        nav.classList.remove('fid-nav-compact');
+        if (window.innerWidth <= 680) return; // phones already use the menu button
+        if (nav.scrollWidth > nav.clientWidth + 1) nav.classList.add('fid-nav-compact');
+    }
+    fit();
+    window.addEventListener('resize', fit);
+    window.addEventListener('load', fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
 })();

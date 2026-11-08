@@ -8024,3 +8024,27 @@ html.srv-dlg-open { overflow: hidden; }
     100% { opacity: 0.9; transform: translate(var(--x), 110vh) rotate(var(--r)); }
 }
 @media (prefers-reduced-motion: reduce) { .cw-dialog[open], .cw-emoji { animation: none; } }
+
+/* ==========================================================================
+   PUBLIC HEADER FIT: wider bar, tighter links; when the links still don't fit
+   (long Somali labels, narrow screens, browser zoom) simda.js adds
+   .fid-nav-compact and the links move into the menu button's drop-down.
+   ========================================================================== */
+.fid-header .fid-container.fid-nav { max-width: 1440px; flex-wrap: nowrap; }
+.fid-nav > * { flex-shrink: 0; }
+.fid-nav-links { gap: clamp(12px, 1.3vw, 24px); }
+.fid-nav.fid-nav-compact { position: relative; justify-content: flex-start; }
+.fid-nav.fid-nav-compact > div { margin-inline-start: auto; }
+.fid-nav.fid-nav-compact .fid-nav-links:not(.is-open) { display: none; }
+.fid-nav.fid-nav-compact .fid-menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; flex-shrink: 0; border: 1px solid #E3E0D8; border-radius: 12px; background: #FFFFFF; color: #123B32; cursor: pointer; }
+.fid-nav.fid-nav-compact .fid-menu-btn[aria-expanded="true"] { background: #123B32; color: #D6B66C; border-color: #123B32; }
+.fid-nav.fid-nav-compact .fid-nav-links.is-open { display: flex; flex-direction: column; align-items: stretch; gap: 2px; position: absolute; top: calc(100% + 10px); right: 24px; width: min(320px, calc(100% - 48px)); z-index: 50; padding: 10px; margin: 0; background: #FFFFFF; border: 1px solid #EFECE6; border-radius: 16px; box-shadow: 0 18px 40px rgba(18, 59, 50, 0.16); animation: fidMenuIn 0.18s ease-out; }
+[dir="rtl"] .fid-nav.fid-nav-compact .fid-nav-links.is-open { right: auto; left: 24px; }
+.fid-nav.fid-nav-compact .fid-nav-links.is-open li { width: 100%; }
+.fid-nav.fid-nav-compact .fid-nav-links.is-open a { display: block; padding: 11px 14px; border-radius: 10px; font-size: 0.95rem; }
+.fid-nav.fid-nav-compact .fid-nav-links.is-open a:hover, .fid-nav.fid-nav-compact .fid-nav-links.is-open a.active { background: rgba(214, 182, 108, 0.14); }
+[data-theme="dark"] .fid-nav.fid-nav-compact .fid-menu-btn { background: #142621; border-color: rgba(255, 255, 255, 0.12); color: #F4F5F0; }
+[data-theme="dark"] .fid-nav.fid-nav-compact .fid-nav-links.is-open { background: #0F2019; border-color: rgba(255, 255, 255, 0.08); }
+@media (max-width: 680px) {
+    .fid-nav.fid-nav-compact .fid-nav-links.is-open { left: 0; right: 0; width: auto; }
+}

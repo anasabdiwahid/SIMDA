@@ -294,14 +294,25 @@ final class PortalController
                 'office', 'location', 'contact', 'phone', 'email', 'hello', 'hi', 'hey', 'thanks', 'thank you', 'yes', 'no'
             ];
 
+            // Whole-word matching (substrings gave false hits, e.g. "hi" inside "this").
+            $soMarkers = array_merge(array_map('trim', $soMarkers), [
+                'ku', 'kuu', 'kaa', 'igu', 'ila', 'ula', 'yaa', 'yaku', 'yaad', 'maxaad', 'maxaa', 'miyaa', 'miyay', 'aan', 'baan',
+                'waxaan', 'waxaad', 'hadal', 'hadla', 'somali', 'soomaali', 'af', 'sameyay', 'sameeyay', 'samee', 'dhisay',
+                'magac', 'magacaa', 'magacaaga', 'kaftan', 'kaftami', 'ma', 'sidee', 'imisa', 'intee', 'goorma', 'xagee',
+                'dayn', 'deyn', 'maalgelin', 'murabaxo', 'muraabaxo', 'codso', 'codsado', 'damiin', 'bishii', 'qiimaha',
+                'mahadsanid', 'mahadsantahay', 'nabadeey', 'salaan', 'iska', 'warran', 'fiican', 'caawi', 'caawin',
+            ]);
+            $enMarkers = array_merge(array_map('trim', $enMarkers), ['you', 'your', 'the', 'and', 'made', 'name', 'please', 'speak', 'english', 'joke']);
+            $words = preg_split('/[^\p{L}\']+/u', $msgLower, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+            $soSet = array_flip($soMarkers);
+            $enSet = array_flip($enMarkers);
             $soCount = 0;
-            foreach ($soMarkers as $sm) {
-                if (mb_strpos($msgLower, $sm) !== false) $soCount++;
-            }
             $enCount = 0;
-            foreach ($enMarkers as $em) {
-                if (mb_strpos($msgLower, $em) !== false) $enCount++;
+            foreach ($words as $w) {
+                if (isset($soSet[$w])) $soCount++;
+                if (isset($enSet[$w])) $enCount++;
             }
+            if (str_contains($msgLower, 'thank you')) $enCount++;
 
             if ($soCount > 0 && $soCount >= $enCount) {
                 $lang = 'so';
@@ -351,8 +362,20 @@ final class PortalController
         $suggestions = [];
         $actionBtn = null;
 
-        // 0. Who am I / who made me / jokes / thanks (offline answers in the SIMDA AI voice)
-        if (preg_match('/(yaa ku (sameeyay|sameyay|samee|dhisay|abuuray)|yaa ku samey|who (made|built|created|developed) you|who is your (creator|developer|maker)|your creator|من صنعك|من صممك|من برمجك|من طورك)/iu', $message)) {
+        // 0. Language switch / who am I / who made me / jokes (offline answers in the SIMDA AI voice)
+        if (preg_match('/(\b(af[\s-]?)?so+mali\b.*\b(ku|igu|ila|nagu)?\s*(hadal|hadla|qor|jawaab)|speak somali|in somali)/iu', $message)) {
+            $lang = 'so';
+            $topic = 'language';
+            $reply = "Haa walaal! 😊 Af-Soomaali ayaan kugula hadlayaa. Waxaan kaa caawin karaa maalgelinta 0% Ribo, Murabaxada, sida loo codsado, laamaheena iyo wax kasta oo SIMDA ku saabsan. Maxaan kuu qabtaa?";
+        } elseif (preg_match('/(speak english|in english|english please|ingiriisi|af[\s-]?ingiriis)/iu', $message)) {
+            $lang = 'en';
+            $topic = 'language';
+            $reply = "Sure! 😊 I'll reply in English. I can help with SIMDA's 0% riba financing, Murabaha, how to apply, our branches and more. What would you like to know?";
+        } elseif (preg_match('/(بالعربي|العربية|عربي|carabi ku|af[\s-]?carabi|speak arabic|in arabic)/iu', $message)) {
+            $lang = 'ar';
+            $topic = 'language';
+            $reply = "بكل سرور! 😊 سأتحدث معك بالعربية. أستطيع مساعدتك في التمويل الإسلامي بدون ربا، والمرابحة، وطريقة التقديم، وفروعنا. بماذا أخدمك؟";
+        } elseif (preg_match('/(\by+a+\s?ku\b|\byaa\b|\byaad\b|\bkuu\b).*\b(samee?y?ay|sameeyey|samays?ay|samee|sameyn|dhis(ay)?|abuur(ay)?|curiyay|hindisay)|\bku\s+(sameeyay|sameyay|dhisay)\b|who\s+(made|built|created|developed|programmed|designed)\s+you|who\s+is\s+your\s+(creator|developer|maker|owner)|your\s+(creator|developer|maker)|من صنعك|من صممك|من برمجك|من طورك|من صنعكم/iu', $message)) {
             $topic = 'creator';
             $reply = $lang === 'ar'
                 ? "صنعني المهندس أنس عبد الواحد (Anas Abdiwahid). أشكره كثيراً على الجهد الكبير الذي بذله في بنائي وبناء نظام سيمدا. 🙏\n\nكيف أساعدك بخصوص سيمدا؟"
