@@ -837,9 +837,46 @@ HTML;
     }
 
     /**
-     * Tells the client the decision on their loan / Murabaha request: approved (paid out separately) or rejected, with the reason.
+     * Email block showing the Murabaha product the client is buying: its catalog picture (embedded inline,
+     * added to $inline) next to the item name and description. Returns '' when there is no goods text.
      */
-    public static function sendApplicationDecisionEmail(string $email, string $fullName, array $app, string $decision, string $comments, string $locale = 'so'): array
+    private static function productBlockHtml(?array $image, string $goodsText, bool $isSo, array &$inline): string
+    {
+        $goodsText = trim($goodsText);
+        if ($goodsText === '' && !$image) {
+            return '';
+        }
+        $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        $parts = explode(' — ', $goodsText, 2);
+        $name = $image['name'] ?? trim($parts[0]);
+        $desc = trim($parts[1] ?? '');
+        $label = $isSo ? 'Alaabta aad ku qaadatay Murabaxada' : 'The item you bought on Murabaha';
+
+        $imgCell = '';
+        if ($image && is_file((string) $image['path'])) {
+            $inline[] = ['cid' => $image['cid'], 'path' => $image['path'], 'mime' => $image['mime'], 'filename' => $image['filename']];
+            $imgCell = '<td width="120" style="width:120px;padding:0 16px 0 0;vertical-align:middle;">'
+                . '<img src="cid:' . $e($image['cid']) . '" alt="' . $e($name) . '" width="120" style="display:block;width:120px;height:120px;object-fit:contain;background:#FFFFFF;border-radius:12px;border:1px solid #E8EFEA;" />'
+                . '</td>';
+        }
+
+        return '<tr><td style="padding:14px 30px 2px;">'
+            . '<table width="100%" cellpadding="0" cellspacing="0" style="background:#FBF7EC;border:1px solid #EADFC2;border-radius:14px;"><tr><td style="padding:14px;">'
+            . '<table width="100%" cellpadding="0" cellspacing="0"><tr>' . $imgCell
+            . '<td style="vertical-align:middle;">'
+            . '<div style="font-size:11px;color:#8A6A22;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px;">' . $e($label) . '</div>'
+            . '<div style="font-size:17px;font-weight:800;color:#123B32;line-height:1.3;">' . $e($name) . '</div>'
+            . ($desc !== '' ? '<div style="font-size:13px;color:#52635B;margin-top:4px;line-height:1.45;">' . $e($desc) . '</div>' : '')
+            . '</td></tr></table>'
+            . '</td></tr></table>'
+            . '</td></tr>';
+    }
+
+    /**
+     * Tells the client the decision on their loan / Murabaha request: approved (paid out separately) or rejected, with the reason.
+     * For Murabaha, $itemImage (from MurabahaGoodsService::emailImageForGoods) shows the product picture.
+     */
+    public static function sendApplicationDecisionEmail(string $email, string $fullName, array $app, string $decision, string $comments, string $locale = 'so', ?array $itemImage = null): array
     {
         $isSo = $locale === 'so';
         $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
@@ -881,6 +918,10 @@ HTML;
             $logoSrc = 'cid:simda_logo';
         }
 
+        $productHtml = $isMurabaha
+            ? self::productBlockHtml($itemImage, (string) ($app['murabaha_goods_description'] ?? ''), $isSo, $inline)
+            : '';
+
         $html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' . $e($subject) . '</title></head>'
             . '<body style="margin:0;padding:24px 12px;background:#0d2620;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Arial,sans-serif;color:#1B2E28;">'
             . '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;">'
@@ -888,6 +929,7 @@ HTML;
             . '<tr><td style="padding:26px 30px 8px;font-size:14px;line-height:1.55;"><div style="font-weight:700;margin-bottom:10px;">' . $e($hello) . '</div>'
             . '<div style="display:inline-block;background:' . $color . ';color:#fff;padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px;margin-bottom:12px;">' . $e($title) . '</div>'
             . '<div>' . $e($body) . '</div></td></tr>'
+            . $productHtml
             . '<tr><td style="padding:16px 30px 26px;"><table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;background:#FAFCFB;border:1px solid #E8EFEA;border-radius:12px;">' . $rowsHtml . '</table></td></tr>'
             . '<tr><td style="background:#123B32;padding:16px 30px;text-align:center;color:#A7C2B8;font-size:11px;">SIMDA &bull; Mogadishu Head Office, Somalia</td></tr>'
             . '</table></body></html>';
@@ -992,6 +1034,7 @@ HTML;
             ? 'Wax ribo ah laguma darin, si waafaqsan Shareecada Islaamka. Fadlan ku bixi qaybaha waqtigooda si dhibcahaaga daynta (credit score) u kordhaan.'
             : 'No interest (riba) is charged, in line with Islamic Sharia. Paying each installment on time raises your credit score.';
         $year = date('Y');
+        $productHtml = self::productBlockHtml($d['item_image'] ?? null, (string) ($d['goods'] ?? ''), $isSo, $inline);
 
         $html = <<<HTML
 <!DOCTYPE html>
@@ -1006,6 +1049,7 @@ HTML;
     <tr><td style="padding:24px 30px 6px;font-size:14px;line-height:1.55;color:#1B2E28;">
       <div style="font-weight:700;margin-bottom:6px;">{$e($hello)}</div>{$e($intro)}
     </td></tr>
+    {$productHtml}
     <tr><td style="padding:16px 30px;text-align:center;">
       <div style="background:#F4F8F6;border:1px solid #E2EBE6;border-radius:14px;padding:20px;">
         <div style="font-size:12px;color:#788780;text-transform:uppercase;letter-spacing:1px;font-weight:700;">{$e($amountLabel)}</div>

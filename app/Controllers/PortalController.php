@@ -1989,7 +1989,10 @@ final class PortalController
             $mail = ['success' => false];
             if ($client['email'] !== '' && filter_var($client['email'], FILTER_VALIDATE_EMAIL)) {
                 try {
-                    $mail = MailService::sendApplicationDecisionEmail($client['email'], $client['full_name'], $app, $res['status'], $comments, $locale);
+                    $itemImage = ($app['product_type'] ?? '') === 'murabaha'
+                        ? MurabahaGoodsService::emailImageForGoods($pdo, (string) ($app['murabaha_goods_description'] ?? ''))
+                        : null;
+                    $mail = MailService::sendApplicationDecisionEmail($client['email'], $client['full_name'], $app, $res['status'], $comments, $locale, $itemImage);
                 } catch (\Throwable $e) {
                     $mail = ['success' => false];
                 }
@@ -2719,6 +2722,8 @@ final class PortalController
                 'frequency' => (string) ($row['repayment_frequency'] ?? 'monthly'),
                 'purpose' => $purpose,
                 'goods' => $goods,
+                // Murabaha: embed the product picture from the catalog in the email.
+                'item_image' => $goods !== '' ? MurabahaGoodsService::emailImageForGoods($pdo, $goods) : null,
                 'provider' => (string) ($disb['provider'] ?? ''),
                 'disbursed_at' => (string) ($disb['disbursed_at'] ?? date('Y-m-d H:i')),
                 'branch_name' => (string) ($row['branch_name'] ?? 'SIMDA'),

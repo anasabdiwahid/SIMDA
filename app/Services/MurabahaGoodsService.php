@@ -138,6 +138,38 @@ final class MurabahaGoodsService
         return $row ?: null;
     }
 
+    /**
+     * The catalog picture for a Murabaha contract's goods text ("Item name — description"), as an inline
+     * email attachment, or null when the item has no picture. Used to show the product in client emails.
+     *
+     * @return array{cid: string, path: string, mime: string, filename: string, name: string}|null
+     */
+    public static function emailImageForGoods(PDO $db, string $goodsText): ?array
+    {
+        $name = trim(explode(' — ', $goodsText, 2)[0]);
+        if ($name === '') {
+            return null;
+        }
+        self::ensureTable($db);
+        $st = $db->prepare('SELECT name, image_path FROM murabaha_goods WHERE LOWER(name) = LOWER(:n) AND image_path IS NOT NULL AND image_path <> \'\' LIMIT 1');
+        $st->execute([':n' => $name]);
+        $row = $st->fetch();
+        if (!$row) {
+            return null;
+        }
+        // image_path is relative to /public (assets/...); never follow anything outside it.
+        $public = realpath(dirname(__DIR__, 2) . '/public');
+        $file = realpath(dirname(__DIR__, 2) . '/public/' . ltrim((string) $row['image_path'], '/'));
+        if ($public === false || $file === false || !str_starts_with($file, $public) || !is_file($file)) {
+            return null;
+        }
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file);
+        if (!in_array($mime, ['image/png', 'image/jpeg', 'image/webp'], true)) {
+            return null;
+        }
+        return ['cid' => 'murabaha_item', 'path' => $file, 'mime' => $mime, 'filename' => basename($file), 'name' => (string) $row['name']];
+    }
+
     public static function sellingPrice(array $item): float
     {
         return round((float) $item['price'] * (1 + (float) $item['markup_pct'] / 100), 2);
