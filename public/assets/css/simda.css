@@ -5502,7 +5502,7 @@ a.dash-ref:hover {
 
 @media (max-width: 680px) {
     .top-header {
-        position: static;
+        position: sticky; top: 0; z-index: 80;
     }
     .header-right {
         width: 100%;
