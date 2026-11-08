@@ -8,25 +8,36 @@ use App\Helpers\Env;
 use Throwable;
 
 /**
- * WhatsApp notifications through Maytapi (https://maytapi.com).
+ * WhatsApp notifications.
  *
  * Every email SIMDA sends is mirrored to the recipient's WhatsApp when their
  * phone number is on file (users or clients table). Configure in .env:
  *   WHATSAPP_ENABLED=true
- *   MAYTAPI_PRODUCT_ID=...
- *   MAYTAPI_PHONE_ID=...
- *   MAYTAPI_API_TOKEN=...
+ *   WHATSAPP_PROVIDER=local    -> free gateway in whatsapp-gateway/ (scan QR at http://127.0.0.1:3001)
+ *     WHATSAPP_GATEWAY_URL, WHATSAPP_GATEWAY_KEY
+ *   WHATSAPP_PROVIDER=maytapi  -> Maytapi API
+ *     MAYTAPI_PRODUCT_ID, MAYTAPI_PHONE_ID, MAYTAPI_API_TOKEN
  * A WhatsApp failure never blocks the email or the request that triggered it.
  */
 final class WhatsAppService
 {
     private const MAX_LENGTH = 3500;
 
+    public static function provider(): string
+    {
+        return strtolower(trim((string) Env::get('WHATSAPP_PROVIDER', 'local'))) === 'maytapi' ? 'maytapi' : 'local';
+    }
+
     public static function isEnabled(): bool
     {
         $flag = strtolower(trim((string) Env::get('WHATSAPP_ENABLED', 'false')));
-        return in_array($flag, ['1', 'true', 'yes', 'on'], true)
-            && trim((string) Env::get('MAYTAPI_PRODUCT_ID', '')) !== ''
+        if (!in_array($flag, ['1', 'true', 'yes', 'on'], true)) {
+            return false;
+        }
+        if (self::provider() === 'local') {
+            return trim((string) Env::get('WHATSAPP_GATEWAY_URL', 'http://127.0.0.1:3001')) !== '';
+        }
+        return trim((string) Env::get('MAYTAPI_PRODUCT_ID', '')) !== ''
             && trim((string) Env::get('MAYTAPI_PHONE_ID', '')) !== ''
             && trim((string) Env::get('MAYTAPI_API_TOKEN', '')) !== '';
     }
@@ -37,7 +48,7 @@ final class WhatsAppService
     public static function send(string $phone, string $message): array
     {
         if (!self::isEnabled()) {
-            return ['success' => false, 'error' => 'WhatsApp is not configured (WHATSAPP_ENABLED / MAYTAPI_* in .env).'];
+            return ['success' => false, 'error' => 'WhatsApp is not configured (WHATSAPP_ENABLED / WHATSAPP_PROVIDER in .env).'];
         }
         $number = self::normalizePhone($phone);
         if ($number === null) {
@@ -51,11 +62,19 @@ final class WhatsAppService
             $message = mb_substr($message, 0, self::MAX_LENGTH) . '…';
         }
 
-        $url = sprintf(
-            'https://api.maytapi.com/api/%s/%s/sendMessage',
-            rawurlencode(trim((string) Env::get('MAYTAPI_PRODUCT_ID'))),
-            rawurlencode(trim((string) Env::get('MAYTAPI_PHONE_ID')))
-        );
+        if (self::provider() === 'local') {
+            $url = rtrim(trim((string) Env::get('WHATSAPP_GATEWAY_URL', 'http://127.0.0.1:3001')), '/') . '/send';
+            $headers = ['Content-Type: application/json', 'x-api-key: ' . trim((string) Env::get('WHATSAPP_GATEWAY_KEY', ''))];
+            $payload = ['to' => $number, 'message' => $message];
+        } else {
+            $url = sprintf(
+                'https://api.maytapi.com/api/%s/%s/sendMessage',
+                rawurlencode(trim((string) Env::get('MAYTAPI_PRODUCT_ID'))),
+                rawurlencode(trim((string) Env::get('MAYTAPI_PHONE_ID')))
+            );
+            $headers = ['Content-Type: application/json', 'x-maytapi-key: ' . trim((string) Env::get('MAYTAPI_API_TOKEN'))];
+            $payload = ['to_number' => $number, 'type' => 'text', 'message' => $message];
+        }
 
         try {
             $ch = curl_init($url);
@@ -64,15 +83,8 @@ final class WhatsAppService
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_CONNECTTIMEOUT => 5,
                 CURLOPT_TIMEOUT => 12,
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'x-maytapi-key: ' . trim((string) Env::get('MAYTAPI_API_TOKEN')),
-                ],
-                CURLOPT_POSTFIELDS => json_encode([
-                    'to_number' => $number,
-                    'type' => 'text',
-                    'message' => $message,
-                ], JSON_UNESCAPED_UNICODE),
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
             ]);
             $body = curl_exec($ch);
             $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);

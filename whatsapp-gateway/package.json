@@ -1,0 +1,15 @@
+{
+  "name": "simda-whatsapp-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local WhatsApp gateway for SIMDA: link a phone by QR code, then SIMDA sends messages through it.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "6.7.24",
+    "pino": "10.4.0",
+    "qrcode": "1.5.4"
+  }
+}

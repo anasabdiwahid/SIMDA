@@ -26,3 +26,7 @@ Thumbs.db
 /public/assets/uploads/partners/*
 !/public/assets/uploads/partners/.htaccess
 /storage/cache/
+
+# Local WhatsApp gateway: packages and the linked-phone session (secret)
+/whatsapp-gateway/node_modules/
+/storage/whatsapp-auth/
