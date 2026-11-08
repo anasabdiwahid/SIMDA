@@ -811,7 +811,7 @@ HTML;
         <div style="color:#FFFFFF;font-weight:700;font-size:13px;margin-bottom:4px;">
           SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION (SIMDA)
         </div>
-        Mogadishu Head Office, Somalia &bull; info@simda.so &bull; +252 61 500 0000<br>
+        Mogadishu Head Office, Somalia &bull; anasabdiwahidhussein@gmail.com &bull; +252 61 500 0000<br>
         &copy; {$e(date('Y'))} SIMDA Microfinance Portal. All rights reserved.
       </td>
     </tr>
@@ -1074,7 +1074,7 @@ HTML;
     </td></tr>
     <tr><td style="background:#123B32;padding:18px 30px;text-align:center;color:#A7C2B8;font-size:11px;line-height:1.6;">
       <div style="color:#FFFFFF;font-weight:700;font-size:13px;margin-bottom:4px;">SIMDA</div>
-      Mogadishu Head Office, Somalia &bull; info@simda.so<br>&copy; {$year} SIMDA Microfinance Portal.
+      Mogadishu Head Office, Somalia &bull; anasabdiwahidhussein@gmail.com<br>&copy; {$year} SIMDA Microfinance Portal.
     </td></tr>
   </table>
 </body>
