@@ -302,17 +302,28 @@ final class PortalController
                 'dayn', 'deyn', 'maalgelin', 'murabaxo', 'muraabaxo', 'codso', 'codsado', 'damiin', 'bishii', 'qiimaha',
                 'mahadsanid', 'mahadsantahay', 'nabadeey', 'salaan', 'iska', 'warran', 'fiican', 'caawi', 'caawin',
             ]);
-            $enMarkers = array_merge(array_map('trim', $enMarkers), ['you', 'your', 'the', 'and', 'made', 'name', 'please', 'speak', 'english', 'joke']);
+            $enMarkers = array_merge(array_map('trim', $enMarkers), [
+                'you', 'your', 'the', 'and', 'made', 'name', 'please', 'speak', 'english', 'joke', 'i', 'me', 'my', 'we', 'our',
+                'a', 'an', 'to', 'of', 'in', 'on', 'for', 'with', 'it', 'this', 'that', 'want', 'need', 'have', 'get', 'buy', 'pay',
+                'much', 'many', 'price', 'cost', 'car', 'phone', 'money', 'month', 'help', 'would', 'could', 'should', 'there',
+            ]);
             $words = preg_split('/[^\p{L}\']+/u', $msgLower, -1, PREG_SPLIT_NO_EMPTY) ?: [];
             $soSet = array_flip($soMarkers);
             $enSet = array_flip($enMarkers);
             $soCount = 0;
             $enCount = 0;
             foreach ($words as $w) {
-                if (isset($soSet[$w])) $soCount++;
-                if (isset($enSet[$w])) $enCount++;
+                if (isset($soSet[$w])) {
+                    $soCount += 2;
+                } elseif (isset($enSet[$w])) {
+                    $enCount += 2;
+                } elseif (preg_match('/aa|ii|uu|dh|kh|x[aeiou]|q[aeio]|[bdfghjklmnrstwy]a$|ey$|ay$/u', $w)) {
+                    // Spelling typical of Somali (double vowels, dh/kh, x/q + vowel, -a/-ay/-ey endings),
+                    // so unknown or misspelled Somali words still count as Somali.
+                    $soCount++;
+                }
             }
-            if (str_contains($msgLower, 'thank you')) $enCount++;
+            if (str_contains($msgLower, 'thank you')) $enCount += 2;
 
             if ($soCount > 0 && $soCount >= $enCount) {
                 $lang = 'so';
@@ -656,7 +667,7 @@ final class PortalController
         }
         // 10. Office location, contact & hours
         elseif (
-            preg_match('/(xafiis|xagee|address|location|phone|email|contact|saacadaha|hours|ciwaan|أين|موقع|عنوان|هاتف|تواصل|ساعات العمل)/iu', $message)
+            preg_match('/(xafiis|xaggee|xagee|office|address|location|where is|phone|email|contact|saacadaha|hours|ciwaan|أين|موقع|عنوان|هاتف|تواصل|ساعات العمل)/iu', $message)
         ) {
             $topic = 'contact';
             $waUrl = 'https://wa.me/252616256534?text=' . rawurlencode(
