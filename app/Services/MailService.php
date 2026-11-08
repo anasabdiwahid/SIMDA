@@ -36,6 +36,21 @@ final class MailService
         string $plainBody = '',
         array $inlineAttachments = []
     ): array {
+        $result = self::sendSmtp($to, $subject, $htmlBody, $plainBody, $inlineAttachments);
+
+        // Mirror every email to the recipient's WhatsApp (Maytapi) when a phone is on file.
+        $result['whatsapp'] = WhatsAppService::notifyEmailRecipient($to, $subject, $plainBody, $htmlBody);
+
+        return $result;
+    }
+
+    private static function sendSmtp(
+        string $to,
+        string $subject,
+        string $htmlBody,
+        string $plainBody = '',
+        array $inlineAttachments = []
+    ): array {
         $host = (string) Env::get('MAIL_HOST', 'smtp.gmail.com');
         $port = (int) Env::get('MAIL_PORT', 465);
         // Credentials come from .env only; never hard-code them here.

@@ -1244,6 +1244,10 @@ final class PortalController
                 ':mso' => "Koodhkaaga SIMDA OTP waa: {$otp}. Ha la wadaagin cidna.",
                 ':men' => "Your SIMDA verification code is: {$otp}. Never share this code with anyone."
             ]);
+            \App\Services\WhatsAppService::send(
+                $targetVal,
+                "*SIMDA OTP*\n\nKoodhkaaga SIMDA OTP waa: {$otp}. Ha la wadaagin cidna.\nYour SIMDA verification code is: {$otp}. Never share this code with anyone."
+            );
         } else {
             $parts = explode('@', $targetVal);
             $namePart = $parts[0] ?? '';
