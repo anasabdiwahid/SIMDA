@@ -172,46 +172,82 @@ $kpis = [
                         <tr class="rq-detail" id="<?= $detailId ?>" hidden>
                             <td colspan="8">
                                 <div class="rq-detail-inner">
-                                    <div class="rq-tags">
-                                        <span class="rq-tag is-info"><?= Icons::svg('user-check', 13) ?> <?= Security::e($levelLabel($level)) ?></span>
-                                        <span class="rq-tag"><?= Icons::svg('bar-chart', 13) ?> <?= $isSo ? 'Dhibcaha' : 'Score' ?> <?= (int) ($q['current_score'] ?? 600) ?></span>
-                                        <span class="rq-tag"><?= $isSo ? 'Wadarta la celinayo' : 'Total to repay' ?> <?= Security::formatMoney($q['projected_total_due']) ?></span>
+                                    <div class="rqd-stats">
+                                        <div><span><?= $isSo ? 'Lacagta' : 'Amount' ?></span><strong class="num-tabular"><?= Security::formatMoney($q['requested_amount']) ?></strong></div>
+                                        <div><span><?= $isSo ? 'Wadarta la celinayo' : 'Total to repay' ?></span><strong class="num-tabular"><?= Security::formatMoney($q['projected_total_due']) ?></strong></div>
+                                        <div><span><?= $weekly ? ($isSo ? 'Qaybta toddobaadkii' : 'Per week') : ($isSo ? 'Qaybta bishii' : 'Per month') ?></span><strong class="num-tabular"><?= Security::formatMoney($perInstallment) ?></strong></div>
+                                        <div><span><?= $isSo ? 'Muddada' : 'Term' ?></span><strong class="num-tabular"><?= $term ?> <small><?= $weekly ? ($isSo ? 'toddobaad' : 'weeks') : ($isSo ? 'bilood' : 'months') ?></small></strong></div>
                                     </div>
 
                                     <div class="rq-grid">
-                                        <section class="rq-panel">
-                                            <h4><?= Icons::svg('file-text', 14) ?> <?= $isSo ? 'Codsiga' : 'Request' ?></h4>
+                                        <section class="rqd-panel">
+                                            <header class="rqd-panel-head">
+                                                <span class="rqd-icon"><?= Icons::svg('file-text', 16) ?></span>
+                                                <div><strong><?= $isSo ? 'Codsiga' : 'Request' ?></strong><span class="num-tabular"><?= Security::e($q['application_number']) ?></span></div>
+                                                <span class="rq-tag is-info rqd-level"><?= Security::e($levelLabel($level)) ?></span>
+                                            </header>
+
                                             <?php if ($itemName !== ''): ?>
-                                                <div class="rq-item">
-                                                    <strong><?= Security::e($itemName) ?></strong>
-                                                    <?php if ($itemDesc !== ''): ?><span><?= Security::e($itemDesc) ?></span><?php endif; ?>
+                                                <div class="rqd-item">
+                                                    <span class="rqd-item-img">
+                                                        <?php if (!empty($q['item_image'])): ?>
+                                                            <img src="<?= Security::e((string) $q['item_image']) ?>" alt="">
+                                                        <?php else: ?>
+                                                            <?= Icons::svg('shopping-bag', 22) ?>
+                                                        <?php endif; ?>
+                                                    </span>
+                                                    <div>
+                                                        <strong><?= Security::e($itemName) ?></strong>
+                                                        <?php if ($itemDesc !== ''): ?><span><?= Security::e($itemDesc) ?></span><?php endif; ?>
+                                                    </div>
                                                 </div>
                                             <?php endif; ?>
-                                            <dl class="rq-dl">
-                                                <div><dt><?= $isSo ? 'Lambarka' : 'Number' ?></dt><dd class="num-tabular"><?= Security::e($q['application_number']) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Muddada' : 'Term' ?></dt><dd><?= Security::e($termText) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Ujeeddada' : 'Purpose' ?></dt><dd><?= Security::e($dash($q['purpose'])) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Laanta' : 'Branch' ?></dt><dd><?= Security::e($q['branch_name']) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Waxaa diray' : 'Sent by' ?></dt><dd><?= Security::e($q['creator_name']) ?> <small class="num-tabular"><?= !empty($q['submitted_at']) ? Security::e(date('d/m/Y H:i', strtotime((string) $q['submitted_at']))) : '' ?></small></dd></div>
-                                                <?php if (!empty($q['from_form'])): ?>
-                                                    <div><dt><?= $isSo ? 'Lacagta loo dirayo' : 'Pay out to' ?></dt><dd><?= Security::e($dash($q['payout_provider'])) ?> · <span dir="ltr" class="num-tabular"><?= Security::e($dash($q['payout_phone'])) ?></span></dd></div>
-                                                <?php endif; ?>
-                                            </dl>
+
+                                            <ul class="rqd-rows">
+                                                <li><?= Icons::svg('activity', 15) ?><span><?= $isSo ? 'Ujeeddada' : 'Purpose' ?></span><b><?= Security::e($dash($q['purpose'])) ?></b></li>
+                                                <li><?= Icons::svg('calendar', 15) ?><span><?= $isSo ? 'Muddada' : 'Term' ?></span><b><?= Security::e($termText) ?></b></li>
+                                                <li><?= Icons::svg('building', 15) ?><span><?= $isSo ? 'Laanta' : 'Branch' ?></span><b><?= Security::e($q['branch_name']) ?></b></li>
+                                                <li><?= Icons::svg('user-check', 15) ?><span><?= $isSo ? 'Waxaa diray' : 'Sent by' ?></span>
+                                                    <b><?= Security::e($q['creator_name']) ?><small class="num-tabular"><?= !empty($q['submitted_at']) ? Security::e(date('d/m/Y H:i', strtotime((string) $q['submitted_at']))) . ' · ' . Security::e($ago($q['submitted_at'])) : '' ?></small></b>
+                                                </li>
+                                            </ul>
+
+                                            <?php if (!empty($q['from_form'])): ?>
+                                                <div class="rqd-payout">
+                                                    <?= Icons::svg('send', 15) ?>
+                                                    <span><?= $isSo ? 'Marka la aqbalo, lacagta waxaa loo dirayaa' : 'On approval, pay out to' ?></span>
+                                                    <b><?= Security::e($dash($q['payout_provider'])) ?> · <span dir="ltr" class="num-tabular"><?= Security::e($dash($q['payout_phone'])) ?></span></b>
+                                                </div>
+                                            <?php endif; ?>
                                         </section>
 
-                                        <section class="rq-panel">
-                                            <h4><?= Icons::svg('user', 14) ?> <?= $isSo ? 'Macmiilka' : 'Client' ?>
-                                                <a href="?route=client_view&id=<?= (int) $q['client_row_id'] ?>" class="rq-link"><?= $isSo ? 'Fur bogga' : 'Open profile' ?> <?= Icons::svg('arrow-right', 12) ?></a>
-                                            </h4>
-                                            <dl class="rq-dl">
-                                                <div><dt><?= $isSo ? 'Telefoonka' : 'Phone' ?></dt><dd dir="ltr" class="num-tabular"><?= Security::e($dash($q['client_phone'] ?? '')) ?></dd></div>
-                                                <div><dt>Email</dt><dd><?= Security::e($dash($q['client_email'] ?? '')) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Aqoonsiga' : 'ID number' ?></dt><dd class="num-tabular"><?= Security::e($dash($q['client_id_number'] ?? '')) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Magaalada' : 'City' ?></dt><dd><?= Security::e($dash($city)) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Ganacsiga' : 'Business' ?></dt><dd><?= Security::e($dash($q['business_type'] ?? '')) ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Dakhliga bishii' : 'Monthly income' ?></dt><dd class="num-tabular"><?= (float) ($q['monthly_income'] ?? 0) > 0 ? Security::formatMoney($q['monthly_income']) : '—' ?></dd></div>
-                                                <div><dt><?= $isSo ? 'Damiinka' : 'Guarantor' ?></dt><dd><?= Security::e($dash($q['guarantor_name'] ?? '')) ?><?php if (!empty($q['guarantor_phone'])): ?> <small dir="ltr" class="num-tabular"><?= Security::e($q['guarantor_phone']) ?></small><?php endif; ?></dd></div>
-                                            </dl>
+                                        <section class="rqd-panel">
+                                            <header class="rqd-client">
+                                                <span class="rq-avatar"><?= Security::e(Security::initials((string) $q['client_name'])) ?></span>
+                                                <div>
+                                                    <strong><?= Security::e($q['client_name']) ?></strong>
+                                                    <span class="num-tabular"><?= Security::e($q['client_code']) ?></span>
+                                                </div>
+                                                <span class="rqd-score" title="<?= $isSo ? 'Dhibcaha credit-ka' : 'Credit score' ?>"><b class="num-tabular"><?= (int) ($q['current_score'] ?? 600) ?></b><small><?= $isSo ? 'dhibco' : 'score' ?></small></span>
+                                            </header>
+
+                                            <div class="rqd-contact">
+                                                <?php if (!empty($q['client_phone'])): ?>
+                                                    <a href="tel:<?= Security::e(preg_replace('/[^0-9+]/', '', (string) $q['client_phone'])) ?>"><?= Icons::svg('phone', 14) ?> <span dir="ltr" class="num-tabular"><?= Security::e($q['client_phone']) ?></span></a>
+                                                <?php endif; ?>
+                                                <?php if (!empty($q['client_email'])): ?>
+                                                    <a href="mailto:<?= Security::e((string) $q['client_email']) ?>"><?= Icons::svg('send', 14) ?> <span><?= Security::e($q['client_email']) ?></span></a>
+                                                <?php endif; ?>
+                                                <a href="?route=client_view&id=<?= (int) $q['client_row_id'] ?>" class="is-profile"><?= Icons::svg('eye', 14) ?> <span><?= $isSo ? 'Bogga macmiilka' : 'Client profile' ?></span></a>
+                                            </div>
+
+                                            <div class="rqd-tiles">
+                                                <div><span><?= $isSo ? 'Aqoonsiga' : 'ID number' ?></span><b class="num-tabular"><?= Security::e($dash($q['client_id_number'] ?? '')) ?></b></div>
+                                                <div><span><?= $isSo ? 'Magaalada' : 'City' ?></span><b><?= Security::e($dash($city)) ?></b></div>
+                                                <div><span><?= $isSo ? 'Ganacsiga' : 'Business' ?></span><b><?= Security::e($dash($q['business_type'] ?? '')) ?></b></div>
+                                                <div><span><?= $isSo ? 'Dakhliga bishii' : 'Monthly income' ?></span><b class="num-tabular"><?= (float) ($q['monthly_income'] ?? 0) > 0 ? Security::formatMoney($q['monthly_income']) : '—' ?></b></div>
+                                                <div class="rqd-tile-wide"><span><?= $isSo ? 'Damiinka' : 'Guarantor' ?></span><b><?= Security::e($dash($q['guarantor_name'] ?? '')) ?><?php if (!empty($q['guarantor_phone'])): ?> <small dir="ltr" class="num-tabular"><?= Security::e($q['guarantor_phone']) ?></small><?php endif; ?></b></div>
+                                            </div>
                                         </section>
                                     </div>
 

@@ -1921,12 +1921,21 @@ final class PortalController
         $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
         $queue = FinancingDomainService::pendingRequestsFor($user, $pdo);
         $history = self::clientFinancingHistory($pdo, $user);
+        $goodsImages = [];
+        foreach (MurabahaGoodsService::all($pdo) as $g) {
+            if (!empty($g['image_path'])) {
+                $goodsImages[mb_strtolower(trim((string) $g['name']))] = (string) $g['image_path'];
+            }
+        }
         foreach ($queue as &$q) {
             $meta = json_decode((string) ($q['notes'] ?? ''), true);
             $q['payout_provider'] = is_array($meta) ? (string) ($meta['provider'] ?? '') : '';
             $q['payout_phone'] = is_array($meta) ? (string) ($meta['phone'] ?? '') : '';
             $q['from_form'] = is_array($meta) && in_array($meta['source'] ?? '', ['cash_loan_form', 'murabaha_form'], true);
             $q['history'] = $history[(int) $q['client_row_id']] ?? [];
+            // Murabaha goods are saved as "Item name — description"; show the catalog picture when the name matches.
+            $itemName = trim(explode(' — ', (string) ($q['murabaha_goods_description'] ?? ''), 2)[0]);
+            $q['item_image'] = $goodsImages[mb_strtolower($itemName)] ?? '';
         }
         unset($q);
 
