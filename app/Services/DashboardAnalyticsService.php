@@ -18,8 +18,15 @@ final class DashboardAnalyticsService
     {
         $db = $pdo ?? Database::connection();
         $role = $user['role_slug'] ?? 'admin';
-        $branchId = ($role !== 'admin' && !empty($user['branch_id'])) ? (int) $user['branch_id'] : null;
-        $clientId = ($role === 'client' && !empty($user['client_id'])) ? (int) $user['client_id'] : null;
+        // Same rule as PortalController::scopeSql: admin and General Manager see the whole company,
+        // a client sees only their own records, everyone else only their branch. Staff with no branch
+        // get an impossible branch id so they see nothing rather than the whole company.
+        $companyWide = in_array($role, ['admin', 'manager'], true);
+        $clientId = $role === 'client' ? (int) ($user['client_id'] ?? -1) : null;
+        $branchId = (!$companyWide && $clientId === null) ? (int) ($user['branch_id'] ?? -1) : null;
+        if ($branchId === 0) {
+            $branchId = -1;
+        }
 
         // Run background maintenance checks on live records
         DisbursementService::expireStaleApprovals(null, $db);
@@ -206,7 +213,9 @@ final class DashboardAnalyticsService
         $charityRow = $st->fetch();
 
         // 11. PAR30 Calculation
-        $par30 = Par30Service::calculate($branchId, null, $db);
+        // PAR30 is per branch: company-wide roles get the whole portfolio, everyone else (clients too) their branch.
+        $par30Branch = $companyWide ? null : (((int) ($user['branch_id'] ?? 0)) ?: -1);
+        $par30 = Par30Service::calculate($par30Branch, null, $db);
 
         // 12. Monthly Repayment Performance Chart
         $monthlyRepayments = self::getMonthlyRepaymentSeries($db, $whereRep, $params);
