@@ -37,6 +37,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
         })();
     </script>
     <link rel="stylesheet" href="assets/css/simda.css?v=<?= Security::e($assetVer) ?>">
+    <script src="assets/js/cropper.js?v=<?= Security::e((string) @filemtime(BASE_PATH . '/public/assets/js/cropper.js')) ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>

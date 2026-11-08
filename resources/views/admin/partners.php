@@ -123,12 +123,16 @@ $activeCount = count(array_filter($partners, static fn($p) => (int) $p['is_activ
     const file = document.getElementById('partnerLogo');
     const img = document.getElementById('partnerLogoPreview');
     const empty = document.getElementById('partnerLogoEmpty');
-    file.addEventListener('change', function () {
-        const f = file.files[0];
-        if (!f) return;
-        img.src = URL.createObjectURL(f);
-        img.hidden = false;
-        empty.hidden = true;
+    // Choosing a logo opens the crop dialog (round, like it appears on the home page).
+    SimdaCropper.attach(file, {
+        aspect: 1,
+        round: true,
+        outWidth: 600,
+        onCropped: function (f, url) {
+            img.src = url;
+            img.hidden = false;
+            empty.hidden = true;
+        }
     });
 })();
 </script>

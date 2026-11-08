@@ -175,12 +175,15 @@ $v = static fn(string $k, $default = '') => $edit[$k] ?? $default;
     const file = document.getElementById('goodsImage');
     const img = document.getElementById('goodsImagePreview');
     const empty = document.getElementById('goodsImageEmpty');
-    file.addEventListener('change', function () {
-        const f = file.files[0];
-        if (!f) return;
-        img.src = URL.createObjectURL(f);
-        img.hidden = false;
-        empty.hidden = true;
+    // Choosing a picture opens the crop dialog (4:3, the shape products are shown in).
+    SimdaCropper.attach(file, {
+        aspect: 4 / 3,
+        outWidth: 800,
+        onCropped: function (f, url) {
+            img.src = url;
+            img.hidden = false;
+            empty.hidden = true;
+        }
     });
     const price = document.getElementById('goodsPrice');
     const markup = document.getElementById('goodsMarkup');

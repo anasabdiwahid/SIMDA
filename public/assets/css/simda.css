@@ -7654,3 +7654,29 @@ a.pt-bubble:focus-visible { outline: none; }
 .pt-card-link { font-size: 0.78rem; color: var(--color-success); font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pt-card-link.is-none { color: var(--text-muted); font-weight: 500; }
 .pt-card .mg-actions { align-items: center; justify-content: center; }
+
+/* ==========================================================================
+   IMAGE CROP DIALOG (scrop-)
+   ========================================================================== */
+.scrop { position: fixed; inset: 0; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.scrop-backdrop { position: absolute; inset: 0; background: rgba(8, 24, 20, 0.62); backdrop-filter: blur(3px); animation: scrop-fade 0.18s ease; }
+.scrop-box { position: relative; width: min(420px, 100%); background: var(--bg-surface); border-radius: 18px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); padding: 20px; display: flex; flex-direction: column; gap: 14px; animation: scrop-pop 0.2s ease; }
+.scrop-head { display: flex; flex-direction: column; gap: 3px; }
+.scrop-head strong { font-size: 1.05rem; color: var(--text-primary); }
+.scrop-head span { font-size: 0.8rem; color: var(--text-muted); }
+.scrop-stage { position: relative; margin: 0 auto; overflow: hidden; border-radius: 12px; cursor: grab; touch-action: none; user-select: none;
+    background-color: #fff; background-image: linear-gradient(45deg, #EEF1EE 25%, transparent 25%), linear-gradient(-45deg, #EEF1EE 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #EEF1EE 75%), linear-gradient(-45deg, transparent 75%, #EEF1EE 75%);
+    background-size: 18px 18px; background-position: 0 0, 0 9px, 9px -9px, -9px 0; }
+.scrop-stage.is-dragging { cursor: grabbing; }
+.scrop-img { position: absolute; top: 0; left: 0; max-width: none; transform-origin: 0 0; pointer-events: none; }
+.scrop-mask { position: absolute; inset: 0; pointer-events: none; border: 2px solid var(--simda-gold); border-radius: 12px; }
+.scrop.is-round .scrop-mask { border: 0; border-radius: 50%; box-shadow: 0 0 0 9999px rgba(8, 24, 20, 0.45), inset 0 0 0 2px var(--simda-gold); }
+.scrop-zoom { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
+.scrop-range { flex: 1; accent-color: var(--simda-green); }
+.scrop-reset { border: 0; background: transparent; color: var(--color-success); font: inherit; font-weight: 700; cursor: pointer; padding: 4px 2px; }
+.scrop-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.scrop-actions .btn { min-height: 40px; padding: 0 16px; font-weight: 700; }
+@keyframes scrop-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scrop-pop { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .scrop-backdrop, .scrop-box { animation: none; } }
+@media (max-width: 420px) { .scrop-actions .btn { flex: 1; } }
