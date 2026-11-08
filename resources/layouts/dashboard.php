@@ -181,6 +181,13 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                         <span><?= $so ? 'Shaqaale' : 'Employee' ?></span>
                         <?= Icons::svg('plus', 13) ?>
                     </a>
+                    <?php if (in_array($role, ['admin', 'manager'], true)): ?>
+                        <a href="?route=branches&new=1" class="sb-register-btn sb-register-full <?= $isNew && $currentRoute === 'branches' ? 'active' : '' ?>">
+                            <?= Icons::svg('building', 16) ?>
+                            <span><?= $so ? 'Laan Cusub (Branch)' : 'New Branch' ?></span>
+                            <?= Icons::svg('plus', 13) ?>
+                        </a>
+                    <?php endif; ?>
                 </div>
             <?php elseif ($can('users.manage')): ?>
                 <div class="sb-register">

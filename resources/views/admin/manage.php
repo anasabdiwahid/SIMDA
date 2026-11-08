@@ -178,6 +178,15 @@ $adminTabs = [
             </form>
 
             <script>
+            // Opened from the sidebar "Branch" button: show the new-branch form straight away.
+            document.addEventListener('DOMContentLoaded', function () {
+                if (new URLSearchParams(window.location.search).get('new') === '1') {
+                    toggleBranchForm(true);
+                    var form = document.getElementById('createBranchForm');
+                    var first = form ? form.querySelector('input:not([type=hidden])') : null;
+                    if (first) setTimeout(function () { first.focus(); }, 250);
+                }
+            });
             function toggleBranchForm(forceState) {
                 var form = document.getElementById('createBranchForm');
                 if (!form) return;
