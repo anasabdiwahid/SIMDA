@@ -447,6 +447,12 @@ $adminTabs = [
             }
 
             document.addEventListener('DOMContentLoaded', function () {
+                // Opened from a sidebar "Register ..." link: show the registration form straight away.
+                if (new URLSearchParams(window.location.search).get('new') === '1') {
+                    toggleCreateUserForm(true);
+                    const first = document.getElementById('userFullNameInput');
+                    if (first) setTimeout(function () { first.focus(); }, 250);
+                }
                 const roleSelect = document.getElementById('userRoleSelect');
                 const branchSelect = document.getElementById('userBranchSelect');
                 const branchNote = document.getElementById('userBranchManagerNote');

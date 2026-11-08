@@ -67,6 +67,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
         $so = $locale === 'so';
         $can = static fn(string $p): bool => AuthMiddleware::hasPermission($p);
         $filter = (string) ($_GET['filter'] ?? '');
+        $isNew = ($_GET['new'] ?? '') === '1';
         $on = static fn(array $routes): bool => in_array($currentRoute, $routes, true);
         $sidebarGroups = [
             [
@@ -136,10 +137,21 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 ],
             ],
             [
+                // Staff: register and list managers and employees. Each role only sees the levels below it.
+                'label' => $so ? 'Shaqaalaha' : 'Staff', 'icon' => 'user-check', 'show' => $can('users.manage'),
+                'items' => [
+                    ['route' => 'managers&new=1', 'label' => $so ? 'Diiwaangeli Maamule Guud' : 'Register General Manager', 'cta' => true, 'show' => $role === 'admin', 'active' => $on(['managers']) && $isNew],
+                    ['route' => 'branch_managers&new=1', 'label' => $so ? 'Diiwaangeli Maamule Laan' : 'Register Branch Manager', 'cta' => true, 'show' => in_array($role, ['admin', 'manager'], true), 'active' => $on(['branch_managers']) && $isNew],
+                    ['route' => 'employees&new=1', 'label' => $so ? 'Diiwaangeli Shaqaale' : 'Register Employee', 'cta' => true, 'active' => $on(['employees']) && $isNew],
+                    ['route' => 'managers', 'label' => $so ? 'Maamulayaasha Guud' : 'General Managers', 'show' => $role === 'admin', 'active' => $on(['managers']) && !$isNew],
+                    ['route' => 'branch_managers', 'label' => $so ? 'Maamulayaasha Laamaha' : 'Branch Managers', 'show' => in_array($role, ['admin', 'manager'], true), 'active' => $on(['branch_managers']) && !$isNew],
+                    ['route' => 'employees', 'label' => $so ? 'Liiska Shaqaalaha' : 'All Employees', 'active' => $on(['employees', 'employee_register']) && !$isNew],
+                ],
+            ],
+            [
                 'label' => Lang::get('grp_admin'), 'icon' => 'settings', 'show' => $can('branches.manage') || $can('users.manage'),
                 'items' => [
-                    ['route' => 'users', 'label' => Lang::get('menu_users'), 'show' => $can('users.manage'), 'active' => $on(['users', 'managers', 'branch_managers'])],
-                    ['route' => 'employees', 'label' => $so ? 'Shaqaalaha' : 'Employees', 'show' => $can('users.manage'), 'active' => $on(['employees', 'employee_register'])],
+                    ['route' => 'users', 'label' => Lang::get('menu_users'), 'show' => $can('users.manage'), 'active' => $on(['users'])],
                     ['route' => 'branches', 'label' => Lang::get('menu_branches'), 'show' => $can('branches.manage'), 'active' => $on(['branches'])],
                     ['route' => 'permissions', 'label' => $so ? 'Awoodaha' : 'Permissions', 'show' => $role === 'admin', 'active' => $on(['permissions'])],
                     ['route' => 'audit_logs', 'label' => $so ? 'Diiwaanka Dhaqdhaqaaqa' : 'Audit Logs', 'show' => $role === 'admin', 'active' => $on(['audit_logs'])],
