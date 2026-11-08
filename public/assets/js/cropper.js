@@ -48,9 +48,11 @@
             var range = dlg.querySelector('.scrop-range');
             dlg.classList.toggle('is-round', !!opts.round);
 
-            // Stage size follows the aspect ratio, within 340px.
-            var SW = aspect >= 1 ? 340 : Math.round(340 * aspect);
-            var SH = aspect >= 1 ? Math.round(340 / aspect) : 340;
+            // Stage size follows the aspect ratio, within 340px, and shrinks to fit narrow phone screens
+            // (dialog margins 16px + box padding 20px on each side).
+            var MAX = Math.max(200, Math.min(340, (window.innerWidth || 375) - 72));
+            var SW = aspect >= 1 ? MAX : Math.round(MAX * aspect);
+            var SH = aspect >= 1 ? Math.round(MAX / aspect) : MAX;
             stage.style.width = SW + 'px';
             stage.style.height = SH + 'px';
 

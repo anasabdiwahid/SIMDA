@@ -7736,3 +7736,51 @@ a.pt-bubble:focus-visible { outline: none; }
 /* Submit buttons while their form is sending: small spinning S in place of the icon. */
 button[data-submitting="1"] { position: relative; }
 button[data-submitting="1"] > svg { visibility: hidden; }
+
+/* ==========================================================================
+   PUBLIC HEADER ON PHONES: compact bar + menu button with a drop-down panel
+   ========================================================================== */
+.fid-menu-btn { display: none; }
+@media (max-width: 680px) {
+    .fid-header { padding: 10px 0 !important; }
+    .fid-nav { position: relative; gap: 8px; flex-wrap: nowrap; }
+    .fid-logo-link img { height: 30px !important; width: auto; }
+    .fid-logo-tagline-stacked { display: none !important; }
+    .fid-nav > div { gap: 6px !important; flex-shrink: 0; }
+    .fid-nav .theme-toggle-pill .theme-pill-btn { width: 30px; height: 30px; }
+    .fid-nav .simda-lang-trigger { padding: 4px 8px; }
+    .fid-nav .simda-lang-code, .fid-nav .simda-lang-caret { display: none; }
+    .fid-nav .fid-btn-green { padding: 10px; border-radius: 50%; }
+    .fid-nav .fid-btn-green > span { display: none; }
+    .fid-menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex-shrink: 0; border: 1px solid #E3E0D8; border-radius: 12px; background: #FFFFFF; color: #123B32; cursor: pointer; }
+    .fid-menu-btn[aria-expanded="true"] { background: #123B32; color: #D6B66C; border-color: #123B32; }
+    .fid-nav-links.is-open { display: flex !important; flex-direction: column; gap: 2px; position: absolute; top: calc(100% + 10px); left: 0; right: 0; z-index: 50; padding: 10px; margin: 0; background: #FFFFFF; border: 1px solid #EFECE6; border-radius: 16px; box-shadow: 0 18px 40px rgba(18, 59, 50, 0.16); animation: fidMenuIn 0.18s ease-out; }
+    .fid-nav-links.is-open li { width: 100%; }
+    .fid-nav-links.is-open a { display: block; padding: 12px 14px; border-radius: 10px; font-size: 1rem; }
+    .fid-nav-links.is-open a:hover, .fid-nav-links.is-open a.active { background: rgba(214, 182, 108, 0.14); }
+    [data-theme="dark"] .fid-menu-btn { background: #142621; border-color: rgba(255, 255, 255, 0.12); color: #F4F5F0; }
+    [data-theme="dark"] .fid-nav-links.is-open { background: #0F2019; border-color: rgba(255, 255, 255, 0.08); }
+}
+@keyframes fidMenuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+/* ==========================================================================
+   PHONES: no zoom-on-focus, finger-sized buttons
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* iOS zooms into any field smaller than 16px when tapped; 16px stops that. */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    select,
+    textarea,
+    .form-control {
+        font-size: 16px !important;
+    }
+    /* Buttons at least ~40px tall so they are easy to tap. */
+    .btn, .btn-sm, .btn-xs, .adm-icon-btn, .mf-quick-btn, .pt-crop-btn, .rq-decide .btn,
+    .content-area form button[type="submit"]:not(.mg-onoff) {
+        min-height: 40px;
+    }
+    .adm-icon-btn, .mg-del { min-width: 40px; }
+    .btn-sm, .btn-xs { padding-left: 14px; padding-right: 14px; }
+    .mg-onoff { transform: scale(1.12); }
+    .rq-row td { padding-top: 14px; padding-bottom: 14px; }
+}

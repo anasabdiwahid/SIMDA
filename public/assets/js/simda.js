@@ -928,3 +928,30 @@
     // Coming back with the browser's Back button restores the old page: clear the loader.
     window.addEventListener('pageshow', function (e) { if (e.persisted) hide(); });
 })();
+
+// Public pages (home, about, contact, FAQ): on phones the nav links are hidden, so add a menu button
+// that opens them as a drop-down panel. One place for all four pages, which share the same header.
+(function () {
+    'use strict';
+    var nav = document.querySelector('.fid-header .fid-nav');
+    var links = nav ? nav.querySelector('.fid-nav-links') : null;
+    if (!nav || !links || nav.querySelector('.fid-menu-btn')) return;
+    var so = (document.documentElement.lang || '').indexOf('so') === 0;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fid-menu-btn';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', links.id || 'fidNavLinks');
+    if (!links.id) links.id = 'fidNavLinks';
+    btn.setAttribute('aria-label', so ? 'Menu-ga' : 'Menu');
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+    nav.appendChild(btn);
+    function setOpen(open) {
+        links.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!links.classList.contains('is-open')); });
+    links.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+    document.addEventListener('click', function (e) { if (!nav.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+})();
