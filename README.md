@@ -137,3 +137,12 @@ When `database/setup.php` is run in default development mode, the following clea
 - [Software Architecture Reference (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md)
 - [Routes & Module Endpoints Reference (`docs/API.md`)](docs/API.md)
 
+
+## SIMDA AI (website assistant)
+
+The robot button on the public pages (Home, About, Contact, FAQ) opens **SIMDA AI**. With an Anthropic API key it answers with Claude, using a live snapshot of SIMDA's **public** data (products, Murabaha catalog and prices, branches, partners, contacts, policies, summary counts). It never receives individual client or staff records, because the chat is public and needs no login.
+
+1. Install the PHP dependencies once: `php composer.phar install` (creates `vendor/`).
+2. Add `ANTHROPIC_API_KEY=...` to `.env` (optional: `SIMDA_AI_MODEL`, default `claude-opus-5-5`).
+
+Without a key, or if the API is unavailable, the assistant falls back to the built-in offline answers. Each visitor is limited to 25 AI replies per 10 minutes (`app/Services/SimdaAiService.php`).

@@ -277,9 +277,9 @@ $aicChips = $aicLocale === 'so'
     var lang = root.getAttribute('data-lang') || 'so';
     var KEY = 'simda_aic_history_v1';
     var welcome = <?= json_encode($aicT(
-        "Asc! 👋 Waxaan ahay Kaaliyaha AI ee SIMDA. I weydii wax kasta oo ku saabsan maalgelinta xalaasha ah (0% Ribo), Murabaxada, shuruudaha iyo sida loo codsado. Af-Soomaali, English ama Carabi waan kuugu jawaabayaa.",
-        "Hello! 👋 I'm the SIMDA AI Assistant. Ask me anything about our 0% Riba Islamic financing, Murabaha, requirements or how to apply — in English, Somali or Arabic.",
-        "السلام عليكم! 👋 أنا مساعد سيمدا الذكي. اسألني عن التمويل الإسلامي بدون ربا، والمرابحة، والشروط، وطريقة التقديم — بالعربية أو الصومالية أو الإنجليزية."
+        "Asc! 👋 Waxaan ahay SIMDA AI, kaaliyaha caqliga badan ee SIMDA. I weydii wax kasta oo ku saabsan maalgelinta xalaasha ah (0% Ribo), Murabaxada, shuruudaha iyo sida loo codsado. Af-Soomaali, English ama Carabi waan kuugu jawaabayaa.",
+        "Hello! 👋 I'm SIMDA AI, SIMDA's smart assistant. Ask me anything about our 0% Riba Islamic financing, Murabaha, requirements or how to apply — in English, Somali or Arabic.",
+        "السلام عليكم! 👋 أنا SIMDA AI، مساعد سيمدا الذكي. اسألني عن التمويل الإسلامي بدون ربا، والمرابحة، والشروط، وطريقة التقديم — بالعربية أو الصومالية أو الإنجليزية."
     ), JSON_UNESCAPED_UNICODE) ?>;
     var errorMsg = <?= json_encode($aicT(
         'Waan ka xumahay, xiriirku wuu go\'ay. Fadlan mar kale isku day.',
@@ -360,7 +360,8 @@ $aicChips = $aicLocale === 'so'
         fetch('?route=faq_chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-            body: JSON.stringify({ message: text, lang: lang })
+            // Earlier turns (without the welcome message) so SIMDA AI remembers the conversation.
+            body: JSON.stringify({ message: text, lang: lang, history: history.slice(1).slice(-13, -1).map(function (m) { return { role: m.who === 'user' ? 'user' : 'assistant', content: m.text }; }) })
         })
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {

@@ -311,15 +311,72 @@ final class PortalController
         }
 
         $msgLower = mb_strtolower($message, 'UTF-8');
+        $message = mb_substr($message, 0, 1200);
+        $waUrlFor = static fn(string $l): string => 'https://wa.me/252616256534?text=' . rawurlencode(
+            $l === 'ar' ? 'مرحباً سيمدا، أرغب في الاستفسار عن التمويل الإسلامي'
+                : ($l === 'en' ? 'Hello SIMDA, I would like to inquire about Islamic microfinance'
+                : 'Asc SIMDA, waxaan rabaa in aan wax ka ogaado maalgelinta xalaasha ah')
+        );
 
-        // Intent detection
+        // SIMDA AI (Claude) answers first, from live database data. Falls back to the rules below when
+        // no API key is configured, the visitor hit the rate limit, or the API is unavailable.
+        $history = [];
+        foreach ((array) ($json['history'] ?? []) as $turn) {
+            if (is_array($turn) && isset($turn['role'], $turn['content']) && is_string($turn['content'])) {
+                $history[] = ['role' => (string) $turn['role'], 'content' => $turn['content']];
+            }
+        }
+        $aiReply = \App\Services\SimdaAiService::reply($pdo, $message, $history, $preferredLang);
+        if ($aiReply !== null) {
+            $wantsContact = (bool) preg_match('/(whatsapp|whataap|whatsap|watsap|واتساب|واتس|lambar|number|phone|telefoon|taleefan|wac|call|xiriir|contact|رقم|هاتف|اتصال)/iu', $message);
+            echo json_encode([
+                'status' => 'ok',
+                'reply' => $aiReply,
+                'language' => $lang,
+                'topic' => 'ai',
+                'suggestions' => [],
+                'action_btn' => $wantsContact ? [
+                    'type' => 'whatsapp',
+                    'label' => $lang === 'ar' ? '💬 تواصل عبر واتساب' : ($lang === 'en' ? '💬 Chat on WhatsApp' : '💬 Nala soo xiriir WhatsApp'),
+                    'url' => $waUrlFor($lang),
+                ] : null,
+                'ai' => true,
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Intent detection (offline fallback)
         $reply = '';
         $topic = 'general';
         $suggestions = [];
         $actionBtn = null;
 
+        // 0. Who am I / who made me / jokes / thanks (offline answers in the SIMDA AI voice)
+        if (preg_match('/(yaa ku (sameeyay|sameyay|samee|dhisay|abuuray)|yaa ku samey|who (made|built|created|developed) you|who is your (creator|developer|maker)|your creator|من صنعك|من صممك|من برمجك|من طورك)/iu', $message)) {
+            $topic = 'creator';
+            $reply = $lang === 'ar'
+                ? "صنعني المهندس أنس عبد الواحد (Anas Abdiwahid). أشكره كثيراً على الجهد الكبير الذي بذله في بنائي وبناء نظام سيمدا. 🙏\n\nكيف أساعدك بخصوص سيمدا؟"
+                : ($lang === 'en'
+                    ? "I was built by Engineer Anas Abdiwahid. I'm very grateful to him for all the hard work he put into building me and the SIMDA system. 🙏\n\nHow can I help you with SIMDA?"
+                    : "Waxaa i sameeyay Engineer Anas Abdiwahid. Aad baan ugu mahadcelinayaa shaqada adag ee uu u soo galay sameynta aniga iyo nidaamka SIMDA. 🙏\n\nMaxaan kaaga caawin karaa arrimaha SIMDA?");
+        } elseif (preg_match('/(magacaa|magacaaga|magacaga|magacyaa|yaad tahay|adigu waa kuma|what(\'s| is) your name|who are you|your name|ما اسمك|من أنت|من انت)/iu', $message)) {
+            $topic = 'identity';
+            $reply = $lang === 'ar'
+                ? "اسمي SIMDA AI 🤖، المساعد الذكي لسيمدا. أساعدك في كل ما يخص التمويل الإسلامي بدون ربا، والمرابحة، وطريقة التقديم، وفروعنا. بماذا أساعدك؟"
+                : ($lang === 'en'
+                    ? "My name is SIMDA AI 🤖, SIMDA's smart assistant. I can help with our 0% riba financing, Murabaha, how to apply, our branches and more. What can I do for you?"
+                    : "Magacaygu waa SIMDA AI 🤖, kaaliyaha caqliga badan ee SIMDA. Waxaan kaa caawin karaa maalgelinta 0% Ribo, Murabaxada, sida loo codsado, laamaheena iyo wax kasta oo SIMDA ku saabsan. Maxaan kuu qabtaa?");
+        } elseif (preg_match('/(kaftan|kaftam|kaftami|sheeko qosol|qosol|joke|funny|make me laugh|haha|hahaha|😂|🤣|نكتة|نكته|اضحكني)/iu', $message)) {
+            $topic = 'joke';
+            $reply = $lang === 'ar'
+                ? "😄 لماذا لا تخاف المحفظة من الربا في سيمدا؟ لأن الربا هنا = صفر، والصفر لا يعضّ!\n\nوالآن بجدية، كيف أساعدك في التمويل أو المرابحة؟"
+                : ($lang === 'en'
+                    ? "😄 Why did the wallet feel so relaxed at SIMDA? Because the riba here is 0% — and zero never bites!\n\nNow seriously, how can I help you with financing or Murabaha?"
+                    : "😄 Jeebkii ayaa yiri: \"SIMDA aan tago, halkaas ribadu waa 0% — eber ma qaniino!\"\n\nHadda si dhab ah, maxaan kaaga caawiyaa maalgelinta ama Murabaxada?");
+        }
+
         // 1. WhatsApp, Number, Phone & Direct Contact Intent
-        if (
+        elseif (
             preg_match('/(whatsapp|whataap|whatsap|watshap|watsap|واتساب|واتس|wa\.me)/iu', $message) ||
             preg_match('/(number|lambar|lambarka|phone|telefoon|taleefan|tel|contact|xiriir|wac|call|رقم|هاتف|اتصال)/iu', $message)
         ) {

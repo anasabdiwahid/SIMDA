@@ -25,3 +25,4 @@ Thumbs.db
 # Uploaded partner logos (keep the folder guard only)
 /public/assets/uploads/partners/*
 !/public/assets/uploads/partners/.htaccess
+/storage/cache/
