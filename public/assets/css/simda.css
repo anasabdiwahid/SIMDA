@@ -7874,3 +7874,91 @@ button[data-submitting="1"] > svg { visibility: hidden; }
     .fid-page .fid-footer-grid > div:first-child { grid-column: 1 / -1; }
     .fid-page .fid-footer-bottom-bar { gap: 14px; }
 }
+
+/* ============================================================================
+   HOME — SERVICE DETAILS DIALOG (tap a service card)
+   Desktop: centered card. Phone: bottom sheet. Body scrolls, actions stay put.
+   ============================================================================ */
+.srv-clickable { cursor: pointer; }
+.srv-clickable:focus-visible { outline: 2px solid #D6B66C; outline-offset: 3px; }
+html.srv-dlg-open { overflow: hidden; }
+
+.srv-dialog {
+    --srv-bg: #FFFFFF; --srv-ink: #123B32; --srv-text: #4A5752; --srv-muted: #6A756F;
+    --srv-line: #EFEAE1; --srv-soft: #FAF6F0; --srv-sage: #EFF3EE; --srv-gold: #B08A3E;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    width: min(640px, calc(100vw - 32px));
+    max-height: min(88vh, 860px);
+    padding: 0;
+    border: 0;
+    border-radius: 24px;
+    background: var(--srv-bg);
+    color: var(--srv-text);
+    box-shadow: 0 30px 80px rgba(6, 26, 21, 0.35);
+    overflow: hidden;
+}
+.srv-dialog[open] { display: flex; flex-direction: column; animation: srvDlgIn 0.22s ease-out; }
+.srv-dialog::backdrop { background: rgba(8, 28, 22, 0.55); backdrop-filter: blur(3px); }
+[data-theme="dark"] .srv-dialog {
+    --srv-bg: #13231D; --srv-ink: #F4F5F0; --srv-text: #C9D2CC; --srv-muted: #9AA7A0;
+    --srv-line: #2A4239; --srv-soft: #1A2E27; --srv-sage: #1A2E27; --srv-gold: #D6B66C;
+}
+@keyframes srvDlgIn { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+.srv-dlg-close {
+    position: absolute; top: 14px; inset-inline-end: 14px; z-index: 2;
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--srv-line);
+    background: var(--srv-bg); color: var(--srv-ink); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.srv-dlg-close:hover { background: var(--srv-ink); color: var(--srv-bg); }
+
+.srv-dlg-panel:not([hidden]) { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+
+.srv-dlg-head { display: flex; align-items: center; gap: 16px; padding: 24px 64px 20px 24px; background: var(--srv-soft); border-bottom: 1px solid var(--srv-line); }
+[dir="rtl"] .srv-dlg-head { padding: 24px 24px 20px 64px; }
+.srv-dlg-head.sage { background: var(--srv-sage); }
+.srv-dlg-illust { flex-shrink: 0; width: 84px; height: 84px; border-radius: 18px; background: #FFFFFF; padding: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(18, 59, 50, 0.08); }
+.srv-dlg-illust img { width: 100%; height: 100%; object-fit: contain; }
+.srv-dlg-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; line-height: 1.2; font-weight: 700; color: var(--srv-ink); margin: 4px 0 0; }
+
+.srv-dlg-body { padding: 20px 24px 8px; }
+.srv-dlg-lead { font-size: 1rem; line-height: 1.65; color: var(--srv-ink); margin: 0 0 18px; }
+.srv-dlg-block { padding: 16px 0; border-top: 1px solid var(--srv-line); }
+.srv-dlg-block h3 { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--srv-gold); margin: 0 0 10px; }
+.srv-dlg-block p { margin: 0; font-size: 0.92rem; line-height: 1.6; }
+
+.srv-dlg-steps { list-style: none; margin: 0; padding: 0; counter-reset: srvstep; display: grid; gap: 10px; }
+.srv-dlg-steps li { counter-increment: srvstep; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; font-size: 0.92rem; line-height: 1.55; }
+.srv-dlg-steps li::before { content: counter(srvstep); width: 28px; height: 28px; border-radius: 50%; background: var(--srv-ink); color: var(--srv-bg); font-weight: 800; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; }
+
+.srv-dlg-benefits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.srv-dlg-benefits li { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: var(--srv-soft); font-size: 0.86rem; line-height: 1.45; }
+.srv-dlg-benefits li svg { flex-shrink: 0; margin-top: 2px; color: #23845B; }
+
+.srv-dlg-needs { display: flex; flex-wrap: wrap; gap: 8px; }
+.srv-dlg-needs span { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--srv-line); background: var(--srv-soft); font-size: 0.84rem; font-weight: 600; color: var(--srv-ink); }
+
+.srv-dlg-actions { flex-shrink: 0; display: flex; gap: 10px; padding: 14px 24px 18px; border-top: 1px solid var(--srv-line); background: var(--srv-bg); }
+.srv-dlg-actions > a { flex: 1; justify-content: center; min-height: 46px; }
+.srv-dlg-calc { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--srv-ink); color: var(--srv-ink); font-weight: 600; text-decoration: none; }
+.srv-dlg-calc:hover { background: var(--srv-ink); color: var(--srv-bg); }
+
+@media (max-width: 680px) {
+    .srv-dialog { width: 100vw; max-width: 100vw; max-height: 92vh; margin: auto 0 0 !important; border-radius: 22px 22px 0 0; }
+    .srv-dialog[open] { animation: srvSheetIn 0.26s ease-out; }
+    .srv-dlg-head { padding: 22px 60px 16px 16px; gap: 12px; }
+    [dir="rtl"] .srv-dlg-head { padding: 22px 16px 16px 60px; }
+    .srv-dlg-illust { width: 64px; height: 64px; border-radius: 14px; }
+    .srv-dlg-title { font-size: 1.22rem; }
+    .srv-dlg-body { padding: 16px 16px 4px; }
+    .srv-dlg-lead { font-size: 0.94rem; }
+    .srv-dlg-benefits { grid-template-columns: 1fr; }
+    .srv-dlg-actions { padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); }
+    .srv-dlg-actions > a { font-size: 0.86rem; padding-left: 10px; padding-right: 10px; }
+}
+@keyframes srvSheetIn { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .srv-dialog[open] { animation: none; } }

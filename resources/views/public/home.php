@@ -419,6 +419,8 @@ $homeI18n = [
     ],
 ];
 $t = $homeI18n[$locale] ?? $homeI18n['en'];
+$srvDetailsAll = require __DIR__ . '/home_service_details.php';
+$srvDetails = $srvDetailsAll[$locale] ?? $srvDetailsAll['en'];
 
 $languagesList = [
     'so' => ['label' => 'Af-Soomaali', 'code' => 'SO', 'flag' => 'assets/images/flags/flag-so.jpg'],
@@ -688,62 +690,30 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <h2 class="fid-serif-h2"><?= Security::e($t['services_title']) ?></h2>
         </div>
 
+        <?php
+        $srvCards = [
+            1 => ['img' => 'assets/images/landing/srv-construction.jpg', 'alt' => 'Dhismaha Boosaska & Guryaha', 'sage' => true],
+            2 => ['img' => 'assets/images/landing/srv-business.jpg', 'alt' => 'Muraabaxada Gaadiidka & Qalabka', 'sage' => false],
+            3 => ['img' => 'assets/images/landing/srv-credit.jpg', 'alt' => 'Taageerada Dukaamada Yaryar', 'sage' => false],
+            4 => ['img' => 'assets/images/landing/srv-consulting.jpg', 'alt' => 'Dayn Xalaal ah', 'sage' => false],
+        ];
+        ?>
+        <!-- Each card opens a details dialog (#srvDialog) when tapped -->
         <div class="fid-services-grid">
-            <!-- Card 1: Dhismaha Boosaska & Guryaha -->
-            <div class="fid-service-card sage reveal-on-scroll">
+            <?php foreach ($srvCards as $n => $card): ?>
+            <div class="fid-service-card srv-clickable <?= $card['sage'] ? 'sage' : '' ?> reveal-on-scroll" data-srv="<?= $n ?>" role="button" tabindex="0" aria-haspopup="dialog" aria-label="<?= Security::e($t['srv' . $n . '_title'] . ' — ' . $srvDetails['labels']['more']) ?>">
                 <div>
                     <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-construction.jpg" alt="Dhismaha Boosaska & Guryaha">
+                        <img src="<?= Security::e($card['img']) ?>" alt="<?= Security::e($card['alt']) ?>">
                     </div>
-                    <h3><?= Security::e($t['srv1_title']) ?></h3>
-                    <p><?= Security::e($t['srv1_desc']) ?></p>
+                    <h3><?= Security::e($t['srv' . $n . '_title']) ?></h3>
+                    <p><?= Security::e($t['srv' . $n . '_desc']) ?></p>
                 </div>
                 <div>
-                    <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
+                    <span class="fid-circle-arrow" aria-hidden="true"><?= Icons::svg('arrow-right', 14) ?></span>
                 </div>
             </div>
-
-            <!-- Card 2: Muraabaxada Gaadiidka & Qalabka (Baabuur, Mooto, Bajaj, Mobile) -->
-            <div class="fid-service-card reveal-on-scroll">
-                <div>
-                    <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-business.jpg" alt="Muraabaxada Gaadiidka & Qalabka">
-                    </div>
-                    <h3><?= Security::e($t['srv2_title']) ?></h3>
-                    <p><?= Security::e($t['srv2_desc']) ?></p>
-                </div>
-                <div>
-                    <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
-                </div>
-            </div>
-
-            <!-- Card 3: Taageerada Dukaamada Yaryar -->
-            <div class="fid-service-card reveal-on-scroll">
-                <div>
-                    <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-credit.jpg" alt="Taageerada Dukaamada Yaryar">
-                    </div>
-                    <h3><?= Security::e($t['srv3_title']) ?></h3>
-                    <p><?= Security::e($t['srv3_desc']) ?></p>
-                </div>
-                <div>
-                    <a href="?route=<?= $isLoggedIn ? 'applications' : 'login' ?>" class="fid-circle-arrow" aria-label="Learn more"><?= Icons::svg('arrow-right', 14) ?></a>
-                </div>
-            </div>
-
-            <!-- Card 4: Dayn Xalaal ah (0% Ribo) -->
-            <div class="fid-service-card reveal-on-scroll">
-                <div>
-                    <div class="fid-service-illust">
-                        <img src="assets/images/landing/srv-consulting.jpg" alt="Dayn Xalaal ah">
-                    </div>
-                    <h3><?= Security::e($t['srv4_title']) ?></h3>
-                    <p><?= Security::e($t['srv4_desc']) ?></p>
-                </div>
-                <div>
-                    <a href="#calculator" class="fid-circle-arrow" aria-label="Open calculator"><?= Icons::svg('arrow-right', 14) ?></a>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
 
         <?php if (!empty($products)): ?>
@@ -1377,7 +1347,99 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </footer>
 </div>
 
+<!-- SERVICE DETAILS DIALOG (opened by tapping a service card) -->
+<?php $srvL = $srvDetails['labels']; $srvApplyHref = '?route=' . ($isLoggedIn ? 'applications' : 'login'); ?>
+<dialog class="srv-dialog" id="srvDialog" aria-labelledby="srvDialogTitle">
+    <button type="button" class="srv-dlg-close" data-srv-close aria-label="<?= Security::e($srvL['close']) ?>"><?= Icons::svg('x', 18) ?></button>
+    <?php foreach ($srvCards as $n => $card): $d = $srvDetails[$n]; ?>
+    <article class="srv-dlg-panel" data-srv-panel="<?= $n ?>" hidden>
+        <header class="srv-dlg-head <?= $card['sage'] ? 'sage' : '' ?>">
+            <div class="srv-dlg-illust"><img src="<?= Security::e($card['img']) ?>" alt=""></div>
+            <div>
+                <span class="fid-eyebrow"><?= Security::e($t['services_eyebrow']) ?></span>
+                <h2 class="srv-dlg-title"><?= Security::e($t['srv' . $n . '_title']) ?></h2>
+            </div>
+        </header>
+        <div class="srv-dlg-body">
+            <p class="srv-dlg-lead"><?= Security::e($d['lead']) ?></p>
+
+            <section class="srv-dlg-block">
+                <h3><?= Icons::svg('users', 16) ?><?= Security::e($srvL['who']) ?></h3>
+                <p><?= Security::e($d['who']) ?></p>
+            </section>
+
+            <section class="srv-dlg-block">
+                <h3><?= Icons::svg('layers', 16) ?><?= Security::e($srvL['how']) ?></h3>
+                <ol class="srv-dlg-steps">
+                    <?php foreach ($d['how'] as $step): ?>
+                        <li><?= Security::e($step) ?></li>
+                    <?php endforeach; ?>
+                </ol>
+            </section>
+
+            <section class="srv-dlg-block">
+                <h3><?= Icons::svg('award', 16) ?><?= Security::e($srvL['benefits']) ?></h3>
+                <ul class="srv-dlg-benefits">
+                    <?php foreach ($d['benefits'] as $b): ?>
+                        <li><?= Icons::svg('check-circle', 15) ?><span><?= Security::e($b) ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
+            </section>
+
+            <section class="srv-dlg-block">
+                <h3><?= Icons::svg('file-text', 16) ?><?= Security::e($srvL['needs']) ?></h3>
+                <div class="srv-dlg-needs">
+                    <?php foreach ($d['needs'] as $need): ?>
+                        <span><?= Security::e($need) ?></span>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        </div>
+    </article>
+    <?php endforeach; ?>
+    <footer class="srv-dlg-actions">
+        <a href="<?= Security::e($srvApplyHref) ?>" class="fid-btn-green"><span><?= Security::e($srvL['apply']) ?></span><?= Icons::svg('arrow-right', 14) ?></a>
+        <a href="#calculator" class="srv-dlg-calc" data-srv-close><?= Icons::svg('calendar', 14) ?><span><?= Security::e($srvL['calc']) ?></span></a>
+    </footer>
+</dialog>
+
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
+<script>
+// Service cards → details dialog
+(function () {
+    const dlg = document.getElementById('srvDialog');
+    if (!dlg || typeof dlg.showModal !== 'function') return;
+    let opener = null;
+    function openSrv(card) {
+        const n = card.getAttribute('data-srv');
+        dlg.querySelectorAll('[data-srv-panel]').forEach(function (p) {
+            const on = p.getAttribute('data-srv-panel') === n;
+            p.hidden = !on;
+            const h = p.querySelector('.srv-dlg-title');
+            if (h) { if (on) h.id = 'srvDialogTitle'; else h.removeAttribute('id'); }
+        });
+        opener = card;
+        dlg.showModal();
+        dlg.scrollTop = 0;
+        document.documentElement.classList.add('srv-dlg-open');
+    }
+    document.querySelectorAll('.srv-clickable').forEach(function (card) {
+        card.addEventListener('click', function () { openSrv(card); });
+        card.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSrv(card); }
+        });
+    });
+    dlg.querySelectorAll('[data-srv-close]').forEach(function (b) {
+        b.addEventListener('click', function () { dlg.close(); });
+    });
+    // Tap on the dark backdrop closes it
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('close', function () {
+        document.documentElement.classList.remove('srv-dlg-open');
+        if (opener && !location.hash.startsWith('#calculator')) opener.focus({ preventScroll: true });
+    });
+})();
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const navLinks = document.querySelectorAll('#homeNavLinks a');
