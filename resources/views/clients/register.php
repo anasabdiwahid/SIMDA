@@ -134,12 +134,12 @@ if (stripos($flashError, 'ID number') !== false || stripos($flashError, 'id_numb
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label><?= $isSo ? 'Nooca Ganacsiga *' : 'Business Type *' ?></label>
-                    <input type="text" name="business_type" id="field_business_type" class="form-control" required placeholder="<?= $isSo ? 'Dukaan bagaash' : 'Retail shop' ?>" value="<?= Security::e($old['business_type'] ?? '') ?>">
+                    <label><?= $isSo ? 'Nooca Ganacsiga (Ikhtiyaari)' : 'Business Type (Optional)' ?></label>
+                    <input type="text" name="business_type" id="field_business_type" class="form-control" placeholder="<?= $isSo ? 'Dukaan bagaash' : 'Retail shop' ?>" value="<?= Security::e($old['business_type'] ?? '') ?>">
                 </div>
                 <div class="form-group">
-                    <label><?= $isSo ? 'Dakhliga Bishii ($) *' : 'Monthly Income ($) *' ?></label>
-                    <input type="number" name="monthly_income" id="field_monthly_income" class="form-control num-tabular" step="0.01" min="50" required value="<?= Security::e($old['monthly_income'] ?? '1200.00') ?>">
+                    <label><?= $isSo ? 'Dakhliga Bishii ($) (Ikhtiyaari)' : 'Monthly Income ($) (Optional)' ?></label>
+                    <input type="number" name="monthly_income" id="field_monthly_income" class="form-control num-tabular" step="0.01" min="0" placeholder="0.00" value="<?= Security::e($old['monthly_income'] ?? '') ?>">
                 </div>
                 <div class="form-group">
                     <label><?= $isSo ? 'Sawirka Macmiilka (Ikhtiyaari)' : 'Client Photo (Optional)' ?></label>
