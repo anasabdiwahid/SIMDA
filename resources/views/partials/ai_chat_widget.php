@@ -141,7 +141,7 @@ $aicChips = $aicLocale === 'so'
 
 <style>
 .aic { --aic-green: #123B32; --aic-green-2: #1E5A4A; --aic-gold: #D6B66C; --aic-bg: #FFFFFF; --aic-soft: #F5F2EB; --aic-ink: #1D2B26; --aic-muted: #6A756F; --aic-line: #ECE7DD;
-       position: fixed; bottom: 30px; inset-inline-end: 10px; z-index: 1200; font-family: inherit; }
+       position: fixed; bottom: 30px; inset-inline-end: 2px; z-index: 1200; font-family: inherit; }
 [data-theme="dark"] .aic { --aic-bg: #13231D; --aic-soft: #1A2E27; --aic-ink: #EDF1EE; --aic-muted: #9AA7A0; --aic-line: #2A4239; }
 
 /* ---- Robot button ---- */
@@ -253,7 +253,7 @@ $aicChips = $aicLocale === 'so'
 [dir="rtl"] .aic-send svg { transform: scaleX(-1); }
 
 @media (max-width: 680px) {
-    .aic { bottom: 24px; inset-inline-end: 8px; }
+    .aic { bottom: 24px; inset-inline-end: 2px; }
     .aic-fab { width: 58px; height: 72px; }
     .aic-hi { bottom: 64px; inset-inline-end: 40px; font-size: 0.78rem; padding: 5px 10px; }
     .aic-hint { inset-inline-end: 62px; bottom: 12px; font-size: 0.78rem; }
