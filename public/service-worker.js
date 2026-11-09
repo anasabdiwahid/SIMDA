@@ -6,7 +6,7 @@
  * - NEVER caches authenticated HTML pages, JSON financial APIs, PDF statements, or POST transactions.
  * - Never allows offline financial transactions, approvals, or repayments to be treated as completed.
  */
-const CACHE_NAME = 'simda-static-shell-v4';
+const CACHE_NAME = 'simda-static-shell-v5';
 const STATIC_ASSETS = [
     './?route=offline',
     './assets/css/simda.css',
@@ -14,7 +14,8 @@ const STATIC_ASSETS = [
     './assets/images/simda-logo.png',
     './assets/images/simda-icon.png',
     './assets/icons/icon-192.png',
-    './assets/icons/icon-512.png'
+    './assets/icons/icon-512.png',
+    './assets/icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {

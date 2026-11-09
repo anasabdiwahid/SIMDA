@@ -438,6 +438,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     <title>SIMDA — <?= Security::e(Lang::get('app_full_name')) ?></title>
     <link rel="icon" type="image/png" href="assets/images/simda-icon.png">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     <script>
         (function() {
             var p = localStorage.getItem('simda_theme_pref') || 'light';
@@ -446,7 +447,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             if ('caches' in window) {
                 caches.keys().then(function(keys) {
                     keys.forEach(function(k) {
-                        if (k !== 'simda-static-shell-v4') { caches.delete(k); }
+                        if (k !== 'simda-static-shell-v5') { caches.delete(k); }
                     });
                 });
             }
@@ -1353,6 +1354,7 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
 </dialog>
 
 <?php require BASE_PATH . '/resources/views/partials/ai_chat_widget.php'; ?>
+<?php require BASE_PATH . '/resources/views/partials/pwa_install_button.php'; ?>
 <script src="assets/js/simda.js?v=<?= Security::e($assetVer) ?>"></script>
 <script>
 // Service cards → details dialog

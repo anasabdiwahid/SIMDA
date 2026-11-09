@@ -30,7 +30,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
             if ('caches' in window) {
                 caches.keys().then(function(keys) {
                     keys.forEach(function(k) {
-                        if (k !== 'simda-static-shell-v4') { caches.delete(k); }
+                        if (k !== 'simda-static-shell-v5') { caches.delete(k); }
                     });
                 });
             }
