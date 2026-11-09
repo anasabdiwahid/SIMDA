@@ -8048,3 +8048,11 @@ html.srv-dlg-open { overflow: hidden; }
 @media (max-width: 680px) {
     .fid-nav.fid-nav-compact .fid-nav-links.is-open { left: 0; right: 0; width: auto; }
 }
+
+/* Public header, two rows: when the links don't fit beside the logo on a computer, simda.js adds
+   .fid-nav-two-row and the links get their own full-width row under the logo (no menu button). */
+.fid-header .fid-container.fid-nav.fid-nav-two-row { flex-wrap: wrap; row-gap: 12px; }
+.fid-nav.fid-nav-two-row > div { margin-inline-start: auto; }
+.fid-nav.fid-nav-two-row .fid-nav-links { order: 3; flex: 1 0 100%; justify-content: center; flex-wrap: wrap; row-gap: 8px; column-gap: clamp(18px, 2.4vw, 36px); padding-top: 12px; border-top: 1px solid #EFECE6; }
+.fid-nav.fid-nav-two-row .fid-menu-btn { display: none; }
+[data-theme="dark"] .fid-nav.fid-nav-two-row .fid-nav-links { border-top-color: rgba(255, 255, 255, 0.08); }
