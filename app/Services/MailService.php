@@ -1169,6 +1169,28 @@ HTML;
         );
     }
 
+    /**
+     * Announcement written by staff on the Communication page, sent to one client by email only
+     * (no WhatsApp mirror: the page has its own WhatsApp button, so nobody gets it twice).
+     */
+    public static function sendBroadcastEmail(string $to, string $fullName, string $subject, string $message, string $locale = 'so'): array
+    {
+        $isSo = $locale === 'so';
+        $greeting = ($isSo ? 'Salaamu Calaykum, ' : 'Hello, ') . $fullName;
+        $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        $block = '<p style="color:#1B2E28;font-size:15px;line-height:1.7;margin:16px 0 0;">' . nl2br($e($message)) . '</p>';
+        $note = $isSo
+            ? 'Su\'aal haddii aad qabto, nagala soo xiriir +252 616256534.'
+            : 'If you have any questions, contact us at +252 616256534.';
+
+        return self::sendSmtp(
+            $to,
+            $subject,
+            self::noticeHtml($subject, $greeting, '', $block, $note, $locale),
+            "{$greeting}\n\n{$message}\n\n{$note}\n\nSIMDA"
+        );
+    }
+
     private static function noticeHtml(string $title, string $greeting, string $intro, string $blockHtml, string $note, string $locale): string
     {
         $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');

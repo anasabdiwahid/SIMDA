@@ -21,6 +21,7 @@ use App\Services\RepaymentEngine;
 use App\Services\ScheduleEngine;
 use App\Services\SmsReminderService;
 use App\Services\StatementPdfGenerator;
+use App\Services\WhatsAppService;
 use PDO;
 
 final class PortalController
@@ -113,6 +114,7 @@ final class PortalController
                 'par30', 'reports' => self::par30View($pdo, $route),
                 'sms_outbox' => self::smsOutboxList($pdo),
                 'sms_run_dispatcher' => self::smsRunDispatcher($pdo),
+                'sms_broadcast' => self::smsBroadcast($pdo),
 
                 'branches', 'users', 'permissions', 'audit_logs', 'settings' => self::adminSection($pdo, $route),
                 'managers' => self::adminSection($pdo, 'users', 'manager'),
@@ -3276,10 +3278,144 @@ final class PortalController
         $stmt->execute($params);
         $messages = $stmt->fetchAll();
 
+        // Clients staff can message from the "Send a message" box (all branches for admin/manager,
+        // own branch for everyone else). Clients themselves never see the box.
+        $broadcastClients = [];
+        if (self::canBroadcast($user)) {
+            [$bWhere, $bParams] = self::broadcastScope($user);
+            $bStmt = $pdo->prepare("
+                SELECT c.id, c.client_code, c.full_name, c.phone, c.email, c.status
+                FROM clients c
+                WHERE c.deleted_at IS NULL {$bWhere}
+                ORDER BY c.full_name
+            ");
+            $bStmt->execute($bParams);
+            $broadcastClients = $bStmt->fetchAll();
+        }
+
         self::renderDashboard('communication/sms_outbox.php', [
             'pageTitle' => Lang::get('menu_sms_outbox'),
             'messages' => $messages,
+            'broadcastClients' => $broadcastClients,
+            'whatsappReady' => WhatsAppService::isEnabled(),
         ]);
+    }
+
+    private static function canBroadcast(array $user): bool
+    {
+        return in_array($user['role_slug'] ?? '', ['admin', 'manager', 'branch_manager', 'loan_officer'], true);
+    }
+
+    private static function broadcastScope(array $user): array
+    {
+        if (in_array($user['role_slug'] ?? '', ['admin', 'manager'], true)) {
+            return ['', []];
+        }
+        return [' AND c.branch_id = :b_bid ', [':b_bid' => (int) ($user['branch_id'] ?? 0)]];
+    }
+
+    /**
+     * Send one message written on the Communication page to the selected clients,
+     * by Gmail (email) or WhatsApp.
+     */
+    private static function smsBroadcast(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireAuth();
+        AuthMiddleware::verifyCsrfOrAbort();
+        $isSo = Lang::locale() === 'so';
+
+        try {
+            if (!self::canBroadcast($user)) {
+                throw new \RuntimeException($isSo ? 'Ma lihid fasax aad fariin ugu dirto macaamiisha.' : 'You are not allowed to message clients.');
+            }
+            $channel = (string) ($_POST['channel'] ?? '');
+            if (!in_array($channel, ['email', 'whatsapp'], true)) {
+                throw new \RuntimeException($isSo ? 'Dooro Gmail ama WhatsApp.' : 'Choose Gmail or WhatsApp.');
+            }
+            $message = trim((string) ($_POST['message'] ?? ''));
+            $subject = trim((string) ($_POST['subject'] ?? ''));
+            if ($message === '') {
+                throw new \RuntimeException($isSo ? 'Fadlan qor fariinta.' : 'Please write the message.');
+            }
+            if (mb_strlen($message) > 3000) {
+                throw new \RuntimeException($isSo ? 'Fariintu waa ka dheer tahay 3000 xaraf.' : 'The message is longer than 3000 characters.');
+            }
+            if ($subject === '') {
+                $subject = $isSo ? 'Fariin ka timid SIMDA' : 'A message from SIMDA';
+            }
+            $subject = mb_substr($subject, 0, 150);
+
+            $ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? [])))));
+            if ($ids === []) {
+                throw new \RuntimeException($isSo ? 'Dooro ugu yaraan hal macmiil.' : 'Select at least one client.');
+            }
+            if ($channel === 'whatsapp' && !WhatsAppService::isEnabled()) {
+                throw new \RuntimeException($isSo
+                    ? 'WhatsApp lama dejin. Daar WhatsApp gateway-ga (whatsapp-gateway/start-whatsapp.bat).'
+                    : 'WhatsApp is not set up. Start the WhatsApp gateway (whatsapp-gateway/start-whatsapp.bat).');
+            }
+
+            // Only clients this user may message, whatever ids the form posted.
+            [$bWhere, $bParams] = self::broadcastScope($user);
+            $in = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $pdo->prepare("SELECT c.id, c.full_name, c.phone, c.email FROM clients c WHERE c.deleted_at IS NULL AND c.id IN ({$in}) " . str_replace(':b_bid', '?', $bWhere));
+            $stmt->execute(array_merge($ids, array_values($bParams)));
+            $clients = $stmt->fetchAll();
+
+            @set_time_limit(0);
+            $locale = Lang::locale();
+            $sent = 0;
+            $skipped = [];
+            $failed = [];
+            foreach ($clients as $c) {
+                $name = (string) $c['full_name'];
+                if ($channel === 'email') {
+                    $to = trim((string) ($c['email'] ?? ''));
+                    if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                        $skipped[] = $name;
+                        continue;
+                    }
+                    $res = MailService::sendBroadcastEmail($to, $name, $subject, $message, $locale);
+                } else {
+                    $phone = trim((string) ($c['phone'] ?? ''));
+                    if ($phone === '') {
+                        $skipped[] = $name;
+                        continue;
+                    }
+                    $greeting = ($isSo ? 'Salaamu Calaykum ' : 'Hello ') . $name . ',';
+                    $res = WhatsAppService::send($phone, "*{$subject}*\n\n{$greeting}\n\n{$message}\n\n— SIMDA");
+                }
+                if (!empty($res['success'])) {
+                    $sent++;
+                } else {
+                    $failed[] = $name;
+                    error_log("Broadcast {$channel} to client #{$c['id']} failed: " . ($res['error'] ?? 'unknown'));
+                }
+            }
+
+            $label = $channel === 'email' ? 'Gmail' : 'WhatsApp';
+            AuditLogger::log('communication.broadcast', 'clients', null, "{$label} broadcast \"{$subject}\": {$sent} sent, " . count($failed) . ' failed, ' . count($skipped) . ' skipped.');
+
+            $summary = $isSo
+                ? "{$label}: fariinta waxaa loo diray {$sent} macmiil."
+                : "{$label}: message sent to {$sent} client(s).";
+            if ($skipped !== []) {
+                $summary .= $isSo
+                    ? ' Laguma dirin (' . ($channel === 'email' ? 'email ma laha' : 'lambar ma laha') . '): ' . implode(', ', $skipped) . '.'
+                    : ' Skipped (no ' . ($channel === 'email' ? 'email' : 'phone') . '): ' . implode(', ', $skipped) . '.';
+            }
+            if ($failed !== []) {
+                $_SESSION['flash_error'] = $summary . ($isSo ? ' Way ku guuldarraysatay: ' : ' Failed: ') . implode(', ', $failed) . '.';
+            } else {
+                $_SESSION['flash_success'] = $summary;
+            }
+        } catch (\RuntimeException $e) {
+            $_SESSION['flash_error'] = $e->getMessage();
+            $_SESSION['broadcast_old'] = ['subject' => $_POST['subject'] ?? '', 'message' => $_POST['message'] ?? ''];
+        }
+
+        header('Location: ?route=sms_outbox#broadcast');
+        exit;
     }
 
     private static function smsRunDispatcher(PDO $pdo): void
