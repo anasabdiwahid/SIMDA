@@ -14,12 +14,14 @@ erDiagram
     BRANCHES ||--o{ FINANCINGS : "manages"
     BRANCHES ||--o{ REPAYMENTS : "collects"
     BRANCHES ||--o{ CHARITY_CHARGES : "tracks"
+    BRANCHES ||--o{ CHARITY_PAYOUTS : "gives_out"
 
     USERS ||--o{ CLIENTS : "portal_account"
     USERS ||--o{ FINANCING_APPLICATIONS : "creates_or_reviews"
     USERS ||--o{ FINANCINGS : "disburses"
     USERS ||--o{ REPAYMENTS : "records"
     USERS ||--o{ CHARITY_CHARGES : "waives"
+    USERS ||--o{ CHARITY_PAYOUTS : "records"
     USERS ||--o{ AUDIT_LOGS : "triggers"
 
     CLIENTS ||--|{ GUARANTORS : "guaranteed_by"

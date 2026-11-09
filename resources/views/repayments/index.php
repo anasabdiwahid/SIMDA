@@ -19,17 +19,17 @@ $role = $user['role_slug'] ?? '';
     <?php else: ?>
     <h2 style="font-size:1.2rem;margin:6px 0;"><?= Security::e(Lang::get('menu_repayment_history')) ?></h2>
     <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:16px;">
-        Strict Allocation Order: <strong>(1) Outstanding Charity Late Charges</strong> → <strong>(2) Oldest Unpaid Installment</strong>. Supports full, partial, early settlement with Murabaha <em>Ibra</em> discount, and automatic Client Overpayment Credit retention.
+        <?= \App\Helpers\Lang::t('Habka qaybinta: <strong>(1) Ganaaxa sadaqada ee aan la bixin</strong> → <strong>(2) Qaybta ugu da\'da weyn ee aan la bixin</strong>. Waxaa la oggol yahay bixin buuxda, qayb ah, iyo bixin hore oo leh dhimista <em>Ibra</em> ee Murabaxada; lacagta dheeraadka ah waxaa loo kaydiyaa macmiilka.', 'Allocation order: <strong>(1) Outstanding charity late charges</strong> → <strong>(2) Oldest unpaid installment</strong>. Supports full, partial and early settlement with the Murabaha <em>Ibra</em> discount; any overpayment is kept as client credit.') ?>
     </p>
     <?php endif; ?>
 
     <?php if (in_array($role, ['admin', 'loan_officer'], true) && !empty($activeFinancings)): ?>
-    <form method="POST" action="?route=repayment_submit" style="background:var(--bg-elevated);padding:16px;border-radius:10px;margin-bottom:20px;" data-confirm="Record this repayment transaction and allocate across charity charges and installments?">
+    <form method="POST" action="?route=repayment_submit" style="background:var(--bg-elevated);padding:16px;border-radius:10px;margin-bottom:20px;" data-confirm="<?= \App\Helpers\Lang::t('Ma diiwaangelinaysaa lacag-bixintan oo ma u qaybinaysaa ganaaxa sadaqada iyo qaybaha?', 'Record this repayment and allocate it across charity charges and installments?') ?>">
         <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-        <h4 style="margin-bottom:12px;">Record New Repayment</h4>
+        <h4 style="margin-bottom:12px;"><?= \App\Helpers\Lang::t('Diiwaangeli Lacag-bixin Cusub', 'Record New Repayment') ?></h4>
         <div class="form-grid">
             <div class="form-group">
-                <label>Active Financing Contract *</label>
+                <label><?= \App\Helpers\Lang::t('Heshiiska Maalgelinta Socda *', 'Active Financing Contract *') ?></label>
                 <select name="financing_id" class="form-control" required>
                     <?php foreach ($activeFinancings as $af): ?>
                         <option value="<?= (int) $af['id'] ?>">
@@ -39,42 +39,42 @@ $role = $user['role_slug'] ?? '';
                 </select>
             </div>
             <div class="form-group">
-                <label>Payment Amount ($ USD) *</label>
+                <label><?= \App\Helpers\Lang::t('Lacagta La Bixinayo ($ USD) *', 'Payment Amount ($ USD) *') ?></label>
                 <input type="number" name="amount" class="form-control num-tabular" step="0.01" min="0" required value="560.00">
             </div>
             <div class="form-group">
-                <label>Payment Method *</label>
+                <label><?= \App\Helpers\Lang::t('Habka Lacag-bixinta *', 'Payment Method *') ?></label>
                 <select name="payment_method" class="form-control" required>
                     <option value="EVC Plus">EVC Plus (Mobile Money)</option>
                     <option value="Zaad">Zaad (Mobile Money)</option>
                     <option value="eDahab">eDahab (Mobile Money)</option>
-                    <option value="Cash">Cash</option>
+                    <option value="Cash"><?= \App\Helpers\Lang::t('Lacag Caddaan ah', 'Cash') ?></option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Transaction Reference *</label>
+                <label><?= \App\Helpers\Lang::t('Tixraaca Lacag-wareejinta *', 'Transaction Reference *') ?></label>
                 <input type="text" name="transaction_reference" class="form-control num-tabular" required value="MM-<?= strtoupper(bin2hex(random_bytes(3))) ?>">
             </div>
             <div class="form-group">
-                <label>Payment Date *</label>
+                <label><?= \App\Helpers\Lang::t('Taariikhda Lacag-bixinta *', 'Payment Date *') ?></label>
                 <input type="date" name="payment_date" class="form-control num-tabular" required value="<?= date('Y-m-d') ?>">
             </div>
             <div class="form-group">
-                <label>Murabaha Ibra Early Discount ($ USD)</label>
+                <label><?= \App\Helpers\Lang::t('Dhimista Ibra ee Murabaxada ($ USD)', 'Murabaha Ibra Early Discount ($ USD)') ?></label>
                 <input type="number" name="ibra_discount" class="form-control num-tabular" step="0.01" min="0" value="0.00">
             </div>
             <div class="form-group">
-                <label>Notes</label>
-                <input type="text" name="notes" class="form-control" placeholder="Installment collection note">
+                <label><?= \App\Helpers\Lang::t('Qoraal', 'Notes') ?></label>
+                <input type="text" name="notes" class="form-control" placeholder="<?= \App\Helpers\Lang::t('Qoraal ku saabsan lacag-ururinta', 'Installment collection note') ?>">
             </div>
             <div class="form-group" style="justify-content:center;">
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:18px;">
                     <input type="checkbox" name="use_client_credit" value="1" checked>
-                    Apply any existing Client Overpayment Credit
+                    <?= \App\Helpers\Lang::t('Isticmaal lacagta dheeraadka ah ee macmiilka u kaydsan', 'Apply any existing client overpayment credit') ?>
                 </label>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm"><?= Icons::svg('check-circle', 15) ?> <span>Record & Allocate Repayment</span></button>
+        <button type="submit" class="btn btn-primary btn-sm"><?= Icons::svg('check-circle', 15) ?> <span><?= \App\Helpers\Lang::t('Diiwaangeli & Qaybi Lacagta', 'Record & Allocate Repayment') ?></span></button>
     </form>
     <?php endif; ?>
 
@@ -82,17 +82,17 @@ $role = $user['role_slug'] ?? '';
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Receipt #</th>
-                    <th>Contract #</th>
-                    <th>Client</th>
-                    <th>Method & Ref</th>
-                    <th>Cash Paid</th>
-                    <th>Charity Alloc.</th>
-                    <th>Profit Alloc.</th>
-                    <th>Principal Alloc.</th>
-                    <th>Overpayment Credit</th>
-                    <th>Date</th>
-                    <th style="text-align:right;">Actions</th>
+                    <th><?= \App\Helpers\Lang::t('Rasiidka #', 'Receipt #') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Heshiiska #', 'Contract #') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Macmiilka', 'Client') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Habka & Tixraaca', 'Method & Ref') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacagta La Bixiyay', 'Cash Paid') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Sadaqo', 'Charity Alloc.') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Faa\'iido', 'Profit Alloc.') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Raasumaal', 'Principal Alloc.') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacag Dheeraad ah', 'Overpayment Credit') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Taariikhda', 'Date') ?></th>
+                    <th style="text-align:right;"><?= \App\Helpers\Lang::t('Ficillada', 'Actions') ?></th>
                 </tr>
             </thead>
             <tbody>

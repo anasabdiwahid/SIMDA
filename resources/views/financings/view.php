@@ -45,24 +45,24 @@ $charityCharges = $statement['charity_charges'];
     <!-- SUMMARY METRICS -->
     <div class="kpi-grid" style="margin-top:16px;margin-bottom:18px;">
         <div class="kpi-card">
-            <div class="kpi-label">Approved Principal / Cost</div>
+            <div class="kpi-label"><?= \App\Helpers\Lang::t('Raasumaalka La Ansixiyay / Qiimaha', 'Approved Principal / Cost') ?></div>
             <div class="kpi-value num-tabular"><?= Security::formatMoney($f['approved_amount']) ?></div>
-            <div class="kpi-sub">Net Disbursed: <?= Security::formatMoney($f['net_disbursed_amount']) ?> (Fee: <?= Security::formatMoney($f['admin_fee']) ?>)</div>
+            <div class="kpi-sub"><?= \App\Helpers\Lang::t('Saafiga la bixiyay: ', 'Net Disbursed: ') ?><?= Security::formatMoney($f['net_disbursed_amount']) ?> (<?= \App\Helpers\Lang::t('Kharash: ', 'Fee: ') ?><?= Security::formatMoney($f['admin_fee']) ?>)</div>
         </div>
         <div class="kpi-card kpi-gold">
-            <div class="kpi-label">Agreed Profit / Markup</div>
+            <div class="kpi-label"><?= \App\Helpers\Lang::t('Faa\'iidada La Isku Raacay', 'Agreed Profit / Markup') ?></div>
             <div class="kpi-value num-tabular"><?= Security::formatMoney($f['total_profit']) ?></div>
-            <div class="kpi-sub">Ibra Discount Granted: <?= Security::formatMoney($f['ibra_discount']) ?></div>
+            <div class="kpi-sub"><?= \App\Helpers\Lang::t('Dhimista Ibra: ', 'Ibra Discount Granted: ') ?><?= Security::formatMoney($f['ibra_discount']) ?></div>
         </div>
         <div class="kpi-card kpi-success">
-            <div class="kpi-label">Total Paid to Date</div>
+            <div class="kpi-label"><?= \App\Helpers\Lang::t('Wadarta La Bixiyay Ilaa Hadda', 'Total Paid to Date') ?></div>
             <div class="kpi-value num-tabular"><?= Security::formatMoney($f['total_paid']) ?></div>
-            <div class="kpi-sub">Client Overpayment Credit: <?= Security::formatMoney($f['credit_balance']) ?></div>
+            <div class="kpi-sub"><?= \App\Helpers\Lang::t('Lacag dheeraad ah oo macmiilka u kaydsan: ', 'Client Overpayment Credit: ') ?><?= Security::formatMoney($f['credit_balance']) ?></div>
         </div>
         <div class="kpi-card kpi-danger">
-            <div class="kpi-label">Total Remaining Balance</div>
+            <div class="kpi-label"><?= \App\Helpers\Lang::t('Wadarta Haraaga', 'Total Remaining Balance') ?></div>
             <div class="kpi-value num-tabular"><?= Security::formatMoney($statement['total_remaining_balance']) ?></div>
-            <div class="kpi-sub">Installments: <?= Security::formatMoney($f['outstanding_balance']) ?> + Charity: <?= Security::formatMoney($statement['unpaid_charity_total']) ?></div>
+            <div class="kpi-sub"><?= \App\Helpers\Lang::t('Qaybaha: ', 'Installments: ') ?><?= Security::formatMoney($f['outstanding_balance']) ?> + <?= \App\Helpers\Lang::t('Sadaqo: ', 'Charity: ') ?><?= Security::formatMoney($statement['unpaid_charity_total']) ?></div>
         </div>
     </div>
 
@@ -73,14 +73,14 @@ $charityCharges = $statement['charity_charges'];
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Due Date</th>
-                    <th>Principal Due</th>
-                    <th>Profit Due</th>
-                    <th>Total Installment</th>
-                    <th>Amount Paid</th>
-                    <th>Remaining</th>
-                    <th>Principal After</th>
-                    <th>Status</th>
+                    <th><?= \App\Helpers\Lang::t('Taariikhda Bixinta', 'Due Date') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Raasumaalka La Rabo', 'Principal Due') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Faa\'iidada La Rabo', 'Profit Due') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Wadarta Qaybta', 'Total Installment') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacagta La Bixiyay', 'Amount Paid') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Haraaga', 'Remaining') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Raasumaalka Kadib', 'Principal After') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Xaaladda', 'Status') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -90,7 +90,7 @@ $charityCharges = $statement['charity_charges'];
                         <td class="num-tabular">
                             <?= Security::e(\App\Services\ScheduleEngine::formatDue($inst)) ?>
                             <?php if ((int) $inst['was_friday_shifted'] === 1): ?>
-                                <span class="badge badge-gold" title="Shifted from Friday (<?= Security::e($inst['original_due_date']) ?>) to Saturday">Sat Shift</span>
+                                <span class="badge badge-gold" title="<?= \App\Helpers\Lang::t('Jimce ayaa loo beddelay Sabti', 'Shifted from Friday to Saturday') ?> (<?= Security::e($inst['original_due_date']) ?>)"><?= \App\Helpers\Lang::t('Sabti loo wareejiyay', 'Sat Shift') ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="num-tabular"><?= Security::formatMoney($inst['principal_due']) ?></td>
@@ -116,20 +116,20 @@ $charityCharges = $statement['charity_charges'];
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Receipt #</th>
-                    <th>Payment Date</th>
-                    <th>Method & Ref</th>
-                    <th>Cash Paid</th>
-                    <th>Credit Used</th>
-                    <th>Allocated Charity</th>
-                    <th>Allocated Profit</th>
-                    <th>Allocated Principal</th>
-                    <th>Overpayment Credited</th>
+                    <th><?= \App\Helpers\Lang::t('Rasiidka #', 'Receipt #') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Taariikhda Lacag-bixinta', 'Payment Date') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Habka & Tixraaca', 'Method & Ref') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacagta La Bixiyay', 'Cash Paid') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Credit La Isticmaalay', 'Credit Used') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Sadaqo', 'Allocated Charity') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Faa\'iido', 'Allocated Profit') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Raasumaal', 'Allocated Principal') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacag Dheeraad ah oo Kaydsan', 'Overpayment Credited') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($repayments)): ?>
-                    <tr><td colspan="9" style="text-align:center;color:var(--text-muted);">No repayments recorded yet.</td></tr>
+                    <tr><td colspan="9" style="text-align:center;color:var(--text-muted);"><?= \App\Helpers\Lang::t('Weli lacag-bixin lama diiwaangelin.', 'No repayments recorded yet.') ?></td></tr>
                 <?php else: ?>
                     <?php foreach ($repayments as $r): ?>
                         <tr>
@@ -155,17 +155,17 @@ $charityCharges = $statement['charity_charges'];
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Installment #</th>
-                    <th>Assessed Amount</th>
-                    <th>Paid to Charity</th>
-                    <th>Remaining</th>
-                    <th>Status</th>
-                    <th>Waiver Reason</th>
+                    <th><?= \App\Helpers\Lang::t('Qaybta #', 'Installment #') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Ganaaxa La Saaray', 'Assessed Amount') ?></th>
+                    <th><?= \App\Helpers\Lang::t('La Siiyay Sadaqada', 'Paid to Charity') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Haraaga', 'Remaining') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Xaaladda', 'Status') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Sababta Cafiska', 'Waiver Reason') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($charityCharges)): ?>
-                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No charity late charges assessed ($0.00).</td></tr>
+                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);"><?= \App\Helpers\Lang::t('Ganaax sadaqo lama saarin ($0.00).', 'No charity late charges assessed ($0.00).') ?></td></tr>
                 <?php else: ?>
                     <?php foreach ($charityCharges as $cc): ?>
                         <tr>

@@ -10,23 +10,23 @@ $csrf = Security::csrfToken();
 <div class="card animate-in" style="margin-bottom:24px;">
     <h2 style="font-size:1.25rem;margin:6px 0;"><?= Security::e(Lang::get('menu_disbursements')) ?></h2>
 
-    <h4 style="margin-bottom:12px;">1. Approved Applications Ready for Disbursement</h4>
+    <h4 style="margin-bottom:12px;"><?= \App\Helpers\Lang::t('1. Codsiyada La Ansixiyay ee Diyaarka u ah Bixinta', '1. Approved Applications Ready for Disbursement') ?></h4>
     <?php if (empty($approvedApps)): ?>
         <div style="padding:20px;background:var(--bg-elevated);border-radius:10px;margin-bottom:22px;color:var(--text-muted);">
-            No approved applications currently awaiting disbursement.
+            <?= \App\Helpers\Lang::t('Ma jiraan codsiyo la ansixiyay oo sugaya bixin.', 'No approved applications currently awaiting disbursement.') ?>
         </div>
     <?php else: ?>
         <div class="table-responsive" style="margin-bottom:24px;">
             <table class="simda-table">
                 <thead>
                     <tr>
-                        <th>App #</th>
-                        <th>Client</th>
-                        <th>Approved Amount</th>
-                        <th>Admin Fee</th>
-                        <th>Net Disbursed</th>
-                        <th>Expires At</th>
-                        <th>Initiate Mobile Money Disbursement</th>
+                        <th><?= \App\Helpers\Lang::t('Codsiga #', 'App #') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Macmiilka', 'Client') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Lacagta La Ansixiyay', 'Approved Amount') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Kharashka Maamulka', 'Admin Fee') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Lacagta Saafiga ah ee La Bixiyay', 'Net Disbursed') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Wuxuu Dhacayaa', 'Expires At') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Ku Bixi Mobile Money', 'Initiate Mobile Money Disbursement') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,7 +40,7 @@ $csrf = Security::csrfToken();
                             <td class="num-tabular"><strong style="color:var(--color-success);"><?= Security::formatMoney($net) ?></strong></td>
                             <td class="num-tabular"><?= Security::e(substr((string) $app['expires_at'], 0, 10)) ?></td>
                             <td>
-                                <form method="POST" action="?route=disburse_submit" style="display:flex;gap:6px;align-items:center;" data-confirm="Execute simulated mobile money disbursement and activate the installment schedule?">
+                                <form method="POST" action="?route=disburse_submit" style="display:flex;gap:6px;align-items:center;" data-confirm="<?= \App\Helpers\Lang::t('Ma bixinaysaa lacagta (mobile money la iska dhigay) oo ma bilaabaysaa jadwalka qaybaha?', 'Run the simulated mobile money disbursement and activate the installment schedule?') ?>">
                                     <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                                     <input type="hidden" name="application_id" value="<?= (int) $app['id'] ?>">
                                     <select name="provider" class="form-control" style="padding:5px 8px;font-size:0.8rem;width:115px;" required>
@@ -49,7 +49,7 @@ $csrf = Security::csrfToken();
                                         <option value="eDahab">eDahab</option>
                                     </select>
                                     <input type="text" name="phone" class="form-control num-tabular" value="<?= Security::e($app['client_phone']) ?>" style="padding:5px 8px;font-size:0.8rem;width:130px;" required>
-                                    <button type="submit" class="btn btn-sm btn-gold">Disburse Now</button>
+                                    <button type="submit" class="btn btn-sm btn-gold"><?= \App\Helpers\Lang::t('Hadda Bixi', 'Disburse Now') ?></button>
                                 </form>
                             </td>
                         </tr>
@@ -59,18 +59,18 @@ $csrf = Security::csrfToken();
         </div>
     <?php endif; ?>
 
-    <h4 style="margin-bottom:12px;">2. Completed Disbursement Receipts</h4>
+    <h4 style="margin-bottom:12px;"><?= \App\Helpers\Lang::t('2. Rasiidhada Bixinta La Dhammeeyay', '2. Completed Disbursement Receipts') ?></h4>
     <div class="table-responsive">
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Contract #</th>
-                    <th>Client</th>
-                    <th>Provider & Ref</th>
-                    <th>Approved Amount</th>
-                    <th>Admin Fee</th>
-                    <th>Net Disbursed</th>
-                    <th>Disbursed Date</th>
+                    <th><?= \App\Helpers\Lang::t('Heshiiska #', 'Contract #') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Macmiilka', 'Client') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Shirkadda & Tixraaca', 'Provider & Ref') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacagta La Ansixiyay', 'Approved Amount') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Kharashka Maamulka', 'Admin Fee') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Lacagta Saafiga ah ee La Bixiyay', 'Net Disbursed') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Taariikhda La Bixiyay', 'Disbursed Date') ?></th>
                 </tr>
             </thead>
             <tbody>

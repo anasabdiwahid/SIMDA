@@ -10,16 +10,16 @@ $csrf = Security::csrfToken();
 <div class="card animate-in" style="margin-bottom:24px;">
     <h2 style="font-size:1.25rem;margin-bottom:6px;"><?= Security::e(Lang::get('menu_guarantors')) ?></h2>
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:18px;">
-        Every client must have at least one guarantor before applying for financing. You can also attach additional guarantors to an existing client below.
+        <?= \App\Helpers\Lang::t('Macmiil kasta waa inuu leeyahay ugu yaraan hal damiin ka hor intaanu codsan maalgelin. Hoos waxaad ugu dari kartaa damiinno kale macmiil jira.', 'Every client must have at least one guarantor before applying for financing. You can also add more guarantors to an existing client below.') ?>
     </p>
 
     <?php if (in_array($user['role_slug'] ?? '', ['admin', 'loan_officer'], true) && !empty($clients)): ?>
     <form method="POST" action="?route=guarantor_add" style="background:var(--bg-elevated);padding:16px;border-radius:12px;margin-bottom:22px;">
         <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-        <h4 style="margin-bottom:10px;">Add Additional Guarantor</h4>
+        <h4 style="margin-bottom:10px;"><?= \App\Helpers\Lang::t('Ku Dar Damiin Kale', 'Add Additional Guarantor') ?></h4>
         <div class="form-grid">
             <div class="form-group">
-                <label>Select Client *</label>
+                <label><?= \App\Helpers\Lang::t('Dooro Macmiilka *', 'Select Client *') ?></label>
                 <select name="client_id" class="form-control" required>
                     <?php foreach ($clients as $c): ?>
                         <option value="<?= (int) $c['id'] ?>"><?= Security::e($c['full_name'] . ' (' . $c['client_code'] . ')') ?></option>
@@ -27,11 +27,11 @@ $csrf = Security::csrfToken();
                 </select>
             </div>
             <div class="form-group">
-                <label>Guarantor Full Name *</label>
+                <label><?= \App\Helpers\Lang::t('Magaca Buuxa ee Damiinka *', 'Guarantor Full Name *') ?></label>
                 <input type="text" name="full_name" class="form-control" required>
             </div>
             <div class="form-group">
-                <label>Phone *</label>
+                <label><?= \App\Helpers\Lang::t('Telefoonka *', 'Phone *') ?></label>
                 <input type="text" name="phone" class="form-control num-tabular" required>
             </div>
             <div class="form-group">
@@ -39,11 +39,11 @@ $csrf = Security::csrfToken();
                 <input type="text" name="id_number" class="form-control num-tabular" required>
             </div>
             <div class="form-group">
-                <label>Relationship *</label>
+                <label><?= \App\Helpers\Lang::t('Xiriirka *', 'Relationship *') ?></label>
                 <input type="text" name="relationship" class="form-control" required>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm">Save Guarantor</button>
+        <button type="submit" class="btn btn-primary btn-sm"><?= \App\Helpers\Lang::t('Kaydi Damiinka', 'Save Guarantor') ?></button>
     </form>
     <?php endif; ?>
 
@@ -51,12 +51,12 @@ $csrf = Security::csrfToken();
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Guarantor Name</th>
+                    <th><?= \App\Helpers\Lang::t('Magaca Damiinka', 'Guarantor Name') ?></th>
                     <th>ID Number</th>
-                    <th>Phone</th>
-                    <th>Relationship</th>
-                    <th>Guaranteed Client</th>
-                    <th>Branch</th>
+                    <th><?= \App\Helpers\Lang::t('Telefoonka', 'Phone') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Xiriirka', 'Relationship') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Macmiilka La Damiinay', 'Guaranteed Client') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Laanta', 'Branch') ?></th>
                 </tr>
             </thead>
             <tbody>

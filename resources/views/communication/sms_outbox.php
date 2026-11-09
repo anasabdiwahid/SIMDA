@@ -199,7 +199,7 @@ $withPhone = count(array_filter($broadcastClients, static fn ($c) => trim((strin
             <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
             <button type="submit" class="btn btn-primary btn-sm">
                 <?= Icons::svg('refresh', 14) ?>
-                <span>Run Reminder Dispatcher Now</span>
+                <span><?= \App\Helpers\Lang::t('Hadda Dir Xasuusinta', 'Run Reminder Dispatcher Now') ?></span>
             </button>
         </form>
     </div>
@@ -208,17 +208,17 @@ $withPhone = count(array_filter($broadcastClients, static fn ($c) => trim((strin
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Client & Phone</th>
-                    <th>Contract</th>
-                    <th>Type</th>
-                    <th>Due Date & Amount</th>
-                    <th>Message (English & Somali)</th>
-                    <th>Sent At</th>
+                    <th><?= \App\Helpers\Lang::t('Macmiilka & Telefoonka', 'Client & Phone') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Heshiiska', 'Contract') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Nooca', 'Type') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Taariikhda & Lacagta', 'Due Date & Amount') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Fariinta (English & Soomaali)', 'Message (English & Somali)') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Waqtiga La Diray', 'Sent At') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($messages)): ?>
-                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No SMS reminders in outbox yet.</td></tr>
+                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);"><?= \App\Helpers\Lang::t('Weli ma jiraan xasuusin SMS ah.', 'No SMS reminders in outbox yet.') ?></td></tr>
                 <?php else: ?>
                     <?php foreach ($messages as $m): ?>
                         <tr>

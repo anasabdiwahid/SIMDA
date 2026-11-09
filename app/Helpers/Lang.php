@@ -63,6 +63,15 @@ final class Lang
         return $text;
     }
 
+    /**
+     * Inline Somali/English text for a screen: Lang::t('Somali', 'English').
+     * Somali is used when the interface is Somali, English otherwise. The text is not escaped.
+     */
+    public static function t(string $so, string $en): string
+    {
+        return self::$locale === 'so' ? $so : $en;
+    }
+
     public static function field(array $row, string $baseField): string
     {
         $localizedKey = $baseField . '_' . self::$locale;

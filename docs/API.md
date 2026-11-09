@@ -24,6 +24,7 @@ All web and JSON routes are dispatched through `public/index.php?route=<route_na
 | `statement_pdf` | GET (PDF) | All 4 Roles | Module 13: Downloadable native PDF 1.4 Client Statement |
 | `repayments` / `repayment_record` / `repayment_submit` | GET / POST | All 4 Roles (POST: Admin/Officer) | Module 7: Record repayment & inspect allocation breakdown |
 | `charity_charges` / `charity_waive` | GET / POST | All 4 Roles (Waive: Admin/BM) | Module 8: Segregated Charity Account & mandatory-reason waiver |
+| `charity_payout` | POST | Admin, Branch Manager | Module 8: records money given out from the charity account (`amount`, `recipient`, `purpose`, `paid_on`); refused above the balance |
 | `credit_scores` | GET | All 4 Roles | Module 9: Credit score (300–850) breakdown & reason log |
 | `par30` / `reports` | GET | Admin, BM, Officer | Module 12: Live PAR30 institution & branch breakdown |
 | `sms_outbox` / `sms_run_dispatcher` | GET / POST | All 4 Roles | Module 11: Bilingual Somali & English SMS reminder outbox |

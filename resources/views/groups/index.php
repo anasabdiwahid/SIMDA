@@ -15,16 +15,16 @@ $role = $user['role_slug'] ?? '';
     </p>
 
     <?php if (in_array($role, ['admin', 'loan_officer', 'branch_manager'], true) && count($clients) >= 3): ?>
-    <form method="POST" action="?route=group_create" style="background:var(--bg-elevated);padding:18px;border-radius:12px;margin-bottom:22px;" data-confirm="Create this 3–10 member client solidarity group?">
+    <form method="POST" action="?route=group_create" style="background:var(--bg-elevated);padding:18px;border-radius:12px;margin-bottom:22px;" data-confirm="<?= \App\Helpers\Lang::t('Ma samaynaysaa kooxdan wadajirka ah (3–10 xubnood)?', 'Create this 3–10 member solidarity group?') ?>">
         <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
-        <h4 style="margin-bottom:12px;">Create New Client Group (Select 3–10 Members)</h4>
+        <h4 style="margin-bottom:12px;"><?= \App\Helpers\Lang::t('Samee Koox Cusub (Dooro 3–10 Xubnood)', 'Create New Client Group (Select 3–10 Members)') ?></h4>
         <div class="form-grid">
             <div class="form-group">
-                <label>Group Name *</label>
+                <label><?= \App\Helpers\Lang::t('Magaca Kooxda *', 'Group Name *') ?></label>
                 <input type="text" name="group_name" class="form-control" required placeholder="e.g. Iskaashatada Ganacsatada Bakaro">
             </div>
             <div class="form-group">
-                <label>Branch *</label>
+                <label><?= \App\Helpers\Lang::t('Laanta *', 'Branch *') ?></label>
                 <select name="branch_id" class="form-control" required>
                     <?php foreach ($branches as $b): ?>
                         <option value="<?= (int) $b['id'] ?>"><?= Security::e($b['name']) ?></option>
@@ -32,7 +32,7 @@ $role = $user['role_slug'] ?? '';
                 </select>
             </div>
             <div class="form-group">
-                <label>Group Leader *</label>
+                <label><?= \App\Helpers\Lang::t('Hoggaamiyaha Kooxda *', 'Group Leader *') ?></label>
                 <select name="leader_client_id" class="form-control" required>
                     <?php foreach ($clients as $c): ?>
                         <option value="<?= (int) $c['id'] ?>"><?= Security::e($c['full_name'] . ' (' . $c['client_code'] . ')') ?></option>
@@ -40,7 +40,7 @@ $role = $user['role_slug'] ?? '';
                 </select>
             </div>
             <div class="form-group">
-                <label>Select Members (Hold Ctrl/Cmd to pick 3–10 clients) *</label>
+                <label><?= \App\Helpers\Lang::t('Dooro Xubnaha (Ctrl/Cmd hay si aad u doorato 3–10 macmiil) *', 'Select Members (Hold Ctrl/Cmd to pick 3–10 clients) *') ?></label>
                 <select name="member_ids[]" class="form-control" multiple required style="height:105px;">
                     <?php foreach ($clients as $c): ?>
                         <option value="<?= (int) $c['id'] ?>" selected><?= Security::e($c['full_name'] . ' (' . $c['client_code'] . ')') ?></option>
@@ -48,7 +48,7 @@ $role = $user['role_slug'] ?? '';
                 </select>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm">Create Group (Pending Branch Manager Approval)</button>
+        <button type="submit" class="btn btn-primary btn-sm"><?= \App\Helpers\Lang::t('Samee Kooxda (Waxay sugaysaa ansixinta Maamulaha Laanta)', 'Create Group (Pending Branch Manager Approval)') ?></button>
     </form>
     <?php endif; ?>
 
@@ -56,14 +56,14 @@ $role = $user['role_slug'] ?? '';
         <table class="simda-table">
             <thead>
                 <tr>
-                    <th>Group Code</th>
-                    <th>Group Name</th>
-                    <th>Branch</th>
-                    <th>Group Leader</th>
-                    <th>Active Members</th>
+                    <th><?= \App\Helpers\Lang::t('Koodhka Kooxda', 'Group Code') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Magaca Kooxda', 'Group Name') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Laanta', 'Branch') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Hoggaamiyaha', 'Group Leader') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Xubnaha Firfircoon', 'Active Members') ?></th>
                     <th>30d Delinquency Lock</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th><?= \App\Helpers\Lang::t('Xaaladda', 'Status') ?></th>
+                    <th><?= \App\Helpers\Lang::t('Ficillada', 'Actions') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -78,19 +78,19 @@ $role = $user['role_slug'] ?? '';
                             <?php if ((int) $g['overdue_30_count'] > 0): ?>
                                 <span class="badge badge-danger">LOCKED (&gt;30d Overdue Member)</span>
                             <?php else: ?>
-                                <span class="badge badge-success">Clear (Eligible)</span>
+                                <span class="badge badge-success"><?= \App\Helpers\Lang::t('Nadiif (wuu xaq u leeyahay)', 'Clear (Eligible)') ?></span>
                             <?php endif; ?>
                         </td>
                         <td><span class="badge badge-<?= $g['status'] === 'active' ? 'success' : 'warning' ?>"><?= Security::e($g['status']) ?></span></td>
                         <td>
                             <?php if ($g['status'] === 'pending_approval' && in_array($role, ['admin', 'branch_manager'], true)): ?>
-                                <form method="POST" action="?route=group_approve" style="display:inline;" data-confirm="Approve this group for group financing?">
+                                <form method="POST" action="?route=group_approve" style="display:inline;" data-confirm="<?= \App\Helpers\Lang::t('Ma ansixinaysaa kooxdan si ay u hesho maalgelin kooxeed?', 'Approve this group for group financing?') ?>">
                                     <input type="hidden" name="_csrf" value="<?= Security::e($csrf) ?>">
                                     <input type="hidden" name="group_id" value="<?= (int) $g['id'] ?>">
-                                    <button type="submit" class="btn btn-sm btn-primary">Approve Group</button>
+                                    <button type="submit" class="btn btn-sm btn-primary"><?= \App\Helpers\Lang::t('Ansixi Kooxda', 'Approve Group') ?></button>
                                 </form>
                             <?php else: ?>
-                                <span style="font-size:0.78rem;color:var(--text-muted);">Verified</span>
+                                <span style="font-size:0.78rem;color:var(--text-muted);"><?= \App\Helpers\Lang::t('La Xaqiijiyay', 'Verified') ?></span>
                             <?php endif; ?>
                         </td>
                     </tr>

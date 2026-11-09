@@ -22,17 +22,17 @@ use App\Helpers\Security;
             <table class="simda-table">
                 <thead>
                     <tr>
-                        <th>Contract #</th>
-                        <th>Client</th>
-                        <th>Branch</th>
-                        <th>Type</th>
-                        <th>Principal</th>
-                        <th>Profit / Markup</th>
-                        <th>Total Due</th>
-                        <th>Total Paid</th>
-                        <th>Outstanding</th>
-                        <th>Status</th>
-                        <th>Statement</th>
+                        <th><?= \App\Helpers\Lang::t('Heshiiska #', 'Contract #') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Macmiilka', 'Client') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Laanta', 'Branch') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Nooca', 'Type') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Raasumaalka', 'Principal') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Faa\'iidada', 'Profit / Markup') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Wadarta La Rabo', 'Total Due') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Wadarta La Bixiyay', 'Total Paid') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Haraaga', 'Outstanding') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Xaaladda', 'Status') ?></th>
+                        <th><?= \App\Helpers\Lang::t('Bayaanka', 'Statement') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,7 +58,7 @@ use App\Helpers\Security;
                             </td>
                             <td>
                                 <div style="display:flex;gap:6px;">
-                                    <a href="?route=financing_view&id=<?= (int) $f['id'] ?>" class="btn btn-sm btn-outline">View</a>
+                                    <a href="?route=financing_view&id=<?= (int) $f['id'] ?>" class="btn btn-sm btn-outline"><?= \App\Helpers\Lang::t('Eeg', 'View') ?></a>
                                     <a href="?route=statement_pdf&id=<?= (int) $f['id'] ?>" class="btn btn-sm btn-primary">PDF</a>
                                 </div>
                             </td>
