@@ -141,6 +141,8 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 // Staff lists. Registering is done with the two buttons under Dashboard.
                 'label' => $so ? 'Shaqaalaha' : 'Staff', 'icon' => 'user-check', 'show' => $can('users.manage'),
                 'items' => [
+                    // Admin: every account in one list, with edit and activate/deactivate.
+                    ['route' => 'users', 'label' => $so ? 'Dhammaan Isticmaalayaasha' : 'All Users', 'show' => $role === 'admin', 'active' => $on(['users']) && !$isNew],
                     ['route' => 'managers', 'label' => $so ? 'Maamulayaasha Guud' : 'General Managers', 'show' => $role === 'admin', 'active' => $on(['managers'])],
                     ['route' => 'branch_managers', 'label' => $so ? 'Maamulayaasha Laamaha' : 'Branch Managers', 'show' => in_array($role, ['admin', 'manager'], true), 'active' => $on(['branch_managers'])],
                     ['route' => 'employees', 'label' => $so ? 'Liiska Shaqaalaha' : 'All Employees', 'active' => $on(['employees', 'employee_register']) && !$isNew],
@@ -149,7 +151,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
             [
                 'label' => Lang::get('grp_admin'), 'icon' => 'settings', 'show' => $can('branches.manage') || $can('users.manage'),
                 'items' => [
-                    ['route' => 'users', 'label' => Lang::get('menu_users'), 'show' => $can('users.manage'), 'active' => $on(['users'])],
+                    ['route' => 'users', 'label' => Lang::get('menu_users'), 'show' => $can('users.manage') && $role !== 'admin' /* admin has All Users under Staff */, 'active' => $on(['users'])],
                     ['route' => 'branches', 'label' => Lang::get('menu_branches'), 'show' => $can('branches.manage'), 'active' => $on(['branches'])],
                     ['route' => 'permissions', 'label' => $so ? 'Awoodaha' : 'Permissions', 'show' => $role === 'admin', 'active' => $on(['permissions'])],
                     ['route' => 'audit_logs', 'label' => $so ? 'Diiwaanka Dhaqdhaqaaqa' : 'Audit Logs', 'show' => $role === 'admin', 'active' => $on(['audit_logs'])],
