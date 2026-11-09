@@ -333,7 +333,6 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <li><a href="?route=about" class="active"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="?route=home#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="?route=home#our-process"><?= Security::e($t['nav_process']) ?></a></li>
-            <li><a href="?route=home#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
             <li><a href="?route=faq"><?= Security::e($t['nav_faq']) ?></a></li>
             <li><a href="?route=contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>

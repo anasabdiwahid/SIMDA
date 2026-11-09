@@ -475,7 +475,6 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <li><a href="?route=about"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="#our-process"><?= Security::e($t['nav_process']) ?></a></li>
-            <li><a href="#testimonials"><?= Security::e($t['nav_testimonials']) ?></a></li>
             <?php if (!empty($partners)): ?>
                 <li><a href="#partners"><?= $locale === 'so' ? 'La-hawlgalayaasha' : ($locale === 'ar' ? 'الشركاء' : 'Partners') ?></a></li>
             <?php endif; ?>
@@ -848,56 +847,6 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
     </div>
 </section>
 
-<!-- 6. WHAT OUR CLIENTS VALUE (TESTIMONIALS) -->
-<section id="testimonials" class="fid-section" style="padding-top:20px;">
-    <div class="fid-container">
-        <div style="text-align:center;margin-bottom:26px;">
-            <span class="fid-eyebrow"><?= Security::e($t['testi_eyebrow'] ?? 'WHAT OUR CLIENTS VALUE') ?></span>
-            <h2 class="fid-section-title" style="margin-top:6px;"><?= $isSo ? 'Kalsoonida Macaamiisheenna' : 'What Our Clients Value' ?></h2>
-            <p class="fid-section-subtitle" style="margin:4px auto 0 auto;max-width:540px;"><?= $isSo ? 'Aragtiyada ganacsatada iyo qoysaska ka faa\'iidaystay adeegyada SIMDA.' : 'Real experiences from entrepreneurs scaling their businesses with 0% Riba.' ?></p>
-        </div>
-        <div class="fid-testi-grid">
-            <div class="fid-testi-card reveal-on-scroll">
-                <div>
-                    <div class="fid-stars">★★★★★</div>
-                    <p class="fid-testi-quote" style="font-size:0.73rem;line-height:1.45;margin:0;">
-                        <?= Security::e($t['testi1_q']) ?>
-                    </p>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                    <strong class="fid-testi-author" style="font-size:0.74rem;">– <?= Security::e($t['testi1_a']) ?></strong>
-                    <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
-                </div>
-            </div>
-
-            <div class="fid-testi-card reveal-on-scroll">
-                <div>
-                    <div class="fid-stars">★★★★★</div>
-                    <p class="fid-testi-quote" style="font-size:0.73rem;line-height:1.45;margin:0;">
-                        <?= Security::e($t['testi2_q']) ?>
-                    </p>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                    <strong class="fid-testi-author" style="font-size:0.74rem;">– <?= Security::e($t['testi2_a']) ?></strong>
-                    <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
-                </div>
-            </div>
-
-            <div class="fid-testi-card reveal-on-scroll">
-                <div>
-                    <div class="fid-stars">★★★★★</div>
-                    <p class="fid-testi-quote" style="font-size:0.73rem;line-height:1.45;margin:0;">
-                        <?= Security::e($t['testi3_q']) ?>
-                    </p>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                    <strong class="fid-testi-author" style="font-size:0.74rem;">– <?= Security::e($t['testi3_a']) ?></strong>
-                    <span class="fid-contact-dot" style="background:#D6B66C;color:#123B32;"><?= Icons::svg('user-check', 12) ?></span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <?php if (!empty($partners)): ?>
 <!-- PARTNERS: floating logo bubbles managed by the admin (Administration → Partners). Click opens the partner's site. -->
