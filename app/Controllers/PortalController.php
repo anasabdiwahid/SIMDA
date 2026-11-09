@@ -1066,7 +1066,7 @@ final class PortalController
             }
 
             // Dispatch 2FA email to Admin's registered email
-            MailService::sendAdmin2FACodeEmail($user['email'], $user['full_name'], $twoFaCode, $locale);
+            $twoFaMail = MailService::sendAdmin2FACodeEmail($user['email'], $user['full_name'], $twoFaCode, $locale);
 
             // Record challenge in database
             $stmt2fa = $pdo->prepare('
@@ -1096,6 +1096,7 @@ final class PortalController
             $_SESSION['flash_success'] = $isSo
                 ? 'Furahaagu wuu saxan yahay! Amniga sare ee maamulaha dartiis, koodh 8 xaraf/lambar ah ayaa laguugu diray email-kaaga ' . Security::e($user['email'])
                 : 'Password verified! As an Administrator, an 8-character security code has been sent to ' . Security::e($user['email']);
+            self::admin2faFallbackNotice($twoFaMail, $twoFaCode);
 
             header('Location: ?route=login');
             exit;
@@ -1204,6 +1205,21 @@ final class PortalController
         exit;
     }
 
+    /**
+     * Hosts that block outgoing mail (e.g. free InfinityFree) would lock the admin out, because the
+     * 2FA code never arrives. When the email fails, the login page shows the code instead; the
+     * password has already been checked at this point.
+     */
+    private static function admin2faFallbackNotice(array $mailResult, string $code): void
+    {
+        if (!empty($mailResult['success'])) {
+            return;
+        }
+        $_SESSION['flash_success'] = Lang::locale() === 'so'
+            ? "Furahaagu wuu saxan yahay. Email-ka lama diri karo hadda, markaa koodhkaaga amniga waa: {$code}"
+            : "Password verified. The email could not be sent right now, so your security code is: {$code}";
+    }
+
     private static function admin2faResend(PDO $pdo): void
     {
         $locale = Lang::locale();
@@ -1235,7 +1251,7 @@ final class PortalController
             $twoFaCode .= $twoFaChars[random_int(0, $charsLen - 1)];
         }
 
-        MailService::sendAdmin2FACodeEmail($user['email'], $user['full_name'], $twoFaCode, $locale);
+        $twoFaMail = MailService::sendAdmin2FACodeEmail($user['email'], $user['full_name'], $twoFaCode, $locale);
 
         $stmt2fa = $pdo->prepare('
             INSERT INTO admin_2fa_codes (user_id, email, code_hash, attempts, is_used, expires_at)
@@ -1255,6 +1271,7 @@ final class PortalController
         $_SESSION['flash_success'] = $isSo
             ? 'Koodh cusub oo 8 xaraf/lambar ah ayaa laguugu soo diray email-kaaga ' . Security::e($user['email'])
             : ($isAr ? 'تم إرسال رمز أمان جديد مكون من 8 خانات إلى بريدك الإلكتروني.' : 'A fresh 8-character security code has been sent to ' . Security::e($user['email']));
+        self::admin2faFallbackNotice($twoFaMail, $twoFaCode);
 
         header('Location: ?route=login');
         exit;
