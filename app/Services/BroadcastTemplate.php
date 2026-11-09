@@ -70,7 +70,7 @@ final class BroadcastTemplate
     private static function words(string $locale): array
     {
         $so = [
-            'greeting' => 'Salaamu Calaykum',
+            'greeting' => 'Asc',
             'thanks' => 'Mahadsanid,',
             'role' => 'Maamulka SIMDA',
             'company' => 'SIMDA Microfinance',
@@ -83,7 +83,7 @@ final class BroadcastTemplate
             'why' => 'Fariintan waxaa laguu soo diray adigoo ah macmiil SIMDA.',
         ];
         $en = [
-            'greeting' => 'Hello',
+            'greeting' => 'Asc',
             'thanks' => 'Kind regards,',
             'role' => 'SIMDA Management',
             'company' => 'SIMDA Microfinance',
@@ -151,7 +151,7 @@ final class BroadcastTemplate
             // 2. Letter
             . '<tr><td dir="' . $dir . '" bgcolor="#FFFFFF" style="background:#FFFFFF;padding:32px 32px 8px;text-align:' . $align . ';">'
             . '<h1 style="margin:0 0 20px;font-size:20px;line-height:1.35;color:#123B32;font-weight:bold;">' . $e($subject) . '</h1>'
-            . '<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#2B3B34;">' . $e($w['greeting']) . ' ' . $e($name) . ',</p>'
+            . '<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#2B3B34;">' . $e($w['greeting']) . ' <strong style="color:#123B32;">' . $e($name) . '</strong>,</p>'
             . $paras
             . '</td></tr>'
 
@@ -185,16 +185,14 @@ final class BroadcastTemplate
 
     /**
      * WhatsApp text, written like a short letter (sent as the caption of the SIMDA logo picture):
-     * title, greeting, message, signature, then a two-line footer. No emoji or decorative lines.
+     * title, greeting with the client's name in bold, message, signature. No footer, emoji or decorative lines.
      */
     public static function whatsappText(string $name, string $subject, string $message, string $locale): string
     {
         $w = self::words($locale);
-        $c = self::contact();
         return "*{$subject}*\n\n"
-            . "{$w['greeting']} {$name},\n\n"
+            . "{$w['greeting']} *" . trim($name) . "*,\n\n"
             . trim($message) . "\n\n"
-            . "{$w['thanks']}\n*" . self::SIGNER_NAME . "*\n{$w['role']}\n\n"
-            . "_{$w['company']} · {$c['address']}_\n_{$c['phone']}_";
+            . "{$w['thanks']}\n*" . self::SIGNER_NAME . "*\n{$w['role']}";
     }
 }
