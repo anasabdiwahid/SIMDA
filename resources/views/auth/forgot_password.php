@@ -27,7 +27,7 @@ $i18n = [
         'btn_verify_otp' => 'Verify Code →',
         'btn_verifying' => 'Verifying...',
         'step3_title' => 'Set New Password',
-        'step3_sub' => 'Create a strong new password with at least 6 characters.',
+        'step3_sub' => 'Create a strong new password with at least 8 characters.',
         'new_pw_placeholder' => 'Enter New Password',
         'confirm_pw_placeholder' => 'Confirm New Password',
         'btn_save_pw' => 'Save New Password →',
@@ -56,7 +56,7 @@ $i18n = [
         'btn_verify_otp' => 'Xaqiiji Koodhka →',
         'btn_verifying' => 'Waa la hubinayaa...',
         'step3_title' => 'Sameyso Fure Cusub',
-        'step3_sub' => 'Fadlan sameyso fure cusub oo adag oo ugu yaraan 6 xaraf ah.',
+        'step3_sub' => 'Fadlan sameyso fure cusub oo adag oo ugu yaraan 8 xaraf ah.',
         'new_pw_placeholder' => 'Geli Furaha Cusub',
         'confirm_pw_placeholder' => 'Xaqiiji Furaha Cusub',
         'btn_save_pw' => 'Keydi Furaha Cusub →',
@@ -85,7 +85,7 @@ $i18n = [
         'btn_verify_otp' => 'تأكيد الرمز ←',
         'btn_verifying' => 'جاري التحقق...',
         'step3_title' => 'تعيين كلمة مرور جديدة',
-        'step3_sub' => 'يرجى إدخال كلمة مرور جديدة لا تقل عن 6 خانات.',
+        'step3_sub' => 'يرجى إدخال كلمة مرور جديدة لا تقل عن 8 خانات.',
         'new_pw_placeholder' => 'أدخل كلمة المرور الجديدة',
         'confirm_pw_placeholder' => 'تأكيد كلمة المرور الجديدة',
         'btn_save_pw' => 'حفظ كلمة المرور ←',
@@ -1028,13 +1028,13 @@ $t = $i18n[$locale] ?? $i18n['en'];
                 <form onsubmit="handleSavePassword(event)">
                     <div class="simda-fp-input-pill">
                         <span class="simda-fp-input-icon"><?= Icons::svg('lock', 18) ?></span>
-                        <input type="password" id="inputNewPassword" class="simda-fp-input" placeholder="<?= Security::e($t['new_pw_placeholder']) ?>" required minlength="6" autocomplete="new-password">
+                        <input type="password" id="inputNewPassword" class="simda-fp-input" placeholder="<?= Security::e($t['new_pw_placeholder']) ?>" required minlength="8" autocomplete="new-password">
                         <button type="button" class="simda-pw-toggle" onclick="togglePasswordVisibility('inputNewPassword', this)">SHOW</button>
                     </div>
 
                     <div class="simda-fp-input-pill">
                         <span class="simda-fp-input-icon"><?= Icons::svg('lock', 18) ?></span>
-                        <input type="password" id="inputConfirmPassword" class="simda-fp-input" placeholder="<?= Security::e($t['confirm_pw_placeholder']) ?>" required minlength="6" autocomplete="new-password">
+                        <input type="password" id="inputConfirmPassword" class="simda-fp-input" placeholder="<?= Security::e($t['confirm_pw_placeholder']) ?>" required minlength="8" autocomplete="new-password">
                         <button type="button" class="simda-pw-toggle" onclick="togglePasswordVisibility('inputConfirmPassword', this)">SHOW</button>
                     </div>
 
@@ -1312,8 +1312,8 @@ $t = $i18n[$locale] ?? $i18n['en'];
         var loader = document.getElementById('fpCenterLoader');
         var loaderTitle = document.getElementById('loaderTitleText');
 
-        if (p1.length < 6) {
-            alertText.textContent = 'Furaha cusub waa inuu ka koobnaadaa ugu yaraan 6 xaraf.';
+        if (p1.length < 8) {
+            alertText.textContent = 'Furaha cusub waa inuu ka koobnaadaa ugu yaraan 8 xaraf.';
             alertBox.style.display = 'flex';
             return;
         }

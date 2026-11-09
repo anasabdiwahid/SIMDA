@@ -1482,10 +1482,10 @@ final class PortalController
             exit;
         }
 
-        if (strlen($newPassword) < 6) {
+        if (strlen($newPassword) < \App\Services\ClientAccountService::MIN_PASSWORD_LENGTH) {
             echo json_encode([
                 'success' => false,
-                'message' => $isSo ? 'Furaha cusub waa inuu ka koobnaadaa ugu yaraan 6 xaraf.' : 'Password must be at least 6 characters.'
+                'message' => $isSo ? 'Furaha cusub waa inuu ka koobnaadaa ugu yaraan 8 xaraf.' : 'Password must be at least 8 characters.'
             ]);
             exit;
         }
