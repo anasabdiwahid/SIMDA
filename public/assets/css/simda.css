@@ -8088,3 +8088,17 @@ html.srv-dlg-open { overflow: hidden; }
     .fid-page .fid-services-grid .fid-service-card > div:last-child { top: 16px; inset-inline-end: 16px; }
     .fid-page .fid-services-grid .fid-service-card .fid-circle-arrow { width: 26px; height: 26px; background: rgba(255, 255, 255, 0.92); }
 }
+
+/* "How it works" steps on phones: the three steps side by side, picture on top, title, short text. */
+@media (max-width: 680px) {
+    .fid-page .fid-steps-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px; }
+    .fid-page .fid-step-card { padding: 18px 8px 12px; border-radius: 14px; margin-top: 14px; text-align: center; }
+    .fid-page .fid-step-num { left: 50%; transform: translateX(-50%); }
+    .fid-page .fid-step-inner { flex-direction: column; align-items: center; gap: 8px; }
+    .fid-page .fid-step-inner img { width: 44px; height: 52px; }
+    .fid-page .fid-step-card h4 { font-size: 0.8rem !important; margin: 0 0 3px !important; line-height: 1.2; }
+    .fid-page .fid-step-card p {
+        font-size: 0.66rem !important; line-height: 1.35 !important;
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden;
+    }
+}
