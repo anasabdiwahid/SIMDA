@@ -7,23 +7,23 @@ use App\Helpers\Database;
 use PDO;
 
 /**
- * Module 9 — Credit Score Engine (0 to 100)
+ * Module 9 — Credit Score Engine (300 to 850), the formula documented in README section 4.
  *
- * New clients start at 0; trust is built payment by payment.
- *   + 5  per installment paid on time (or late with the charity charge waived)
- *   + 10 per full early settlement
- *   - 3 / 8 / 15 per installment paid 1–7 / 8–30 / >30 days late
- *   - 5 / 10 / 20 per installment unpaid and 1–7 / 8–30 / >30 days overdue
- * Clamped to 0–100.
+ * New clients start at 600.
+ *   + 15 per installment paid on time (or paid late with the charity charge waived)
+ *   + 25 per full early settlement
+ *   - 10 / 25 / 45 per installment paid 1–7 / 8–30 / >30 days late
+ *   - 15 / 35 / 60 per installment still unpaid and 1–7 / 8–30 / >30 days overdue
+ * Clamped to 300–850. Waived charity charges never lower the score.
  *
- * Categories: new (no payments yet); otherwise 80+ excellent, 60+ good, 40+ fair, 20+ caution,
- * below 20 high_risk. A client who has never paid late is never placed below fair.
+ * Categories (README): new (no repayment history yet); otherwise 750+ excellent, 670+ good,
+ * 580+ fair, 480+ caution, below 480 high_risk.
  */
 final class CreditScoreEngine
 {
-    public const BASE_SCORE = 0;
-    public const MIN_SCORE = 0;
-    public const MAX_SCORE = 100;
+    public const BASE_SCORE = 600;
+    public const MIN_SCORE = 300;
+    public const MAX_SCORE = 850;
 
     public static function initializeForClient(int $clientId, ?PDO $pdo = null): void
     {
@@ -39,8 +39,8 @@ final class CreditScoreEngine
             'previous' => self::BASE_SCORE,
             'score' => self::BASE_SCORE,
             'delta' => 0,
-            'reason_en' => 'New client: score starts at 0 and grows with on-time payments.',
-            'reason_so' => 'Macmiil cusub: dhibcuhu waxay ka bilaabmaan 0, waxayna korayaan marka uu waqtiga ku bixiyo.',
+            'reason_en' => 'New client: score starts at 600 and changes with each repayment.',
+            'reason_so' => 'Macmiil cusub: dhibcuhu waxay ka bilaabmaan 600, waxayna isbeddelaan lacag-bixin kasta.',
         ]];
 
         $ins = $db->prepare("
@@ -48,9 +48,9 @@ final class CreditScoreEngine
                 client_id, current_score, previous_score, last_delta, score_category,
                 last_change_reason_so, last_change_reason_en, history_log
             ) VALUES (
-                :cid, 0, 0, 0, 'new',
-                'Macmiil cusub: dhibcuhu waxay ka bilaabmaan 0, waxayna korayaan marka uu waqtiga ku bixiyo.',
-                'New client: score starts at 0 and grows with on-time payments.',
+                :cid, 600, 600, 0, 'new',
+                'Macmiil cusub: dhibcuhu waxay ka bilaabmaan 600, waxayna isbeddelaan lacag-bixin kasta.',
+                'New client: score starts at 600 and changes with each repayment.',
                 :history
             )
         ");
@@ -112,18 +112,19 @@ final class CreditScoreEngine
 
                 if ($daysDiff <= 0) {
                     $onTimeCount++;
-                    $score += 5;
+                    $score += 15;
                 } elseif ($isWaived) {
-                    // Waived late charges do not penalize the client's score
+                    // Waived late charges do not penalize the client's score: counted as on time (README).
                     $onTimeCount++;
+                    $score += 15;
                 } else {
                     $lateCount++;
                     if ($daysDiff <= 7) {
-                        $score -= 3;
+                        $score -= 10;
                     } elseif ($daysDiff <= 30) {
-                        $score -= 8;
+                        $score -= 25;
                     } else {
-                        $score -= 15;
+                        $score -= 45;
                     }
                 }
             } elseif ((float) $inst['remaining_balance'] > 0 && $dueDate < $refDate) {
@@ -132,20 +133,20 @@ final class CreditScoreEngine
                     $lateCount++;
                     $daysOverdue = (int) ((strtotime($refDate) - strtotime($dueDate)) / 86400);
                     if ($daysOverdue <= 7) {
-                        $score -= 5;
+                        $score -= 15;
                     } elseif ($daysOverdue <= 30) {
-                        $score -= 10;
+                        $score -= 35;
                     } else {
-                        $score -= 20;
+                        $score -= 60;
                     }
                 }
             }
         }
 
         // Bonus for full early repayment
-        $score += ($earlySettlementsCount * 10);
+        $score += ($earlySettlementsCount * 25);
 
-        // Clamp to [0, 100]
+        // Clamp to [300, 850]
         $clampedScore = max(self::MIN_SCORE, min(self::MAX_SCORE, $score));
         $delta = $clampedScore - $previousScore;
         $category = self::categoryForScore($clampedScore, $onTimeCount + $lateCount + $earlySettlementsCount > 0, $lateCount > 0);
@@ -213,16 +214,16 @@ final class CreditScoreEngine
         if (!$hasHistory) {
             return 'new';
         }
-        if ($score >= 80) {
+        if ($score >= 750) {
             return 'excellent';
         }
-        if ($score >= 60) {
+        if ($score >= 670) {
             return 'good';
         }
-        if ($score >= 40 || !$everLate) {
+        if ($score >= 580) {
             return 'fair';
         }
-        if ($score >= 20) {
+        if ($score >= 480) {
             return 'caution';
         }
         return 'high_risk';

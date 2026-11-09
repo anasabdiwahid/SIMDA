@@ -229,7 +229,7 @@ $kpis = [
                                                     <span class="num-tabular"><?= Security::e($q['client_code']) ?></span>
                                                 </div>
                                                 <?php $scoreCat = (string) ($q['score_category'] ?? 'new'); ?>
-                                                <span class="rqd-score is-<?= Security::e(\App\Services\CreditScoreEngine::tone($scoreCat)) ?>" title="<?= $isSo ? 'Dhibcaha credit-ka (0–100). Macmiil cusub wuxuu ka bilaabaa 0; waxay korayaan marka uu waqtiga ku bixiyo.' : 'Credit score (0–100). New clients start at 0; it grows with on-time payments.' ?>">
+                                                <span class="rqd-score is-<?= Security::e(\App\Services\CreditScoreEngine::tone($scoreCat)) ?>" title="<?= $isSo ? 'Dhibcaha credit-ka (300–850). Macmiil cusub wuxuu ka bilaabaa 600; waxay isbeddelaan lacag-bixin kasta.' : 'Credit score (300–850). New clients start at 600; it changes with every repayment.' ?>">
                                                     <b class="num-tabular"><?= (int) ($q['current_score'] ?? 0) ?></b>
                                                     <small><?= Security::e(\App\Services\CreditScoreEngine::label($scoreCat, $isSo)) ?></small>
                                                 </span>

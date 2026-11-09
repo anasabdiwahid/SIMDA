@@ -248,7 +248,7 @@ TXT;
         $lines[] = '- To apply: visit a branch (or contact SIMDA) with a national ID or passport, details of your business or income, and at least one guarantor. A loan officer reviews the request; larger amounts also need branch manager or general manager approval.';
         $lines[] = '- Clients more than 30 days overdue on an active financing cannot take new financing until they catch up.';
         $lines[] = '- Solidarity groups: 3 to 10 clients with a group leader, approved by the branch manager; if one member is more than 30 days overdue, new group financing is paused for all.';
-        $lines[] = '- Credit score: from 0 to 100, starting at 0 for new clients; it rises with on-time repayment.';
+        $lines[] = '- Credit score: from 300 to 850, starting at 600 for new clients; on-time repayment raises it, late repayment lowers it.';
         $lines[] = '- Client portal: every registered client has an account and signs in with their email or phone number; they are asked to change their password at first sign-in. In the portal they can see their financing, payment schedule and payments. Forgot password: use "Forgot Password?" on the login page.';
         $lines[] = '- Clients can get PDF statements of their financing from SIMDA.';
 

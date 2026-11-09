@@ -370,6 +370,21 @@ CREATE TABLE IF NOT EXISTS charity_charges (
     CONSTRAINT fk_charity_waiver FOREIGN KEY (waived_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 15b. CHARITY ACCOUNT USE (Module 8 — how collected late charges are given out; never institutional income)
+CREATE TABLE IF NOT EXISTS charity_payouts (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    branch_id INT UNSIGNED NULL,
+    amount DECIMAL(14,2) NOT NULL,
+    recipient VARCHAR(150) NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    paid_on DATE NOT NULL,
+    recorded_by INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cp_branch FOREIGN KEY (branch_id) REFERENCES branches(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_cp_recorder FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE RESTRICT,
+    INDEX idx_cp_paid_on (paid_on)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- 16. REPAYMENTS (Module 7 — Repayment Collection & Allocation)
 CREATE TABLE IF NOT EXISTS repayments (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -401,12 +416,12 @@ CREATE TABLE IF NOT EXISTS repayments (
     CONSTRAINT fk_rep_recorder FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 17. CREDIT SCORES (0 to 100, new clients start at 0)
+-- 17. CREDIT SCORES (300 to 850, new clients start at 600; formula in README section 4)
 CREATE TABLE IF NOT EXISTS credit_scores (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     client_id INT UNSIGNED NOT NULL UNIQUE,
-    current_score INT NOT NULL DEFAULT 0,
-    previous_score INT NOT NULL DEFAULT 0,
+    current_score INT NOT NULL DEFAULT 600,
+    previous_score INT NOT NULL DEFAULT 600,
     last_delta INT NOT NULL DEFAULT 0,
     score_category ENUM('new', 'excellent', 'good', 'fair', 'caution', 'high_risk') NOT NULL DEFAULT 'new',
     last_change_reason_so VARCHAR(255) NOT NULL,

@@ -15,7 +15,7 @@ $withFinancing = 0;
 $scoreSum = 0;
 $lowScore = 0;
 foreach ($clients as $c) {
-    $score = (int) ($c['current_score'] ?? 0);
+    $score = (int) ($c['current_score'] ?? 600);
     $scoreSum += $score;
     if ((int) ($c['active_financings'] ?? 0) > 0) {
         $withFinancing++;
@@ -27,7 +27,7 @@ foreach ($clients as $c) {
 $kpis = [
     ['label' => $isSo ? 'Macaamiisha' : 'Clients', 'value' => $total, 'sub' => $isSo ? 'La diiwaangeliyay' : 'Registered', 'icon' => 'users', 'tone' => 'info'],
     ['label' => $isSo ? 'Maalgelin Socota' : 'Active Financing', 'value' => $withFinancing, 'sub' => $isSo ? 'Macmiil lacag bixinaya' : 'Clients still paying', 'icon' => 'credit-card', 'tone' => 'green'],
-    ['label' => $isSo ? 'Celceliska Dhibcaha' : 'Average Score', 'value' => ($total > 0 ? (int) round($scoreSum / $total) : 0) . '/100', 'sub' => $isSo ? 'Dhibcaha credit-ka (0–100)' : 'Credit score (0–100)', 'icon' => 'bar-chart', 'tone' => 'gold'],
+    ['label' => $isSo ? 'Celceliska Dhibcaha' : 'Average Score', 'value' => ($total > 0 ? (int) round($scoreSum / $total) : 600) . '/850', 'sub' => $isSo ? 'Dhibcaha credit-ka (300–850)' : 'Credit score (300–850)', 'icon' => 'bar-chart', 'tone' => 'gold'],
     ['label' => $isSo ? 'Khatar / Taxaddar' : 'At Risk', 'value' => $lowScore, 'sub' => $isSo ? 'Waqtiga kuma bixiyaan' : 'Paid late before', 'icon' => 'alert-triangle', 'tone' => $lowScore > 0 ? 'danger' : 'muted'],
 ];
 
@@ -168,7 +168,7 @@ $labels = [
                     <tbody id="clientRows" data-filter-list>
                         <?php foreach ($clients as $c): ?>
                             <?php
-                            $score = (int) ($c['current_score'] ?? 0);
+                            $score = (int) ($c['current_score'] ?? 600);
                             $scoreCat = (string) ($c['score_category'] ?? 'new');
                             $scoreTone = \App\Services\CreditScoreEngine::tone($scoreCat);
                             $activeCount = (int) ($c['active_financings'] ?? 0);
@@ -221,7 +221,7 @@ $labels = [
                                 </td>
 
                                 <td class="num-tabular" data-label="<?= Security::e($labels['score']) ?>" onclick="handleClientRowClick(<?= $cJson ?>)">
-                                    <span class="adm-role dash-tone-<?= $scoreTone ?>"><?= $score ?>/100 &bull; <?= Security::e(\App\Services\CreditScoreEngine::label($scoreCat, $isSo)) ?></span>
+                                    <span class="adm-role dash-tone-<?= $scoreTone ?>"><?= $score ?>/850 &bull; <?= Security::e(\App\Services\CreditScoreEngine::label($scoreCat, $isSo)) ?></span>
                                     <span class="fin-sub">
                                         <?= (int) $c['guarantors_count'] ?> <?= $isSo ? 'damiin' : 'guarantor(s)' ?>
                                         <?php if ($activeCount > 0): ?>

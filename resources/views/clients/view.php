@@ -34,7 +34,7 @@ $dash = static fn($v): string => ($v === null || $v === '') ? '—' : (string) $
                 <span class="num-tabular"><?= Security::e((string) $c['client_code']) ?></span>
                 <span><?= Icons::svg('phone', 13) ?> <?= Security::e((string) $c['phone']) ?></span>
                 <span><?= Icons::svg('building', 13) ?> <?= Security::e($dash($c['branch_name'])) ?></span>
-                <span><?= Icons::svg('activity', 13) ?> <?= $isSo ? 'Dhibcaha' : 'Score' ?> <?= (int) ($c['current_score'] ?? 0) ?>/100 · <?= Security::e(\App\Services\CreditScoreEngine::label((string) ($c['score_category'] ?? 'new'), $isSo)) ?></span>
+                <span><?= Icons::svg('activity', 13) ?> <?= $isSo ? 'Dhibcaha' : 'Score' ?> <?= (int) ($c['current_score'] ?? 600) ?>/850 · <?= Security::e(\App\Services\CreditScoreEngine::label((string) ($c['score_category'] ?? 'new'), $isSo)) ?></span>
             </div>
         </div>
     </div>
