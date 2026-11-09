@@ -2,7 +2,7 @@
     RewriteEngine On
 
     # Block direct browser access to sensitive directories and dotfiles
-    RewriteRule ^(\.env|\.git|app|config|database|resources|routes|storage|tests|docs|whatsapp-gateway)(/|$) - [F,L]
+    RewriteRule ^(\.env|\.git|app|config|database|resources|routes|storage|tests|docs|whatsapp-gateway|brand/_src)(/|$) - [F,L]
 
     # Route static assets from public/assets if requested from root
     RewriteCond %{REQUEST_URI} ^/SIMDA/assets/(.*)$ [NC]
