@@ -8072,3 +8072,19 @@ html.srv-dlg-open { overflow: hidden; }
 .fid-nav.fid-nav-tighter .fid-nav-links { gap: 9px; }
 .fid-nav.fid-nav-tighter .fid-nav-links a { font-size: 0.8rem; }
 .fid-nav.fid-nav-tighter .fid-btn-green { padding-left: 16px; padding-right: 16px; }
+
+/* Home services on phones: two cards per row, picture on top, title, short text, arrow in the corner.
+   (Very narrow screens keep one per row.) */
+@media (min-width: 340px) and (max-width: 680px) {
+    .fid-page .fid-services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px; }
+    .fid-page .fid-services-grid .fid-service-card { padding: 10px 10px 12px; border-radius: 16px; display: flex; flex-direction: column; }
+    .fid-page .fid-services-grid .fid-service-card > div:first-child { display: flex; flex-direction: column; }
+    .fid-page .fid-services-grid .fid-service-card .fid-service-illust { width: 100%; height: 92px; padding: 8px; margin: 0 0 10px; border-radius: 12px; }
+    .fid-page .fid-services-grid .fid-service-card h3 { font-size: 0.9rem; line-height: 1.25; margin: 0 0 4px; padding-inline-end: 0; }
+    .fid-page .fid-services-grid .fid-service-card p {
+        font-size: 0.74rem; line-height: 1.45;
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden;
+    }
+    .fid-page .fid-services-grid .fid-service-card > div:last-child { top: 16px; inset-inline-end: 16px; }
+    .fid-page .fid-services-grid .fid-service-card .fid-circle-arrow { width: 26px; height: 26px; background: rgba(255, 255, 255, 0.92); }
+}
