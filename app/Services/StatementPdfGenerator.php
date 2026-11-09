@@ -125,16 +125,16 @@ final class StatementPdfGenerator
         $lines[] = ['bold' => false, 'size' => 9, 'text' => str_repeat('-', 95)];
 
         $lines[] = ['bold' => true, 'size' => 10, 'text' => ($locale === 'so' ? '2. JADWALKA BIXINTA (INSTALLMENT SCHEDULE)' : '2. INSTALLMENT REPAYMENT SCHEDULE')];
-        $lines[] = ['bold' => true, 'size' => 8, 'text' => sprintf('%-4s %-12s %-12s %-12s %-12s %-12s %-12s %-10s', '#', 'Due Date', 'Principal', 'Profit', 'Total Due', 'Paid', 'Remaining', 'Status')];
+        $lines[] = ['bold' => true, 'size' => 8, 'text' => sprintf('%-4s %-16s %-12s %-12s %-12s %-12s %-12s %-10s', '#', 'Due Date', 'Principal', 'Profit', 'Total Due', 'Paid', 'Remaining', 'Status')];
 
         foreach ($data['installments'] as $inst) {
             $lines[] = [
                 'bold' => false,
                 'size' => 8,
                 'text' => sprintf(
-                    '%-4s %-12s $%-11s $%-11s $%-11s $%-11s $%-11s %-10s',
+                    '%-4s %-16s $%-11s $%-11s $%-11s $%-11s $%-11s %-10s',
                     $inst['installment_number'],
-                    $inst['due_date'],
+                    ScheduleEngine::formatDue($inst),
                     $inst['principal_due'],
                     $inst['profit_due'],
                     $inst['total_due'],

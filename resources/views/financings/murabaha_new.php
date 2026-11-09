@@ -190,25 +190,11 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
                 <span class="mf-step-num">3</span>
                 <div>
                     <h2><?= $isSo ? 'Muddada bixinta' : 'Repayment' ?></h2>
-                    <p><?= $isSo ? 'Inta bil ee uu ku bixinayo iyo habka qaybaha.' : 'How long the client has to pay, and how often.' ?></p>
+                    <p><?= $isSo ? 'Waqtiga uu ku bixinayo: daqiiqado, saacado, maalmo, toddobaadyo ama bilo.' : 'How long the client has to pay: minutes, hours, days, weeks or months.' ?></p>
                 </div>
             </header>
 
-            <div class="mf-label"><?= $isSo ? 'Muddada (bilood)' : 'Term (months)' ?></div>
-            <div class="mf-chips" role="radiogroup">
-                <?php foreach ($months as $m): ?>
-                    <label class="mf-chip">
-                        <input type="radio" name="term_installments" value="<?= $m ?>" <?= $m === 6 ? 'checked' : '' ?>>
-                        <span class="num-tabular"><?= $m ?></span>
-                    </label>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="mf-label"><?= $isSo ? 'Habka qaybaha' : 'Installments' ?></div>
-            <div class="mf-segment" role="radiogroup">
-                <label><input type="radio" name="repayment_frequency" value="monthly" checked><span><?= $isSo ? 'Bille' : 'Monthly' ?></span></label>
-                <label><input type="radio" name="repayment_frequency" value="weekly"><span><?= $isSo ? 'Toddobaadle' : 'Weekly' ?></span></label>
-            </div>
+            <?php $planCounts = [1, 3, 6, 12, 24, 36]; require __DIR__ . '/_repayment_plan.php'; ?>
         </section>
 
         <!-- 4. DETAILS -->
@@ -250,7 +236,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
             </div>
 
             <div class="mf-summary-amount">
-                <small id="sumPerLabel"><?= $isSo ? 'Qaybta bishii' : 'Monthly installment' ?></small>
+                <small id="sumPerLabel"><?= $isSo ? 'Qayb kasta' : 'Each installment' ?></small>
                 <div class="num-tabular" id="sideMonthlyInstallment">$0.00</div>
                 <small id="sideTermLabel"></small>
             </div>
@@ -400,8 +386,8 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
         const c = Math.max(0, parseFloat(cost.value) || 0);
         const q = Math.max(1, parseInt(qty.value, 10) || 1);
         const m = Math.max(0, parseFloat(markup.value) || 0);
-        const term = parseInt((document.querySelector('input[name="term_installments"]:checked') || {}).value || 6, 10);
-        const weekly = (document.querySelector('input[name="repayment_frequency"]:checked') || {}).value === 'weekly';
+        const plan = window.simdaPlan ? window.simdaPlan.read() : { count: 6, perLabel: '', description: '' };
+        const term = plan.count;
 
         const base = c * q;
         const profit = base * m / 100;
@@ -414,10 +400,8 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
         $('sideProfitDisplay').textContent = '+' + money(profit) + ' (' + m + '%)';
         $('sideTotalSellingDisplay').textContent = money(total);
         $('sideMonthlyInstallment').textContent = money(per);
-        $('sumPerLabel').textContent = weekly ? (isSo ? 'Qaybta toddobaadkii' : 'Weekly installment') : (isSo ? 'Qaybta bishii' : 'Monthly installment');
-        $('sideTermLabel').textContent = isSo
-            ? (term + ' qaybood' + (weekly ? ' oo toddobaadle ah' : ' oo bille ah'))
-            : (term + (weekly ? ' weekly' : ' monthly') + ' payments');
+        $('sumPerLabel').textContent = plan.perLabel;
+        $('sideTermLabel').textContent = plan.description;
         updateSummary();
     }
 
@@ -428,7 +412,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
     }
 
     document.querySelectorAll('input[name="catalog_item"]').forEach((r) => r.addEventListener('change', onItemChange));
-    document.querySelectorAll('input[name="term_installments"], input[name="repayment_frequency"]').forEach((r) => r.addEventListener('change', calculate));
+    if (window.simdaPlan) window.simdaPlan.onChange(calculate);
     [cost, qty, markup].forEach((el) => el.addEventListener('input', calculate));
     customName.addEventListener('input', updateSummary);
 

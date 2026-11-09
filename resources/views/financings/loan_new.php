@@ -117,21 +117,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
                 </div>
             </div>
 
-            <div class="mf-label"><?= $isSo ? 'Muddada (bilood)' : 'Term (months)' ?></div>
-            <div class="mf-chips" role="radiogroup">
-                <?php foreach ($months as $m): ?>
-                    <label class="mf-chip">
-                        <input type="radio" name="term_installments" value="<?= $m ?>" <?= $m === 6 ? 'checked' : '' ?>>
-                        <span class="num-tabular"><?= $m ?></span>
-                    </label>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="mf-label"><?= $isSo ? 'Habka qaybaha' : 'Installments' ?></div>
-            <div class="mf-segment" role="radiogroup">
-                <label><input type="radio" name="repayment_frequency" value="monthly" checked><span><?= $isSo ? 'Bille' : 'Monthly' ?></span></label>
-                <label><input type="radio" name="repayment_frequency" value="weekly"><span><?= $isSo ? 'Toddobaadle' : 'Weekly' ?></span></label>
-            </div>
+            <?php $planCounts = [1, 3, 6, 12, 24]; require __DIR__ . '/_repayment_plan.php'; ?>
         </section>
 
         <!-- 3. PURPOSE & PAYOUT -->
@@ -186,7 +172,7 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
             </div>
 
             <div class="mf-summary-amount">
-                <small id="sumPerLabel"><?= $isSo ? 'Qaybta bishii' : 'Monthly installment' ?></small>
+                <small id="sumPerLabel"><?= $isSo ? 'Qayb kasta' : 'Each installment' ?></small>
                 <div class="num-tabular" id="summaryMonthly">$0.00</div>
                 <small id="summaryTermLabel"></small>
             </div>
@@ -300,17 +286,15 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
 
     function calculate() {
         const a = Math.max(0, parseFloat(amount.value) || 0);
-        const term = parseInt((document.querySelector('input[name="term_installments"]:checked') || {}).value || 6, 10);
-        const weekly = (document.querySelector('input[name="repayment_frequency"]:checked') || {}).value === 'weekly';
+        const plan = window.simdaPlan ? window.simdaPlan.read() : { count: 6, perLabel: '', description: '' };
+        const term = plan.count;
         const provider = (document.querySelector('input[name="provider"]:checked') || {}).value || '';
 
         $('summaryPrincipal').textContent = money(a);
         $('summaryTotalDue').textContent = money(a);
         $('summaryMonthly').textContent = money(term > 0 ? a / term : a);
-        $('sumPerLabel').textContent = weekly ? (isSo ? 'Qaybta toddobaadkii' : 'Weekly installment') : (isSo ? 'Qaybta bishii' : 'Monthly installment');
-        $('summaryTermLabel').textContent = isSo
-            ? (term + ' qaybood' + (weekly ? ' oo toddobaadle ah' : ' oo bille ah'))
-            : (term + (weekly ? ' weekly' : ' monthly') + ' payments');
+        $('sumPerLabel').textContent = plan.perLabel;
+        $('summaryTermLabel').textContent = plan.description;
         $('sumClientName').textContent = selectedClient || (isSo ? 'Macmiil lama dooran' : 'No client selected');
         $('sumPayout').textContent = provider + (phone.value.trim() ? ' · ' + phone.value.trim() : '');
         quick.forEach((b) => b.classList.toggle('is-active', parseFloat(b.dataset.amount) === a));
@@ -319,7 +303,8 @@ $initials = static fn(string $n): string => mb_strtoupper(mb_substr(trim($n), 0,
     quick.forEach((b) => b.addEventListener('click', function () { amount.value = b.dataset.amount; calculate(); }));
     amount.addEventListener('input', calculate);
     phone.addEventListener('input', calculate);
-    document.querySelectorAll('input[name="term_installments"], input[name="repayment_frequency"], input[name="provider"]').forEach((r) => r.addEventListener('change', calculate));
+    document.querySelectorAll('input[name="provider"]').forEach((r) => r.addEventListener('change', calculate));
+    if (window.simdaPlan) window.simdaPlan.onChange(calculate);
 
     // ---------- Submit checks ----------
     $('loanNewForm').addEventListener('submit', function (e) {

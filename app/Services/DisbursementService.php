@@ -75,7 +75,10 @@ final class DisbursementService
                 throw new RuntimeException('Only approved applications can be disbursed. Current status: ' . $app['status']);
             }
 
-            $disbDateTimeStr = $disbursementDate ? $disbursementDate . ' 10:00:00' : date('Y-m-d H:i:s');
+            // Paid out today -> the real time (minute / hour schedules count from it); a past/future date -> 10:00.
+            $disbDateTimeStr = ($disbursementDate && substr($disbursementDate, 0, 10) !== date('Y-m-d'))
+                ? substr($disbursementDate, 0, 10) . ' 10:00:00'
+                : date('Y-m-d H:i:s');
             $disbDateOnly = substr($disbDateTimeStr, 0, 10);
 
             // Check 30-day expiry rule
@@ -108,7 +111,8 @@ final class DisbursementService
                 (string) $app['agreed_rate'],
                 (int) $app['term_installments'],
                 (string) $app['repayment_frequency'],
-                $disbDateOnly
+                $disbDateTimeStr,
+                max(1, (int) ($app['repayment_interval'] ?? 1))
             );
 
             $financingNumber = 'FIN-' . date('Ymd', strtotime($disbDateOnly)) . '-' . str_pad((string) $applicationId, 4, '0', STR_PAD_LEFT);
@@ -125,14 +129,14 @@ final class DisbursementService
                     financing_number, application_id, client_id, branch_id, product_id, group_id,
                     disbursed_by, product_type, approved_amount, admin_fee, net_disbursed_amount,
                     total_profit, ibra_discount, total_due, principal_paid, profit_paid, total_paid,
-                    outstanding_principal, outstanding_balance, term_installments, repayment_frequency,
+                    outstanding_principal, outstanding_balance, term_installments, repayment_frequency, repayment_interval,
                     agreed_rate, disbursement_provider, disbursement_reference, disbursement_phone,
                     disbursed_at, maturity_date, status, calculation_inputs
                 ) VALUES (
                     :fin_no, :app_id, :client_id, :branch_id, :product_id, :group_id,
                     :disb_by, :prod_type, :approved_amt, :admin_fee, :net_disb,
                     :tot_profit, 0.00, :tot_due, 0.00, 0.00, 0.00,
-                    :out_prin, :out_bal, :term, :freq,
+                    :out_prin, :out_bal, :term, :freq, :interval,
                     :rate, :provider, :tx_ref, :phone,
                     :disb_at, :maturity, \'active\', :calc_inputs
                 )
@@ -156,6 +160,7 @@ final class DisbursementService
                 ':out_bal' => $schedule['total_due'],
                 ':term' => $schedule['term_installments'],
                 ':freq' => $schedule['frequency'],
+                ':interval' => $schedule['interval'],
                 ':rate' => $schedule['rate'],
                 ':provider' => $provider,
                 ':tx_ref' => $txRef,
@@ -169,11 +174,11 @@ final class DisbursementService
 
             $insInst = $db->prepare('
                 INSERT INTO installments (
-                    financing_id, installment_number, original_due_date, due_date, was_friday_shifted,
+                    financing_id, installment_number, original_due_date, due_date, due_at, was_friday_shifted,
                     principal_due, profit_due, total_due, principal_paid, profit_paid, total_paid,
                     remaining_balance, principal_balance_after, status
                 ) VALUES (
-                    :fin_id, :inst_no, :orig_due, :due, :shifted,
+                    :fin_id, :inst_no, :orig_due, :due, :due_at, :shifted,
                     :prin_due, :prof_due, :tot_due, 0.00, 0.00, 0.00,
                     :rem_bal, :prin_after, \'pending\'
                 )
@@ -185,6 +190,7 @@ final class DisbursementService
                     ':inst_no' => $row['installment_number'],
                     ':orig_due' => $row['original_due_date'],
                     ':due' => $row['due_date'],
+                    ':due_at' => $row['due_at'],
                     ':shifted' => $row['was_friday_shifted'],
                     ':prin_due' => $row['principal_due'],
                     ':prof_due' => $row['profit_due'],

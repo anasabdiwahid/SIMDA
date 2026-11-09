@@ -55,9 +55,14 @@ $role = $user['role_slug'] ?? '';
             <div class="form-group">
                 <label>Repayment Frequency *</label>
                 <select id="calc_frequency" name="repayment_frequency" class="form-control" required>
-                    <option value="monthly">Monthly</option>
-                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly / Bille</option>
+                    <option value="weekly">Weekly / Toddobaadle</option>
+                    <option value="daily">Daily / Maalinle</option>
+                    <option value="hourly">Hourly / Saacadle</option>
+                    <option value="minutely">Every minute / Daqiiqad kasta</option>
                 </select>
+                <label style="margin-top:8px;display:block;">Every / Kasta (1 = each period, 2 = every 2nd …)</label>
+                <input type="number" name="repayment_interval" class="form-control num-tabular" min="1" max="1000" value="1" required>
                 <input type="hidden" id="calc_product_type" value="flat">
                 <input type="hidden" id="calc_rate" value="0.00">
             </div>
@@ -113,7 +118,7 @@ $role = $user['role_slug'] ?? '';
                         <td><?= Security::e($a['product_name_en']) ?></td>
                         <td class="num-tabular"><strong><?= Security::formatMoney($a['requested_amount']) ?></strong></td>
                         <td class="num-tabular"><?= Security::formatMoney($a['projected_total_due']) ?></td>
-                        <td class="num-tabular"><?= (int) $a['term_installments'] ?> (<?= Security::e($a['repayment_frequency']) ?>)</td>
+                        <td class="num-tabular"><?= Security::e(\App\Services\ScheduleEngine::describePlan((int) $a['term_installments'], (int) ($a['repayment_interval'] ?? 1), (string) $a['repayment_frequency'], \App\Helpers\Lang::locale())) ?></td>
                         <td><span class="badge badge-gold"><?= Security::e(\App\Services\FinancingDomainService::approverLabel((string) $a['required_approver_role'])) ?></span></td>
                         <td>
                             <span class="badge badge-<?= $a['status'] === 'approved' || $a['status'] === 'disbursed' ? 'success' : ($a['status'] === 'rejected' ? 'danger' : 'info') ?>">

@@ -1557,10 +1557,14 @@ final class PortalController
         $type = (string) ($_GET['product_type'] ?? 'flat');
         $principal = (float) ($_GET['principal'] ?? 1000);
         $rate = (float) ($_GET['rate'] ?? 0);
-        $term = max(1, min(60, (int) ($_GET['term'] ?? 5)));
+        $term = max(1, min(ScheduleEngine::MAX_INSTALLMENTS, (int) ($_GET['term'] ?? 5)));
         $freq = (string) ($_GET['frequency'] ?? 'monthly');
+        if (!isset(ScheduleEngine::FREQUENCIES[$freq])) {
+            $freq = 'monthly';
+        }
+        $interval = max(1, min(ScheduleEngine::MAX_INTERVAL, (int) ($_GET['interval'] ?? 1)));
 
-        $schedule = ScheduleEngine::generate($type, $principal, $rate, $term, $freq, date('Y-m-d'));
+        $schedule = ScheduleEngine::generate($type, $principal, $rate, $term, $freq, date('Y-m-d H:i:s'), $interval);
         echo json_encode(['status' => 'ok', 'schedule' => $schedule], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -2056,6 +2060,7 @@ final class PortalController
             'requested_amount' => $_POST['requested_amount'] ?? 0,
             'term_installments' => $_POST['term_installments'] ?? 6,
             'repayment_frequency' => $_POST['repayment_frequency'] ?? 'monthly',
+            'repayment_interval' => $_POST['repayment_interval'] ?? 1,
             'purpose' => $_POST['purpose'] ?? '',
             'murabaha_goods_description' => $_POST['murabaha_goods_description'] ?? '',
         ], (int) $user['id'], $submitImmediately, date('Y-m-d'), $pdo);
@@ -2463,6 +2468,31 @@ final class PortalController
         ]);
     }
 
+    /**
+     * Repayment plan from the cash-loan / Murabaha forms:
+     *   payment_mode = installments | single, repayment_frequency = minutely|hourly|daily|weekly|monthly,
+     *   repayment_interval = units between payments (single: units until the one payment),
+     *   term_installments = number of payments (1 for single).
+     * @return array{0:int,1:string,2:int} [installments, unit, interval]
+     */
+    private static function readRepaymentPlan(bool $isSo): array
+    {
+        $unit = (string) ($_POST['repayment_frequency'] ?? 'monthly');
+        if (!isset(ScheduleEngine::FREQUENCIES[$unit])) {
+            throw new \RuntimeException($isSo ? 'Dooro muddo sax ah: daqiiqo, saac, maalin, toddobaad ama bil.' : 'Choose a valid period: minutes, hours, days, weeks or months.');
+        }
+        $interval = (int) ($_POST['repayment_interval'] ?? 1);
+        if ($interval < 1 || $interval > ScheduleEngine::MAX_INTERVAL) {
+            throw new \RuntimeException($isSo ? 'Waqtiga u dhexeeya lacag-bixinta waa 1 ilaa ' . ScheduleEngine::MAX_INTERVAL . '.' : 'Time between payments must be 1 to ' . ScheduleEngine::MAX_INTERVAL . '.');
+        }
+        $single = ((string) ($_POST['payment_mode'] ?? 'installments')) === 'single';
+        $term = $single ? 1 : (int) ($_POST['term_installments'] ?? 6);
+        if ($term < 1 || $term > ScheduleEngine::MAX_INSTALLMENTS) {
+            throw new \RuntimeException($isSo ? 'Tirada qaybaha waa 1 ilaa ' . ScheduleEngine::MAX_INSTALLMENTS . '.' : 'Number of installments must be 1 to ' . ScheduleEngine::MAX_INSTALLMENTS . '.');
+        }
+        return [$term, $unit, $interval];
+    }
+
     private static function loanSubmit(PDO $pdo): void
     {
         $user = AuthMiddleware::requireRoles(['admin', 'branch_manager', 'loan_officer', 'manager']);
@@ -2472,8 +2502,7 @@ final class PortalController
 
         $clientId = (int) ($_POST['client_id'] ?? 0);
         $amount = (float) ($_POST['requested_amount'] ?? 0);
-        $term = (int) ($_POST['term_installments'] ?? 6);
-        $frequency = (string) ($_POST['repayment_frequency'] ?? 'monthly');
+        [$term, $frequency, $interval] = self::readRepaymentPlan($isSo);
         $purpose = trim((string) ($_POST['purpose'] ?? ''));
         $provider = trim((string) ($_POST['provider'] ?? 'EVC Plus'));
         $phone = trim((string) ($_POST['phone'] ?? ''));
@@ -2483,9 +2512,6 @@ final class PortalController
         }
         if ($amount < 100) {
             throw new \RuntimeException($isSo ? 'Qadarka daynta ugu yaraan waa $100.' : 'Minimum loan amount is $100.');
-        }
-        if ($term < 1 || $term > 60) {
-            throw new \RuntimeException($isSo ? 'Muddada bixinta waa 1 ilaa 60 bilood.' : 'Term must be between 1 and 60 months.');
         }
         if ($purpose === '') {
             $purpose = $isSo ? 'Maalgelin lacag cadaan ah (Qard Xasan)' : 'Zero-Riba Cash Loan Financing';
@@ -2534,7 +2560,8 @@ final class PortalController
             '0.00',
             $term,
             $frequency,
-            date('Y-m-d')
+            date('Y-m-d H:i:s'),
+            $interval
         );
 
         // Employees only submit a request; their Branch Manager approves it (see applicationReview).
@@ -2548,13 +2575,13 @@ final class PortalController
         $insApp = $pdo->prepare("
             INSERT INTO financing_applications (
                 application_number, client_id, branch_id, product_id, group_id, created_by,
-                requested_amount, term_installments, repayment_frequency, agreed_rate, agreed_admin_fee,
+                requested_amount, term_installments, repayment_frequency, repayment_interval, agreed_rate, agreed_admin_fee,
                 projected_profit, projected_total_due, purpose, murabaha_goods_description, notes,
                 calculation_snapshot, status, required_approver_role, reviewed_by, reviewed_at, decision_comments,
                 submitted_at, expires_at
             ) VALUES (
                 :app_no, :cid, :bid, :pid, NULL, :created_by,
-                :amt, :term, :freq, 0.0000, 0.00,
+                :amt, :term, :freq, :interval, 0.0000, 0.00,
                 0.00, :tot_due, :purpose, NULL, :notes,
                 :calc, :status, :req_role, :rev_by, " . ($isRequest ? 'NULL' : 'NOW()') . ", :decision,
                 NOW(), " . ($isRequest ? 'NULL' : 'DATE_ADD(NOW(), INTERVAL 30 DAY)') . "
@@ -2570,6 +2597,7 @@ final class PortalController
             ':amt' => $schedule['principal'],
             ':term' => $term,
             ':freq' => $frequency,
+            ':interval' => $interval,
             ':tot_due' => $schedule['total_due'],
             ':purpose' => $purpose,
             ':notes' => $meta,
@@ -2656,8 +2684,7 @@ final class PortalController
         $unitCost = (float) ($_POST['cost_price'] ?? 0);
         $qty = max(1, (int) ($_POST['quantity'] ?? 1));
         $markupPct = (float) ($_POST['markup_pct'] ?? 8.0);
-        $term = (int) ($_POST['term_installments'] ?? 6);
-        $frequency = (string) ($_POST['repayment_frequency'] ?? 'monthly');
+        [$term, $frequency, $interval] = self::readRepaymentPlan($isSo);
         $goodsDesc = trim((string) ($_POST['murabaha_goods_description'] ?? ''));
         $purpose = trim((string) ($_POST['purpose'] ?? ''));
         $goodsName = trim((string) ($_POST['goods_name'] ?? ''));
@@ -2716,7 +2743,8 @@ final class PortalController
             number_format($markupPct, 4, '.', ''),
             $term,
             $frequency,
-            date('Y-m-d')
+            date('Y-m-d H:i:s'),
+            $interval
         );
 
         // Employees only submit a request; their Branch Manager approves it. Senior roles issue directly.
@@ -2727,13 +2755,13 @@ final class PortalController
         $insApp = $pdo->prepare("
             INSERT INTO financing_applications (
                 application_number, client_id, branch_id, product_id, group_id, created_by,
-                requested_amount, term_installments, repayment_frequency, agreed_rate, agreed_admin_fee,
+                requested_amount, term_installments, repayment_frequency, repayment_interval, agreed_rate, agreed_admin_fee,
                 projected_profit, projected_total_due, purpose, murabaha_goods_description, notes,
                 calculation_snapshot, status, required_approver_role, reviewed_by, reviewed_at, decision_comments,
                 submitted_at, expires_at
             ) VALUES (
                 :app_no, :cid, :bid, :pid, NULL, :created_by,
-                :amt, :term, :freq, :rate, 0.00,
+                :amt, :term, :freq, :interval, :rate, 0.00,
                 :profit, :tot_due, :purpose, :goods, :notes,
                 :calc, :status, :req_role, :rev_by, " . ($isRequest ? 'NULL' : 'NOW()') . ", :decision,
                 NOW(), " . ($isRequest ? 'NULL' : 'DATE_ADD(NOW(), INTERVAL 30 DAY)') . "
@@ -2749,6 +2777,7 @@ final class PortalController
             ':amt' => $schedule['principal'],
             ':term' => $term,
             ':freq' => $frequency,
+            ':interval' => $interval,
             ':rate' => $schedule['rate'],
             ':profit' => $schedule['total_profit'],
             ':tot_due' => $schedule['total_due'],

@@ -899,7 +899,7 @@ HTML;
         $kind = $isMurabaha ? ($isSo ? 'Murabaxo' : 'Murabaha') : ($isSo ? 'Dayn lacag ah' : 'Cash loan');
         $number = (string) ($app['application_number'] ?? '');
         $amount = '$' . number_format((float) ($app['requested_amount'] ?? 0), 2);
-        $term = (int) ($app['term_installments'] ?? 0) . ' ' . ((($app['repayment_frequency'] ?? 'monthly') === 'weekly') ? ($isSo ? 'toddobaad' : 'weeks') : ($isSo ? 'bilood' : 'months'));
+        $term = ScheduleEngine::describePlan((int) ($app['term_installments'] ?? 0), (int) ($app['repayment_interval'] ?? 1), (string) ($app['repayment_frequency'] ?? 'monthly'), $isSo ? 'so' : 'en');
 
         $subject = $approved
             ? ($isSo ? "SIMDA: Codsigaaga waa la ansixiyay ({$number})" : "SIMDA: Your request was approved ({$number})")

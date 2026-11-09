@@ -421,6 +421,13 @@ final class FinancingDomainService
         $amount = (float) ($data['requested_amount'] ?? 0);
         $term = (int) ($data['term_installments'] ?? 0);
         $frequency = strtolower(trim((string) ($data['repayment_frequency'] ?? 'monthly')));
+        $interval = max(1, (int) ($data['repayment_interval'] ?? 1));
+        if (!isset(ScheduleEngine::FREQUENCIES[$frequency])) {
+            throw new RuntimeException('Choose a valid repayment period (minutes, hours, days, weeks or months).');
+        }
+        if ($interval > ScheduleEngine::MAX_INTERVAL) {
+            throw new RuntimeException('The time between payments is too long (max ' . ScheduleEngine::MAX_INTERVAL . ' units).');
+        }
         $purpose = trim((string) ($data['purpose'] ?? ''));
         $murabahaGoods = trim((string) ($data['murabaha_goods_description'] ?? ''));
         $notes = trim((string) ($data['notes'] ?? ''));
@@ -486,7 +493,7 @@ final class FinancingDomainService
             ));
         }
 
-        if ($product['allowed_frequency'] !== 'both' && $product['allowed_frequency'] !== $frequency) {
+        if ($product['allowed_frequency'] !== 'both' && $product['allowed_frequency'] !== $frequency) { // 'both' = any period unit
             throw new RuntimeException("This product only supports {$product['allowed_frequency']} installments.");
         }
 
@@ -504,7 +511,8 @@ final class FinancingDomainService
             $agreedRate,
             $term,
             $frequency,
-            $refDate
+            $refDate,
+            $interval
         );
 
         $requiredRole = self::requiredApproverRole($amount, $groupId !== null);
@@ -516,12 +524,12 @@ final class FinancingDomainService
         $ins = $db->prepare('
             INSERT INTO financing_applications (
                 application_number, client_id, branch_id, product_id, group_id, created_by,
-                requested_amount, term_installments, repayment_frequency, agreed_rate, agreed_admin_fee,
+                requested_amount, term_installments, repayment_frequency, repayment_interval, agreed_rate, agreed_admin_fee,
                 projected_profit, projected_total_due, purpose, murabaha_goods_description, notes,
                 calculation_snapshot, status, required_approver_role, submitted_at
             ) VALUES (
                 :app_no, :cid, :bid, :pid, :gid, :cby,
-                :amt, :term, :freq, :rate, :fee,
+                :amt, :term, :freq, :interval, :rate, :fee,
                 :prof, :tot, :purpose, :goods, :notes,
                 :snap, :status, :req_role, :sub_at
             )
@@ -536,6 +544,7 @@ final class FinancingDomainService
             ':amt' => $schedule['principal'],
             ':term' => $term,
             ':freq' => $frequency,
+            ':interval' => $interval,
             ':rate' => $agreedRate,
             ':fee' => $product['admin_fee'],
             ':prof' => $schedule['total_profit'],
@@ -706,7 +715,8 @@ final class FinancingDomainService
             (string) $app['agreed_rate'],
             $newTerm,
             (string) $app['repayment_frequency'],
-            date('Y-m-d')
+            date('Y-m-d'),
+            max(1, (int) ($app['repayment_interval'] ?? 1))
         );
 
         $requiredRole = self::requiredApproverRole($newAmount, !empty($app['group_id']));

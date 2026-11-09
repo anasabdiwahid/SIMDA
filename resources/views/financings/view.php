@@ -88,7 +88,7 @@ $charityCharges = $statement['charity_charges'];
                     <tr>
                         <td class="num-tabular"><strong>#<?= (int) $inst['installment_number'] ?></strong></td>
                         <td class="num-tabular">
-                            <?= Security::e($inst['due_date']) ?>
+                            <?= Security::e(\App\Services\ScheduleEngine::formatDue($inst)) ?>
                             <?php if ((int) $inst['was_friday_shifted'] === 1): ?>
                                 <span class="badge badge-gold" title="Shifted from Friday (<?= Security::e($inst['original_due_date']) ?>) to Saturday">Sat Shift</span>
                             <?php endif; ?>

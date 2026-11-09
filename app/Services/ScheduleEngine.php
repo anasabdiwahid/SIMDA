@@ -21,12 +21,29 @@ use InvalidArgumentException;
  * - Currency stored and returned with exact two decimal places.
  * - All installments sum EXACTLY to Total Due, Principal sum == Principal, Profit sum == Total Profit.
  * - Rounding differences are absorbed by the final installment.
- * - Supports 'weekly' (+7 days per period) and 'monthly' (+1 month per period) frequencies.
- * - Any installment due date falling on a Friday (ISO-8601 day 5) is automatically shifted to Saturday (+1 day).
+ * - Period unit: 'minutely' | 'hourly' | 'daily' | 'weekly' | 'monthly', with an interval (every N units).
+ *   One single payment = 1 installment with interval N (e.g. pay once after 30 minutes).
+ * - Day-based due dates (daily / weekly / monthly) falling on a Friday (ISO-8601 day 5) shift to Saturday (+1 day).
+ *   Minute / hour schedules keep their exact time (due_at) and are not shifted.
  * - Produces a reproducible `calculation_inputs` metadata payload.
  */
 final class ScheduleEngine
 {
+    /** Period unit => periods in one year (used to turn an annual rate into a per-period rate). */
+    public const FREQUENCIES = [
+        'minutely' => '525600',
+        'hourly' => '8760',
+        'daily' => '365',
+        'weekly' => '52',
+        'monthly' => '12',
+    ];
+
+    /** Limits for the number of installments and the units between them. */
+    public const MAX_INSTALLMENTS = 360;
+    public const MAX_INTERVAL = 1000;
+
+    /** Interval of the schedule being generated (set by generate()). */
+    private static int $interval = 1;
     /**
      * Generate a complete repayment schedule and summary.
      *
@@ -34,8 +51,9 @@ final class ScheduleEngine
      * @param string|float|int $principal Amount financed / Cost
      * @param string|float|int $rate Markup % (for murabaha) or Annual Profit Rate % (for flat / declining_balance)
      * @param int $termInstallments Number of installments (> 0)
-     * @param string $frequency 'weekly' | 'monthly'
-     * @param string $startDate YYYY-MM-DD (Application date for preview, or Disbursement date when activated)
+     * @param string $frequency 'minutely' | 'hourly' | 'daily' | 'weekly' | 'monthly'
+     * @param string $startDate YYYY-MM-DD or YYYY-MM-DD HH:MM:SS (application time for preview, disbursement time when activated)
+     * @param int $interval Units between installments (every N minutes / hours / days / weeks / months)
      * @return array{
      *   product_type: string,
      *   principal: string,
@@ -58,7 +76,8 @@ final class ScheduleEngine
         string|float|int $rate,
         int $termInstallments,
         string $frequency = 'monthly',
-        ?string $startDate = null
+        ?string $startDate = null,
+        int $interval = 1
     ): array {
         $productType = strtolower(trim($productType));
         if (!in_array($productType, ['murabaha', 'flat', 'declining_balance'], true)) {
@@ -68,8 +87,14 @@ final class ScheduleEngine
             throw new InvalidArgumentException('Term installments must be at least 1.');
         }
         $frequency = strtolower(trim($frequency));
-        if (!in_array($frequency, ['weekly', 'monthly'], true)) {
+        if (!isset(self::FREQUENCIES[$frequency])) {
             throw new InvalidArgumentException("Unsupported frequency: {$frequency}");
+        }
+        if ($interval < 1 || $interval > self::MAX_INTERVAL) {
+            throw new InvalidArgumentException('Interval must be between 1 and ' . self::MAX_INTERVAL . '.');
+        }
+        if ($termInstallments > self::MAX_INSTALLMENTS) {
+            throw new InvalidArgumentException('At most ' . self::MAX_INSTALLMENTS . ' installments.');
         }
 
         $principalCents = self::toCents($principal);
@@ -78,8 +103,16 @@ final class ScheduleEngine
         }
 
         $rateStr = number_format((float) $rate, 4, '.', '');
-        $baseDateStr = $startDate ? substr($startDate, 0, 10) : date('Y-m-d');
+        // Minute / hour schedules count from the exact start time; day-based ones from the start day.
+        if ($frequency === 'minutely' || $frequency === 'hourly') {
+            $baseDateStr = $startDate
+                ? (strlen($startDate) > 10 ? substr($startDate, 0, 19) : $startDate . ' ' . date('H:i:s'))
+                : date('Y-m-d H:i:s');
+        } else {
+            $baseDateStr = $startDate ? substr($startDate, 0, 10) : date('Y-m-d');
+        }
         $baseDate = new DateTimeImmutable($baseDateStr);
+        self::$interval = $interval;
 
         if ($productType === 'murabaha') {
             return self::calculateMurabaha($principalCents, $rateStr, $termInstallments, $frequency, $baseDate);
@@ -127,7 +160,7 @@ final class ScheduleEngine
     ): array {
         // Profit = Principal * Annual Rate * Number of Years
         // Number of years = term / 12 (for monthly) or term / 52 (for weekly)
-        $periodsPerYear = ($frequency === 'weekly') ? '52' : '12';
+        $periodsPerYear = self::periodsPerYear($frequency);
         $principalDec = self::fromCents($principalCents);
         $annualRateFraction = bcdiv($annualRateStr, '100', 10);
         $yearsDec = bcdiv((string) $term, $periodsPerYear, 10);
@@ -170,7 +203,7 @@ final class ScheduleEngine
 
         $installments = [];
         for ($i = 1; $i <= $term; $i++) {
-            [$origDue, $adjustedDue, $wasShifted] = self::computeDueDate($baseDate, $i, $frequency);
+            [$origDue, $adjustedDue, $wasShifted, $dueAt] = self::computeDueDate($baseDate, $i * self::$interval, $frequency);
 
             if ($i < $term) {
                 $instPrincipal = $regularPrincipalCents;
@@ -191,6 +224,7 @@ final class ScheduleEngine
                 'installment_number' => $i,
                 'original_due_date' => $origDue,
                 'due_date' => $adjustedDue,
+                'due_at' => $dueAt,
                 'was_friday_shifted' => $wasShifted ? 1 : 0,
                 'principal_due' => self::fromCents($instPrincipal),
                 'profit_due' => self::fromCents($instProfit),
@@ -208,7 +242,9 @@ final class ScheduleEngine
             'rate' => $rateStr,
             'term_installments' => $term,
             'frequency' => $frequency,
+            'interval' => self::$interval,
             'start_date' => $baseDate->format('Y-m-d'),
+            'maturity_at' => $lastInst['due_at'],
             'maturity_date' => $lastInst['due_date'],
             'total_profit' => self::fromCents($totalProfitCents),
             'total_due' => self::fromCents($totalDueCents),
@@ -222,7 +258,8 @@ final class ScheduleEngine
                 'rate_pct' => $rateStr,
                 'term_installments' => $term,
                 'frequency' => $frequency,
-                'start_date' => $baseDate->format('Y-m-d'),
+                'interval' => self::$interval,
+                'start_date' => $baseDate->format('Y-m-d H:i:s'),
                 'friday_shift_rule' => 'Friday (ISO-5) -> Saturday (ISO-6)',
                 'formula' => $formulaNote,
             ],
@@ -236,7 +273,7 @@ final class ScheduleEngine
         string $frequency,
         DateTimeImmutable $baseDate
     ): array {
-        $periodsPerYear = ($frequency === 'weekly') ? '52' : '12';
+        $periodsPerYear = self::periodsPerYear($frequency);
         $annualRateFraction = bcdiv($annualRateStr, '100', 12);
         $periodicRateStr = bcdiv($annualRateFraction, $periodsPerYear, 12);
         $periodicRateFloat = (float) $periodicRateStr;
@@ -271,7 +308,7 @@ final class ScheduleEngine
         $installments = [];
 
         for ($i = 1; $i <= $term; $i++) {
-            [$origDue, $adjustedDue, $wasShifted] = self::computeDueDate($baseDate, $i, $frequency);
+            [$origDue, $adjustedDue, $wasShifted, $dueAt] = self::computeDueDate($baseDate, $i * self::$interval, $frequency);
 
             $remPrincipalDec = self::fromCents($remainingPrincipalCents);
             $periodProfitRaw = bcmul($remPrincipalDec, $periodicRateStr, 6);
@@ -297,6 +334,7 @@ final class ScheduleEngine
                 'installment_number' => $i,
                 'original_due_date' => $origDue,
                 'due_date' => $adjustedDue,
+                'due_at' => $dueAt,
                 'was_friday_shifted' => $wasShifted ? 1 : 0,
                 'principal_due' => self::fromCents($instPrincipalCents),
                 'profit_due' => self::fromCents($instProfitCents),
@@ -315,7 +353,9 @@ final class ScheduleEngine
             'rate' => $annualRateStr,
             'term_installments' => $term,
             'frequency' => $frequency,
+            'interval' => self::$interval,
             'start_date' => $baseDate->format('Y-m-d'),
+            'maturity_at' => $lastInst['due_at'],
             'maturity_date' => $lastInst['due_date'],
             'total_profit' => self::fromCents($totalProfitCents),
             'total_due' => self::fromCents($totalDueCents),
@@ -330,7 +370,8 @@ final class ScheduleEngine
                 'periodic_rate' => $periodicRateStr,
                 'term_installments' => $term,
                 'frequency' => $frequency,
-                'start_date' => $baseDate->format('Y-m-d'),
+                'interval' => self::$interval,
+                'start_date' => $baseDate->format('Y-m-d H:i:s'),
                 'friday_shift_rule' => 'Friday (ISO-5) -> Saturday (ISO-6)',
                 'formula' => 'Amortized declining balance: periodic profit = Outstanding Principal * (Annual Rate / PeriodsPerYear); final installment reconciles exact principal.',
             ],
@@ -344,11 +385,18 @@ final class ScheduleEngine
      */
     public static function computeDueDate(DateTimeImmutable $baseDate, int $periodIndex, string $frequency): array
     {
-        if ($frequency === 'weekly') {
-            $days = $periodIndex * 7;
-            $due = $baseDate->modify("+{$days} days");
-        } else {
-            $due = $baseDate->modify("+{$periodIndex} months");
+        $due = match ($frequency) {
+            'minutely' => $baseDate->modify("+{$periodIndex} minutes"),
+            'hourly' => $baseDate->modify("+{$periodIndex} hours"),
+            'daily' => $baseDate->modify("+{$periodIndex} days"),
+            'weekly' => $baseDate->modify('+' . ($periodIndex * 7) . ' days'),
+            default => $baseDate->modify("+{$periodIndex} months"),
+        };
+
+        // Minute / hour schedules: exact moment, no Friday shift.
+        if ($frequency === 'minutely' || $frequency === 'hourly') {
+            $day = $due->format('Y-m-d');
+            return [$day, $day, false, $due->format('Y-m-d H:i:s')];
         }
 
         $originalStr = $due->format('Y-m-d');
@@ -357,7 +405,52 @@ final class ScheduleEngine
             $due = $due->modify('+1 day'); // Move Friday to Saturday
         }
 
-        return [$originalStr, $due->format('Y-m-d'), $wasFriday];
+        return [$originalStr, $due->format('Y-m-d'), $wasFriday, null];
+    }
+
+    /** Periods per year for a unit, divided by the interval (every N units). */
+    private static function periodsPerYear(string $frequency): string
+    {
+        return bcdiv(self::FREQUENCIES[$frequency] ?? '12', (string) max(1, self::$interval), 10);
+    }
+
+    /**
+     * Human description of a plan, e.g. "6 qaybood · bil kasta", "Hal mar · 30 daqiiqo kadib",
+     * "4 instalments · every 2 hours".
+     */
+    public static function describePlan(int $installments, int $interval, string $frequency, string $locale = 'so'): string
+    {
+        $interval = max(1, $interval);
+        $so = ['minutely' => ['daqiiqo', 'daqiiqo'], 'hourly' => ['saac', 'saacadood'], 'daily' => ['maalin', 'maalmood'], 'weekly' => ['toddobaad', 'toddobaad'], 'monthly' => ['bil', 'bilood']];
+        $en = ['minutely' => ['minute', 'minutes'], 'hourly' => ['hour', 'hours'], 'daily' => ['day', 'days'], 'weekly' => ['week', 'weeks'], 'monthly' => ['month', 'months']];
+        $ar = ['minutely' => ['دقيقة', 'دقائق'], 'hourly' => ['ساعة', 'ساعات'], 'daily' => ['يوم', 'أيام'], 'weekly' => ['أسبوع', 'أسابيع'], 'monthly' => ['شهر', 'أشهر']];
+        $u = ($locale === 'en' ? $en : ($locale === 'ar' ? $ar : $so))[$frequency] ?? $so['monthly'];
+        $span = $interval === 1 ? $u[0] : $interval . ' ' . $u[1];
+        if ($installments <= 1) {
+            if ($locale === 'en') {
+                return 'One payment · after ' . ($interval === 1 ? '1 ' : '') . $span;
+            }
+            if ($locale === 'ar') {
+                return 'دفعة واحدة · بعد ' . $span;
+            }
+            return 'Hal mar · ' . ($interval === 1 ? '1 ' : '') . $span . ' kadib';
+        }
+        if ($locale === 'en') {
+            return "{$installments} instalments · every {$span}";
+        }
+        if ($locale === 'ar') {
+            return "{$installments} أقساط · كل {$span}";
+        }
+        return "{$installments} qaybood · {$span} kasta";
+    }
+
+    /** Due moment for display: exact time for minute/hour schedules, the date otherwise. */
+    public static function formatDue(array $installment): string
+    {
+        if (!empty($installment['due_at'])) {
+            return date('Y-m-d H:i', strtotime((string) $installment['due_at']));
+        }
+        return (string) ($installment['due_date'] ?? '');
     }
 
     public static function toCents(string|float|int $amount): int
