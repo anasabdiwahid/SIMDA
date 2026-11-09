@@ -111,8 +111,11 @@ final class BroadcastTemplate
         return $locale === 'en' ? $en : ($locale === 'ar' ? $ar : $so);
     }
 
+
     /**
-     * The branded email. $hasLogo / $hasSignature say whether those images are attached (cid).
+     * The client email, laid out as a simple business letter:
+     * logo bar, title, greeting, message, signature, one quiet footer. $hasLogo / $hasSignature say
+     * whether those images are attached (cid).
      */
     public static function emailHtml(string $name, string $subject, string $message, string $locale, bool $hasLogo, bool $hasSignature): string
     {
@@ -121,76 +124,51 @@ final class BroadcastTemplate
         $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
         $dir = $locale === 'ar' ? 'rtl' : 'ltr';
         $align = $locale === 'ar' ? 'right' : 'left';
-        $font = "font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
-        $year = date('Y');
+        $font = "font-family:Arial,Helvetica,sans-serif;";
 
-        // Message paragraphs: blank lines split paragraphs, single line breaks stay.
         $paras = '';
         foreach (preg_split('/\R{2,}/u', trim($message)) ?: [] as $p) {
-            $paras .= '<p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#33443D;">' . nl2br($e(trim($p))) . '</p>';
+            $paras .= '<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#2B3B34;">' . nl2br($e(trim($p))) . '</p>';
         }
 
         $logo = $hasLogo
-            ? '<img src="cid:' . self::CID_LOGO . '" alt="SIMDA" width="230" style="display:block;margin:0 auto;width:230px;max-width:70%;height:auto;border:0;">'
-            : '<div style="' . $font . 'font-size:34px;font-weight:800;letter-spacing:4px;color:#FFFFFF;">SIMDA</div>';
-        $footLogo = $hasLogo
-            ? '<img src="cid:' . self::CID_LOGO . '" alt="SIMDA" width="130" style="display:block;width:130px;height:auto;border:0;margin:0 0 12px;">'
-            : '<div style="font-size:20px;font-weight:800;letter-spacing:3px;color:#FFFFFF;margin:0 0 10px;">SIMDA</div>';
+            ? '<img src="cid:' . self::CID_LOGO . '" alt="SIMDA" width="170" style="display:block;width:170px;height:auto;border:0;">'
+            : '<span style="font-size:24px;font-weight:bold;letter-spacing:3px;color:#FFFFFF;">SIMDA</span>';
         $signature = $hasSignature
-            ? '<img src="cid:' . self::CID_SIGNATURE . '" alt="' . $e(self::SIGNER_NAME) . '" width="200" style="display:block;width:200px;height:auto;border:0;margin:6px 0 2px;">'
+            ? '<img src="cid:' . self::CID_SIGNATURE . '" alt="" width="160" style="display:block;width:160px;height:auto;border:0;margin:4px 0 0;">'
             : '';
 
-        $pill = static fn (string $t, string $s): string =>
-            '<td width="33%" style="padding:0 4px;" valign="top"><div style="background:#F6F1E4;border:1px solid #EADFC4;border-radius:12px;padding:12px 8px;text-align:center;">'
-            . '<div style="font-size:14px;font-weight:800;color:#123B32;">' . $t . '</div>'
-            . '<div style="font-size:11.5px;color:#8A6A2A;margin-top:3px;">' . $s . '</div></div></td>';
+        return '<!DOCTYPE html><html lang="' . $e($locale) . '" dir="' . $dir . '"><head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>' . $e($subject) . '</title></head>'
+            . '<body style="margin:0;padding:0;background:#F2F2F0;' . $font . '">'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F2F0"><tr><td align="center" style="padding:24px 12px;">'
+            . '<table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:600px;max-width:100%;background:#FFFFFF;border:1px solid #E4E4E0;">'
 
-        return '<!DOCTYPE html><html lang="' . $e($locale) . '" dir="' . $dir . '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $e($subject) . '</title></head>'
-            . '<body style="margin:0;padding:0;background:#EEF1EE;' . $font . '">'
-            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EE;"><tr><td align="center" style="padding:28px 12px;">'
-            . '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#FFFFFF;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(18,59,50,0.10);">'
+            // 1. Logo bar
+            . '<tr><td bgcolor="#123B32" style="background:#123B32;padding:22px 32px;" align="' . $align . '">' . $logo . '</td></tr>'
+            . '<tr><td bgcolor="#D6B66C" style="height:3px;line-height:3px;font-size:0;background:#D6B66C;">&nbsp;</td></tr>'
 
-            // Header
-            . '<tr><td align="center" style="background:#123B32;background-image:linear-gradient(160deg,#1B5A47 0%,#123B32 55%,#0C2922 100%);padding:34px 24px 26px;">'
-            . $logo
-            . '<div style="margin-top:14px;font-size:10.5px;font-weight:700;letter-spacing:3px;color:#D6B66C;">SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</div>'
-            . '</td></tr>'
-            . '<tr><td style="height:5px;line-height:5px;font-size:0;background:#D6B66C;background-image:linear-gradient(90deg,#B8862B,#F6DB95,#B8862B);">&nbsp;</td></tr>'
-
-            // Body
-            . '<tr><td dir="' . $dir . '" style="padding:36px 40px 10px;text-align:' . $align . ';">'
-            . '<h1 style="margin:0 0 18px;font-size:22px;line-height:1.3;color:#123B32;font-weight:800;">' . $e($subject) . '</h1>'
-            . '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#1D2B26;">' . $e($w['greeting']) . ' <strong>' . $e($name) . '</strong>,</p>'
+            // 2. Letter
+            . '<tr><td dir="' . $dir . '" bgcolor="#FFFFFF" style="background:#FFFFFF;padding:32px 32px 8px;text-align:' . $align . ';">'
+            . '<h1 style="margin:0 0 20px;font-size:20px;line-height:1.35;color:#123B32;font-weight:bold;">' . $e($subject) . '</h1>'
+            . '<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#2B3B34;">' . $e($w['greeting']) . ' ' . $e($name) . ',</p>'
             . $paras
-            // Signature
-            . '<div style="margin-top:26px;padding-top:18px;border-top:1px solid #ECE7DD;">'
-            . '<div style="font-size:14px;color:#52635B;">' . $e($w['thanks']) . '</div>'
-            . $signature
-            . '<div style="font-size:16px;font-weight:800;color:#123B32;margin-top:4px;">' . $e(self::SIGNER_NAME) . '</div>'
-            . '<div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:#B8862B;text-transform:uppercase;margin-top:2px;">' . $e($w['role']) . '</div>'
-            . '</div>'
             . '</td></tr>'
 
-            // Values strip
-            . '<tr><td style="padding:22px 36px 30px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-            . $pill($e($w['p1']), $e($w['p1s'])) . $pill($e($w['p2']), $e($w['p2s'])) . $pill($e($w['p3']), $e($w['p3s']))
-            . '</tr></table></td></tr>'
+            // 3. Signature (white behind it so it stays readable in dark mode)
+            . '<tr><td dir="' . $dir . '" bgcolor="#FFFFFF" style="background:#FFFFFF;padding:8px 32px 30px;text-align:' . $align . ';">'
+            . '<p style="margin:0;font-size:15px;color:#2B3B34;">' . $e($w['thanks']) . '</p>'
+            . $signature
+            . '<p style="margin:6px 0 0;font-size:15px;font-weight:bold;color:#123B32;">' . $e(self::SIGNER_NAME) . '</p>'
+            . '<p style="margin:2px 0 0;font-size:13px;color:#6A756F;">' . $e($w['role']) . ', ' . $e($w['company']) . '</p>'
+            . '</td></tr>'
 
-            // Footer (like the website footer)
-            . '<tr><td dir="' . $dir . '" style="background:#0E2E27;padding:30px 40px 22px;text-align:' . $align . ';">'
-            . $footLogo
-            . '<div style="font-size:14px;font-weight:800;color:#FFFFFF;">' . $e($w['company']) . '</div>'
-            . '<div style="font-size:12px;color:#A9BDB4;margin-top:3px;line-height:1.5;">' . $e($w['full']) . '</div>'
-            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;"><tr>'
-            . '<td valign="top" style="font-size:12.5px;line-height:1.8;color:#DCE6E1;padding-' . ($dir === 'rtl' ? 'left' : 'right') . ':12px;">'
-            . '<div style="color:#D6B66C;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">' . $e($w['office']) . '</div>'
-            . $e($c['address']) . '<br>' . $e($w['reg']) . '</td>'
-            . '<td valign="top" style="font-size:12.5px;line-height:1.8;color:#DCE6E1;">'
-            . '<div style="color:#D6B66C;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">' . ($locale === 'so' ? 'Xiriirka' : ($locale === 'ar' ? 'اتصل بنا' : 'Contact')) . '</div>'
-            . '<span style="color:#DCE6E1;">' . $e($c['phone']) . '</span><br><span style="color:#DCE6E1;">' . $e($c['email']) . '</span></td>'
-            . '</tr></table>'
-            . '<div style="margin-top:20px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.12);font-size:11px;line-height:1.6;color:#8FA69C;">'
-            . '© ' . $year . ' ' . $e($w['rights']) . '<br>' . $e($w['why']) . '</div>'
+            // 4. Footer: one quiet block
+            . '<tr><td dir="' . $dir . '" bgcolor="#F7F6F2" style="background:#F7F6F2;border-top:1px solid #E4E4E0;padding:18px 32px;text-align:' . $align . ';font-size:12px;line-height:1.7;color:#6A756F;">'
+            . '<strong style="color:#123B32;">' . $e($w['company']) . '</strong> &middot; ' . $e($w['full']) . '<br>'
+            . $e($c['address']) . ' &middot; ' . $e($c['phone']) . '<br>'
+            . $e($c['email']) . '<br>'
+            . '<span style="color:#9AA39E;">&copy; ' . date('Y') . ' ' . $e($w['rights']) . ' ' . $e($w['why']) . '</span>'
             . '</td></tr>'
 
             . '</table></td></tr></table></body></html>';
@@ -201,22 +179,22 @@ final class BroadcastTemplate
         $w = self::words($locale);
         $c = self::contact();
         return "{$subject}\n\n{$w['greeting']} {$name},\n\n" . trim($message) . "\n\n"
-            . "{$w['thanks']}\n" . self::SIGNER_NAME . "\n{$w['role']}\n\n"
-            . "------------------------------\n"
-            . "{$w['company']}\n{$w['full']}\n{$w['office']}: {$c['address']}\n{$c['phone']}\n{$c['email']}\n"
-            . "{$w['p1']} · {$w['p2']} · {$w['p3']}\n\n© " . date('Y') . " {$w['rights']}";
+            . "{$w['thanks']}\n" . self::SIGNER_NAME . "\n{$w['role']}, {$w['company']}\n\n"
+            . "--\n{$w['company']} · {$w['full']}\n{$c['address']} · {$c['phone']}\n{$c['email']}";
     }
 
-    /** WhatsApp text (sent as the caption of the banner image when it fits). */
+    /**
+     * WhatsApp text, written like a short letter (sent as the caption of the SIMDA logo picture):
+     * title, greeting, message, signature, then a two-line footer. No emoji or decorative lines.
+     */
     public static function whatsappText(string $name, string $subject, string $message, string $locale): string
     {
         $w = self::words($locale);
         $c = self::contact();
-        $line = '━━━━━━━━━━━━━━━━';
-        return "*{$subject}*\n\n{$w['greeting']} *{$name}*,\n\n" . trim($message) . "\n\n"
-            . "{$w['thanks']}\n✍️ *" . self::SIGNER_NAME . "*\n_{$w['role']}_\n\n"
-            . "{$line}\n🏦 *{$w['company']}*\n_{$w['full']}_\n"
-            . "📍 {$c['address']}\n📞 {$c['phone']}\n✉️ {$c['email']}\n"
-            . "✅ {$w['p1']} · {$w['p2']} · {$w['p3']}\n{$line}";
+        return "*{$subject}*\n\n"
+            . "{$w['greeting']} {$name},\n\n"
+            . trim($message) . "\n\n"
+            . "{$w['thanks']}\n*" . self::SIGNER_NAME . "*\n{$w['role']}\n\n"
+            . "_{$w['company']} · {$c['address']}_\n_{$c['phone']}_";
     }
 }
