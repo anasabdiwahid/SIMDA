@@ -65,22 +65,24 @@ $pwaT = $pwaT ?? [
 
 <style>
 /* Sits right above the SIMDA AI robot (robot: bottom 30px, 90px tall). */
-.pwa-dl { position: fixed; bottom: 146px; inset-inline-end: 14px; z-index: 9999; pointer-events: none; }
+/* SIMDA colours: dark green button, gold arrow and edge (same as the site's green buttons). */
+.pwa-dl { position: fixed; bottom: 136px; inset-inline-end: 16px; z-index: 9999; pointer-events: none; }
 .pwa-dl[hidden] { display: none; }
 .pwa-dl-btn {
-    position: relative; display: inline-flex; align-items: center; gap: 10px;
-    padding: 12px 20px 13px; border: 0; border-radius: 14px; cursor: pointer;
-    font-family: inherit; font-weight: 900; font-size: 1.02rem; line-height: 1; letter-spacing: 0.06em; color: #FFFFFF;
-    background: linear-gradient(180deg, #F2493B 0%, #E0322A 100%);
-    box-shadow: 0 5px 0 #A9201A, 0 14px 26px rgba(224, 50, 42, 0.38);
-    text-shadow: 0 2px 0 rgba(120, 18, 12, 0.35);
+    position: relative; display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px 8px; border: 1px solid rgba(214, 182, 108, 0.55); border-radius: 10px; cursor: pointer;
+    font-family: inherit; font-weight: 800; font-size: 0.74rem; line-height: 1; letter-spacing: 0.07em; color: #FFFFFF;
+    background: linear-gradient(180deg, #1E5A4A 0%, #123B32 100%);
+    box-shadow: 0 3px 0 #0B261F, 0 8px 18px rgba(18, 59, 50, 0.32);
     pointer-events: auto; -webkit-tap-highlight-color: transparent;
     opacity: 0; transform: translateY(40px) scale(0.6); visibility: hidden;
 }
-.pwa-dl-btn:focus-visible { outline: 3px solid #D6B66C; outline-offset: 4px; }
-.pwa-dl-btn:active { transform: translateY(4px) !important; box-shadow: 0 1px 0 #A9201A, 0 6px 14px rgba(224, 50, 42, 0.35); }
-.pwa-dl-arrow { flex-shrink: 0; }
-.pwa-dl-hand { position: absolute; inset-inline-end: -14px; bottom: -24px; pointer-events: none; }
+.pwa-dl-btn:hover { background: linear-gradient(180deg, #236A57 0%, #164A3E 100%); }
+.pwa-dl-btn:focus-visible { outline: 3px solid #D6B66C; outline-offset: 3px; }
+.pwa-dl-btn:active { transform: translateY(3px) !important; box-shadow: 0 0 0 #0B261F, 0 4px 10px rgba(18, 59, 50, 0.3); }
+.pwa-dl-arrow { flex-shrink: 0; width: 14px; height: 14px; color: #D6B66C; }
+.pwa-dl-hand { position: absolute; inset-inline-end: -10px; bottom: -17px; width: 24px; height: 27px; pointer-events: none; }
+[data-theme="dark"] .pwa-dl-btn { border-color: rgba(214, 182, 108, 0.75); box-shadow: 0 3px 0 #06150F, 0 8px 18px rgba(0, 0, 0, 0.45); }
 [dir="rtl"] .pwa-dl-hand { transform: scaleX(-1); }
 
 /* Coming in: rises from below and bounces into place. Leaving: dips, then drops away. */
@@ -105,7 +107,7 @@ $pwaT = $pwaT ?? [
 @keyframes pwaClicks { 0%, 40% { opacity: 0; } 55%, 75% { opacity: 1; } 100% { opacity: 0; } }
 
 .pwa-help {
-    position: fixed; bottom: 206px; inset-inline-end: 14px; z-index: 10001; width: min(300px, calc(100vw - 28px));
+    position: fixed; bottom: 180px; inset-inline-end: 14px; z-index: 10001; width: min(300px, calc(100vw - 28px));
     padding: 16px 16px 14px; border-radius: 16px; background: #FFFFFF; color: #1D2B26;
     border: 1px solid #ECE7DD; box-shadow: 0 18px 40px rgba(18, 59, 50, 0.22); font-size: 0.88rem; line-height: 1.5;
     animation: pwaIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -118,9 +120,9 @@ $pwaT = $pwaT ?? [
 [data-theme="dark"] .pwa-help strong { color: #D6B66C; }
 
 @media (max-width: 680px) {
-    .pwa-dl { bottom: 130px; inset-inline-end: 10px; } /* phone robot: bottom 24px, 72px tall */
-    .pwa-dl-btn { padding: 10px 15px 11px; font-size: 0.9rem; gap: 8px; border-radius: 12px; }
-    .pwa-help { bottom: 184px; inset-inline-end: 10px; }
+    .pwa-dl { bottom: 122px; inset-inline-end: 12px; } /* phone robot: bottom 24px, 72px tall */
+    .pwa-dl-btn { padding: 6px 10px 7px; font-size: 0.68rem; }
+    .pwa-help { bottom: 164px; inset-inline-end: 10px; }
 }
 /* Chat open: get out of the way. */
 .aic.is-open ~ .pwa-dl, body:has(.aic.is-open) .pwa-dl { display: none; }
