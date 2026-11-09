@@ -10,10 +10,18 @@ $role = $user['role_slug'] ?? '';
 ?>
 
 <div class="card animate-in" style="margin-bottom:22px;">
+    <?php if ($role === 'client'): ?>
+    <?php $isSoR = Lang::locale() === 'so'; ?>
+    <h2 style="font-size:1.2rem;margin:6px 0;"><?= $isSoR ? 'Rasiidhadayda' : 'My Receipts' ?></h2>
+    <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:16px;">
+        <?= $isSoR ? 'Lacag kasta oo aad bixisay rasiidkeeda halkan ka eeg ama ka daabac.' : 'View or print the receipt for every payment you made.' ?>
+    </p>
+    <?php else: ?>
     <h2 style="font-size:1.2rem;margin:6px 0;"><?= Security::e(Lang::get('menu_repayment_history')) ?></h2>
     <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:16px;">
         Strict Allocation Order: <strong>(1) Outstanding Charity Late Charges</strong> → <strong>(2) Oldest Unpaid Installment</strong>. Supports full, partial, early settlement with Murabaha <em>Ibra</em> discount, and automatic Client Overpayment Credit retention.
     </p>
+    <?php endif; ?>
 
     <?php if (in_array($role, ['admin', 'loan_officer'], true) && !empty($activeFinancings)): ?>
     <form method="POST" action="?route=repayment_submit" style="background:var(--bg-elevated);padding:16px;border-radius:10px;margin-bottom:20px;" data-confirm="Record this repayment transaction and allocate across charity charges and installments?">

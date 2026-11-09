@@ -146,12 +146,18 @@ $prodName = match ($r['product_type'] ?? '') {
     <!-- TOP ACTIONS BAR -->
     <div class="receipt-actions" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
         <div style="display:flex;gap:10px;align-items:center;">
+            <?php if (($user['role_slug'] ?? '') === 'client'): ?>
+            <a href="?route=repayments" class="btn btn-sm btn-outline" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                <?= Icons::svg('arrow-left', 14) ?> <?= $isSo ? 'Rasiidhadayda' : 'My Receipts' ?>
+            </a>
+            <?php else: ?>
             <a href="?route=clients" class="btn btn-sm btn-outline" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
                 <?= Icons::svg('arrow-left', 14) ?> <?= $isSo ? 'Ku noqo Macaamiisha' : 'Back to Clients' ?>
             </a>
             <a href="?route=repayments" class="btn btn-sm btn-outline" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
                 <?= Icons::svg('activity', 14) ?> <?= $isSo ? 'Diiwaanka Rasiidhada' : 'All Repayments' ?>
             </a>
+            <?php endif; ?>
         </div>
         <button type="button" class="btn btn-sm btn-primary" onclick="window.print()" style="font-weight:800;display:inline-flex;align-items:center;gap:6px;padding:8px 20px;">
             <?= Icons::svg('printer', 15) ?> <?= $isSo ? 'Daabac Rasiidka (Print)' : 'Print Receipt' ?>

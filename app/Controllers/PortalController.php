@@ -3296,6 +3296,10 @@ final class PortalController
 
         $where = $repId > 0 ? 'r.id = :val' : 'r.receipt_number = :val';
         $param = $repId > 0 ? $repId : $receiptNo;
+        // A client may only open their own receipts (staff keep access to all, as before).
+        [$clientScope, $clientParams] = ($user['role_slug'] ?? '') === 'client'
+            ? self::scopeSql($user, 'r')
+            : ['', []];
 
         $stmt = $pdo->prepare("
             SELECT r.*,
@@ -3308,10 +3312,10 @@ final class PortalController
             INNER JOIN clients c ON c.id = r.client_id
             LEFT JOIN branches b ON b.id = r.branch_id
             LEFT JOIN users u ON u.id = r.recorded_by
-            WHERE {$where}
+            WHERE {$where} {$clientScope}
             LIMIT 1
         ");
-        $stmt->execute([':val' => $param]);
+        $stmt->execute([':val' => $param] + $clientParams);
         $repayment = $stmt->fetch();
 
         if (!$repayment) {
