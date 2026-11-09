@@ -201,5 +201,104 @@ final class CharityChargeService
         $stmt->execute([':id' => $chargeId]);
         return $stmt->fetch();
     }
+
+    /**
+     * Charity account report (brief, Module 8): what was assessed, collected, waived and is still owed,
+     * what was given out, and the balance left (collected − given out). Never counted as income.
+     * $branchId null = whole institution.
+     *
+     * @return array{assessed: string, collected: string, waived: string, outstanding: string, used: string, balance: string}
+     */
+    public static function accountSummary(?int $branchId = null, ?PDO $pdo = null): array
+    {
+        $db = $pdo ?? Database::connection();
+        $where = $branchId !== null ? ' WHERE branch_id = :bid ' : '';
+        $params = $branchId !== null ? [':bid' => $branchId] : [];
+
+        $st = $db->prepare("
+            SELECT COALESCE(SUM(amount), 0) AS assessed,
+                   COALESCE(SUM(amount_paid), 0) AS collected,
+                   COALESCE(SUM(CASE WHEN status = 'waived' THEN remaining_amount ELSE 0 END), 0) AS waived,
+                   COALESCE(SUM(CASE WHEN status <> 'waived' THEN remaining_amount ELSE 0 END), 0) AS outstanding
+            FROM charity_charges {$where}
+        ");
+        $st->execute($params);
+        $c = $st->fetch() ?: [];
+
+        $pu = $db->prepare("SELECT COALESCE(SUM(amount), 0) FROM charity_payouts {$where}");
+        $pu->execute($params);
+        $usedCents = ScheduleEngine::toCents((string) $pu->fetchColumn());
+        $collectedCents = ScheduleEngine::toCents((string) ($c['collected'] ?? '0'));
+
+        return [
+            'assessed' => ScheduleEngine::fromCents(ScheduleEngine::toCents((string) ($c['assessed'] ?? '0'))),
+            'collected' => ScheduleEngine::fromCents($collectedCents),
+            'waived' => ScheduleEngine::fromCents(ScheduleEngine::toCents((string) ($c['waived'] ?? '0'))),
+            'outstanding' => ScheduleEngine::fromCents(ScheduleEngine::toCents((string) ($c['outstanding'] ?? '0'))),
+            'used' => ScheduleEngine::fromCents($usedCents),
+            'balance' => ScheduleEngine::fromCents($collectedCents - $usedCents),
+        ];
+    }
+
+    /**
+     * Records money given out from the charity account. The amount must be positive and no more than
+     * the balance of that branch's account (or the whole institution's when $branchId is null).
+     * Logged in the audit log.
+     *
+     * @throws RuntimeException on invalid input or insufficient balance
+     */
+    public static function recordPayout(?int $branchId, string $amount, string $recipient, string $purpose, string $paidOn, int $userId, ?PDO $pdo = null): int
+    {
+        $db = $pdo ?? Database::connection();
+        $recipient = trim($recipient);
+        $purpose = trim($purpose);
+        $cents = ScheduleEngine::toCents($amount);
+        if ($cents <= 0) {
+            throw new RuntimeException('The amount must be greater than zero.');
+        }
+        if ($recipient === '' || $purpose === '') {
+            throw new RuntimeException('Recipient and purpose are required.');
+        }
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $paidOn);
+        if ($date === false || $date->format('Y-m-d') !== $paidOn || $paidOn > date('Y-m-d')) {
+            throw new RuntimeException('Enter a valid payout date that is not in the future.');
+        }
+        $balanceCents = ScheduleEngine::toCents(self::accountSummary($branchId, $db)['balance']);
+        if ($cents > $balanceCents) {
+            throw new RuntimeException('The charity account balance ($' . ScheduleEngine::fromCents($balanceCents) . ') is too low for this payout.');
+        }
+
+        $db->prepare('
+            INSERT INTO charity_payouts (branch_id, amount, recipient, purpose, paid_on, recorded_by)
+            VALUES (:bid, :amt, :rec, :pur, :d, :uid)
+        ')->execute([
+            ':bid' => $branchId,
+            ':amt' => ScheduleEngine::fromCents($cents),
+            ':rec' => mb_substr($recipient, 0, 150),
+            ':pur' => mb_substr($purpose, 0, 255),
+            ':d' => $paidOn,
+            ':uid' => $userId,
+        ]);
+        $id = (int) $db->lastInsertId();
+        AuditLogger::log('charity.payout', 'charity_payouts', $id, 'Charity payout of $' . ScheduleEngine::fromCents($cents) . " to {$recipient}: {$purpose}", [], $userId, $branchId);
+        return $id;
+    }
+
+    /** Payouts from the charity account, newest first. */
+    public static function payouts(?int $branchId = null, ?PDO $pdo = null): array
+    {
+        $db = $pdo ?? Database::connection();
+        $where = $branchId !== null ? ' WHERE cp.branch_id = :bid ' : '';
+        $st = $db->prepare("
+            SELECT cp.*, u.full_name AS recorded_by_name, b.name AS branch_name
+            FROM charity_payouts cp
+            LEFT JOIN users u ON u.id = cp.recorded_by
+            LEFT JOIN branches b ON b.id = cp.branch_id
+            {$where}
+            ORDER BY cp.paid_on DESC, cp.id DESC
+        ");
+        $st->execute($branchId !== null ? [':bid' => $branchId] : []);
+        return $st->fetchAll();
+    }
 }
 

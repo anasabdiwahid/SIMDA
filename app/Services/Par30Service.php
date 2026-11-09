@@ -113,6 +113,72 @@ final class Par30Service
     }
 
     /**
+     * PAR30 at the end of each of the last $months months (the current month up to today), for the trend
+     * chart. Rebuilt from live records, never stored or typed in:
+     *   outstanding at date D = total due − (profit + principal repaid on or before D), for financings
+     *                           disbursed by D and not closed before D;
+     *   at risk at date D     = that outstanding, for financings with an installment due more than
+     *                           30 days before D and not fully paid by D.
+     * A month with nothing outstanding is 0.00, not an error.
+     *
+     * @return list<array{month: string, label: string, par30: float, outstanding: string, at_risk: string}>
+     */
+    public static function monthlyTrend(int $months = 12, ?int $branchId = null, ?PDO $pdo = null): array
+    {
+        $db = $pdo ?? Database::connection();
+        $branchFilter = $branchId !== null ? ' AND f.branch_id = :bid ' : '';
+
+        $stmt = $db->prepare("
+            SELECT
+                COALESCE(SUM(owed.amount), 0) AS outstanding,
+                COALESCE(SUM(CASE WHEN owed.at_risk = 1 THEN owed.amount ELSE 0 END), 0) AS at_risk
+            FROM (
+                SELECT
+                    GREATEST(f.total_due - f.ibra_discount - COALESCE((
+                        SELECT SUM(r.allocated_to_profit + r.allocated_to_principal)
+                        FROM repayments r
+                        WHERE r.financing_id = f.id AND r.payment_date <= :d1
+                    ), 0), 0) AS amount,
+                    EXISTS (
+                        SELECT 1 FROM installments i
+                        WHERE i.financing_id = f.id
+                          AND DATEDIFF(:d2, i.due_date) > 30
+                          AND (i.paid_at IS NULL OR DATE(i.paid_at) > :d3)
+                    ) AS at_risk
+                FROM financings f
+                WHERE f.disbursed_at IS NOT NULL
+                  AND DATE(f.disbursed_at) <= :d4
+                  AND (f.closed_at IS NULL OR DATE(f.closed_at) > :d5)
+                  {$branchFilter}
+            ) owed
+        ");
+
+        $out = [];
+        $first = new \DateTimeImmutable('first day of this month');
+        for ($k = $months - 1; $k >= 0; $k--) {
+            $start = $first->modify("-{$k} months");
+            $end = $k === 0 ? new \DateTimeImmutable('today') : $start->modify('last day of this month');
+            $d = $end->format('Y-m-d');
+            $params = [':d1' => $d, ':d2' => $d, ':d3' => $d, ':d4' => $d, ':d5' => $d];
+            if ($branchId !== null) {
+                $params[':bid'] = $branchId;
+            }
+            $stmt->execute($params);
+            $row = $stmt->fetch() ?: ['outstanding' => 0, 'at_risk' => 0];
+            $outCents = ScheduleEngine::toCents((string) $row['outstanding']);
+            $riskCents = ScheduleEngine::toCents((string) $row['at_risk']);
+            $out[] = [
+                'month' => $start->format('Y-m'),
+                'label' => $start->format('M Y'),
+                'par30' => $outCents > 0 ? round($riskCents * 100 / $outCents, 2) : 0.0,
+                'outstanding' => ScheduleEngine::fromCents($outCents),
+                'at_risk' => ScheduleEngine::fromCents($riskCents),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * Branch-by-branch PAR30 breakdown.
      */
     public static function branchBreakdown(?string $referenceDate = null, ?PDO $pdo = null): array

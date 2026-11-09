@@ -110,6 +110,7 @@ final class PortalController
 
                 'charity_charges' => self::charityChargesList($pdo),
                 'charity_waive' => self::charityWaive($pdo),
+                'charity_payout' => self::charityPayout($pdo),
                 'credit_scores' => self::creditScoresList($pdo),
                 'par30', 'reports' => self::par30View($pdo, $route),
                 'sms_outbox' => self::smsOutboxList($pdo),
@@ -1754,7 +1755,7 @@ final class PortalController
 
         $_SESSION['flash_success'] = (Lang::locale() === 'so'
             ? "Macmiilka si guul leh ayaa loo diiwaangeliyay ({$res['client_code']}). Hadda waad siin kartaa dayn ama Murabaxo."
-            : "Client registered successfully ({$res['client_code']}) with verified Guarantor; credit score starts at 0 (of 100).") . $welcomeNote;
+            : "Client registered successfully ({$res['client_code']}) with verified Guarantor; credit score starts at 600 (300–850).") . $welcomeNote;
         unset($_SESSION['old_input']);
         header('Location: ?route=client_view&new=1&id=' . (int) $res['client_id']);
         exit;
@@ -2227,7 +2228,7 @@ final class PortalController
 
     private static function approvalQueue(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         $queue = FinancingDomainService::pendingRequestsFor($user, $pdo);
         $history = self::clientFinancingHistory($pdo, $user);
         $goodsImages = [];
@@ -2256,7 +2257,7 @@ final class PortalController
 
     private static function applicationReview(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
         $decision = (string) ($_POST['decision'] ?? '');
@@ -2318,7 +2319,7 @@ final class PortalController
 
     private static function disbursementsList(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         DisbursementService::expireStaleApprovals(null, $pdo);
 
         [$appScope, $appParams] = self::scopeSql($user, 'fa');
@@ -2352,7 +2353,7 @@ final class PortalController
 
     private static function disburseSubmit(PDO $pdo): void
     {
-        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager']);
+        $user = AuthMiddleware::requireRoles(['admin', 'manager', 'branch_manager', 'loan_officer']);
         AuthMiddleware::verifyCsrfOrAbort();
         $appId = (int) ($_POST['application_id'] ?? 0);
         $provider = (string) ($_POST['provider'] ?? 'EVC Plus');
@@ -2502,9 +2503,13 @@ final class PortalController
     }
 
     /** Employees (loan officers) cannot issue financing themselves: their loan / Murabaha becomes a request. */
+    /**
+     * Every new financing goes to the Requests queue, whoever creates it: the brief does not let the
+     * creator approve their own application, so someone else at the right level must decide it.
+     */
     private static function submitsAsRequest(array $user): bool
     {
-        return ($user['role_slug'] ?? '') === 'loan_officer';
+        return true;
     }
 
     /** A request belongs to the employee's own branch, so their Branch Manager decides it. */
@@ -3424,10 +3429,37 @@ final class PortalController
         $stmt->execute($params);
         $charges = $stmt->fetchAll();
 
+        // Charity account report: whole institution for admin / General Manager, own branch for other staff.
+        $role = (string) ($user['role_slug'] ?? '');
+        $isStaff = $role !== 'client';
+        $accountBranch = in_array($role, ['admin', 'manager'], true) ? null : (int) ($user['branch_id'] ?? 0);
+
         self::renderDashboard('risk/charity_charges.php', [
             'pageTitle' => Lang::get('menu_charity_charges'),
             'charges' => $charges,
+            'account' => $isStaff ? CharityChargeService::accountSummary($accountBranch, $pdo) : null,
+            'payouts' => $isStaff ? CharityChargeService::payouts($accountBranch, $pdo) : [],
         ]);
+    }
+
+    /** Records money given out from the charity account (Admin or Branch Manager). */
+    private static function charityPayout(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['admin', 'branch_manager']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $branchId = ($user['role_slug'] ?? '') === 'admin' ? null : (int) ($user['branch_id'] ?? 0);
+        CharityChargeService::recordPayout(
+            $branchId,
+            (string) ($_POST['amount'] ?? '0'),
+            (string) ($_POST['recipient'] ?? ''),
+            (string) ($_POST['purpose'] ?? ''),
+            (string) ($_POST['paid_on'] ?? date('Y-m-d')),
+            (int) $user['id'],
+            $pdo
+        );
+        $_SESSION['flash_success'] = Lang::t('Lacagta sadaqada ee la bixiyay waa la diiwaangeliyay.', 'Charity payout recorded.');
+        header('Location: ?route=charity_charges');
+        exit;
     }
 
     private static function charityWaive(PDO $pdo): void
@@ -3478,11 +3510,13 @@ final class PortalController
         $branchId = ($user['role_slug'] === 'admin') ? null : (int) $user['branch_id'];
         $par30 = Par30Service::calculate($branchId, null, $pdo);
         $branchBreakdown = Par30Service::branchBreakdown(null, $pdo);
+        $trend = Par30Service::monthlyTrend(12, $branchId, $pdo);
 
         self::renderDashboard('risk/par30.php', [
             'pageTitle' => Lang::get($route === 'reports' ? 'menu_financial_reports' : 'menu_par30'),
             'par30' => $par30,
             'branchBreakdown' => $branchBreakdown,
+            'trend' => $trend,
         ]);
     }
 
