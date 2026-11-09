@@ -1750,12 +1750,90 @@ final class PortalController
             'estimated_income' => $_POST['guarantor_income'] ?? '0.00',
         ], (int) $user['id'], $pdo);
 
-        $_SESSION['flash_success'] = Lang::locale() === 'so'
+        $welcomeNote = self::sendClientWelcome($pdo, (int) $res['client_id'], (int) $user['id']);
+
+        $_SESSION['flash_success'] = (Lang::locale() === 'so'
             ? "Macmiilka si guul leh ayaa loo diiwaangeliyay ({$res['client_code']}). Hadda waad siin kartaa dayn ama Murabaxo."
-            : "Client registered successfully ({$res['client_code']}) with verified Guarantor; credit score starts at 0 (of 100).";
+            : "Client registered successfully ({$res['client_code']}) with verified Guarantor; credit score starts at 0 (of 100).") . $welcomeNote;
         unset($_SESSION['old_input']);
         header('Location: ?route=client_view&new=1&id=' . (int) $res['client_id']);
         exit;
+    }
+
+    /**
+     * Welcomes a newly registered client by email and WhatsApp with their sign-in details
+     * (username + default password). An email is also mirrored to WhatsApp by MailService;
+     * a client without a real email address gets the WhatsApp message directly.
+     * Never throws: the client is already saved. Returns a short note for the staff flash message.
+     */
+    private static function sendClientWelcome(PDO $pdo, int $clientId, int $staffId): string
+    {
+        $isSo = Lang::locale() === 'so';
+        try {
+            $st = $pdo->prepare('
+                SELECT u.id, u.full_name, u.username, u.email, u.phone, b.id AS branch_id, b.code, b.name, b.city
+                FROM clients c
+                INNER JOIN users u ON u.id = c.user_id
+                LEFT JOIN branches b ON b.id = c.branch_id
+                WHERE c.id = :cid
+                LIMIT 1
+            ');
+            $st->execute([':cid' => $clientId]);
+            $acc = $st->fetch();
+            if (!$acc) {
+                return '';
+            }
+            $password = \App\Services\ClientAccountService::DEFAULT_PASSWORD;
+            $hasRealEmail = !str_ends_with(strtolower((string) $acc['email']), '@client.simda.so');
+
+            if ($hasRealEmail) {
+                $role = $pdo->query("SELECT id, slug, name_en, name_so FROM roles WHERE slug = 'client' LIMIT 1")->fetch()
+                    ?: ['slug' => 'client', 'name_so' => 'Macmiil', 'name_en' => 'Client'];
+                $branch = $acc['branch_id'] ? ['id' => $acc['branch_id'], 'code' => $acc['code'], 'name' => $acc['name'], 'city' => $acc['city']] : null;
+                $mail = MailService::sendWelcomeUserEmail($acc, $password, $branch, $role, 'so');
+                $waOk = !empty($mail['whatsapp']['success']);
+                AuditLogger::log(
+                    !empty($mail['success']) ? 'mail.welcome_sent' : 'mail.welcome_failed',
+                    'users',
+                    (int) $acc['id'],
+                    'Client welcome email to ' . $acc['email'] . (!empty($mail['success']) ? '' : ': ' . ($mail['error'] ?? 'unknown')) . ($waOk ? ' (+ WhatsApp)' : ''),
+                    [],
+                    $staffId
+                );
+                $mailOk = !empty($mail['success']);
+            } else {
+                $mailOk = false;
+                $text = "*SIMDA: Ku soo dhawoow, {$acc['full_name']}!*\n\n"
+                    . "Waxaa laguu diiwaangeliyay macmiil SIMDA ah. Akoonkaaga waad ku geli kartaa bogga SIMDA (guji Login):\n\n"
+                    . "- Username-ka: {$acc['username']}\n"
+                    . "- Ama lambarkaaga telefoonka: {$acc['phone']}\n"
+                    . "- Furaha Sirta ah (Password): {$password}\n\n"
+                    . "Markaad marka ugu horraysa gasho, fadlan beddel password-ka.\n\nMahadsanid, SIMDA.";
+                $wa = WhatsAppService::send((string) $acc['phone'], $text);
+                $waOk = !empty($wa['success']);
+                AuditLogger::log(
+                    $waOk ? 'whatsapp.welcome_sent' : 'whatsapp.welcome_failed',
+                    'users',
+                    (int) $acc['id'],
+                    'Client welcome WhatsApp to ' . $acc['phone'] . ($waOk ? '' : ': ' . ($wa['error'] ?? 'unknown')),
+                    [],
+                    $staffId
+                );
+            }
+
+            $sent = array_filter([$mailOk ? 'email' : null, $waOk ? 'WhatsApp' : null]);
+            if ($sent) {
+                return $isSo
+                    ? ' Fariinta soo dhawaynta iyo xogta gelitaanka waxaa loo diray ' . implode(' iyo ', $sent) . '.'
+                    : ' Welcome message with sign-in details sent by ' . implode(' and ', $sent) . '.';
+            }
+            return $isSo
+                ? " Fariinta soo dhawaynta lama diri karin. Sii macmiilka: username {$acc['username']}, password {$password}."
+                : " The welcome message could not be sent. Give the client: username {$acc['username']}, password {$password}.";
+        } catch (\Throwable $e) {
+            error_log('Client welcome failed: ' . $e->getMessage());
+            return '';
+        }
     }
 
     private static function clientCheckDuplicate(PDO $pdo): void
