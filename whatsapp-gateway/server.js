@@ -97,7 +97,11 @@ async function start() {
         logger,
         msgRetryCounterCache,
         // Lets Baileys resend a message a phone could not decrypt.
-        getMessage: async (key) => sentMessages.get(key.id),
+        getMessage: async (key) => {
+            const msg = sentMessages.get(key.id);
+            console.log('[gateway] Phone asked to resend ' + key.id + ' (' + (key.remoteJid || '?') + '): ' + (msg ? 'resending' : 'NOT FOUND'));
+            return msg;
+        },
         browser: Browsers.windows('SIMDA'),
         markOnlineOnConnect: false,
         qrTimeout: 60000,
@@ -109,6 +113,15 @@ async function start() {
     });
 
     sock.ev.on('creds.update', saveCreds);
+
+    // Delivery status of what we sent (2 = sent, 3 = delivered, 4 = read), for troubleshooting.
+    sock.ev.on('messages.update', (updates) => {
+        for (const u of updates) {
+            if (!u.key || !u.key.fromMe || !sentMessages.has(u.key.id)) continue;
+            const st = u.update && u.update.status;
+            if (st) console.log('[gateway] ' + u.key.id + ' status ' + st + ' (' + (u.key.remoteJid || '') + ')');
+        }
+    });
 
     sock.ev.on('connection.update', async (u) => {
         const { connection, lastDisconnect, qr } = u;
