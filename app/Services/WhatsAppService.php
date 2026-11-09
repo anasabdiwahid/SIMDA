@@ -76,20 +76,29 @@ final class WhatsAppService
             $payload = ['to_number' => $number, 'type' => 'text', 'message' => $message];
         }
 
+        $jsonPayload = (string) json_encode($payload, JSON_UNESCAPED_UNICODE);
         try {
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CONNECTTIMEOUT => 5,
-                CURLOPT_TIMEOUT => 12,
-                CURLOPT_HTTPHEADER => $headers,
-                CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
-            ]);
-            $body = curl_exec($ch);
-            $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlErr = curl_error($ch);
-            curl_close($ch);
+            if (function_exists('curl_init')) {
+                $ch = curl_init($url);
+                curl_setopt_array($ch, [
+                    CURLOPT_POST => true,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_CONNECTTIMEOUT => 5,
+                    CURLOPT_TIMEOUT => 12,
+                    CURLOPT_HTTPHEADER => $headers,
+                    CURLOPT_POSTFIELDS => $jsonPayload,
+                ]);
+                $body = curl_exec($ch);
+                $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlErr = curl_error($ch);
+                curl_close($ch);
+            } else {
+                // XAMPP often ships with the curl extension disabled: use PHP streams instead.
+                [$body, $status, $curlErr] = self::postWithStreams($url, $headers, $jsonPayload);
+            }
+            if ($body === false && self::provider() === 'local') {
+                $curlErr = 'WhatsApp gateway is not running (start whatsapp-gateway/start-whatsapp.bat and scan the QR). ' . $curlErr;
+            }
         } catch (Throwable $e) {
             error_log('WhatsApp send failed: ' . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
@@ -169,6 +178,51 @@ final class WhatsAppService
             $digits = '252' . $digits;
         }
         return (strlen($digits) >= 10 && strlen($digits) <= 15) ? $digits : null;
+    }
+
+    /**
+     * Show a stored number the way WhatsApp uses it: "0616256534" -> "+252 616256534".
+     */
+    public static function displayPhone(string $phone): string
+    {
+        $n = self::normalizePhone($phone);
+        if ($n === null) {
+            return $phone;
+        }
+        return str_starts_with($n, '252') ? '+252 ' . substr($n, 3) : '+' . $n;
+    }
+
+    /**
+     * JSON POST without the curl extension. Returns [body|false, httpStatus, error].
+     */
+    private static function postWithStreams(string $url, array $headers, string $json): array
+    {
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => implode("\r\n", $headers),
+                'content' => $json,
+                'timeout' => 12,
+                'ignore_errors' => true, // still read the body on 4xx/5xx
+            ],
+        ]);
+        $err = '';
+        set_error_handler(static function (int $no, string $msg) use (&$err): bool {
+            $err = $msg;
+            return true;
+        });
+        try {
+            $body = file_get_contents($url, false, $ctx);
+        } finally {
+            restore_error_handler();
+        }
+        $status = 0;
+        foreach ($http_response_header ?? [] as $h) {
+            if (preg_match('#^HTTP/\S+\s+(\d{3})#', $h, $m)) {
+                $status = (int) $m[1];
+            }
+        }
+        return [$body, $status, $err];
     }
 
     private static function htmlToText(string $html): string

@@ -81,7 +81,7 @@ $withPhone = count(array_filter($broadcastClients, static fn ($c) => trim((strin
                         $em = trim((string) ($c['email'] ?? ''));
                         $ph = trim((string) ($c['phone'] ?? ''));
                     ?>
-                        <label class="bc-row" data-search="<?= Security::e(mb_strtolower($c['full_name'] . ' ' . $c['client_code'] . ' ' . $ph . ' ' . $em)) ?>"
+                        <label class="bc-row" data-search="<?= Security::e(mb_strtolower($c['full_name'] . ' ' . $c['client_code'] . ' ' . $ph . ' ' . \App\Services\WhatsAppService::displayPhone($ph) . ' ' . $em)) ?>"
                                data-email="<?= $em !== '' ? '1' : '0' ?>" data-phone="<?= $ph !== '' ? '1' : '0' ?>">
                             <input type="checkbox" name="client_ids[]" value="<?= (int) $c['id'] ?>" class="bc-check" checked>
                             <span style="min-width:0;">
@@ -90,7 +90,7 @@ $withPhone = count(array_filter($broadcastClients, static fn ($c) => trim((strin
                                     <span class="badge badge-warning" style="margin-left:6px;"><?= Security::e($c['status']) ?></span>
                                 <?php endif; ?>
                                 <span class="bc-meta" style="display:block;">
-                                    <span class="num-tabular"><?= $ph !== '' ? Security::e($ph) : '<span class="bc-missing">' . ($isSo ? 'lambar ma laha' : 'no phone') . '</span>' ?></span>
+                                    <span class="num-tabular"><?= $ph !== '' ? Security::e(\App\Services\WhatsAppService::displayPhone($ph)) : '<span class="bc-missing">' . ($isSo ? 'lambar ma laha' : 'no phone') . '</span>' ?></span>
                                     · <?= $em !== '' ? Security::e($em) : '<span class="bc-missing">' . ($isSo ? 'email ma laha' : 'no email') . '</span>' ?>
                                 </span>
                             </span>

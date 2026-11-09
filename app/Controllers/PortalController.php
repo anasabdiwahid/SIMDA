@@ -3367,6 +3367,7 @@ final class PortalController
             $sent = 0;
             $skipped = [];
             $failed = [];
+            $failReasons = [];
             foreach ($clients as $c) {
                 $name = (string) $c['full_name'];
                 if ($channel === 'email') {
@@ -3388,7 +3389,8 @@ final class PortalController
                 if (!empty($res['success'])) {
                     $sent++;
                 } else {
-                    $failed[] = $name;
+                    $failed[] = $channel === 'whatsapp' ? $name . ' (' . WhatsAppService::displayPhone((string) $c['phone']) . ')' : $name;
+                    $failReasons[(string) ($res['error'] ?? 'unknown')] = true;
                     error_log("Broadcast {$channel} to client #{$c['id']} failed: " . ($res['error'] ?? 'unknown'));
                 }
             }
@@ -3405,7 +3407,8 @@ final class PortalController
                     : ' Skipped (no ' . ($channel === 'email' ? 'email' : 'phone') . '): ' . implode(', ', $skipped) . '.';
             }
             if ($failed !== []) {
-                $_SESSION['flash_error'] = $summary . ($isSo ? ' Way ku guuldarraysatay: ' : ' Failed: ') . implode(', ', $failed) . '.';
+                $_SESSION['flash_error'] = $summary . ($isSo ? ' Way ku guuldarraysatay: ' : ' Failed: ') . implode(', ', $failed) . '.'
+                    . ($isSo ? ' Sababta: ' : ' Reason: ') . mb_substr(implode(' | ', array_keys($failReasons)), 0, 300);
             } else {
                 $_SESSION['flash_success'] = $summary;
             }
