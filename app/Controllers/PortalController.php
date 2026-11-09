@@ -370,6 +370,9 @@ final class PortalController
         }
 
         // Intent detection (offline fallback)
+        // People type fast and misspell ("murabaxo", "codsade", "xafis", "ribba", "intrest"). Append the
+        // correctly spelled keyword for every word that is close to one, so the rules below still match.
+        $message .= self::chatSpellingHints($message);
         $reply = '';
         $topic = 'general';
         $suggestions = [];
@@ -518,7 +521,7 @@ final class PortalController
         // 2. Greetings / Salams
         elseif (
             !$wantsApply && (preg_match('/^(asc|salaam|salam|salan|hello|hi|hey|subax|galab|nabad|marhaban|مرحبا|أهلا|السلام)/iu', $message) ||
-            preg_match('/(asc|asalaamu|assalamu|salaamu calaykum|salaam)/iu', $message))
+            preg_match('/(asc|asalaamu|assalamu|salaamu calaykum|salaam|\bwarr?an\b|sidee (tahay|tihiin|ahay)|ma nabad baa|how are you)/iu', $message))
         ) {
             $topic = 'greeting';
             if ($lang === 'ar') {
@@ -583,7 +586,7 @@ final class PortalController
         }
         // 4. Products & What We Finance (Assets, Kiosks, Plots)
         elseif (
-            !$wantsApply && preg_match('/(alaab|noocyada|maalgelis|maalgeli[nyst]|mashiin|kiosk|baqaar|dhul|dhismaha|products|finance|equipment|plot|assets|منتجات|خدمات|أكشاك|بناء|معدات|أصول)/iu', $message)
+            !$wantsApply && preg_match('/(alaab|noocyada|dukaan|ganacsi|maalgelis|maalgeli[nyst]|mashiin|kiosk|baqaar|dhul|dhismaha|products|finance|equipment|plot|assets|منتجات|خدمات|أكشاك|بناء|معدات|أصول)/iu', $message)
         ) {
             $topic = 'products';
             if ($lang === 'ar') {
@@ -661,7 +664,7 @@ final class PortalController
         }
         // 9. Guarantor & Solidarity Groups
         elseif (
-            preg_match('/(dammaanad|garab|wadaag|koox|guarantor|solidarity|group|كفيل|ضمان|تضامني|مجموعات)/iu', $message)
+            preg_match('/(dammaanad|damaanad|damiin|dammiin|kafiil|garab|wadaag|koox|guarantor|solidarity|group|كفيل|ضمان|تضامني|مجموعات)/iu', $message)
         ) {
             $topic = 'guarantor';
             if ($lang === 'ar') {
@@ -773,6 +776,94 @@ final class PortalController
             'action_btn' => $actionBtn
         ], JSON_UNESCAPED_UNICODE);
         exit;
+    }
+
+    /**
+     * Keywords the chatbot rules look for, by the spelling the rules expect.
+     * A typed word that is close to one of these (after evening out common Somali
+     * spelling variations) adds the correct keyword to the message.
+     */
+    private const CHAT_KEYWORDS = [
+        // Somali
+        'codsi', 'codsadaa', 'codsado', 'dalbo', 'shuruudaha', 'qaabkee', 'murabaha', 'murabaxo', 'ribo', 'ribada', 'dulsaar',
+        'keyd', 'kayd', 'xafiis', 'xagee', 'xaggee', 'ciwaan', 'lambar', 'lambarka', 'taleefan', 'telefoon', 'xiriir', 'whatsapp',
+        'dammaanad', 'damiin', 'garab', 'wadaag', 'koox', 'ganaax', 'sadaqo', 'jimco', 'sabti', 'jadwal', 'bixinta',
+        'mashiin', 'kiosk', 'baqaar', 'dhul', 'dhismaha', 'alaab', 'noocyada', 'maalgelin', 'maalgelisaan', 'dayn', 'deyn', 'amaah',
+        'lacag', 'heli', 'helaa', 'qaadan', 'sarkaal', 'maareeye', 'saacadaha', 'mahadsanid', 'magacaa', 'magacaaga', 'kaftan',
+        'meesha', 'xogta', 'shirkadda', 'sidee', 'sideen',
+        // English
+        'apply', 'application', 'requirements', 'eligibility', 'murabaha', 'interest', 'savings', 'deposit', 'office', 'address',
+        'location', 'contact', 'phone', 'number', 'guarantor', 'solidarity', 'penalty', 'charity', 'schedule', 'repayment',
+        'friday', 'saturday', 'products', 'equipment', 'finance', 'financing', 'thanks',
+    ];
+
+    /** Even out spelling variations: x/h, q/k, doubled letters, apostrophes, a leading c (ayn). */
+    private static function chatSkeleton(string $word): string
+    {
+        $w = mb_strtolower($word, 'UTF-8');
+        $w = preg_replace('/[^a-z]/', '', $w) ?? '';
+        $w = strtr($w, ['x' => 'h', 'q' => 'k', 'y' => 'i', 'e' => 'i', 'o' => 'u']);
+        $w = preg_replace('/(.)\1+/', '$1', $w) ?? $w;
+        if (strlen($w) > 3 && $w[0] === 'c') {
+            $w = substr($w, 1);
+        }
+        return $w;
+    }
+
+    private static function chatSpellingHints(string $message): string
+    {
+        static $dict = null;
+        if ($dict === null) {
+            $dict = [];
+            foreach (self::CHAT_KEYWORDS as $k) {
+                $dict[$k] = self::chatSkeleton($k);
+            }
+        }
+
+        $hints = [];
+        $words = preg_split('/[^\p{L}\']+/u', mb_strtolower($message, 'UTF-8'), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        // Everyday words that sit one letter away from a keyword and must never be "corrected"
+        // (kartaan ~ kaftan, waran ~ wadaag, ...).
+        static $common = [
+            'kartaa', 'kartaan', 'karaa', 'karo', 'kara', 'karin', 'kartid', 'waran', 'warran', 'baan', 'waxaan', 'waxaad',
+            'maxaa', 'maxay', 'maxaad', 'ayaa', 'ayuu', 'ayey', 'iyo', 'leh', 'lahayn', 'tahay', 'yihiin', 'jiraa', 'jirta',
+            'rabaa', 'rabay', 'doonaa', 'kale', 'badan', 'yar', 'weyn', 'hadda', 'maanta', 'berri', 'shalay', 'gabar', 'wiil',
+            'the', 'this', 'that', 'what', 'how', 'can', 'want', 'have', 'there', 'their', 'your',
+        ];
+        foreach ($words as $word) {
+            if (mb_strlen($word) < 3 || in_array($word, $common, true)) {
+                continue;
+            }
+            $sk = self::chatSkeleton($word);
+            if ($sk === '') {
+                continue;
+            }
+            $best = null;
+            $bestDist = PHP_INT_MAX;
+            foreach ($dict as $keyword => $kSk) {
+                if ($word === $keyword) {
+                    $best = null; // already spelled right
+                    break;
+                }
+                $len = strlen($kSk);
+                // Allowed typos grow with word length: short words must match after evening out.
+                $maxDist = $len <= 3 ? 0 : ($len <= 6 ? 1 : 2);
+                $d = $sk === $kSk ? 0 : levenshtein($sk, $kSk);
+                // Longer word built on the keyword ("codsanayaa" -> codsi stem "udsi"... via prefix).
+                if ($d > $maxDist && $len >= 4 && str_starts_with($sk, substr($kSk, 0, max(4, $len - 1)))) {
+                    $d = $maxDist;
+                }
+                if ($d <= $maxDist && $d < $bestDist) {
+                    $best = $keyword;
+                    $bestDist = $d;
+                }
+            }
+            if ($best !== null) {
+                $hints[$best] = true;
+            }
+        }
+
+        return $hints === [] ? '' : ' ' . implode(' ', array_keys($hints));
     }
 
     private static function contactSubmit(PDO $pdo): void
