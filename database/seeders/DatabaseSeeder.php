@@ -128,7 +128,8 @@ final class DatabaseSeeder
             ':uname' => 'admin',
             ':email' => 'anasabdiwahidhussein@gmail.com',
             ':phone' => '+252 616256534',
-            ':phash' => Security::hashPassword('yDnSl700'),
+            // Fresh installs only (an existing admin keeps its password). Never put a real password in code.
+            ':phash' => Security::hashPassword((string) \App\Helpers\Env::get('SEED_ADMIN_PASSWORD', 'Admin@123')),
         ]);
 
         // 6. Default Financing Facilities (Zero-Riba Qard Hassan & Murabaha Asset Financing)

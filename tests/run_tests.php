@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * SIMDA — Automated Unit & Integration Test Suite (22 Tests)
+ * SIMDA — Automated Unit & Integration Test Suite (25 Tests)
  *
  * Covers all 20 mandatory specification test cases + 2 additional governance tests:
  *  1. User authentication (valid credentials + rate-limited invalid login rejection)
@@ -60,7 +60,7 @@ $tables = [
     'charity_charges', 'installments', 'financings', 'financing_applications',
     'products', 'group_members', 'groups', 'guarantors', 'clients',
     'login_attempts', 'users', 'branches', 'role_permissions', 'permissions',
-    'roles', 'system_settings',
+    'roles', 'system_settings', 'charity_payouts', 'admin_2fa_codes', 'murabaha_goods', 'partners', 'password_resets',
 ];
 foreach ($tables as $t) {
     $pdo->exec("DROP TABLE IF EXISTS `{$t}`");
@@ -104,7 +104,7 @@ function assertSameValue(mixed $expected, mixed $actual, string $message = ''): 
 }
 
 echo "========================================================================\n";
-echo " SIMDA — Automated Quality Assurance Test Suite (22 Tests)\n";
+echo " SIMDA — Automated Quality Assurance Test Suite (25 Tests)\n";
 echo "========================================================================\n";
 
 // Fetch or create test actors & entities inside isolated simda_test_db
@@ -117,11 +117,11 @@ $bStmt->execute([':c' => 'BR-GAR-03', ':n' => 'Garowe Branch', ':ci' => 'Garowe'
 $branchGar = (int) $pdo->lastInsertId();
 
 $pStmt = $pdo->prepare('INSERT INTO products (product_code, name_so, name_en, product_type, annual_profit_rate, murabaha_markup_pct, min_amount, max_amount, min_term, max_term, allowed_frequency, admin_fee, is_active) VALUES (:c, :ns, :ne, :t, :apr, :mrb, :mina, :maxa, :mint, :maxt, :f, :fee, 1)');
-$pStmt->execute([':c' => 'PRD-MRB-01', ':ns' => 'Murabaha', ':ne' => 'Murabaha Financing', ':t' => 'murabaha', ':apr' => '0.0000', ':mrb' => '12.0000', ':mina' => '300.00', ':maxa' => '15000.00', ':mint' => 3, ':maxt' => 24, ':f' => 'both', ':fee' => '25.00']);
+$pStmt->execute([':c' => 'TST-MRB-01', ':ns' => 'Murabaha', ':ne' => 'Murabaha Financing', ':t' => 'murabaha', ':apr' => '0.0000', ':mrb' => '12.0000', ':mina' => '300.00', ':maxa' => '15000.00', ':mint' => 3, ':maxt' => 24, ':f' => 'both', ':fee' => '25.00']);
 $prodMurabaha = (int) $pdo->lastInsertId();
-$pStmt->execute([':c' => 'PRD-FLT-02', ':ns' => 'Flat', ':ne' => 'Flat Financing', ':t' => 'flat', ':apr' => '10.0000', ':mrb' => '0.0000', ':mina' => '200.00', ':maxa' => '8000.00', ':mint' => 3, ':maxt' => 18, ':f' => 'both', ':fee' => '15.00']);
+$pStmt->execute([':c' => 'TST-FLT-02', ':ns' => 'Flat', ':ne' => 'Flat Financing', ':t' => 'flat', ':apr' => '10.0000', ':mrb' => '0.0000', ':mina' => '200.00', ':maxa' => '8000.00', ':mint' => 3, ':maxt' => 18, ':f' => 'both', ':fee' => '15.00']);
 $prodFlat = (int) $pdo->lastInsertId();
-$pStmt->execute([':c' => 'PRD-DEC-03', ':ns' => 'Declining', ':ne' => 'Declining Balance', ':t' => 'declining_balance', ':apr' => '12.0000', ':mrb' => '0.0000', ':mina' => '1000.00', ':maxa' => '25000.00', ':mint' => 6, ':maxt' => 36, ':f' => 'monthly', ':fee' => '40.00']);
+$pStmt->execute([':c' => 'TST-DEC-03', ':ns' => 'Declining', ':ne' => 'Declining Balance', ':t' => 'declining_balance', ':apr' => '12.0000', ':mrb' => '0.0000', ':mina' => '1000.00', ':maxa' => '25000.00', ':mint' => 6, ':maxt' => 36, ':f' => 'monthly', ':fee' => '40.00']);
 $prodDeclining = (int) $pdo->lastInsertId();
 
 $bmRoleId = (int) $pdo->query("SELECT id FROM roles WHERE slug = 'branch_manager'")->fetchColumn();
@@ -132,6 +132,8 @@ $uStmt->execute([':r' => $loRoleId, ':b' => $branchMog, ':n' => 'Officer 1', ':u
 $uStmt->execute([':r' => $loRoleId, ':b' => $branchMog, ':n' => 'Officer 2', ':u' => 'officer2', ':e' => 'lo2@simda.so', ':p' => '1003', ':h' => Security::hashPassword('Officer@123')]);
 $uStmt->execute([':r' => $bmRoleId, ':b' => $branchHrg, ':n' => 'BM Hargeisa', ':u' => 'manager_hrg', ':e' => 'bm2@simda.so', ':p' => '2001', ':h' => Security::hashPassword('Manager@123')]);
 
+// The test database's admin always uses a known test password, whatever SEED_ADMIN_PASSWORD is.
+$pdo->prepare("UPDATE users SET password_hash = :h WHERE username = 'admin'")->execute([':h' => Security::hashPassword('Admin@123')]);
 $admin = AuthService::attemptLogin('admin', 'Admin@123', $pdo);
 $managerMog = AuthService::attemptLogin('manager', 'Manager@123', $pdo);
 $officer1 = AuthService::attemptLogin('officer', 'Officer@123', $pdo);
@@ -612,6 +614,79 @@ runTest('22. Bilingual SMS reminders (3d before & 1d overdue, deduplicated, none
     // Second run on the same day must NOT send duplicate reminder for the same installment
     $secondRun = SmsReminderService::generateScheduledReminders(date('Y-m-d'), $pdo);
     assertSameValue(0, $secondRun['upcoming_3_days_sent'], 'Each installment must receive only one reminder per type');
+});
+
+runTest('23. Charity account report: balance = collected − given out; payout cannot exceed balance', function () use ($pdo, $admin) {
+    $before = CharityChargeService::accountSummary(null, $pdo);
+    $collected = ScheduleEngine::toCents($before['collected']);
+    assertSameValue(
+        ScheduleEngine::fromCents($collected - ScheduleEngine::toCents($before['used'])),
+        $before['balance'],
+        'Balance equals collected minus given out'
+    );
+
+    // Paying out more than the balance is refused.
+    $tooMuch = ScheduleEngine::fromCents(ScheduleEngine::toCents($before['balance']) + 100);
+    $blocked = false;
+    try {
+        CharityChargeService::recordPayout(null, $tooMuch, 'Masjid Hodan', 'Ramadan food baskets', date('Y-m-d'), (int) $admin['id'], $pdo);
+    } catch (\Throwable) {
+        $blocked = true;
+    }
+    assertTrue($blocked, 'A payout larger than the charity balance must be refused');
+
+    // Simulate $10.00 collected, then pay out $4.00: balance drops by exactly $4.00 and the use is listed.
+    $pdo->exec("UPDATE charity_charges SET amount_paid = amount_paid + 10.00 ORDER BY id LIMIT 1");
+    $mid = CharityChargeService::accountSummary(null, $pdo);
+    CharityChargeService::recordPayout(null, '4.00', 'Masjid Hodan', 'Ramadan food baskets', date('Y-m-d'), (int) $admin['id'], $pdo);
+    $after = CharityChargeService::accountSummary(null, $pdo);
+    assertSameValue(ScheduleEngine::toCents($mid['balance']) - 400, ScheduleEngine::toCents($after['balance']), 'Payout lowers the balance by its amount');
+    assertTrue(count(CharityChargeService::payouts(null, $pdo)) >= 1, 'The payout appears in the charity use report');
+});
+
+runTest('24. Approval levels: officer approves <= $5,000 (not own); nobody, not even Admin, approves own application', function () use ($pdo, $prodMurabaha, $officer1, $officer2, $admin) {
+    assertSameValue('loan_officer', FinancingDomainService::requiredApproverRole(5000.00, false), '$5,000 is a loan officer decision');
+    assertSameValue('branch_manager', FinancingDomainService::requiredApproverRole(5000.01, false), 'Above $5,000 is a Branch Manager decision');
+    assertSameValue('branch_manager', FinancingDomainService::requiredApproverRole(60000.00, false), 'Large amounts stay with the Branch Manager');
+    assertTrue(FinancingDomainService::canDecideLevel('loan_officer', 'loan_officer'), 'Loan officer can decide up to $5,000');
+    assertTrue(!FinancingDomainService::canDecideLevel('loan_officer', 'branch_manager'), 'Loan officer cannot decide above $5,000');
+
+    $clientId = (int) $pdo->query("SELECT id FROM clients WHERE id_number = 'TST-ID-001'")->fetchColumn();
+    $app = FinancingDomainService::createApplication([
+        'client_id' => $clientId,
+        'product_id' => $prodMurabaha,
+        'requested_amount' => '1500.00',
+        'term_installments' => 3,
+        'repayment_frequency' => 'monthly',
+        'purpose' => 'Admin-created test',
+        'murabaha_goods_description' => 'Shop stock',
+    ], (int) $admin['id'], true, date('Y-m-d'), $pdo);
+
+    $blocked = false;
+    try {
+        FinancingDomainService::reviewApplication($app['application_id'], $admin, 'approved', 'Self approve', $pdo);
+    } catch (\Throwable) {
+        $blocked = true;
+    }
+    assertTrue($blocked, 'Admin must not approve an application they created');
+
+    $queue = array_column(FinancingDomainService::pendingRequestsFor($admin, $pdo), 'id');
+    assertTrue(!in_array($app['application_id'], $queue, false), 'Own applications are not listed in the creator\'s approval queue');
+    $officerQueue = array_column(FinancingDomainService::pendingRequestsFor($officer2, $pdo), 'id');
+    assertTrue(in_array($app['application_id'], $officerQueue, false), 'Another loan officer of the branch sees it in their queue (<= $5,000)');
+
+    $rev = FinancingDomainService::reviewApplication($app['application_id'], $officer2, 'approved', 'Peer approval', $pdo);
+    assertSameValue('approved', $rev['status'], 'Another loan officer of the branch approves it');
+});
+
+runTest('25. PAR30 monthly trend from live data (12 months, current month matches live PAR30, 0% when empty)', function () use ($pdo, $branchGar) {
+    $trend = Par30Service::monthlyTrend(12, null, $pdo);
+    assertSameValue(12, count($trend), 'Trend covers 12 months');
+    $live = Par30Service::calculate(null, null, $pdo);
+    $last = end($trend);
+    assertSameValue($live['total_outstanding_balance'], $last['outstanding'], 'Current month outstanding equals live PAR30 total');
+    $empty = Par30Service::monthlyTrend(3, $branchGar + 1000, $pdo);
+    assertSameValue(0.0, $empty[2]['par30'], 'A branch with no financings shows 0%, not an error');
 });
 
 echo "------------------------------------------------------------------------\n";
