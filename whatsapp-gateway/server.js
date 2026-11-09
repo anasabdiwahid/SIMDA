@@ -150,6 +150,15 @@ input{padding:8px;border:1px solid #bcc;border-radius:8px;width:160px}button{pad
 
 const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
+    // Requests that arrive through a Cloudflare tunnel (the live site) may only send, with the key.
+    // Linking a phone (/, /pair) stays on this computer, so nobody online can take over the gateway.
+    const viaTunnel = Boolean(req.headers['cf-ray'] || req.headers['cf-connecting-ip']);
+    if (viaTunnel && !(req.method === 'POST' && url.pathname === '/send')) {
+        return json(res, 404, { success: false, error: 'Not found.' });
+    }
+    if (viaTunnel && !API_KEY) {
+        return json(res, 403, { success: false, error: 'Gateway key is not set.' });
+    }
     if (req.method === 'GET' && url.pathname === '/pair') {
         const phone = normalize(url.searchParams.get('phone'));
         pairing = { code: null, error: null };
