@@ -1175,19 +1175,23 @@ HTML;
      */
     public static function sendBroadcastEmail(string $to, string $fullName, string $subject, string $message, string $locale = 'so'): array
     {
-        $isSo = $locale === 'so';
-        $greeting = ($isSo ? 'Salaamu Calaykum, ' : 'Hello, ') . $fullName;
-        $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
-        $block = '<p style="color:#1B2E28;font-size:15px;line-height:1.7;margin:16px 0 0;">' . nl2br($e($message)) . '</p>';
-        $note = $isSo
-            ? 'Su\'aal haddii aad qabto, nagala soo xiriir +252 616256534.'
-            : 'If you have any questions, contact us at +252 616256534.';
+        // Branded layout (logo header, signature, footer). Logo and signature are embedded (cid), never linked.
+        $inline = [];
+        $logo = BroadcastTemplate::logoPath();
+        $sig = BroadcastTemplate::signaturePath();
+        if (is_file($logo)) {
+            $inline[] = ['cid' => BroadcastTemplate::CID_LOGO, 'path' => $logo, 'mime' => 'image/png', 'filename' => 'simda-logo.png'];
+        }
+        if (is_file($sig)) {
+            $inline[] = ['cid' => BroadcastTemplate::CID_SIGNATURE, 'path' => $sig, 'mime' => 'image/png', 'filename' => 'signature.png'];
+        }
 
         return self::sendSmtp(
             $to,
             $subject,
-            self::noticeHtml($subject, $greeting, '', $block, $note, $locale),
-            "{$greeting}\n\n{$message}\n\n{$note}\n\nSIMDA"
+            BroadcastTemplate::emailHtml($fullName, $subject, $message, $locale, is_file($logo), is_file($sig)),
+            BroadcastTemplate::emailText($fullName, $subject, $message, $locale),
+            $inline
         );
     }
 

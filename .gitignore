@@ -35,3 +35,7 @@ Thumbs.db
 brand/_src/ai-check/
 brand/_src/*.png
 brand/SIMDA-Brand-Kit.zip
+
+# Signature image: local only, never pushed
+/storage/email/
+brand/_src/signature/

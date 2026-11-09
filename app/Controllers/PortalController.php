@@ -3489,8 +3489,18 @@ final class PortalController
                         $skipped[] = $name;
                         continue;
                     }
-                    $greeting = ($isSo ? 'Salaamu Calaykum ' : 'Hello ') . $name . ',';
-                    $res = WhatsAppService::send($phone, "*{$subject}*\n\n{$greeting}\n\n{$message}\n\n— SIMDA");
+                    // SIMDA banner picture with the branded text (signature + footer) as its caption.
+                    $waText = \App\Services\BroadcastTemplate::whatsappText($name, $subject, $message, $locale);
+                    $banner = is_file(\App\Services\BroadcastTemplate::whatsappBannerPath()) ? 'public/assets/images/whatsapp-banner.png' : null;
+                    if ($banner !== null && mb_strlen($waText) > 1000) {
+                        // Long message: banner with the title first, then the full text.
+                        $res = WhatsAppService::send($phone, "*{$subject}*", $banner);
+                        if (!empty($res['success'])) {
+                            $res = WhatsAppService::send($phone, $waText);
+                        }
+                    } else {
+                        $res = WhatsAppService::send($phone, $waText, $banner);
+                    }
                 }
                 if (!empty($res['success'])) {
                     $sent++;

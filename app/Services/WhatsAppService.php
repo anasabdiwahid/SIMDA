@@ -43,9 +43,11 @@ final class WhatsAppService
     }
 
     /**
-     * Send a plain-text WhatsApp message to a phone number.
+     * Send a WhatsApp message to a phone number. With $image (a PNG/JPG path relative to the project,
+     * inside public/assets/images or storage/email) the local gateway sends that picture with the
+     * message as its caption; other providers send the text only.
      */
-    public static function send(string $phone, string $message): array
+    public static function send(string $phone, string $message, ?string $image = null): array
     {
         if (!self::isEnabled()) {
             return ['success' => false, 'error' => 'WhatsApp is not configured (WHATSAPP_ENABLED / WHATSAPP_PROVIDER in .env).'];
@@ -66,6 +68,9 @@ final class WhatsAppService
             $url = rtrim(trim((string) Env::get('WHATSAPP_GATEWAY_URL', 'http://127.0.0.1:3001')), '/') . '/send';
             $headers = ['Content-Type: application/json', 'x-api-key: ' . trim((string) Env::get('WHATSAPP_GATEWAY_KEY', ''))];
             $payload = ['to' => $number, 'message' => $message];
+            if ($image !== null && $image !== '') {
+                $payload['image'] = $image;
+            }
         } else {
             $url = sprintf(
                 'https://api.maytapi.com/api/%s/%s/sendMessage',
