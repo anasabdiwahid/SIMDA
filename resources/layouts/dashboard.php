@@ -169,7 +169,7 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                 <span class="sidebar-text"><?= Security::e(Lang::get('menu_dashboard')) ?></span>
             </a>
 
-            <?php if (in_array($role, ['admin', 'manager', 'branch_manager'], true)): ?>
+            <?php if (in_array($role, ['admin', 'manager', 'branch_manager', 'loan_officer'], true)): ?>
                 <?php
                 // Requests waiting for this person's decision (same rules as the Requests page).
                 try {

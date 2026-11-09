@@ -264,7 +264,8 @@ final class AuthMiddleware
         $loanOfficerPerms = [
             'clients.view', 'clients.register', 'guarantors.manage', 'loans.view',
             'murabaha.view', 'murabaha.create', 'applications.view', 'applications.create',
-            // No approving and no disbursing: an employee's loan or Murabaha is a request for the Branch Manager.
+            // Brief: loan officers approve up to $5,000 (never their own) and disburse approved financing.
+            'applications.approve', 'financings.disburse',
             'repayments.view', 'repayments.record', 'statements.generate'
         ];
 

@@ -238,14 +238,12 @@ final class FinancingDomainService
     }
 
     /**
-     * Who decides an application: Header Office up to the officer limit, Branch Manager up to the
-     * branch limit, General Manager above it. Group financing starts at Branch Manager level.
+     * Who decides an application (brief, Module 4): a loan officer up to $5,000 (APPROVAL_OFFICER_LIMIT),
+     * a Branch Manager above it. Group financing is always approved by a Branch Manager.
+     * General Manager and Admin rank above both and may decide any level.
      */
     public static function requiredApproverRole(float $amount, bool $isGroup): string
     {
-        if ($amount > (float) Env::get('APPROVAL_BRANCH_LIMIT', 50000.00)) {
-            return 'manager';
-        }
         if ($isGroup || $amount > (float) Env::get('APPROVAL_OFFICER_LIMIT', 5000.00)) {
             return 'branch_manager';
         }
@@ -261,13 +259,14 @@ final class FinancingDomainService
     {
         $db = $pdo ?? Database::connection();
         $role = (string) ($user['role_slug'] ?? '');
-        if (!in_array($role, ['admin', 'manager', 'branch_manager'], true)) {
+        if (!in_array($role, ['admin', 'manager', 'branch_manager', 'loan_officer'], true)) {
             return [];
         }
-        $scope = '';
-        $params = [];
-        if ($role === 'branch_manager') {
-            $scope = ' AND fa.branch_id = :bid ';
+        // Nobody sees (or can approve) their own applications.
+        $scope = ' AND fa.created_by <> :me ';
+        $params = [':me' => (int) ($user['id'] ?? 0)];
+        if (in_array($role, ['branch_manager', 'loan_officer'], true)) {
+            $scope .= ' AND fa.branch_id = :bid ';
             $params[':bid'] = (int) ($user['branch_id'] ?? -1);
         }
         $stmt = $db->prepare("
@@ -303,10 +302,6 @@ final class FinancingDomainService
     {
         if ($reviewerRole === 'admin') {
             return true;
-        }
-        // Employees submit requests but never decide them; the Branch Manager is the lowest approver.
-        if ($reviewerRole === 'loan_officer') {
-            return false;
         }
         $rank = ['loan_officer' => 1, 'branch_manager' => 2, 'manager' => 3];
         return isset($rank[$reviewerRole], $rank[$requiredRole]) && $rank[$reviewerRole] >= $rank[$requiredRole];
@@ -615,8 +610,8 @@ final class FinancingDomainService
         $reviewerId = (int) $reviewerUser['id'];
         $reviewerRole = (string) $reviewerUser['role_slug'];
 
-        // Rule: Application creators cannot approve their own applications (Admin has full override authority)
-        if ($decision === 'approved' && (int) $app['created_by'] === $reviewerId && $reviewerRole !== 'admin') {
+        // Rule (brief, Module 4): the person who created an application cannot approve it. No exceptions, not even Admin.
+        if ($decision === 'approved' && (int) $app['created_by'] === $reviewerId) {
             throw new RuntimeException('Conflict of interest protection: Application creators cannot approve their own applications.');
         }
 
