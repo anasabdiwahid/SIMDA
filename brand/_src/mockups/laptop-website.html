@@ -1,0 +1,64 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+body { background: linear-gradient(160deg, #F7F3EA 0%, #E9E0CC 100%); }
+body::before { content: ''; position: absolute; width: 1100px; height: 1100px; left: 250px; top: -300px; border-radius: 50%; background: radial-gradient(circle, rgba(18,59,50,0.10), transparent 60%); }
+.lid { position: absolute; left: 250px; top: 90px; width: 1100px; height: 690px; border-radius: 26px 26px 6px 6px; background: linear-gradient(#2A2D2B, #151716); padding: 22px 22px 30px; box-shadow: 0 0 0 2px #444 inset; }
+.cam { position: absolute; top: 8px; left: 50%; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #333; }
+.scr { width: 100%; height: 100%; border-radius: 6px; overflow: hidden; background: #FBF8F2; position: relative; }
+.base { position: absolute; left: 140px; top: 772px; width: 1320px; height: 30px; border-radius: 4px 4px 28px 28px; background: linear-gradient(#D7D9D8, #9C9F9D); box-shadow: 0 40px 60px rgba(60,45,10,0.35); }
+.base::before { content: ''; position: absolute; left: 50%; top: 0; width: 200px; height: 10px; margin-left: -100px; border-radius: 0 0 10px 10px; background: #B5B8B6; }
+/* website */
+.nav { height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; background: #fff; border-bottom: 1px solid #EEE7D8; }
+.nav img { height: 30px; }
+.nav ul { display: flex; gap: 22px; list-style: none; font-size: 12px; font-weight: 600; color: #2B3B34; }
+.nav ul li:first-child { color: var(--gold-2); }
+.nav .btn { background: var(--green); color: #fff; font-size: 12px; font-weight: 700; padding: 10px 18px; border-radius: 20px; }
+.hero { margin: 22px 30px; height: 360px; border-radius: 22px; background: linear-gradient(120deg, #FBF6EC 0%, #F1E7D2 100%); display: grid; grid-template-columns: 1.05fr 1fr; overflow: hidden; }
+.hero .copy { padding: 38px 40px; }
+.hero .eb { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: var(--gold-2); }
+.hero h1 { margin-top: 12px; font-size: 29px; line-height: 1.08; font-weight: 800; color: var(--green); letter-spacing: -0.02em; }
+.hero p { margin-top: 14px; font-size: 12.5px; line-height: 1.6; color: #52635B; max-width: 380px; }
+.hero .cta { margin-top: 20px; display: flex; gap: 10px; }
+.hero .cta span { font-size: 11.5px; font-weight: 700; padding: 11px 18px; border-radius: 20px; }
+.hero .cta span:first-child { background: var(--green); color: #fff; }
+.hero .cta span:last-child { border: 1.5px solid var(--green); color: var(--green); }
+.hero .art { position: relative; background: radial-gradient(ellipse at 60% 40%, #1B5A47, var(--green) 65%); display: flex; align-items: center; justify-content: center; }
+.hero .art img { width: 300px; }
+.hero .art .chip { position: absolute; right: 24px; top: 24px; background: #fff; border-radius: 14px; padding: 12px 16px; font-size: 11px; font-weight: 700; color: var(--green); box-shadow: 0 10px 24px rgba(0,0,0,0.2); }
+.hero .art .chip b { display: block; font-size: 20px; color: var(--gold-2); }
+.cards { margin: 0 30px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.cards div { height: 130px; border-radius: 16px; background: #fff; border: 1px solid #EEE7D8; padding: 16px; font-size: 12px; font-weight: 700; color: var(--green); }
+.cards div i { display: block; width: 36px; height: 36px; border-radius: 10px; background: rgba(214,182,108,0.2); margin-bottom: 12px; }
+.cards div span { display: block; margin-top: 6px; font-size: 10.5px; font-weight: 500; color: #6A756F; line-height: 1.5; }
+.dl { position: absolute; right: 26px; bottom: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.dl span { background: linear-gradient(#1E5A4A, #123B32); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; padding: 7px 12px; border-radius: 9px; border: 1px solid rgba(214,182,108,0.6); }
+.dl i { width: 46px; height: 56px; border-radius: 14px; background: #fff; box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
+</style></head>
+<body>
+<div class="lid"><div class="cam"></div><div class="scr">
+    <div class="nav">
+        <img src="../../svg/simda-logo-primary.svg" alt="">
+        <ul><li>Bogga Hore</li><li>Nagu Saabsan</li><li>Adeegyada</li><li>Habka Shaqada</li><li>La-hawlgalayaasha</li><li>FAQ</li><li>Xiriirka</li></ul>
+        <div class="btn">Bilow Hadda →</div>
+    </div>
+    <div class="hero">
+        <div class="copy">
+            <div class="eb">MAALGELINTA ISLAAMIGA EE MURAABAXADA</div>
+            <h1>Maalgeli Ganacsigaaga Nidaamka Muraabaxada</h1>
+            <p>Ku iibso agabka, qalabka shaqada iyo badeecadaha ganacsigaaga nidaamka Muraabaxada ee 100% xalaasha ah oo leh 0% Ribo.</p>
+            <div class="cta"><span>Faahfaahin Dheeraad ah →</span><span>Xisaabiyaha Jadwalka</span></div>
+        </div>
+        <div class="art"><img src="../../svg/simda-logo-reverse.svg" alt=""><div class="chip">Ribo<b>0%</b></div></div>
+    </div>
+    <div class="cards">
+        <div><i></i>Muraabaxo<span>Alaab iyo qalab, faa'iido go'an</span></div>
+        <div><i></i>Dukaamada Yaryar<span>Maalgelin ganacsi oo xalaal ah</span></div>
+        <div><i></i>Kooxaha<span>Garab-wadaag 3 ilaa 10 qof</span></div>
+        <div><i></i>Gaadiidka<span>Mooto, bajaaj iyo baabuur</span></div>
+    </div>
+    <div class="dl"><span>DOWNLOAD ⬇</span></div>
+</div></div>
+<div class="base"></div>
+<div class="label dark">SIMDA · <b>Website</b></div>
+</body></html>

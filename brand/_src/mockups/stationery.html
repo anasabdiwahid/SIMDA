@@ -1,0 +1,66 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+body { background: linear-gradient(135deg, #2C4A40 0%, #173129 100%); }
+body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 25% 20%, rgba(255,255,255,0.12), transparent 55%); }
+.a4 {
+    position: absolute; left: 230px; top: 60px; width: 600px; height: 849px; background: #FFFFFF; transform: rotate(-4deg);
+    box-shadow: 0 3px 4px rgba(0,0,0,0.25), 0 40px 70px rgba(0,0,0,0.45); padding: 56px 56px 0;
+}
+.a4 .head { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 18px; border-bottom: 3px solid var(--green); position: relative; }
+.a4 .head::after { content: ''; position: absolute; left: 0; bottom: -7px; width: 120px; height: 4px; background: var(--gold); }
+.a4 .head img { width: 220px; }
+.a4 .head .addr { text-align: right; font-size: 9.5px; line-height: 1.6; color: #52635B; font-weight: 500; }
+.a4 .date { margin-top: 38px; font-size: 10px; color: #6A756F; }
+.a4 h4 { margin-top: 22px; font-size: 12px; color: var(--green); font-weight: 700; }
+.a4 .lines { margin-top: 18px; display: grid; gap: 11px; }
+.a4 .lines i { display: block; height: 6px; border-radius: 3px; background: #E8E4DA; }
+.a4 .sig { margin-top: 40px; font-size: 10px; color: #52635B; }
+.a4 .sig b { display: block; margin-top: 30px; font-size: 11px; color: var(--green); }
+.a4 .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 46px; background: var(--green); display: flex; align-items: center; justify-content: space-between; padding: 0 56px; color: #fff; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; }
+.a4 .foot span:last-child { color: var(--gold); }
+.a4 .wm { position: absolute; right: 30px; bottom: 90px; width: 260px; opacity: 0.05; }
+.env {
+    position: absolute; left: 850px; top: 420px; width: 620px; height: 330px; background: linear-gradient(160deg, #FFFFFF, #F1EDE4);
+    transform: rotate(7deg); box-shadow: 0 3px 4px rgba(0,0,0,0.25), 0 40px 70px rgba(0,0,0,0.45); padding: 40px;
+}
+.env::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 120px; background: linear-gradient(90deg, transparent, rgba(18,59,50,0.05)); }
+.env img { width: 190px; }
+.env .ret { margin-top: 8px; font-size: 9px; color: #6A756F; line-height: 1.6; }
+.env .to { position: absolute; left: 300px; top: 170px; font-size: 13px; color: var(--ink); line-height: 1.7; font-weight: 500; }
+.env .stripe { position: absolute; left: 0; right: 0; bottom: 0; height: 12px; background: linear-gradient(90deg, var(--green) 0 70%, var(--gold) 70%); }
+.folder {
+    position: absolute; left: 980px; top: 70px; width: 470px; height: 330px; border-radius: 6px; transform: rotate(-3deg);
+    background: radial-gradient(ellipse at 30% 20%, #1B5A47, var(--green) 60%, #0C2922);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; flex-direction: column;
+}
+.folder img { width: 300px; }
+.folder .t { margin-top: 14px; color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 0.3em; }
+.pen { position: absolute; left: 860px; top: 200px; width: 20px; height: 330px; border-radius: 10px; transform: rotate(32deg); background: linear-gradient(90deg, #0C2922, #1E5E4A 45%, #0C2922); box-shadow: 10px 20px 25px rgba(0,0,0,0.35); }
+.pen::before { content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 60px; border-radius: 10px 10px 2px 2px; background: linear-gradient(90deg, #A47A27, #F6DB95 45%, #A47A27); }
+</style></head>
+<body>
+<div class="a4">
+    <div class="head">
+        <img src="../../svg/simda-logo-primary.svg" alt="">
+        <div class="addr">KM4, Degmada Hodan, Muqdisho<br>+252 616256534 · +252 613496943<br>anasabdiwahidhussein@gmail.com</div>
+    </div>
+    <div class="date">9 Nofeembar 2026 · Ref: SIMDA/HQ/2026/114</div>
+    <h4>Ujeedo: Heshiiska Maalgelinta Murabaxada</h4>
+    <div class="lines"><i style="width:96%"></i><i style="width:100%"></i><i style="width:91%"></i><i style="width:98%"></i><i style="width:64%"></i></div>
+    <div class="lines" style="margin-top:22px"><i style="width:100%"></i><i style="width:94%"></i><i style="width:97%"></i><i style="width:88%"></i><i style="width:99%"></i><i style="width:46%"></i></div>
+    <div class="lines" style="margin-top:22px"><i style="width:93%"></i><i style="width:100%"></i><i style="width:72%"></i></div>
+    <div class="sig">Mahadsanid,<b>Maamulka SIMDA</b></div>
+    <img class="wm" src="../../svg/simda-mark-mono-green.svg" alt="">
+    <div class="foot"><span>SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</span><span>0% RIBO</span></div>
+</div>
+<div class="folder"><img src="../../svg/simda-logo-reverse.svg" alt=""><div class="t">BUILDING TRUST · EMPOWERING GROWTH</div></div>
+<div class="env">
+    <img src="../../svg/simda-logo-primary.svg" alt="">
+    <div class="ret">KM4, Degmada Hodan<br>Muqdisho, Soomaaliya</div>
+    <div class="to">Mudane Cali Xasan Faarax<br>Suuqa Bakaaraha, Dukaanka 27<br>Muqdisho</div>
+    <div class="stripe"></div>
+</div>
+<div class="pen"></div>
+<div class="label">SIMDA · <b>Stationery</b></div>
+</body></html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse 70% 60% at 30% 25%, rgba(255,255,255,0.10), transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(0,0,0,0.35), transparent 55%),
+        linear-gradient(135deg, #2A2F2C 0%, #1A1E1C 100%);
+}
+/* subtle stone grain */
+body::before {
+    content: ''; position: absolute; inset: 0; opacity: 0.35;
+    background-image:
+        repeating-radial-gradient(circle at 17% 32%, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px),
+        repeating-radial-gradient(circle at 73% 61%, rgba(0,0,0,0.05) 0 1px, transparent 1px 4px);
+}
+.card {
+    position: absolute; width: 700px; height: 400px; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.35), 0 30px 60px rgba(0,0,0,0.55), 0 60px 120px rgba(0,0,0,0.35);
+}
+.front {
+    left: 150px; top: 120px; transform: rotate(-9deg);
+    background: radial-gradient(ellipse at 20% 0%, #1B5A47 0%, var(--green) 55%, #0C2A23 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.front::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(115deg, rgba(255,255,255,0.10) 0%, transparent 35%, transparent 70%, rgba(255,255,255,0.04) 100%);
+}
+.front img { width: 470px; }
+.front .tag { margin-top: 26px; font-size: 13px; font-weight: 700; letter-spacing: 0.32em; color: var(--gold); }
+.front .rule { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: linear-gradient(90deg, #B8862B, #F6DB95, #B8862B); }
+.back {
+    left: 760px; top: 470px; transform: rotate(6deg);
+    background: linear-gradient(160deg, #FFFFFF 0%, #F4F1EA 100%);
+    padding: 42px 56px;
+}
+.back::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 14px; background: var(--green); }
+.back::after { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 5px; background: var(--gold); }
+.back .logo { display: block; width: 200px; margin-bottom: 26px; }
+.back h2 { font-size: 34px; font-weight: 800; color: var(--green); letter-spacing: -0.01em; }
+.back .role { margin-top: 6px; font-size: 16px; font-weight: 600; color: var(--gold-2); letter-spacing: 0.06em; text-transform: uppercase; }
+.back ul { list-style: none; margin-top: 26px; display: grid; gap: 10px; font-size: 17px; font-weight: 500; color: #33443D; }
+.back li { display: flex; align-items: center; gap: 14px; }
+.back li i { width: 30px; height: 30px; border-radius: 50%; background: var(--green); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.back li i svg { width: 15px; height: 15px; }
+.back .mark { position: absolute; right: -40px; bottom: -70px; width: 300px; opacity: 0.07; }
+</style></head>
+<body>
+<div class="card front">
+    <img src="../../svg/simda-logo-reverse.svg" alt="">
+    <div class="tag">BUILDING TRUST · EMPOWERING GROWTH</div>
+    <div class="rule"></div>
+</div>
+<div class="card back">
+    <img class="logo" src="../../svg/simda-logo-primary.svg" alt="">
+    <img class="mark" src="../../svg/simda-mark-mono-green.svg" alt="">
+    <h2>Cabdullaahi Maxamed</h2>
+    <div class="role">Maamulaha Laanta · Branch Manager</div>
+    <ul>
+        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="#D6B66C" stroke-width="2.4" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></i>+252 616256534 · +252 613496943</li>
+        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="#D6B66C" stroke-width="2.4" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg></i>anasabdiwahidhussein@gmail.com</li>
+        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="#D6B66C" stroke-width="2.4" stroke-linecap="round"><path d="M12 22s-8-6-8-12a8 8 0 0 1 16 0c0 6-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg></i>KM4, Degmada Hodan, Muqdisho</li>
+    </ul>
+</div>
+<div class="label">SIMDA · <b>Business cards</b></div>
+</body></html>

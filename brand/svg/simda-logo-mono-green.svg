@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 50 990 205" width="990" height="205">
+  <title>SIMDA logo, one colour green</title>
+  <defs><linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16704D"/><stop offset="1" stop-color="#0B3D2C"/></linearGradient><linearGradient id="g-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6DB95"/><stop offset="0.55" stop-color="#D6A945"/><stop offset="1" stop-color="#B8862B"/></linearGradient><linearGradient id="g-blend" gradientUnits="userSpaceOnUse" x1="112" y1="0" x2="205" y2="0"><stop offset="0" stop-color="#CFA040"/><stop offset="0.3" stop-color="#C99A3A"/><stop offset="1" stop-color="#11583F"/></linearGradient><linearGradient id="g-blend-white" gradientUnits="userSpaceOnUse" x1="112" y1="0" x2="205" y2="0"><stop offset="0" stop-color="#CFA040"/><stop offset="0.3" stop-color="#D9B256"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient><linearGradient id="g-blend-flat" gradientUnits="userSpaceOnUse" x1="112" y1="0" x2="205" y2="0"><stop offset="0" stop-color="#D6B66C"/><stop offset="0.3" stop-color="#D6B66C"/><stop offset="1" stop-color="#123B32"/></linearGradient></defs>
+  <g id="logo">
+    <rect id="S-top" x="150" y="100" width="112" height="38" fill="#123B32"/>
+    <path id="S-lower" d="M120 170H214A25.5 25.5 0 0 1 214 221H58" fill="none" stroke="#123B32" stroke-width="38"/>
+    <path id="S-foot" d="M64 202V240H36L56 202Z" fill="#123B32"/>
+    <path id="S-middle" d="M108 170H206" fill="none" stroke="#123B32" stroke-width="38"/>
+    <path id="S-sweep" d="M306 80C190 70 76 96 70 152C68 178 86 189 112 189H124V151H117C104 151 104 138 118 138H152C160 128 160 104 172 100C206 92 254 84 306 80Z" fill="#123B32"/>
+    <rect id="I" x="300" y="100" width="40" height="140" fill="#123B32"/>
+    <rect id="I-dot" x="307" y="59" width="26" height="26" rx="5" transform="rotate(45 320 72)" fill="#123B32"/>
+    <path id="M" d="M370 240V100H412L465 165L518 100H560V240H522V158L465 226L408 158V240Z" fill="#123B32"/>
+    <path id="D" fill-rule="evenodd" d="M590 100H690A70 70 0 0 1 690 240H590ZM628 136V204H688A34 34 0 0 0 688 136Z" fill="#123B32"/>
+    <path id="A" d="M782 240L850 100H892L960 240H918L871 141L824 240Z" fill="#123B32"/>
+    <path id="A-swoosh" d="M792 232C832 172 902 158 994 182C906 170 846 186 808 236Z" fill="#123B32"/>
+  </g>
+</svg>

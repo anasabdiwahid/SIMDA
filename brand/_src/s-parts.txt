@@ -1,0 +1,6 @@
+    <!-- S: green top bar, gold sweep (upper-left bowl + swoosh), gold-to-green middle bar, green right bowl + bottom bar -->
+    <rect id="S-top" x="150" y="100" width="112" height="38" fill="url(#g-green)"/>
+    <path id="S-lower" d="M120 170H214A25.5 25.5 0 0 1 214 221H58" fill="none" stroke="url(#g-green)" stroke-width="38"/>
+    <path id="S-foot" d="M58 202V240H36Z" fill="url(#g-green)"/>
+    <path id="S-middle" d="M108 170H206" fill="none" stroke="url(#g-s-blend)" stroke-width="38"/>
+    <path id="S-sweep" d="M306 80C190 70 76 96 70 152C68 178 86 189 112 189H124V151H117C104 151 104 138 118 138H152C160 128 160 104 172 100C206 92 254 84 306 80Z" fill="url(#g-gold)"/>

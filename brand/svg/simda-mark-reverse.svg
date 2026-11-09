@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="21 10 300 300" width="300" height="300">
+  <title>SIMDA S mark (reverse)</title>
+  <defs><linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16704D"/><stop offset="1" stop-color="#0B3D2C"/></linearGradient><linearGradient id="g-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6DB95"/><stop offset="0.55" stop-color="#D6A945"/><stop offset="1" stop-color="#B8862B"/></linearGradient><linearGradient id="g-blend" gradientUnits="userSpaceOnUse" x1="112" y1="0" x2="205" y2="0"><stop offset="0" stop-color="#CFA040"/><stop offset="0.3" stop-color="#C99A3A"/><stop offset="1" stop-color="#11583F"/></linearGradient><linearGradient id="g-blend-white" gradientUnits="userSpaceOnUse" x1="112" y1="0" x2="205" y2="0"><stop offset="0" stop-color="#CFA040"/><stop offset="0.3" stop-color="#D9B256"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient><linearGradient id="g-blend-flat" gradientUnits="userSpaceOnUse" x1="112" y1="0" x2="205" y2="0"><stop offset="0" stop-color="#D6B66C"/><stop offset="0.3" stop-color="#D6B66C"/><stop offset="1" stop-color="#123B32"/></linearGradient></defs>
+  <g id="mark">
+    <rect id="S-top" x="150" y="100" width="112" height="38" fill="#FFFFFF"/>
+    <path id="S-lower" d="M120 170H214A25.5 25.5 0 0 1 214 221H58" fill="none" stroke="#FFFFFF" stroke-width="38"/>
+    <path id="S-foot" d="M64 202V240H36L56 202Z" fill="#FFFFFF"/>
+    <path id="S-middle" d="M108 170H206" fill="none" stroke="url(#g-blend-white)" stroke-width="38"/>
+    <path id="S-sweep" d="M306 80C190 70 76 96 70 152C68 178 86 189 112 189H124V151H117C104 151 104 138 118 138H152C160 128 160 104 172 100C206 92 254 84 306 80Z" fill="url(#g-gold)"/>
+  </g>
+</svg>

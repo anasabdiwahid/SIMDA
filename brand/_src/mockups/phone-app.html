@@ -1,0 +1,67 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+body { background: linear-gradient(150deg, #EFE8D8 0%, #E3D8BF 55%, #D6C7A4 100%); }
+body::before { content: ''; position: absolute; width: 900px; height: 900px; border-radius: 50%; right: -220px; top: -260px; background: radial-gradient(circle, rgba(214,182,108,0.45), transparent 65%); }
+.phone {
+    position: absolute; width: 380px; height: 790px; border-radius: 62px; padding: 14px;
+    background: linear-gradient(145deg, #3B3F3D, #121413 60%, #2A2D2B);
+    box-shadow: inset 0 0 0 2px #5A5F5C, 0 50px 90px rgba(60,45,10,0.35), 0 18px 30px rgba(0,0,0,0.25);
+}
+.screen { width: 100%; height: 100%; border-radius: 50px; overflow: hidden; position: relative; }
+.island { position: absolute; top: 16px; left: 50%; width: 112px; height: 32px; margin-left: -56px; background: #000; border-radius: 20px; z-index: 5; }
+.status { position: absolute; top: 20px; left: 34px; right: 30px; display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; z-index: 4; }
+
+/* Phone 1: home screen */
+.p1 { left: 250px; top: 105px; transform: rotate(-6deg); }
+.p1 .screen { background: radial-gradient(ellipse at 30% 10%, #2E7A5E 0%, #164A3C 45%, #0B2620 100%); }
+.p1 .status { color: #fff; }
+.clock { position: absolute; top: 84px; width: 100%; text-align: center; color: #fff; }
+.clock b { display: block; font-size: 66px; font-weight: 600; letter-spacing: -0.02em; }
+.clock span { font-size: 15px; font-weight: 600; opacity: 0.85; }
+.grid { position: absolute; top: 300px; left: 26px; right: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px 0; justify-items: center; }
+.app { width: 62px; text-align: center; color: #fff; font-size: 11.5px; font-weight: 600; }
+.app i { display: block; width: 62px; height: 62px; border-radius: 15px; margin-bottom: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+.app img { display: block; width: 62px; height: 62px; margin-bottom: 6px; border-radius: 15px; box-shadow: 0 0 0 3px rgba(214,182,108,0.9), 0 6px 18px rgba(0,0,0,0.35); }
+.dock { position: absolute; left: 18px; right: 18px; bottom: 18px; height: 96px; border-radius: 34px; background: rgba(255,255,255,0.18); display: flex; justify-content: space-around; align-items: center; }
+.dock i { width: 62px; height: 62px; border-radius: 15px; }
+
+/* Phone 2: splash */
+.p2 { left: 820px; top: 125px; transform: rotate(5deg); }
+.p2 .screen { background: radial-gradient(ellipse at 50% 30%, #1B5A47 0%, var(--green) 55%, #0A231D 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.p2 .status { color: #fff; }
+.p2 .screen img { width: 270px; }
+.p2 .tag { margin-top: 22px; color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 0.3em; text-align: center; line-height: 1.8; }
+.p2 .bar { position: absolute; bottom: 90px; width: 150px; height: 5px; border-radius: 4px; background: rgba(255,255,255,0.15); overflow: hidden; }
+.p2 .bar::after { content: ''; position: absolute; inset: 0; width: 62%; background: linear-gradient(90deg, #B8862B, #F6DB95); border-radius: 4px; }
+.p2 .home { position: absolute; bottom: 12px; width: 130px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.7); }
+.bigicon { position: absolute; left: 1290px; top: 640px; width: 190px; height: 190px; border-radius: 42px; box-shadow: 0 30px 60px rgba(60,45,10,0.35); transform: rotate(-8deg); }
+</style></head>
+<body>
+<div class="phone p1"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="clock"><b>9:41</b><span>Isniin, 9 Nofeembar</span></div>
+    <div class="grid">
+        <div class="app"><i style="background:linear-gradient(#5AC8FA,#1E88E5)"></i>Weather</div>
+        <div class="app"><i style="background:linear-gradient(#FFD54F,#FF9800)"></i>Notes</div>
+        <div class="app"><img src="../../svg/simda-app-icon.svg" alt="">SIMDA</div>
+        <div class="app"><i style="background:linear-gradient(#81C784,#2E7D32)"></i>Maps</div>
+        <div class="app"><i style="background:linear-gradient(#F48FB1,#D81B60)"></i>Photos</div>
+        <div class="app"><i style="background:linear-gradient(#B39DDB,#5E35B1)"></i>Podcasts</div>
+        <div class="app"><i style="background:linear-gradient(#90A4AE,#455A64)"></i>Settings</div>
+        <div class="app"><i style="background:linear-gradient(#FFAB91,#E64A19)"></i>Books</div>
+    </div>
+    <div class="dock"><i style="background:linear-gradient(#69F0AE,#00C853)"></i><i style="background:linear-gradient(#4FC3F7,#0277BD)"></i><i style="background:linear-gradient(#FFFFFF,#E0E0E0)"></i><i style="background:linear-gradient(#25D366,#128C7E)"></i></div>
+</div></div>
+<div class="phone p2"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <img src="../../svg/simda-logo-reverse.svg" alt="">
+    <div class="tag">SOMALI ISLAMIC MICROFINANCE<br>DEVELOPMENT ASSOCIATION</div>
+    <div class="bar"></div>
+    <div class="home"></div>
+</div></div>
+<img class="bigicon" src="../../svg/simda-app-icon.svg" alt="">
+<div class="label dark">SIMDA · <b>Mobile app</b></div>
+</body></html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+html, body { width: 1600px; height: 1130px; }
+body { background: #FBF8F2; padding: 56px 64px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--green); padding-bottom: 18px; }
+header h1 { font-size: 34px; font-weight: 800; color: var(--green); letter-spacing: -0.01em; }
+header h1 span { color: var(--gold-2); }
+header p { font-size: 13px; color: #6A756F; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 36px; margin-top: 30px; }
+h3 { font-size: 12px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-2); margin-bottom: 14px; }
+.panel { background: #fff; border: 1px solid #ECE7DD; border-radius: 18px; padding: 24px; }
+.hero-logo { position: relative; height: 250px; display: flex; align-items: center; justify-content: center; }
+.hero-logo img { width: 560px; position: relative; z-index: 1; }
+.clear { position: absolute; left: 50%; top: 50%; width: 640px; height: 196px; margin: -98px 0 0 -320px; border: 1.5px dashed rgba(184,134,43,0.6); border-radius: 4px; }
+.clear::before, .clear::after { position: absolute; font-size: 11px; font-weight: 700; color: var(--gold-2); }
+.clear::before { content: 'x'; left: 14px; top: 6px; }
+.clear::after { content: 'x = height of the I'; right: 10px; bottom: -22px; color: #6A756F; font-weight: 600; }
+.versions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.versions div { height: 96px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #ECE7DD; }
+.versions img { width: 78%; }
+.versions .mk img { width: auto; height: 70px; }
+.colors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.sw { border-radius: 14px; overflow: hidden; border: 1px solid #ECE7DD; background: #fff; }
+.sw i { display: block; height: 96px; }
+.sw div { padding: 10px 12px 12px; font-size: 11px; line-height: 1.55; color: #52635B; }
+.sw b { display: block; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
+.type { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.type .aa { font-size: 64px; font-weight: 800; color: var(--green); line-height: 1; }
+.type .w { font-size: 13px; color: #52635B; line-height: 1.7; }
+.type .w b { color: var(--ink); }
+.rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.rule { border-radius: 12px; border: 1px solid #ECE7DD; background: #fff; padding: 10px; text-align: center; font-size: 11px; font-weight: 600; color: #52635B; }
+.rule .box { height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; overflow: hidden; border-radius: 8px; background: #F5F1E8; }
+.rule .box img { width: 82%; }
+.rule .box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent calc(50% - 2px), #C0392B calc(50% - 2px), #C0392B calc(50% + 2px), transparent calc(50% + 2px)); opacity: 0.85; }
+.rule b { color: #C0392B; }
+.sizes { display: flex; gap: 26px; align-items: flex-end; margin-top: 6px; font-size: 11px; color: #6A756F; font-weight: 600; }
+.sizes div { display: flex; flex-direction: column; gap: 6px; }
+footer { position: absolute; left: 64px; right: 64px; bottom: 34px; display: flex; justify-content: space-between; font-size: 11px; color: #8A948F; font-weight: 600; letter-spacing: 0.08em; }
+</style></head>
+<body>
+<header>
+    <div><p>Brand guidelines · v1.0 · 2026</p><h1>SIMDA <span>Logo &amp; Identity</span></h1></div>
+    <p>Somali Islamic Microfinance Development Association</p>
+</header>
+<div class="grid">
+    <div>
+        <h3>Primary logo &amp; clear space</h3>
+        <div class="panel hero-logo"><div class="clear"></div><img src="../../svg/simda-logo-primary.svg" alt=""></div>
+        <h3 style="margin-top:26px">Logo versions</h3>
+        <div class="versions">
+            <div style="background:#fff"><img src="../../svg/simda-logo-primary.svg" alt=""></div>
+            <div style="background:#123B32"><img src="../../svg/simda-logo-reverse.svg" alt=""></div>
+            <div style="background:#fff"><img src="../../svg/simda-logo-flat.svg" alt=""></div>
+            <div style="background:#fff"><img src="../../svg/simda-logo-black.svg" alt=""></div>
+            <div style="background:#2B2B2B"><img src="../../svg/simda-logo-white.svg" alt=""></div>
+            <div class="mk" style="background:#F5F1E8;gap:18px"><img src="../../svg/simda-mark-primary.svg" alt=""><img src="../../svg/simda-app-icon.svg" alt=""></div>
+        </div>
+        <h3 style="margin-top:26px">Don't</h3>
+        <div class="rules">
+            <div class="rule"><div class="box"><img src="../../svg/simda-logo-primary.svg" style="transform:scaleX(1.5)" alt=""></div><b>Ha kala jiidin</b> · don't stretch</div>
+            <div class="rule"><div class="box"><img src="../../svg/simda-logo-primary.svg" style="filter:hue-rotate(160deg)" alt=""></div><b>Midab ha beddelin</b> · no new colours</div>
+            <div class="rule"><div class="box"><img src="../../svg/simda-logo-primary.svg" style="transform:rotate(-14deg)" alt=""></div><b>Ha wareejin</b> · don't rotate</div>
+            <div class="rule"><div class="box" style="background:#1E5A4A"><img src="../../svg/simda-logo-primary.svg" alt=""></div><b>Cagaar dul ha saarin</b> · use reverse</div>
+        </div>
+    </div>
+    <div>
+        <h3>Colour palette</h3>
+        <div class="colors">
+            <div class="sw"><i style="background:#123B32"></i><div><b>SIMDA Green</b>HEX #123B32<br>RGB 18 59 50<br>CMYK 85 45 75 55</div></div>
+            <div class="sw"><i style="background:linear-gradient(#16704D,#0B3D2C)"></i><div><b>Logo Green</b>#16704D → #0B3D2C<br>RGB 22 112 77<br>CMYK 85 30 80 20</div></div>
+            <div class="sw"><i style="background:#D6B66C"></i><div><b>SIMDA Gold</b>HEX #D6B66C<br>RGB 214 182 108<br>CMYK 15 25 65 5</div></div>
+            <div class="sw"><i style="background:linear-gradient(135deg,#F6DB95,#D6A945,#B8862B)"></i><div><b>Logo Gold</b>#F6DB95 → #B8862B<br>RGB 214 169 69<br>CMYK 15 30 85 5</div></div>
+        </div>
+        <div class="colors" style="grid-template-columns:repeat(3,1fr);margin-top:12px">
+            <div class="sw"><i style="background:#F5F1E8;height:44px"></i><div><b>Cream</b>#F5F1E8</div></div>
+            <div class="sw"><i style="background:#1D2B26;height:44px"></i><div><b>Ink</b>#1D2B26</div></div>
+            <div class="sw"><i style="background:#FFFFFF;height:44px;border-bottom:1px solid #ECE7DD"></i><div><b>White</b>#FFFFFF</div></div>
+        </div>
+        <h3 style="margin-top:26px">Typography</h3>
+        <div class="panel type">
+            <div><div class="aa">Aa</div><div class="w" style="margin-top:10px"><b>Montserrat</b><br>ExtraBold · Bold · SemiBold<br>Cinwaanno, magacyo, tagline</div></div>
+            <div class="w"><b>Wordmark:</b> xarfo gaar ah (vector), ha qorin font.<br><b>Tagline:</b> Montserrat Bold, letter-spacing 0.24em, UPPERCASE.<br><b>Qoraal:</b> Montserrat Regular / Medium, 14–16 px.</div>
+        </div>
+        <h3 style="margin-top:26px">Minimum size</h3>
+        <div class="panel">
+            <div class="sizes">
+                <div><img src="../../svg/simda-logo-primary.svg" style="width:120px" alt="">Print 30 mm · Screen 120 px</div>
+                <div><img src="../../svg/simda-mark-primary.svg" style="width:36px" alt="">Mark 8 mm · 32 px</div>
+                <div><img src="../../svg/simda-app-icon.svg" style="width:48px" alt="">App icon 48 px +</div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer><span>SIMDA · Building Trust. Empowering Growth.</span><span>KM4, Hodan, Muqdisho · +252 616256534</span></footer>
+</body></html>

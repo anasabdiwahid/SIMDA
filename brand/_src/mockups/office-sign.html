@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+body { background: linear-gradient(180deg, #8FB4CC 0%, #C9DCE6 38%, #E9E2D2 38.1%); }
+/* building */
+.wall {
+    position: absolute; left: 0; right: 0; top: 160px; bottom: 150px;
+    background:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 70px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.035) 0 2px, transparent 2px 200px),
+        linear-gradient(180deg, #F3EEE3 0%, #E6DECD 100%);
+    box-shadow: 0 -6px 0 #D9CFB8 inset;
+}
+.cornice { position: absolute; left: 0; right: 0; top: 140px; height: 26px; background: linear-gradient(#FFFFFF, #DCD3BF); box-shadow: 0 8px 14px rgba(0,0,0,0.12); }
+/* sign box */
+.sign {
+    position: absolute; left: 330px; top: 225px; width: 940px; height: 250px; border-radius: 10px;
+    background: radial-gradient(ellipse at 50% 30%, #1E5E4A 0%, var(--green) 60%, #0C2922 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow:
+        0 0 0 6px #0A1F19,
+        8px 14px 0 6px #071712,
+        0 40px 60px rgba(0,0,0,0.35);
+}
+.sign img { width: 640px; filter: drop-shadow(0 0 18px rgba(246,219,149,0.35)); }
+.sign .tag { margin-top: 16px; color: var(--gold); font-size: 17px; font-weight: 700; letter-spacing: 0.34em; }
+.sign::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: linear-gradient(90deg, transparent, #F6DB95, transparent); border-radius: 4px; }
+.glow { position: absolute; left: 280px; top: 470px; width: 1040px; height: 120px; background: radial-gradient(ellipse at 50% 0%, rgba(246,219,149,0.30), transparent 70%); }
+/* glass door + windows */
+.door { position: absolute; left: 680px; top: 560px; width: 240px; height: 290px; background: linear-gradient(135deg, #3D5A66 0%, #6E8E99 45%, #2E4650 100%); border: 10px solid #1D2B26; border-bottom: 0; }
+.door::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; margin-left: -3px; background: #1D2B26; }
+.door::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 100%; background: linear-gradient(115deg, rgba(255,255,255,0.35) 0 12%, transparent 12% 30%, rgba(255,255,255,0.15) 30% 34%, transparent 34%); }
+.win { position: absolute; top: 590px; width: 280px; height: 200px; background: linear-gradient(135deg, #4E6E7A, #8AA9B4 50%, #3A5560); border: 10px solid #1D2B26; }
+.win::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,0.3) 0 15%, transparent 15%); }
+.win.l { left: 300px; } .win.r { left: 1020px; }
+.plate { position: absolute; left: 950px; top: 640px; width: 52px; height: 52px; border-radius: 8px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); padding: 6px; }
+.plate img { width: 100%; }
+.ground { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, #B7AE9C, #8F8778); }
+.step { position: absolute; left: 640px; bottom: 120px; width: 320px; height: 30px; background: linear-gradient(#D8D0BE, #B8AF9D); }
+.plant { position: absolute; bottom: 150px; width: 90px; height: 150px; }
+.plant .pot { position: absolute; bottom: 0; left: 15px; width: 60px; height: 60px; background: linear-gradient(#123B32, #0A231D); border-radius: 4px 4px 10px 10px; }
+.plant .leaf { position: absolute; bottom: 52px; left: 0; width: 90px; height: 110px; background: radial-gradient(ellipse at 50% 70%, #3E8E5E, #1F5E3A 70%); border-radius: 50% 50% 45% 45%; }
+.plant.a { left: 560px; } .plant.b { left: 950px; }
+</style></head>
+<body>
+<div class="cornice"></div>
+<div class="wall"></div>
+<div class="sign"><img src="../../svg/simda-logo-reverse.svg" alt=""><div class="tag">SOMALI ISLAMIC MICROFINANCE DEVELOPMENT ASSOCIATION</div></div>
+<div class="glow"></div>
+<div class="win l"></div><div class="win r"></div>
+<div class="door"></div>
+<div class="plate"><img src="../../svg/simda-mark-primary.svg" alt=""></div>
+<div class="ground"></div><div class="step"></div>
+<div class="plant a"><div class="leaf"></div><div class="pot"></div></div>
+<div class="plant b"><div class="leaf"></div><div class="pot"></div></div>
+<div class="label">SIMDA · <b>Office signage</b></div>
+</body></html>
