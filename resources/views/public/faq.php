@@ -15,7 +15,7 @@ $tAll = [
         'nav_process' => 'Our Process',
         'nav_testimonials' => 'Testimonials',
         'nav_faq' => 'FAQ',
-        'nav_contact' => 'Contact',
+        'nav_contact' => 'Contact Us',
         'cta_dashboard' => 'Dashboard',
         'cta_start' => 'Get Started',
 
@@ -883,6 +883,9 @@ $activeLang = $languagesList[$locale] ?? $languagesList['en'];
             <li><a href="?route=about"><?= Security::e($t['nav_about']) ?></a></li>
             <li><a href="?route=home#services"><?= Security::e($t['nav_services']) ?></a></li>
             <li><a href="?route=home#our-process"><?= Security::e($t['nav_process']) ?></a></li>
+            <?php if (!empty($hasPartners)): ?>
+                <li><a href="?route=home#partners"><?= Lang::locale() === 'so' ? 'La-hawlgalayaasha' : (Lang::locale() === 'ar' ? 'الشركاء' : 'Partners') ?></a></li>
+            <?php endif; ?>
             <li><a href="?route=faq" class="active"><?= Security::e($t['nav_faq']) ?></a></li>
             <li><a href="?route=contact"><?= Security::e($t['nav_contact']) ?></a></li>
         </ul>

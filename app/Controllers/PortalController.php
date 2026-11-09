@@ -232,6 +232,11 @@ final class PortalController
         foreach ($settingsRows as $r) {
             $settings[$r['setting_key']] = $r['setting_value'];
         }
+        try {
+            $hasPartners = PartnerService::all($pdo, true) !== [];
+        } catch (\Throwable $e) {
+            $hasPartners = false;
+        }
         require dirname(__DIR__, 2) . '/resources/views/public/about.php';
     }
 
@@ -242,6 +247,11 @@ final class PortalController
         foreach ($settingsRows as $r) {
             $settings[$r['setting_key']] = $r['setting_value'];
         }
+        try {
+            $hasPartners = PartnerService::all($pdo, true) !== [];
+        } catch (\Throwable $e) {
+            $hasPartners = false;
+        }
         require dirname(__DIR__, 2) . '/resources/views/public/contact.php';
     }
 
@@ -251,6 +261,11 @@ final class PortalController
         $settings = [];
         foreach ($settingsRows as $r) {
             $settings[$r['setting_key']] = $r['setting_value'];
+        }
+        try {
+            $hasPartners = PartnerService::all($pdo, true) !== [];
+        } catch (\Throwable $e) {
+            $hasPartners = false;
         }
         require dirname(__DIR__, 2) . '/resources/views/public/faq.php';
     }
