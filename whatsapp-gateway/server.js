@@ -21,6 +21,8 @@ const {
     DisconnectReason,
     fetchLatestBaileysVersion,
     Browsers,
+    makeCacheableSignalKeyStore,
+    BufferJSON,
 } = require('@whiskeysockets/baileys');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -43,6 +45,36 @@ const API_KEY = process.env.WHATSAPP_GATEWAY_KEY || env.WHATSAPP_GATEWAY_KEY || 
 const AUTH_DIR = path.join(ROOT, 'storage', 'whatsapp-auth');
 const logger = pino({ level: 'warn' });
 
+// Messages we sent, by id. When a phone can't decrypt a message it asks us to resend it;
+// without this copy Baileys can't, and the phone shows "Waiting for this message" forever.
+// Kept on disk so retries still work after a restart. (Images are stored as WhatsApp's
+// upload reference, not the picture itself, so the file stays small.)
+const SENT_FILE = path.join(ROOT, 'storage', 'whatsapp-sent.json');
+const SENT_MAX = 1000;
+const sentMessages = new Map();
+try {
+    for (const [id, msg] of JSON.parse(fs.readFileSync(SENT_FILE, 'utf8'), BufferJSON.reviver)) sentMessages.set(id, msg);
+} catch (_) { /* first run or unreadable file: start empty */ }
+let saveTimer = null;
+function rememberSent(sent) {
+    if (!sent || !sent.key || !sent.key.id || !sent.message) return;
+    sentMessages.set(sent.key.id, sent.message);
+    while (sentMessages.size > SENT_MAX) sentMessages.delete(sentMessages.keys().next().value);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+        fs.writeFile(SENT_FILE, JSON.stringify([...sentMessages], BufferJSON.replacer), () => {});
+    }, 500);
+}
+
+// How often each message was retried (Baileys stops after a few attempts).
+const retryCounts = new Map();
+const msgRetryCounterCache = {
+    get: (k) => retryCounts.get(k),
+    set: (k, v) => { retryCounts.set(k, v); if (retryCounts.size > 5000) retryCounts.delete(retryCounts.keys().next().value); },
+    del: (k) => { retryCounts.delete(k); },
+    flushAll: () => { retryCounts.clear(); },
+};
+
 let sock = null;
 let state = { status: 'starting', qr: null, me: null, error: null };
 let pairing = { code: null, error: null };
@@ -57,8 +89,15 @@ async function start() {
 
     sock = makeWASocket({
         ...(version ? { version } : {}),
-        auth: authState,
+        auth: {
+            creds: authState.creds,
+            // Cache in front of the key files so keys stay in step under load.
+            keys: makeCacheableSignalKeyStore(authState.keys, logger),
+        },
         logger,
+        msgRetryCounterCache,
+        // Lets Baileys resend a message a phone could not decrypt.
+        getMessage: async (key) => sentMessages.get(key.id),
         browser: Browsers.windows('SIMDA'),
         markOnlineOnConnect: false,
         qrTimeout: 60000,
@@ -207,6 +246,7 @@ const server = http.createServer(async (req, res) => {
             const [check] = await sock.onWhatsApp(jid);
             if (!check || !check.exists) return json(res, 404, { success: false, error: `+${to} is not on WhatsApp.` });
             const sent = await sock.sendMessage(check.jid || jid, image ? { image, caption: message } : { text: message });
+            rememberSent(sent);
             return json(res, 200, { success: true, to, id: sent && sent.key ? sent.key.id : null });
         } catch (e) {
             return json(res, 500, { success: false, error: String(e && e.message || e) });

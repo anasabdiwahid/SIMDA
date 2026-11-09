@@ -30,6 +30,7 @@ Thumbs.db
 # Local WhatsApp gateway: packages and the linked-phone session (secret)
 /whatsapp-gateway/node_modules/
 /storage/whatsapp-auth/
+/storage/whatsapp-sent.json
 
 # Brand kit build leftovers
 brand/_src/ai-check/
