@@ -7,9 +7,6 @@ use App\Helpers\Security;
 
 <div class="card animate-in" style="margin-bottom:24px;">
     <h2 style="font-size:1.25rem;margin:6px 0;"><?= Security::e(Lang::get('menu_par30')) ?></h2>
-    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:18px;">
-        Formula: <code>PAR30 = (Outstanding Balance of Financings with an Installment &gt; 30 Days Late ÷ Total Outstanding Balance) × 100</code>. Branches with no active financing display <code>0.00%</code>.
-    </p>
 
     <div class="kpi-grid">
         <div class="kpi-card">
