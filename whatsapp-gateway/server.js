@@ -138,6 +138,17 @@ async function start() {
     });
 }
 
+function waitForConnection(maxMs) {
+    return new Promise((resolve) => {
+        const until = Date.now() + maxMs;
+        (function check() {
+            if (state.status === 'connected' && sock) return resolve(true);
+            if (Date.now() >= until) return resolve(false);
+            setTimeout(check, 250);
+        })();
+    });
+}
+
 function fail(err) {
     console.error('[gateway] Error:', err);
     state = { status: 'error', qr: null, me: null, error: String(err && err.message || err) };
@@ -225,7 +236,20 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'POST' && url.pathname === '/send') {
         if (API_KEY && req.headers['x-api-key'] !== API_KEY) return json(res, 401, { success: false, error: 'Invalid API key.' });
-        if (state.status !== 'connected' || !sock) return json(res, 503, { success: false, error: 'WhatsApp is not connected. Scan the QR code at http://127.0.0.1:' + PORT });
+        // A dropped connection reconnects by itself within seconds: wait for it instead of failing.
+        // (SIMDA waits 20 s for a text message, so stay well under that.)
+        if (state.status === 'reconnecting' || state.status === 'starting') {
+            await waitForConnection(12000);
+        }
+        if (state.status !== 'connected' || !sock) {
+            const linkNeeded = state.status === 'waiting_for_scan' || state.status === 'error';
+            return json(res, 503, {
+                success: false,
+                error: linkNeeded
+                    ? 'WhatsApp is not connected. Scan the QR code at http://127.0.0.1:' + PORT
+                    : 'WhatsApp is reconnecting. Please try again in a minute.',
+            });
+        }
         let body;
         try { body = await readBody(req); } catch (_) { return json(res, 400, { success: false, error: 'Invalid JSON.' }); }
         const to = normalize(body.to);
