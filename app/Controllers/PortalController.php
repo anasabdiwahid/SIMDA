@@ -373,6 +373,16 @@ final class PortalController
         $suggestions = [];
         $actionBtn = null;
 
+        // "How do I apply / get financing" wins over topic words in the same question
+        // (e.g. "Side ku codsada Murabaxo" is about applying, not what Murabaha is).
+        // Somali verbs are matched by stem so every spelling/conjugation counts:
+        // cods-(i/o/ado/adaa/ada/aday/an...), dalb-, hel-, qaad-/qaat-.
+        $wantsApply = (bool) (
+            preg_match('/(cods|dalb|shuruud|shardi|qaabkee|diiwaangeli|isdiiwaan|apply|applic|eligib|requirement|how (can|do|to) (i |we )?(get|obtain|request)|شروط|كيف أقدم|التقديم|طلب|الأوراق)/iu', $message)
+            || preg_match('/\bsid(ee|e)n?\b.{0,40}\b(hel|qaad|qaat)\w*/iu', $message)
+            || preg_match('/\b(hel|heli|helo|helaa|helayaa|qaado|qaato|qaadan|qaadanayaa)\w*\b.{0,40}\b(dayn|deyn|amaah|maalgelin|maalgalin|mura+ba[xh]\w*|lacag)/iu', $message)
+        );
+
         // 0. Language switch / who am I / who made me / jokes (offline answers in the SIMDA AI voice)
         if (preg_match('/(\b(af[\s-]?)?so+mali\b.*\b(ku|igu|ila|nagu)?\s*(hadal|hadla|qor|jawaab)|speak somali|in somali)/iu', $message)) {
             $lang = 'so';
@@ -464,7 +474,7 @@ final class PortalController
         }
         // 2. Overview / "Xogta meesha wax iga sheeg" / "Tell me about this place / SIMDA"
         elseif (
-            preg_match('/(xog|xogta|waran|meesha|mesha|meeshan|meshan|halkan|waxa socda|shirkaddan|hay\'addan|maxaad qabataan|maxaa la qabtaa|wax iga sheeg|iiga waran|i fahamsii|about this place|tell me about|what is this place|overview|what does simda do|عن هذا المكان|أخبرني عن|ما هي هذه المؤسسة|ماذا تفعلون|نبذة)/iu', $message)
+            !$wantsApply && preg_match('/(xog|xogta|waran|meesha|mesha|meeshan|meshan|halkan|waxa socda|shirkaddan|hay\'addan|maxaad qabataan|maxaa la qabtaa|wax iga sheeg|iiga waran|i fahamsii|about this place|tell me about|what is this place|overview|what does simda do|عن هذا المكان|أخبرني عن|ما هي هذه المؤسسة|ماذا تفعلون|نبذة)/iu', $message)
         ) {
             $topic = 'overview';
             if ($lang === 'ar') {
@@ -505,8 +515,8 @@ final class PortalController
         }
         // 2. Greetings / Salams
         elseif (
-            preg_match('/^(asc|salaam|salam|salan|hello|hi|hey|subax|galab|nabad|marhaban|مرحبا|أهلا|السلام)/iu', $message) ||
-            preg_match('/(asc|asalaamu|assalamu|salaamu calaykum|salaam)/iu', $message)
+            !$wantsApply && (preg_match('/^(asc|salaam|salam|salan|hello|hi|hey|subax|galab|nabad|marhaban|مرحبا|أهلا|السلام)/iu', $message) ||
+            preg_match('/(asc|asalaamu|assalamu|salaamu calaykum|salaam)/iu', $message))
         ) {
             $topic = 'greeting';
             if ($lang === 'ar') {
@@ -523,7 +533,7 @@ final class PortalController
 
         // 3. Riba & Interest Check
         elseif (
-            preg_match('/(ribo|ribada|dulsaar|riba|interest|usury|ربا|فوائد|فائدة|ربوية)/iu', $message)
+            !$wantsApply && preg_match('/(rib[oa]|ribada|dulsaar|riba|interest|usury|ربا|فوائد|فائدة|ربوية)/iu', $message)
         ) {
             $topic = 'riba';
             if ($lang === 'ar') {
@@ -539,7 +549,7 @@ final class PortalController
         }
         // 2. Savings & Deposits Check (Strictly NO)
         elseif (
-            preg_match('/(keyd|kayd|lacag dhigasho|dhigo|deposit|saving|savings|توفير|ودائع|إيداع|حساب توفير)/iu', $message)
+            !$wantsApply && preg_match('/(keyd|kayd|lacag dhigasho|dhigo|deposit|saving|savings|توفير|ودائع|إيداع|حساب توفير)/iu', $message)
         ) {
             $topic = 'savings';
             if ($lang === 'ar') {
@@ -555,7 +565,7 @@ final class PortalController
         }
         // 3. Murabaha Definition & Operation
         elseif (
-            preg_match('/(murabaha|muraabaxa|cost-plus|مرابحة|المرابحة)/iu', $message)
+            !$wantsApply && preg_match('/(mura+ba[xh]|cost-plus|مرابحة|المرابحة)/iu', $message)
         ) {
             $topic = 'murabaha';
             if ($lang === 'ar') {
@@ -571,7 +581,7 @@ final class PortalController
         }
         // 4. Products & What We Finance (Assets, Kiosks, Plots)
         elseif (
-            preg_match('/(alaab|noocyada|mashiin|kiosk|baqaar|dhul|dhismaha|products|finance|equipment|plot|assets|منتجات|خدمات|أكشاك|بناء|معدات|أصول)/iu', $message)
+            !$wantsApply && preg_match('/(alaab|noocyada|maalgelis|maalgeli[nyst]|mashiin|kiosk|baqaar|dhul|dhismaha|products|finance|equipment|plot|assets|منتجات|خدمات|أكشاك|بناء|معدات|أصول)/iu', $message)
         ) {
             $topic = 'products';
             if ($lang === 'ar') {
@@ -585,10 +595,8 @@ final class PortalController
                 $suggestions = ['Sideen u codsadaa?', 'Keyd ma leedihiin?', 'Xafiiskiina xagee ku yaal?'];
             }
         }
-        // 5. Requirements & How to Apply
-        elseif (
-            preg_match('/(codsi|codsadaa|shuruud|shuruudaha|qaabkee|requirements|eligibility|how to apply|apply|process|شروط|كيف أقدم|طلب تمويل|الأوراق)/iu', $message)
-        ) {
+        // 5. Requirements & How to Apply (see $wantsApply above)
+        elseif ($wantsApply) {
             $topic = 'apply';
             if ($lang === 'ar') {
                 $reply = "للتقديم على تمويل سيمدا: 1) ملء استمارة الطلب عبر موقعنا أو زيارة الفرع. 2) إحضار إثبات الهوية (البطاقة أو الجواز) وبيانات المشروع. 3) تقديم كفيل معتمد أو الانضمام لمجموعة تضامنية. 4) يقوم مسؤول التمويل بزيارة النشاط وتقييمه ثم يعتمده مدير الفرع قبل صرف الأصل مباشرة.";
