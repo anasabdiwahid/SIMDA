@@ -8056,3 +8056,13 @@ html.srv-dlg-open { overflow: hidden; }
 .fid-nav.fid-nav-two-row .fid-nav-links { order: 3; flex: 1 0 100%; justify-content: center; flex-wrap: wrap; row-gap: 8px; column-gap: clamp(18px, 2.4vw, 36px); padding-top: 12px; border-top: 1px solid #EFECE6; }
 .fid-nav.fid-nav-two-row .fid-menu-btn { display: none; }
 [data-theme="dark"] .fid-nav.fid-nav-two-row .fid-nav-links { border-top-color: rgba(255, 255, 255, 0.08); }
+
+/* One-line header kept as long as possible: simda.js tries .fid-nav-tight, then .fid-nav-tighter,
+   before falling back to two rows. */
+.fid-header .fid-container.fid-nav.fid-nav-tight { gap: 14px; padding-left: 18px; padding-right: 18px; }
+.fid-nav.fid-nav-tight .fid-nav-links { gap: 12px; }
+.fid-nav.fid-nav-tight > div { gap: 8px !important; }
+.fid-header .fid-container.fid-nav.fid-nav-tighter { gap: 10px; padding-left: 12px; padding-right: 12px; }
+.fid-nav.fid-nav-tighter .fid-nav-links { gap: 9px; }
+.fid-nav.fid-nav-tighter .fid-nav-links a { font-size: 0.8rem; }
+.fid-nav.fid-nav-tighter .fid-btn-green { padding-left: 16px; padding-right: 16px; }

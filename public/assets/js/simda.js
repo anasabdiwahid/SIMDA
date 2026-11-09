@@ -981,9 +981,16 @@
         if (e && e.type === 'resize' && window.innerWidth === fitWidth) return;
         fitWidth = window.innerWidth;
         setOpen(false);
-        nav.classList.remove('fid-nav-compact', 'fid-nav-two-row');
+        nav.classList.remove('fid-nav-compact', 'fid-nav-two-row', 'fid-nav-tight', 'fid-nav-tighter');
         if (window.innerWidth <= 680) return; // phones already use the menu button
+        // Keep one line as long as possible: tighten spacing in two steps first.
+        var steps = ['fid-nav-tight', 'fid-nav-tighter'];
+        for (var i = 0; i < steps.length; i++) {
+            if (nav.scrollWidth <= nav.clientWidth + 1) return;
+            nav.classList.add(steps[i]);
+        }
         if (nav.scrollWidth <= nav.clientWidth + 1) return;
+        nav.classList.remove('fid-nav-tight', 'fid-nav-tighter');
         nav.classList.add(window.innerWidth > 900 ? 'fid-nav-two-row' : 'fid-nav-compact');
     }
     fit();
