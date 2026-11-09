@@ -6958,36 +6958,42 @@ th.fin-end {
 .cv-new-banner { display: flex; align-items: center; gap: 10px; background: var(--color-success-bg); color: var(--color-success); border-radius: 12px; padding: 12px 16px; font-weight: 700; margin-bottom: 16px; }
 
 /* ==========================================================================
-   SIDEBAR: FLOATING PANEL + COLLAPSIBLE GROUPS
+   SIDEBAR: PANEL ATTACHED TO THE SCREEN EDGE + COLLAPSIBLE GROUPS
    Fixed, never scrolls. One group open at a time; simda.js fits the text size.
+   Touches the top, bottom and outer edge; only the inner corners are (slightly) rounded.
    ========================================================================== */
 .sidebar {
     background: linear-gradient(180deg, rgba(20, 62, 52, 0.97) 0%, rgba(11, 38, 31, 0.98) 100%);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (min-width: 993px) {
     .sidebar {
-        top: 12px;
-        bottom: 12px;
-        left: 12px;
+        top: 0;
+        bottom: 0;
+        left: 0;
         height: auto;
-        border-radius: 18px;
-        box-shadow: 0 18px 40px rgba(6, 26, 21, 0.28);
+        border-radius: 0 10px 10px 0;
+        box-shadow: 4px 0 24px rgba(6, 26, 21, 0.18);
     }
     .app-main {
-        margin-left: calc(var(--sidebar-width) + 24px);
-        width: calc(100% - var(--sidebar-width) - 24px);
-        max-width: calc(100vw - var(--sidebar-width) - 24px);
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        max-width: calc(100vw - var(--sidebar-width));
     }
-    [dir="rtl"] .sidebar { left: auto !important; right: 12px !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; }
-    [dir="rtl"] .app-main { margin-left: 0 !important; margin-right: calc(var(--sidebar-width) + 24px) !important; }
+    [dir="rtl"] .sidebar {
+        left: auto !important; right: 0 !important; border: 0 !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 10px 0 0 10px; box-shadow: -4px 0 24px rgba(6, 26, 21, 0.18);
+    }
+    [dir="rtl"] .app-main { margin-left: 0 !important; margin-right: var(--sidebar-width) !important; }
 }
 
 .sidebar-brand { border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin: 0 14px; padding: 14px 0 12px; }
-.sidebar-footer { margin: 0 10px 10px; border-radius: 12px; border-top: 0; background: rgba(0, 0, 0, 0.2); }
+.sidebar-footer { margin: 0 10px 10px; border-radius: 8px; border-top: 0; background: rgba(0, 0, 0, 0.2); }
 
 .sidebar-nav { padding: 0.75em 0.75em 0.5em; }
 
@@ -7004,7 +7010,7 @@ th.fin-end {
     gap: 0.85em;
     padding: 0.62em 0.8em;
     margin-bottom: 0.15em;
-    border-radius: 10px;
+    border-radius: 7px;
     color: rgba(244, 245, 240, 0.86);
     font-size: 1em;
     font-weight: 500;
@@ -7035,7 +7041,7 @@ th.fin-end {
     gap: 0.85em;
     padding: 0.48em 0.8em 0.48em 1.15em;
     margin-bottom: 0.08em;
-    border-radius: 10px;
+    border-radius: 7px;
     color: rgba(244, 245, 240, 0.74);
     font-size: 0.93em;
     font-weight: 500;
@@ -7366,7 +7372,7 @@ th.fin-end {
 
 /* Sidebar: Manager / Employee register buttons under Dashboard */
 .sb-register { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45em; margin: 0.35em 0 0.6em; }
-.sb-register-btn { display: flex; align-items: center; gap: 0.45em; padding: 0.6em 0.7em; border-radius: 10px; border: 1px solid rgba(214, 182, 108, 0.35); background: rgba(214, 182, 108, 0.12); color: var(--simda-gold); font-size: 0.9em; font-weight: 700; text-decoration: none; white-space: nowrap; overflow: hidden; transition: background-color 0.15s ease, color 0.15s ease; }
+.sb-register-btn { display: flex; align-items: center; gap: 0.45em; padding: 0.6em 0.7em; border-radius: 7px; border: 1px solid rgba(214, 182, 108, 0.35); background: rgba(214, 182, 108, 0.12); color: var(--simda-gold); font-size: 0.9em; font-weight: 700; text-decoration: none; white-space: nowrap; overflow: hidden; transition: background-color 0.15s ease, color 0.15s ease; }
 .sb-register-btn > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .sb-register-btn svg { width: 1.1em; height: 1.1em; flex-shrink: 0; }
 .sb-register-btn svg:last-child { width: 0.9em; height: 0.9em; opacity: 0.8; }
