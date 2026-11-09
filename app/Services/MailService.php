@@ -262,8 +262,7 @@ final class MailService
         $roleNameSo = (string) ($roleInfo['name_so'] ?? $roleSlug);
         $roleNameEn = (string) ($roleInfo['name_en'] ?? $roleSlug);
 
-        $appUrl = (string) Env::get('APP_URL', 'http://localhost/SIMDA');
-        $loginUrl = rtrim($appUrl, '/') . '/index.php?route=login';
+        // No links in emails: links push messages into spam. Staff are told where to sign in instead.
 
         // Role title formatting
         $roleLabel = match ($roleSlug) {
@@ -390,13 +389,14 @@ final class MailService
                                 </table>
                             </div>
 
-                            <!-- LOGIN BUTTON -->
+                            <!-- HOW TO SIGN IN (plain text, no link: links send the email to spam) -->
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 20px;">
                                 <tr>
                                     <td align="center">
-                                        <a href="{$loginUrl}" target="_blank" style="background:linear-gradient(135deg,#0C2D24 0%,#1B7A53 100%);color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:800;padding:14px 34px;border-radius:30px;display:inline-block;box-shadow:0 6px 18px rgba(12,45,36,0.28);letter-spacing:0.5px;">
-                                            🚀 Gal Nidaamka SIMDA (Sign In)
-                                        </a>
+                                        <div style="background:linear-gradient(135deg,#0C2D24 0%,#1B7A53 100%);color:#FFFFFF;font-size:15px;font-weight:800;padding:14px 30px;border-radius:30px;display:inline-block;letter-spacing:0.3px;">
+                                            Ka gal nidaamka SIMDA &middot; Login
+                                        </div>
+                                        <p style="margin:10px 0 0;font-size:13px;color:#52635B;line-height:1.5;">Fur bogga SIMDA, guji <strong>Login</strong>, kadibna geli email-kaaga iyo password-ka kore.</p>
                                     </td>
                                 </tr>
                             </table>
@@ -444,8 +444,7 @@ Macluumaadka Akoonkaaga:
 - Email-ka: {$email}
 - Furaha Sirta ah (Password): {$plainPassword}
 
-Link-ga Gelitaanka:
-{$loginUrl}
+Sida loo galo: fur bogga SIMDA, guji Login, kadibna geli email-kaaga iyo password-ka kore.
 
 Talada Amniga: Fadlan furahaaga sirta ah ha la wadaagin cidna. Marka ugu horreysa ee aad gasho nidaamka waad beddeli kartaa.
 
@@ -474,7 +473,7 @@ TEXT;
             $whiteLogoPath = BASE_PATH . '/public/assets/images/simda-logo.png';
         }
         $inlineAttachments = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo-white.png';
+        $logoSrc = ''; // logo is embedded in the email itself (cid); never an outside link
         if (file_exists($whiteLogoPath)) {
             $inlineAttachments[] = [
                 'cid' => 'simda_white_logo',
@@ -551,7 +550,7 @@ HTML;
             $whiteLogoPath = BASE_PATH . '/public/assets/images/simda-logo.png';
         }
         $inlineAttachments = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo-white.png';
+        $logoSrc = ''; // logo is embedded in the email itself (cid); never an outside link
         if (file_exists($whiteLogoPath)) {
             $inlineAttachments[] = [
                 'cid' => 'simda_white_logo',
@@ -704,7 +703,7 @@ HTML;
         // Logo embedding
         $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
         $inlineAttachments = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
+        $logoSrc = ''; // logo is embedded in the email itself (cid); never an outside link
         if (is_file($logoPath)) {
             $inlineAttachments[] = [
                 'cid' => 'simda_logo',
@@ -927,7 +926,7 @@ HTML;
 
         $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
         $inline = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
+        $logoSrc = ''; // logo is embedded in the email itself (cid); never an outside link
         if (is_file($logoPath)) {
             $inline[] = ['cid' => 'simda_logo', 'path' => $logoPath, 'mime' => 'image/png', 'filename' => 'simda-logo.png'];
             $logoSrc = 'cid:simda_logo';
@@ -991,7 +990,7 @@ HTML;
 
         $logoPath = dirname(__DIR__, 2) . '/public/assets/images/simda-logo.png';
         $inline = [];
-        $logoSrc = 'https://simda.so/assets/images/simda-logo.png';
+        $logoSrc = ''; // logo is embedded in the email itself (cid); never an outside link
         if (is_file($logoPath)) {
             $inline[] = ['cid' => 'simda_logo', 'path' => $logoPath, 'mime' => 'image/png', 'filename' => 'simda-logo.png'];
             $logoSrc = 'cid:simda_logo';
@@ -1119,7 +1118,6 @@ HTML;
         $isMurabaha = ($app['product_type'] ?? '') === 'murabaha';
         $productType = $isSo ? ($isMurabaha ? 'Murabaxo' : 'Dayn Cadaan') : ($isMurabaha ? 'Murabaha' : 'Cash Loan');
         $submittedAt = date('d/m/Y H:i', strtotime((string) ($app['submitted_at'] ?? 'now')));
-        $queueUrl = rtrim((string) Env::get('APP_URL', 'http://localhost/SIMDA'), '/') . '/index.php?route=approval_queue';
 
         $subject = $isSo ? "SIMDA: Codsi {$productType} oo {$amount} ah ayaa laguu soo gudbiyay" : "SIMDA: {$productType} application of {$amount} forwarded to you";
         $intro = $isSo
@@ -1157,15 +1155,17 @@ HTML;
                 . '<td style="padding:8px 0;border-bottom:1px solid #E6EAE7;color:#1B2E28;font-weight:600;">' . $e($value) . '</td></tr>';
             $plainRows .= "{$label}: {$value}\n";
         }
-        $table .= '</table><p style="color:#1B2E28;font-size:14px;font-weight:700;margin:0 0 16px;">' . $e($action) . '</p>'
-            . '<a href="' . $e($queueUrl) . '" style="display:inline-block;background:#123B32;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:8px;">'
-            . $e($isSo ? 'Gal System-ka' : 'Open the System') . '</a>';
+        // No button or link (links send the email to spam): say where to find it instead.
+        $where = $isSo ? 'Ka eeg: SIMDA → Requests (Approval Queue)' : 'Find it in: SIMDA → Requests (Approval Queue)';
+        $table .= '</table><p style="color:#1B2E28;font-size:14px;font-weight:700;margin:0 0 10px;">' . $e($action) . '</p>'
+            . '<div style="display:inline-block;background:#123B32;color:#FFFFFF;font-weight:700;font-size:14px;padding:12px 22px;border-radius:8px;">'
+            . $e($where) . '</div>';
 
         return self::send(
             $email,
             $subject,
             self::noticeHtml($subject, $greeting, $intro, $table, '', $locale),
-            "{$greeting}\n\n{$intro}\n\n{$plainRows}\n{$action}\n{$queueUrl}\n\nSIMDA"
+            "{$greeting}\n\n{$intro}\n\n{$plainRows}\n{$action}\n{$where}\n\nSIMDA"
         );
     }
 
