@@ -23,6 +23,7 @@ All web and JSON routes are dispatched through `public/index.php?route=<route_na
 | `financing_view` | GET | All 4 Roles | Detailed contract schedule, payment history, charity charges & print view |
 | `statement_pdf` | GET (PDF) | All 4 Roles | Module 13: Downloadable native PDF 1.4 Client Statement |
 | `repayments` / `repayment_record` / `repayment_submit` | GET / POST | All 4 Roles (POST: Admin/Officer) | Module 7: Record repayment & inspect allocation breakdown |
+| `client_pay` / `client_pay_submit` | GET / POST | Client | Client sends a payment on their own financing (simulated EVC Plus, Zaad, eDahab: `financing_id`, `amount`, `provider`, `phone`). Refused when the amount is more than what is owed (installments + unpaid charity charges); opens the receipt on success |
 | `charity_charges` / `charity_waive` | GET / POST | All 4 Roles (Waive: Admin/BM) | Module 8: Segregated Charity Account & mandatory-reason waiver |
 | `charity_payout` | POST | Admin, Branch Manager | Module 8: records money given out from the charity account (`amount`, `recipient`, `purpose`, `paid_on`); refused above the balance |
 | `credit_scores` | GET | All 4 Roles | Module 9: Credit score (300–850) breakdown & reason log |

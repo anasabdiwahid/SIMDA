@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * SIMDA — Automated Unit & Integration Test Suite (25 Tests)
+ * SIMDA — Automated Unit & Integration Test Suite (26 Tests)
  *
  * Covers all 20 mandatory specification test cases + 2 additional governance tests:
  *  1. User authentication (valid credentials + rate-limited invalid login rejection)
@@ -39,6 +39,7 @@ use App\Helpers\Security;
 use App\Middleware\AuthMiddleware;
 use App\Services\AuthService;
 use App\Services\CharityChargeService;
+use App\Services\ClientPaymentService;
 use App\Services\CreditScoreEngine;
 use App\Services\DisbursementService;
 use App\Services\FinancingDomainService;
@@ -104,7 +105,7 @@ function assertSameValue(mixed $expected, mixed $actual, string $message = ''): 
 }
 
 echo "========================================================================\n";
-echo " SIMDA — Automated Quality Assurance Test Suite (25 Tests)\n";
+echo " SIMDA — Automated Quality Assurance Test Suite (26 Tests)\n";
 echo "========================================================================\n";
 
 // Fetch or create test actors & entities inside isolated simda_test_db
@@ -687,6 +688,48 @@ runTest('25. PAR30 monthly trend from live data (12 months, current month matche
     assertSameValue($live['total_outstanding_balance'], $last['outstanding'], 'Current month outstanding equals live PAR30 total');
     $empty = Par30Service::monthlyTrend(3, $branchGar + 1000, $pdo);
     assertSameValue(0.0, $empty[2]['par30'], 'A branch with no financings shows 0%, not an error');
+});
+
+runTest('26. Client Send Payment: never more than owed ($500 owed, $501 refused), own financing only', function () use ($pdo) {
+    // An active financing that still has a balance, and its client's portal account.
+    $fin = $pdo->query("
+        SELECT f.id, f.client_id, c.user_id
+        FROM financings f INNER JOIN clients c ON c.id = f.client_id
+        WHERE f.status IN ('active', 'overdue') AND f.outstanding_balance > 0 AND c.user_id IS NOT NULL
+        ORDER BY f.id DESC LIMIT 1
+    ")->fetch();
+    assertTrue((bool) $fin, 'Test needs an active financing with a client account');
+    $client = ['id' => (int) $fin['user_id'], 'role_slug' => 'client', 'client_id' => (int) $fin['client_id']];
+
+    $owed = ClientPaymentService::owedCents((int) $fin['id'], $pdo);
+    assertTrue($owed > 0, 'Client owes something');
+
+    // One cent more than owed is refused, with the "send only" message, and nothing is recorded.
+    $before = (int) $pdo->query('SELECT COUNT(*) FROM repayments')->fetchColumn();
+    $msg = '';
+    try {
+        ClientPaymentService::pay($client, (int) $fin['id'], ScheduleEngine::fromCents($owed + 1), 'EVC Plus', '+252615000111', false, $pdo);
+    } catch (\RuntimeException $e) {
+        $msg = $e->getMessage();
+    }
+    assertTrue(str_contains($msg, 'Send $' . ScheduleEngine::fromCents($owed) . ' or less'), 'Over-payment refused with "send only what you owe"');
+    assertSameValue($before, (int) $pdo->query('SELECT COUNT(*) FROM repayments')->fetchColumn(), 'A refused payment records nothing');
+
+    // Another client's financing is refused.
+    $other = $client;
+    $other['client_id'] = (int) $fin['client_id'] + 999;
+    $blocked = false;
+    try {
+        ClientPaymentService::pay($other, (int) $fin['id'], '1.00', 'Zaad', '+252615000111', false, $pdo);
+    } catch (\RuntimeException) {
+        $blocked = true;
+    }
+    assertTrue($blocked, 'A client cannot pay someone else\'s financing');
+
+    // Paying exactly what is owed is accepted and leaves nothing owed.
+    $res = ClientPaymentService::pay($client, (int) $fin['id'], ScheduleEngine::fromCents($owed), 'eDahab', '+252615000111', false, $pdo);
+    assertSameValue(ScheduleEngine::fromCents($owed), $res['cash_amount'], 'Exact amount owed is accepted');
+    assertSameValue(0, ClientPaymentService::owedCents((int) $fin['id'], $pdo), 'Nothing is owed after paying it all');
 });
 
 echo "------------------------------------------------------------------------\n";

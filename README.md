@@ -36,7 +36,7 @@ All 13 required features are **Done**. Status per feature and per baseline requi
 | 11 | Reminders (3 days before, day after a missed date, once per type, none when paid) | ✅ Done |
 | 12 | PAR30 per branch and institution, monthly trend chart, 0% for empty branches | ✅ Done |
 | 13 | Client statement PDF ("Fully repaid" on closed financings) | ✅ Done |
-| B | Baseline: layered architecture, roles & audit log, relational DB, 25 tests + CI, docs, security, 2+ charts, Somali & English, simulated payments/SMS | ✅ Done |
+| B | Baseline: layered architecture, roles & audit log, relational DB, 26 tests + CI, docs, security, 2+ charts, Somali & English, simulated payments/SMS | ✅ Done |
 
 1. **Module 1 — Client Profile & Guarantor Management:** Unique ID and phone enforcement, business profile, photo upload with strict MIME verification, mandatory Guarantor requirement, and Admin-only branch transfers.
 2. **Module 2 — Financing Product Setup:** Supports **Murabaha**, **Flat**, and **Declining Balance** products. Enforces deletion protection for products in use and locks agreed terms at application origination.
@@ -44,7 +44,7 @@ All 13 required features are **Done**. Status per feature and per baseline requi
 4. **Module 4 — Dual-Threshold Approval Workflow:** A loan officer approves up to and including $\$5,000$; a Branch Manager approves above $\$5,000$ and all group financings (General Manager and Admin may decide any level). Every new financing, whoever creates it, goes to the approval queue: the creator can never approve their own application (not even Admin) and does not see it in their queue. Every decision is written to the audit log; forwarded applications email the approvers. Rejected applications can be edited and resubmitted once.
 5. **Module 5 — Repayment Schedule Engine (`ScheduleEngine.php`):** Decimal-safe (`bcmath` + integer cents) calculation engine for Murabaha, Flat, and Declining Balance. Reconciles rounding differences on the final installment and automatically shifts **Friday** due dates to **Saturday**.
 6. **Module 6 — Simulated Mobile Money Disbursement:** Done by the loan officer (or a manager) after approval. Supports **EVC Plus**, **Zaad**, and **eDahab** (`Net Disbursed = Approved Amount − Admin Fee`), generates unique transaction references, expires undisbursed approvals after 30 days, and activates schedules on the disbursement date.
-7. **Module 7 — Repayment Collection & Allocation Engine (`RepaymentEngine.php`):** ACID transaction-safe allocation: **(1) Outstanding Charity Late Charges** first, then **(2) Oldest Unpaid Installment**. Supports full, partial, early repayment with Murabaha *Ibra* profit rebates, and Client Overpayment Credit (`clients.credit_balance`).
+7. **Module 7 — Repayment Collection & Allocation Engine (`RepaymentEngine.php`):** ACID transaction-safe allocation: **(1) Outstanding Charity Late Charges** first, then **(2) Oldest Unpaid Installment**. Supports full, partial, early repayment with Murabaha *Ibra* profit rebates, and Client Overpayment Credit (`clients.credit_balance`). Clients can also pay from their own portal (**Send Payment**, `ClientPaymentService.php`, simulated mobile money): any amount above $0 up to what they owe, never more (owing $500, sending $501 is refused with "send $500 or less").
 8. **Module 8 — Segregated Charity Late Charges (`CharityChargeService.php`):** Installments unpaid $>7$ days after due date receive a fixed late charge directed to a segregated **Charity Account** (never counted as institutional income). Branch Managers can waive charges with a mandatory reason logged in the audit trail. The Charity page is the charity account report: assessed, collected, waived and still-owed charges, every payout from the account (recipient, purpose, date, who recorded it) and the balance (collected − given out). A payout can never exceed the balance.
 9. **Module 9 — Deterministic Credit Score Engine (`CreditScoreEngine.php`):** Range **300–850** (starting at **600**), formula in section 4 and on the Credit Scores screen ("How is the score calculated?"), with the reason for each client's last change. Recalculates automatically on repayments and missed due dates; waived charges do not penalize the client.
 10. **Module 10 — Solidarity Group Financing:** Groups of 3–10 clients with a designated Group Leader and Branch Manager approval. If any member is $>30$ days overdue, new group financing is locked for all members; members with active financing cannot leave.
@@ -127,9 +127,9 @@ Where:
 
 ---
 
-## 7. Running the Automated Test Suite (25 Tests)
+## 7. Running the Automated Test Suite (26 Tests)
 
-Run all 25 unit and integration tests against the isolated `simda_test_db` database with a single command:
+Run all 26 unit and integration tests against the isolated `simda_test_db` database with a single command:
 
 ```powershell
 C:\xampp\php\php.exe tests/run_tests.php

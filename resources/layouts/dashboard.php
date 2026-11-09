@@ -107,6 +107,8 @@ $assetVer = (string) max((int) @filemtime(BASE_PATH . '/public/assets/css/simda.
                     ['route' => 'financings', 'label' => Lang::get('menu_active_financing'), 'active' => $on(['financings', 'financing_view'])],
                     ['route' => 'disbursements', 'label' => Lang::get('menu_disbursements'), 'show' => $can('financings.disburse'), 'active' => $on(['disbursements'])],
                     ['route' => 'schedules', 'label' => Lang::get('menu_schedules'), 'active' => $on(['schedules'])],
+                    // Client: pay their own financing (never more than they owe), then see the receipts.
+                    ['route' => 'client_pay', 'label' => $so ? 'Dir Lacag' : 'Send Payment', 'cta' => true, 'show' => $role === 'client', 'active' => $on(['client_pay'])],
                     // Client: the receipts for every payment they made (the list only shows their own).
                     ['route' => 'repayments', 'label' => $so ? 'Rasiidhada' : 'Receipts', 'show' => $role === 'client', 'active' => $on(['repayments', 'repayment_receipt'])],
                 ],

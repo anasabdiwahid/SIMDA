@@ -107,6 +107,8 @@ final class PortalController
                 'repayment_record' => self::repaymentCollect($pdo),
                 'repayment_submit' => self::repaymentSubmit($pdo),
                 'repayment_receipt' => self::repaymentReceipt($pdo),
+                'client_pay' => self::clientPay($pdo),
+                'client_pay_submit' => self::clientPaySubmit($pdo),
 
                 'charity_charges' => self::charityChargesList($pdo),
                 'charity_waive' => self::charityWaive($pdo),
@@ -3310,7 +3312,29 @@ final class PortalController
             $pdo
         );
 
-        // Fetch client and financing details for sending receipt email
+        $clientEmail = self::sendRepaymentReceipt($pdo, $res, $financingId, $paymentMethod, $txRef, $paymentDate, (string) ($user['full_name'] ?? 'Staff'), (int) $user['id'], $locale);
+        $mailSent = $clientEmail !== '';
+
+        if ($mailSent) {
+            $_SESSION['flash_success'] = $isSo
+                ? "Lacag-bixinta {$res['receipt_number']} (\${$res['cash_amount']}) si guul leh ayaa loo diiwaangeliyay! Rasiidka rasmi ah waxaa loo diray email-ka macmiilka ({$clientEmail}). Baaqiga harsan: \${$res['outstanding_balance_after']}."
+                : "Repayment {$res['receipt_number']} (\${$res['cash_amount']}) recorded! Official receipt sent to client email ({$clientEmail}). Remaining balance: \${$res['outstanding_balance_after']}.";
+        } else {
+            $_SESSION['flash_success'] = $isSo
+                ? "Lacag-bixinta {$res['receipt_number']} (\${$res['cash_amount']}) si guul leh ayaa loo diiwaangeliyay nidaamka. Baaqiga harsan: \${$res['outstanding_balance_after']}."
+                : "Repayment {$res['receipt_number']} (\${$res['cash_amount']}) recorded in system. Remaining balance: \${$res['outstanding_balance_after']}.";
+        }
+
+        header('Location: ?route=repayment_receipt&id=' . (int) $res['repayment_id']);
+        exit;
+    }
+
+    /**
+     * Emails the official receipt for a recorded repayment when the client has an email address.
+     * Returns the address it was sent to, or '' when there is none or sending failed (logged either way).
+     */
+    private static function sendRepaymentReceipt(PDO $pdo, array $res, int $financingId, string $paymentMethod, string $txRef, string $paymentDate, string $recordedBy, int $actorId, string $locale): string
+    {
         $st = $pdo->prepare('
             SELECT f.financing_number, f.product_type,
                    c.full_name AS client_name, c.client_code, c.email AS client_email, c.phone AS client_phone,
@@ -3324,45 +3348,76 @@ final class PortalController
         $info = $st->fetch();
 
         $clientEmail = !empty($info['client_email']) ? trim((string) $info['client_email']) : '';
+        if ($clientEmail === '') {
+            return '';
+        }
+        $mailStatus = MailService::sendRepaymentReceiptEmail([
+            'client_name' => $info['client_name'] ?? 'Client',
+            'client_email' => $clientEmail,
+            'client_code' => $info['client_code'] ?? '',
+            'receipt_number' => $res['receipt_number'],
+            'financing_number' => $info['financing_number'],
+            'product_type' => $info['product_type'],
+            'amount_paid' => $res['cash_amount'],
+            'payment_method' => $paymentMethod,
+            'transaction_reference' => $txRef,
+            'payment_date' => $paymentDate . ' ' . date('H:i'),
+            'outstanding_balance_after' => $res['outstanding_balance_after'],
+            'branch_name' => $info['branch_name'] ?? 'Head Office',
+            'recorded_by' => $recordedBy,
+            'credit_score' => $res['credit_score']['current_score'] ?? 0,
+        ], $locale);
 
-        // If client email exists, send official receipt email immediately
-        $mailSent = false;
-        if ($clientEmail !== '') {
-            $mailStatus = MailService::sendRepaymentReceiptEmail([
-                'client_name' => $info['client_name'] ?? 'Client',
-                'client_email' => $clientEmail,
-                'client_code' => $info['client_code'] ?? '',
-                'receipt_number' => $res['receipt_number'],
-                'financing_number' => $info['financing_number'],
-                'product_type' => $info['product_type'],
-                'amount_paid' => $res['cash_amount'],
-                'payment_method' => $paymentMethod,
-                'transaction_reference' => $txRef,
-                'payment_date' => $paymentDate . ' ' . date('H:i'),
-                'outstanding_balance_after' => $res['outstanding_balance_after'],
-                'branch_name' => $info['branch_name'] ?? 'Head Office',
-                'recorded_by' => $user['full_name'] ?? 'Staff',
-                'credit_score' => $res['credit_score']['current_score'] ?? 0,
-            ], $locale);
+        if ($mailStatus['success']) {
+            AuditLogger::log('mail.receipt_sent', 'repayments', $res['repayment_id'], 'Payment receipt emailed to ' . $clientEmail, [], $actorId);
+            return $clientEmail;
+        }
+        AuditLogger::log('mail.receipt_failed', 'repayments', $res['repayment_id'], 'Receipt email delivery failed: ' . ($mailStatus['error'] ?? 'Unknown'), [], $actorId);
+        return '';
+    }
 
-            if ($mailStatus['success']) {
-                $mailSent = true;
-                AuditLogger::log('mail.receipt_sent', 'repayments', $res['repayment_id'], 'Payment receipt emailed to ' . $clientEmail, [], (int) $user['id']);
-            } else {
-                AuditLogger::log('mail.receipt_failed', 'repayments', $res['repayment_id'], 'Receipt email delivery failed: ' . ($mailStatus['error'] ?? 'Unknown'), [], (int) $user['id']);
-            }
+    /** Client portal: "Send Payment" page (simulated EVC Plus / Zaad / eDahab). */
+    private static function clientPay(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['client']);
+        self::renderDashboard('repayments/client_pay.php', [
+            'pageTitle' => Lang::t('Dir Lacag', 'Send Payment'),
+            'financings' => \App\Services\ClientPaymentService::payableFinancings((int) ($user['client_id'] ?? 0), $pdo),
+            'selectedId' => (int) ($_GET['financing_id'] ?? 0),
+        ]);
+    }
+
+    /**
+     * Client portal: records the payment. Refused when the amount is more than the client owes
+     * (ClientPaymentService::pay). On success it opens the receipt.
+     */
+    private static function clientPaySubmit(PDO $pdo): void
+    {
+        $user = AuthMiddleware::requireRoles(['client']);
+        AuthMiddleware::verifyCsrfOrAbort();
+        $locale = Lang::locale();
+        $financingId = (int) ($_POST['financing_id'] ?? 0);
+        try {
+            $res = \App\Services\ClientPaymentService::pay(
+                $user,
+                $financingId,
+                (string) ($_POST['amount'] ?? ''),
+                (string) ($_POST['provider'] ?? ''),
+                (string) ($_POST['phone'] ?? ''),
+                $locale === 'so',
+                $pdo
+            );
+        } catch (\RuntimeException $e) {
+            $_SESSION['flash_error'] = $e->getMessage();
+            header('Location: ?route=client_pay&financing_id=' . $financingId);
+            exit;
         }
 
-        if ($mailSent) {
-            $_SESSION['flash_success'] = $isSo
-                ? "Lacag-bixinta {$res['receipt_number']} (\${$res['cash_amount']}) si guul leh ayaa loo diiwaangeliyay! Rasiidka rasmi ah waxaa loo diray email-ka macmiilka ({$clientEmail}). Baaqiga harsan: \${$res['outstanding_balance_after']}."
-                : "Repayment {$res['receipt_number']} (\${$res['cash_amount']}) recorded! Official receipt sent to client email ({$clientEmail}). Remaining balance: \${$res['outstanding_balance_after']}.";
-        } else {
-            $_SESSION['flash_success'] = $isSo
-                ? "Lacag-bixinta {$res['receipt_number']} (\${$res['cash_amount']}) si guul leh ayaa loo diiwaangeliyay nidaamka. Baaqiga harsan: \${$res['outstanding_balance_after']}."
-                : "Repayment {$res['receipt_number']} (\${$res['cash_amount']}) recorded in system. Remaining balance: \${$res['outstanding_balance_after']}.";
-        }
-
+        self::sendRepaymentReceipt($pdo, $res, $financingId, $res['provider'], $res['transaction_reference'], date('Y-m-d'), (string) ($user['full_name'] ?? 'Client'), (int) $user['id'], $locale);
+        $_SESSION['flash_success'] = Lang::t(
+            "Waad ku mahadsan tahay! \${$res['cash_amount']} ayaad ku dirtay {$res['provider']}. Haraaga: \${$res['outstanding_balance_after']}.",
+            "Thank you! You sent \${$res['cash_amount']} with {$res['provider']}. Remaining balance: \${$res['outstanding_balance_after']}."
+        );
         header('Location: ?route=repayment_receipt&id=' . (int) $res['repayment_id']);
         exit;
     }
