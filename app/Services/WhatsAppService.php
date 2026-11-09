@@ -47,7 +47,7 @@ final class WhatsAppService
      * inside public/assets/images or storage/email) the local gateway sends that picture with the
      * message as its caption; other providers send the text only.
      */
-    public static function send(string $phone, string $message, ?string $image = null): array
+    public static function send(string $phone, string $message, ?string $image = null, ?int $timeout = null): array
     {
         if (!self::isEnabled()) {
             return ['success' => false, 'error' => 'WhatsApp is not configured (WHATSAPP_ENABLED / WHATSAPP_PROVIDER in .env).'];
@@ -82,6 +82,10 @@ final class WhatsAppService
         }
 
         $jsonPayload = (string) json_encode($payload, JSON_UNESCAPED_UNICODE);
+        // WhatsApp can be slow (checking the number, uploading a picture). Wait long enough that a message
+        // which does get delivered is not reported as failed.
+        // Callers that run inside a page the user waits on (2FA code, receipts) keep the short default.
+        $timeout = $timeout ?? (isset($payload['image']) ? 90 : 20);
         try {
             if (function_exists('curl_init')) {
                 $ch = curl_init($url);
@@ -89,7 +93,7 @@ final class WhatsAppService
                     CURLOPT_POST => true,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_CONNECTTIMEOUT => 5,
-                    CURLOPT_TIMEOUT => 12,
+                    CURLOPT_TIMEOUT => $timeout,
                     CURLOPT_HTTPHEADER => $headers,
                     CURLOPT_POSTFIELDS => $jsonPayload,
                 ]);
@@ -99,10 +103,14 @@ final class WhatsAppService
                 curl_close($ch);
             } else {
                 // XAMPP often ships with the curl extension disabled: use PHP streams instead.
-                [$body, $status, $curlErr] = self::postWithStreams($url, $headers, $jsonPayload);
+                [$body, $status, $curlErr] = self::postWithStreams($url, $headers, $jsonPayload, $timeout);
             }
             if ($body === false && self::provider() === 'local') {
-                $curlErr = 'WhatsApp gateway is not running (start whatsapp-gateway/start-whatsapp.bat and scan the QR). ' . $curlErr;
+                // Only blame the gateway when it really could not be reached; otherwise it was slow.
+                $unreachable = (bool) preg_match('/refused|could not connect|failed to connect|actively/i', $curlErr);
+                $curlErr = $unreachable
+                    ? 'WhatsApp gateway is not running (start whatsapp-gateway/start-whatsapp.bat and scan the QR). ' . $curlErr
+                    : "No reply from the WhatsApp gateway within {$timeout} seconds (slow connection). The message may still arrive; check the phone before sending again.";
             }
         } catch (Throwable $e) {
             error_log('WhatsApp send failed: ' . $e->getMessage());
@@ -200,14 +208,14 @@ final class WhatsAppService
     /**
      * JSON POST without the curl extension. Returns [body|false, httpStatus, error].
      */
-    private static function postWithStreams(string $url, array $headers, string $json): array
+    private static function postWithStreams(string $url, array $headers, string $json, int $timeout = 45): array
     {
         $ctx = stream_context_create([
             'http' => [
                 'method' => 'POST',
                 'header' => implode("\r\n", $headers),
                 'content' => $json,
-                'timeout' => 12,
+                'timeout' => $timeout,
                 'ignore_errors' => true, // still read the body on 4xx/5xx
             ],
         ]);

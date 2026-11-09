@@ -3494,12 +3494,12 @@ final class PortalController
                     $banner = is_file(\App\Services\BroadcastTemplate::whatsappBannerPath()) ? 'public/assets/images/whatsapp-banner.png' : null;
                     if ($banner !== null && mb_strlen($waText) > 1000) {
                         // Long message: banner with the title first, then the full text.
-                        $res = WhatsAppService::send($phone, "*{$subject}*", $banner);
+                        $res = WhatsAppService::send($phone, "*{$subject}*", $banner, 90);
                         if (!empty($res['success'])) {
-                            $res = WhatsAppService::send($phone, $waText);
+                            $res = WhatsAppService::send($phone, $waText, null, 60);
                         }
                     } else {
-                        $res = WhatsAppService::send($phone, $waText, $banner);
+                        $res = WhatsAppService::send($phone, $waText, $banner, 90);
                     }
                 }
                 if (!empty($res['success'])) {
